@@ -1,0 +1,16 @@
+\name{spotStepSequential}
+\alias{spotStepSequential}
+\title{SPOT Step Sequential...}
+\usage{spotStepSequential(spotConfig)}
+\description{SPOT Step Sequential}
+\details{Third SPOT Step to generate a sequential new design, this
+is mainly a call of \code{\link{spotGenerateSequentialDesign}}
+
+Creates a sequential design based on the results derived so far. Therefor it is
+essential to have another design evaluated before and have a .res file to use.
+It uses the functions \code{\link{spotGenerateSequentialDesign}} and \code{\link{spotWriteDes}}
+writes a sequential design to the file <xxx>.des}
+\arguments{\item{spotConfig}{the list of all parameters is given, but the used ones are: \cr
+\code{spotConfig$io.resFileName} is checked for existence is not, function fails with error\cr
+\code{spotConfig$algSourceSrcPath} needed for the error message \cr
+\code{spotConfig$userConfFileName} needed for the error message\cr}}

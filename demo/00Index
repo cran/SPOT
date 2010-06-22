@@ -1,0 +1,14 @@
+spotDemo01TreeBranin     Parameter optimization of the Branin-Function by means of the tree meta model
+spotDemo02RandomForestBranin     Parameter optimization of the Branin-Function by means of the Random Forest meta model
+spotDemo03LmBranin     Parameter optimization of the Branin-Function by means of the linear model
+spotDemo04MlegpBranin     Parameter optimization of the Branin-Function by means of the Mlegp meta model
+spotDemo05TgpBranin     Parameter optimization of the Branin-Function by means of the Tgp meta model
+spotDemo06TreeSann     Parameter optimization of R's Simulated Annealing Algorithm (SANN) trying to find the optimum of a Branin-Function by means of a tree meta model
+spotDemo07RandomForestSann     Parameter optimization of R's Simulated Annealing Algorithm (SANN) trying to find the optimum of a Branin-Function by means of a random forest meta model
+spotDemo08LmSann     Parameter optimization of R's Simulated Annealing Algorithm (SANN) trying to find the optimum of a Branin-Function by means of a linear model
+spotDemo09MlegpSann     Parameter optimization of R's Simulated Annealing Algorithm (SANN) trying to find the optimum of a Branin-Function by means of a Mlegp meta model
+spotDemo10TgpSann     Parameter optimization of R's Simulated Annealing Algorithm (SANN) trying to find the optimum of a Branin-Function by means of a Tgp meta model
+spotDemo11Java      Parameter optimization of a (1+1)-ES implemented in JAVA
+spotDemo12Sann      Parameter optimization of R's Simulated Annealing Algorithm (SANN) implemented in R
+spotDemo14LmOptimSann      Parameter optimization of R's Simulated Annealing Algorithm (SANN) implemented in R
+spotDemo16EsBranin  Demo for optimization with Evolutionary Strategy

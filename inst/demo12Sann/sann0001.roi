@@ -1,0 +1,3 @@
+name low high type
+TEMP 1 100 FLOAT
+TMAX 1 100 FLOAT
