@@ -4,8 +4,8 @@
 \details{\tabular{ll}{
 Package: \tab SPOT\cr
 Type: \tab Package\cr
-Version: \tab 0.1.888\cr
-Date: \tab 22.06.2010\cr
+Version: \tab 0.1.1016\cr
+Date: \tab 30.08.2010\cr
 License: \tab GPL (>= 3)\cr
 LazyLoad: \tab yes\cr
 }

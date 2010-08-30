@@ -7,17 +7,17 @@
 #' \link{spotWriteBest},\link{spotPlotBst},\link{spotSafelyAddSource}
 #' returns a sequential design to be written to the file <xxx>.des (will be determined from calling function)
 #' 
-#' @param spotConfig the list of all parameters is given, but the used ones are: 
-#'   spotConfig$io.resFileName: is checked for existence is not, function fails with error
-#'   spotConfig$algSourceSrcPath: needed for the error message 
-#'   spotConfig$userConfFileName: needed for the error message
-#'   spotConfig$io.verbosity:
+#' @param spotConfig the list of all parameters is given, but the used ones are: \cr
+#'   spotConfig$io.resFileName: is checked for existence is not, function fails with error\cr
+#'   spotConfig$algSourceSrcPath: needed for the error message \cr
+#'   spotConfig$userConfFileName: needed for the error message \cr
+#'   spotConfig$io.verbosity: needed for command window output \cr
 #' 
 #' @return data.frame \code{design} \cr
 #' - \code{design} contains one or more new design points to be calculated 
 ############################################################################################
 spotGenerateSequentialDesign <- function(spotConfig) {
-	spotWriteLines(spotConfig,2,"Entering generateSequentialDesign");	
+	spotWriteLines(spotConfig$io.verbosity,2,"Entering generateSequentialDesign");	
 	rawB <- spotGetRawDataMatrixB(spotConfig);
 	mergedData <- spotPrepareData(spotConfig)
 	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);
@@ -71,7 +71,7 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 	## The user can specify what ever he wants...
 	spotSafelyAddSource(spotConfig$seq.design.path,
 			spotConfig$seq.design.func,
-			spotConfig)
+			spotConfig$io.verbosity)
 	largeDesign <- (eval(call(spotConfig$seq.design.func, 
 								spotConfig, 
 								spotConfig$seq.design.size, 
@@ -83,7 +83,7 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 	### now calling the seq.predictionModel.func specified in spotConfigure
 	### the prediction model is build with the values from the resfiles
 	spotSafelyAddSource(spotConfig$seq.predictionModel.path,
-			spotConfig$seq.predictionModel.func, spotConfig)
+			spotConfig$seq.predictionModel.func, spotConfig$io.verbosity)
 	largeDesignEvaluated <-eval(call(spotConfig$seq.predictionModel.func,
 					rawB, 
 					mergedB, 
@@ -105,7 +105,7 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 ## new, increased number of experiments
 	## definable increase function is used - see  seq.design.increase.func in spotGetOptions 
 	spotSafelyAddSource(spotConfig$seq.design.increase.path,
-			spotConfig$seq.design.increase.func,spotConfig)
+			spotConfig$seq.design.increase.func,spotConfig$io.verbosity)
 	totalWanted<-(eval(call(spotConfig$seq.design.increase.func, 
 								max(oldD$repeatsLastConfig))));
 	
@@ -163,6 +163,6 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 	## is the following necessary?
 	colnames(design)[ncol(design)] <- "SEED";
 	#
-	spotWriteLines(spotConfig,2,"  Leaving generateSequentialDesign");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving generateSequentialDesign");
 	return(design);
 }

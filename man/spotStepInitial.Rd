@@ -18,4 +18,5 @@ for building an initial design. \cr
 \code{spotConfig$io.colname.repeats} column name for data of "spotConfig$init.design.repeats"\cr
 \code{spotConfig$io.colname.step} if given a second Column is created \cr
 \code{spotConfig$alg.seed} seed value for reproducable runs\cr
-\code{spotConfig$srcPath} source path as given when spot() is called (or uses default)}}
+\code{spotConfig$srcPath} source path as given when spot() is called (or uses default)\cr
+\code{spotConfig$io.verbosity} verbosity for command window output, which is passed to the output function}}

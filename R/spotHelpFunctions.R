@@ -22,14 +22,13 @@
 #'
 #' @param srcPath location where to find the R-file to be sourced (mostly: \code{spotConfig$srcPath}) 
 #' @param functionName the name of a R-function that MUST be part of a sourceFile
-#' with the same name  
-#' @param spotConfig needed only for transfer to spotWriteLines, so the \code{io.verbosity}
-#' 		is the only parameter used here
+#' with the same name, mostly
+#' @param set.io.verbosity needed only for transfer to \code{\link{spotWriteLines}}, mostly \code{spotConfig$io.verbosity}
 #' @return boolean \cr 
 #' - The boolean tells if adding the source was successfull (TRUE) or not (FALSE)
 ###################################################################################
 
-spotSafelyAddSource <- function(srcPath,functionName,spotConfig){	
+spotSafelyAddSource <- function(srcPath,functionName,set.io.verbosity){	
 	if (exists(functionName)){
 		return(TRUE)
 	} else { # function does not exist, so we try to source the file...
@@ -39,12 +38,12 @@ spotSafelyAddSource <- function(srcPath,functionName,spotConfig){
 			if(exists(functionName)){
 				return(TRUE)
 			}else{
-				spotWriteLines(spotConfig,0,paste("Error: spot.R::spotSafelyAddSource::",functionName,".R"," added. The following function is not available: ",functionName,sep="" ))
+				spotWriteLines(set.io.verbosity,0,paste("Error: spot.R::spotSafelyAddSource::",functionName,".R"," added. The following function is not available: ",functionName,sep="" ))
 				return(FALSE)
 			}
 		}else{
-			spotWriteLines(spotConfig,0,paste("Error: spot.R::spotSafelyAddSource::",functionName,".R"," does not exist in ",srcPath,sep="" ))
-			spotWriteLines(spotConfig,0,paste(fileToAdd," was identified, but not found - something wrong in building the string?"))
+			spotWriteLines(set.io.verbosity,0,paste("Error: spot.R::spotSafelyAddSource::",functionName,".R"," does not exist in ",srcPath,sep="" ))
+			spotWriteLines(set.io.verbosity,0,paste(fileToAdd," was identified, but not found - something wrong in building the string?"))
 			return(FALSE)
 		}
 	}
@@ -110,7 +109,7 @@ spotWriteDes<-function(spotConfig,des){
 	outsep <- spotConfig$io.columnSep;
 	if(outsep=="")
 		outsep <- " ";
-	spotWriteLines(spotConfig,2,paste(" design written to::", spotConfig$io.desFileName), con=stderr());
+	spotWriteLines(spotConfig$io.verbosity,2,paste(" design written to::", spotConfig$io.desFileName), con=stderr());
 		write.table(des
 			, file = spotConfig$io.desFileName
 			, row.names = FALSE
@@ -141,7 +140,7 @@ spotWriteAroi<-function(spotConfig,aroi){
 	outsep <- spotConfig$io.columnSep;
 	if(outsep=="")
 		outsep <- " ";
-	spotWriteLines(spotConfig,2,paste(" aroi written to::", spotConfig$io.aroiFileName), con=stderr());
+	spotWriteLines(spotConfig$io.verbosity,2,paste(" aroi written to::", spotConfig$io.aroiFileName), con=stderr());
 	write.table(aroi
 			, file = spotConfig$io.aroiFileName
 			, row.names = FALSE
@@ -184,16 +183,15 @@ return(aroi.df)
 #' This help function writes the string given in "myString" 
 #' only if user gives the io.verbosity to do so 
 #'
-#' @param spotConfig all parameters, only one is used:
-#'		\code{spotConfig$io.verbosity}: global flag to drive the \code{io.verbosity} of the programm
+#' @param set.io.verbosity	\code{spotConfig$io.verbosity} should be passed here. Global flag to drive the \code{io.verbosity} of the programm
 #' @param io.verbosity \code{io.verbosity} for this specified output string
 #' @param myString the string to be written to stdout
 #' @param con defines the output stream, defaults to \code{stderr()}
 #' 
 #' @references  \code{\link{SPOT}} \code{\link{writeLines}}
 ###################################################################################
-spotWriteLines<-function(spotConfig,io.verbosity,myString,con=stderr()){	
-	if(spotConfig$io.verbosity>=io.verbosity){
+spotWriteLines<-function(set.io.verbosity,io.verbosity,myString,con=stderr()){	
+	if(set.io.verbosity>=io.verbosity){
 		writeLines(myString)
 	}	
 }
@@ -204,17 +202,16 @@ spotWriteLines<-function(spotConfig,io.verbosity,myString,con=stderr()){
 #' Help function that installs and loads the packages that are given by a list
 #' new predictors should use this function to install their packages, to make sure
 #' that they are only installed if necessary
+#' Use it like this:
+#' spotInstAndLoadPackages("rsm")
+#' spotInstAndLoadPackages(c('FrF2',  'DoE.wrapper'))
+#' spotInstAndLoadPackages("rsm","http://cran.r-project.org")
 #' 
 #' @param packageList a list of strings holding the names of the packages that should 
 #' 		  installed if necessary and then loaded for use
 #' @param reposLoc ["http://cran.r-project.org"] a string of the location,from where 
 #' 		the package is to be downloaded - the default is the cran R-Project page, but 
 #' 		if special packages are needed from other locations this can be set here too 
-#' 
-#' @examples 
-#' spotInstAndLoadPackages("rsm")
-#' spotInstAndLoadPackages(c('FrF2',  'DoE.wrapper'))
-#' spotInstAndLoadPackages("rsm","http://cran.r-project.org")
 #' 
 ####################################################################################
 spotInstAndLoadPackages <- function(packageList,reposLoc="http://cran.r-project.org"){

@@ -3,8 +3,8 @@
 \title{spotAlgEsInterRecoBeSw02...}
 \usage{spotAlgEsInterRecoBeSw02(parents, dimension, nSigma, objType="obj")}
 \description{spotAlgEsInterRecoBeSw02}
-\details{Recombination function for the ES}
-\value{\code{rObject}}
+\details{Recombination function for the Evolution Strategy.}
+\references{\code{\link{spotAlgEs}} \code{\link{spotAlgEsInterReco}} \code{\link{spotAlgEsDominantReco}}}
 \arguments{\item{parents}{Parent individuals}
 \item{dimension}{number of dimensions}
 \item{nSigma}{number of standard deviations}

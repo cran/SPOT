@@ -17,7 +17,7 @@
 #' @references  \code{\link{SPOT}}
 ###################################################################################
 spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
-	spotWriteLines(spotConfig,2,"  Entering spotPredictLmOptim");	
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotPredictLmOptim");	
 	spotInstAndLoadPackages("rsm")
 	
 	mergedData <- spotPrepareData(spotConfig)	
@@ -69,21 +69,21 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 	#rsmFormula<-NULL
 	#rsmDf<-NULL
 	if (nExp >= nRequired1 && nExp < nRequired2) {
-		spotWriteLines(spotConfig,2,"spotPredictLmOptim: First order (FO) effects estimated by rsm.");
+		spotWriteLines(spotConfig$io.verbosity,2,"spotPredictLmOptim: First order (FO) effects estimated by rsm.");
 		## Because rsm demands it, rsmDf and rsmFormula must be visible in the global environment:
 		rsmDf <- df2
 		rsmFormula <- as.formula(sprintf("y ~ FO(%s)", paramString))
 		dfc.rsm1 <- spotRsm(formula = rsmFormula, data = rsmDf)
 	}
 	else if (nExp >= nRequired2 && nExp < nRequired3) {
-		spotWriteLines(spotConfig,2,"spotPredictLmOptim: First order (FO) with two-way interactions (TWI) effects estimated by rsm.");
+		spotWriteLines(spotConfig$io.verbosity,2,"spotPredictLmOptim: First order (FO) with two-way interactions (TWI) effects estimated by rsm.");
 		## Because rsm demands it, rsmDf and rsmFormula must be visible in the global environment:
 		rsmDf <- df2
 		rsmFormula <- as.formula(sprintf("y ~ FO(%s) + TWI(%s)", paramString, paramString))
 		dfc.rsm1 <- spotRsm(formula = rsmFormula, data = rsmDf)
 	}
 	else if (nExp >= nRequired3) {
-		spotWriteLines(spotConfig,2,"spotPredictLmOptim: Second order (SO) effects estimated by rsm.");
+		spotWriteLines(spotConfig$io.verbosity,2,"spotPredictLmOptim: Second order (SO) effects estimated by rsm.");
 		## Because rsm demands it, rsmDf and rsmFormula must be visible in the global environment:    
 		rsmDf <- df2		
 		rsmFormula <- as.formula(sprintf("y ~ FO(%s) + TWI(%s) + PQ(%s)", paramString, paramString, paramString))
@@ -105,11 +105,11 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 	}
 	###################################################################################
 #	## In addition, we build a random forest:	
-#	spotSafelyAddSource(spotConfig$init.design.path,"spotPredictRandomForest",spotConfig)	
+#	spotSafelyAddSource(spotConfig$init.design.path,"spotPredictRandomForest",spotConfig$io.verbosity)	
 #	rfBest <- spotPredictRandomForest(rawB,mergedB,lhd,spotConfig)[1,]	
 #	
 #	## In addition, we build a tree:	
-	spotSafelyAddSource(spotConfig$init.design.path,"spotPredictTree",spotConfig)	
+	spotSafelyAddSource(spotConfig$init.design.path,"spotPredictTree",spotConfig$io.verbosity)	
 	treeBest <- spotPredictTree(rawB,mergedB,lhd,spotConfig)[1,]	
 	#######################################################################################
 	### Start optimization (experimental):  
@@ -174,7 +174,7 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 			aroi <- spotReadAroi(spotConfig)
 			A <- cbind(A, type=aroi$type)		
 			spotWriteAroi(spotConfig, A)
-			spotWriteLines(spotConfig,2,"AROI modified. Execution with continued in the adapted ROI.");
+			spotWriteLines(spotConfig$io.verbosity,2,"AROI modified. Execution with continued in the adapted ROI.");
 			## generate a new design 
 			spotConfig$seq.useAdaptiveRoi <- TRUE
 			M <- spotCreateDesignFrF2(spotConfig)
@@ -185,7 +185,7 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 		}		
 		## combine best tree point and new ccd points:		
 		M <- rbind(treeBest,M)
-		spotWriteLines(spotConfig,2,"spotPredictLmOptim finished.")
+		spotWriteLines(spotConfig$io.verbosity,2,"spotPredictLmOptim finished.")
 		return(M)
 	}
 }  

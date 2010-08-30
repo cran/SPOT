@@ -3,8 +3,8 @@
 \title{spotAlgEsInterReco...}
 \usage{spotAlgEsInterReco(parents, rhoVal, dimension, nSigma, objType="obj")}
 \description{spotAlgEsInterReco}
-\details{Recombination function for the ES}
-\value{\code{rObject}}
+\details{Recombination function for the Evolution Strategy.}
+\references{\code{\link{spotAlgEs}} \code{\link{spotAlgEsInterRecoBeSw02}} \code{\link{spotAlgEsDominantReco}}}
 \arguments{\item{parents}{Parent individuals}
 \item{rhoVal}{number of parents involved in the procreation of an offspring}
 \item{dimension}{number of dimensions}

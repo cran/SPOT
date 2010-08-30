@@ -1,7 +1,7 @@
 \name{spotSafelyAddSource}
 \alias{spotSafelyAddSource}
 \title{Spot Safely Add Source...}
-\usage{spotSafelyAddSource(srcPath, functionName, spotConfig)}
+\usage{spotSafelyAddSource(srcPath, functionName, set.io.verbosity)}
 \description{Spot Safely Add Source}
 \details{spotSafelyAddSource is a call frame for all user written 
 R-functions 
@@ -25,6 +25,5 @@ eval(call(functionName, <functionParamList>))}
 - The boolean tells if adding the source was successfull (TRUE) or not (FALSE)}
 \arguments{\item{srcPath}{location where to find the R-file to be sourced (mostly: \code{spotConfig$srcPath})}
 \item{functionName}{the name of a R-function that MUST be part of a sourceFile
-with the same name}
-\item{spotConfig}{needed only for transfer to spotWriteLines, so the \code{io.verbosity}
-is the only parameter used here}}
+with the same name, mostly}
+\item{set.io.verbosity}{needed only for transfer to \code{\link{spotWriteLines}}, mostly \code{spotConfig$io.verbosity}}}

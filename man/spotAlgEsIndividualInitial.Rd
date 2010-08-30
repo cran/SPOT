@@ -1,11 +1,13 @@
 \name{spotAlgEsIndividualInitial}
 \alias{spotAlgEsIndividualInitial}
-\title{Individual Initial...}
+\title{Individual Initialization...}
 \usage{spotAlgEsIndividualInitial(s, dimension, n, noise=0, fName, gen,
     low=-1, high=1, des)}
-\description{Individual Initial}
-\value{number \code{res} \cr
-- \code{res} is the value of the corresponding \code{x} vector}
+\description{Individual Initialization}
+\details{Creates a new Individual for the Evolution Strategy implemented in SPOT.}
+\value{numeric vector \cr
+- contains x value, sigma value, real fitness value, fitness with noise, and generation number}
+\references{\code{\link{spotAlgEs}} \code{\link{spotAlgEsF}}}
 \arguments{\item{s}{sigma}
 \item{n}{n}
 \item{dimension}{number of target function dimension}

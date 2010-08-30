@@ -19,7 +19,7 @@
 #' - \code{M} has \code{dimension} columns and \code{noDesPoints} rows
 ####################################################################################
 spotCreateDesignFrF2 <- function(spotConfig, noDesPoints = NaN, repeats=NaN){	
-	spotWriteLines(spotConfig,2,"  Entering spotCreateDesignFrF2.R::spotCreateDesignFrF2()");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignFrF2.R::spotCreateDesignFrF2()");
 	spotInstAndLoadPackages(c('FrF2',  'DoE.wrapper'))
 	#require(DoE.wrapper)#allready required in spotInstAndLoadPackages function
 	
@@ -56,6 +56,6 @@ spotCreateDesignFrF2 <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 		}
 	}		
 	colnames(M) <- pNames			
-	spotWriteLines(spotConfig,2,"  Leaving spotCreateDesignFrF2.R::spotCreateDesignFrF2");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotCreateDesignFrF2.R::spotCreateDesignFrF2");
 	return(M);		
 }

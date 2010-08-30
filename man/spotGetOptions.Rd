@@ -82,7 +82,9 @@ This parameter will be ignored if the function is deterministic (like doe)}
 \item{seq.useAdaptiveRoi}{[\code{FALSE}] use region of intereset adaptation}
 \item{meta.keepAllFiles}{[\code{FALSE}] Meta optimization produces lots of temporary files - to keep these files for analysis this switch must be set to TRUE}
 \item{report.func}{[\code{"spotReportDefault"}] name of the function providing the report (default="spotReportDefault" Please also see the notes SPOT - extensions }
-\item{report.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <report.path.func>.R -file}
+\item{report.meta.func}{[\code{"spotReportMetaDefault"}] name of the function providing the report for meta runs, do not use these functions for \code{report.func}.}
+\item{report.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <report.func>.R -file}
+\item{report.meta.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <report.meta.func>.R -file}
 \item{report.hist}{[\code{0}] report should hold a histogramme (0=no, 1=yes)}
 \item{report.scatter}{[\code{0}] report should hold a scatterplot (0=no, 1=yes)}
 \item{report.io.screen}{[\code{FALSE}] report graphics will be printed to screen (FALSE=no, TRUE=yes)}

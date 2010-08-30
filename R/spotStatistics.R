@@ -19,9 +19,10 @@
 ###################################################################################################
 #' Get Repeats Function
 #'
-#' Helper Function for Spot's stats
+#' Helper Function for Spot's stats, evaluating the number of repeats
+#' for a given parameter configuration
 #'
-#' @param configNumber one configuration Number
+#' @param configNumber one configuration number
 #' @param configList list of configuration numbers 
 #' @return number \code{repList} \cr
 #' -  \code{repList} contains the number of repeats of the given config

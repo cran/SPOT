@@ -15,7 +15,7 @@
 #' @references  \code{\link{SPOT}}
 ####################################################################################
 spotPredictMlegp <- function(rawB,mergedB,largeDesign,spotConfig){
-	spotWriteLines(spotConfig,2,"spotPredictMlegp started");	
+	spotWriteLines(spotConfig$io.verbosity,2,"spotPredictMlegp started");	
 	spotInstAndLoadPackages("mlegp")	
 	xNames <- setdiff(names(rawB),"y")
 	x <- rawB[,xNames]
@@ -25,7 +25,7 @@ spotPredictMlegp <- function(rawB,mergedB,largeDesign,spotConfig){
 	res<-predict(fit,as.matrix(largeDesign))
 	largeDesign <-  largeDesign[order(res,decreasing=FALSE),];
 	largeDesign <- largeDesign[1:spotConfig$seq.design.new.size,];
-	spotWriteLines(spotConfig,2,"spotPredictMlegp finished successfully");	
+	spotWriteLines(spotConfig$io.verbosity,2,"spotPredictMlegp finished successfully");	
 	return(largeDesign)	
 }
 

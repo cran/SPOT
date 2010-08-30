@@ -4,9 +4,9 @@
 \usage{spotStepRunAlg(spotConfig)}
 \description{SPOT Step Algorithm Call}
 \details{This is the second SPOT Step after step "initial" - but also needed 
-after each step "sequential", and is a call frame for the algorithm-call 
+after each step "sequential", and is a call frame for the algorithm-call.
 
-The Algorithm is the heart of what the user must provide, but SPOT should be 
+The algorithm is the heart of what the user must provide, but SPOT should be 
 able to handle them in the most flexible manner. So this is the interface 
 providing several possibilities to include an algorithm as (unix)-shell or as 
 R-function (the latter could also provide a system call, so it should be able
@@ -26,4 +26,5 @@ first parameter of the generically defined R-function spotConfig$alg.func \cr
 \code{spotConfig$io.desFileName} filename for the input of the algorithm, 
 second parameter of the generically defined R-function spotConfig$alg.func \cr
 \code{spotConfig$io.resFileName} filename for the output of the algorithm
-third parameter of the generically defined R-function spotConfig$alg.func}}
+third parameter of the generically defined R-function spotConfig$alg.func\cr
+\code{spotConfig$io.verbosity} verbosity for command window output, which is passed to the output function}}

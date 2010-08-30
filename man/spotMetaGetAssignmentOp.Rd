@@ -1,7 +1,7 @@
-\name{spotMetaGetAssOp}
-\alias{spotMetaGetAssOp}
+\name{spotMetaGetAssignmentOp}
+\alias{spotMetaGetAssignmentOp}
 \title{Spot Meta Get Assignment Operator...}
-\usage{spotMetaGetAssOp(metaFile)}
+\usage{spotMetaGetAssignmentOp(metaFile)}
 \description{Spot Meta Get Assignment Operator}
 \details{Help function that simply searches for the assignment operator in the 
 .meta-file and returns the value or stops}

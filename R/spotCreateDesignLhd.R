@@ -50,7 +50,7 @@ spotNormDesign <- function(dim,size, calcMinDistance=FALSE){
 ####################################################################################
 
 spotCreateDesignLhd <- function(spotConfig, noDesPoints = NaN, retries=NaN) {
-	spotWriteLines(spotConfig,2,"  Entering spotDesignLhd");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotDesignLhd");
 	#noDesPoints <- spotConfig$init.design.size
 	## retries is the number of trials to find a 
 	## design with the greates minimal distance, (default is 1)
@@ -101,6 +101,6 @@ spotCreateDesignLhd <- function(spotConfig, noDesPoints = NaN, retries=NaN) {
 		## Auf den signifikanten Anteil  reduzieren
 		design <- signif(design,spotConfig$design.paramSignif);
 	##
-	spotWriteLines(spotConfig,2,"  Leaving spotDesignLhd");	
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotDesignLhd");	
 	return(design);
 }

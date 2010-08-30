@@ -36,7 +36,7 @@ spotMetaRead <- function(metaFile){
 #' @return character \cr
 #' - holding either "=" or "<-" respectively
 ###################################################################################
-spotMetaGetAssOp<- function(metaFile){
+spotMetaGetAssignmentOp <- function(metaFile){
 	myVarEq<-ncol(read.table(metaFile,sep="="))
 	myVarArrow<-ncol(read.table(metaFile,sep="<"))
 	if (myVarEq==2 && myVarArrow==1){ # file is build with "=" as assignment operator
@@ -69,7 +69,7 @@ spotMetaGetAssOp<- function(metaFile){
 spotMetaCreateSubProject<-function(spotConfig,projectName,apdLines){
 	conFilePrefix <-  unlist(strsplit(basename(spotConfig$configFileName), ".", fixed = TRUE))[1]
 	myProject<-paste(conFilePrefix,projectName,sep="_")
-	## TODO: JZ only create when not existing, - more sofisticated errorhandling is needed
+	## TODO: JZ only create when not existing, 
 	if (!file.exists(myProject)) 
 		dir.create(myProject)
 	
@@ -108,6 +108,65 @@ spotMetaCreateSubProject<-function(spotConfig,projectName,apdLines){
 	return(spotConfig)
 	
 }
+##################################################################################
+#' Spot Meta Flatten Fbs Row
+#' 
+#' Help function that replaces vector-valued columns in a final best solution
+#' file row with N "flat" values, where N is the dimension of the vector replaced.
+#' Also, each column will be converted to a character string.
+#'
+#' @param fbsRow The FBS row to flatten.
+#' 
+#' @return list \cr
+#' - The FBS line, with vector-valued columns replaced with scalar columns.
+###################################################################################
+spotMetaFlattenFbsRow<-function(fbsRow) {
+  replaceVectorsInFbsColumn <- function(fbsColumn, fbsColumnName) {
+    if (is.list(fbsColumn)) {
+      vectorValuedFbsColumn <- fbsColumn[[1]]
+      vectorValuedFbsColumnAsList <- as.list(vectorValuedFbsColumn)
+      names(vectorValuedFbsColumnAsList) <- paste(fbsColumnName,
+                                                  1:length(vectorValuedFbsColumnAsList),
+                                                  sep = "")
+      return(vectorValuedFbsColumnAsList)
+    } else {
+      fbsColumnAsList <- list(fbsColumn)
+      names(fbsColumnAsList) <- list(fbsColumnName)
+      return(fbsColumnAsList)
+    }
+  }
+  fbsColumnWithoutVectors <- Map(replaceVectorsInFbsColumn, fbsRow, names(fbsRow))
+  flatFbsColumn <- Reduce(c, init = list(), fbsColumnWithoutVectors)
+  flatFbsColumnAsCharacter <- Map(as.character, flatFbsColumn)
+  
+  return(flatFbsColumnAsCharacter)
+}
+##################################################################################
+#' Spot Meta Get Meta Var Names
+#' 
+#' Returns the names of the meta variables as they will appear in the FBS file.
+#' Note that an N-dimensional vector x will appear as x0, x1, ..., xN in the FBS
+#' file.
+#'
+#' @param spotConfig spotConfig$io.metaFileName is used.
+#' 
+#' @return character vector \cr
+#' - The names of the meta variables as they will appear in the FBS file.
+###################################################################################
+spotMetaGetMetaVarNames<-function(spotConfig) {
+  metaVarList <- spotMetaRead(spotConfig$io.metaFileName)
+  metaVarNames <- names(metaVarList)
 
+  flattenMetaVarNames <- function(metaVar, metaVarName) {
+    if (is.list(metaVar)) {
+      metaVarDim <- length(metaVar[[1]])
+      paste(metaVarName, 1:metaVarDim, sep = "")
+    } else {
+      return(metaVarName)
+    }
+  }
 
-
+  flatMetaVarNames <- Map(flattenMetaVarNames, metaVarList, metaVarNames)
+  concattedMetaVarNames <- Reduce(c, init = c(), flatMetaVarNames)
+  return(concattedMetaVarNames)
+}

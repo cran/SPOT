@@ -14,7 +14,7 @@
 #' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepReport}} 
 ###################################################################################################
 spotReportDefault <- function(spotConfig) {		
-	spotWriteLines(spotConfig,2,"  Entering spotReportDefault");	
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotReportDefault");	
 	rawB <- spotGetRawDataMatrixB(spotConfig);
 	print(summary(rawB));
 	mergedData <- spotPrepareData(spotConfig)

@@ -1,30 +1,11 @@
 ###################################################################################################
-#' Branin function
-#'
-#' This is the implementation of the Branin function used by some SPOT demos
-#'
-#' This Branin function does not use noise
-#'
-#' @param x	two dimensional vector that will be evaluated by the Branin function
-#' 
-#' @return number \code{y} \cr
-#' - \code{y} is the value of the corresponding \code{x} vector
-#' 
-#' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{spotNoisyBraninFunction}}
-#' \code{\link{spotFuncStartBranin}} 
-###################################################################################################
-spotFuncStartBraninSann <- function (x) {
-	x1 <- x[1] 
-	x2 <- x[2] 
-	(x2 - 5.1/(4 * pi^2) * (x1^2) + 5/pi * x1 - 6)^2 + 10 * (1 - 1/(8 * pi)) * cos(x1) + 10 
-}
-
-###################################################################################################
 #' SANN function call for SPOT
 #'
 #' SPOT uses this function for some demos to call the \code{\link{optim}} function with the SANN
 #' method, which means Simulated Annealing. The SANN uses \code{\link{spotFuncStartBranin}} as 
 #' a target function.
+#' This function is needed as an interface, to ensure the right information
+#' are passed from SPOT to the target algorithm(e.g. the SANN) and vice versa.
 #'
 #' @param io.apdFileName name of the apd file
 #' @param io.desFileName name of the des file
@@ -66,7 +47,7 @@ spotAlgStartSann <- function(io.apdFileName, io.desFileName, io.resFileName){
 			}			
 			seed <- des$SEED[k]+i-1	
 			set.seed(seed)
-			y <- optim(x0, spotFuncStartBraninSann, method="SANN",
+			y <- optim(x0, spotNoisyBraninFunction, method="SANN",
 					control=list(maxit=maxit, temp=temp, tmax=tmax, parscale=parscale))	
 			res <- NULL
 			res <- list(Y=y$value, TEMP=temp, TMAX=tmax, FUNCTION=f, DIM=n, SEED=seed, CONFIG=conf)

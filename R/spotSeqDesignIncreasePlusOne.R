@@ -1,7 +1,8 @@
 ###################################################################################
 #' Increase Sequential Design Plus One
 #' 
-#' This function increases the repeats done in each sequential design by adding 1.
+#' This function increases the repeats done in each sequential design step of SPOT by adding 1.
+#' Increasing repeats ensures that SPOT prediction is getting more precise with growing step size.
 #' 
 #' @param actRepeats must hold the number of repeats recommended last time. 
 #'

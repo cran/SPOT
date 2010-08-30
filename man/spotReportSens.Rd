@@ -6,6 +6,8 @@
 \details{Function to generate a report with sensitivity plot.
 
 The sensitivity curves are based on a metamodel which is a random forest with 100 trees 
-fitted to the results}
+fitted to the result points from RES-file. The plot contains: 
+x-axis:   ROI for each parameter normalized to [-1,1]
+y-axis:}
 \references{\code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepReport}}}
 \arguments{\item{spotConfig}{the configuration list of all spot parameters}}

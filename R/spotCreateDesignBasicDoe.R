@@ -22,7 +22,7 @@
 #' - \code{M} has \code{dimension} columns and \code{noDesPoints} rows
 ####################################################################################
 spotCreateDesignBasicDoe <- function(spotConfig, noDesPoints = 100, repeats=1){
-	spotWriteLines(spotConfig,2,"  Entering spotCreateDesignDoe.R::spotCreateDesignDoe()");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignDoe.R::spotCreateDesignDoe()");
 	spotInstAndLoadPackages("AlgDesign")
 	
 	pNames <- row.names(spotConfig$alg.roi);
@@ -45,6 +45,6 @@ spotCreateDesignBasicDoe <- function(spotConfig, noDesPoints = 100, repeats=1){
 	x <- 1:nrow(M)
 	
 	M <- M[ sample(x,replace=FALSE)[1:noDesPoints], ]	
-	spotWriteLines(spotConfig,2,"  Leaving spotCreateDesignDoe.R::spotCreateDesignDoe");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotCreateDesignDoe.R::spotCreateDesignDoe");
 	return(M);		
 }

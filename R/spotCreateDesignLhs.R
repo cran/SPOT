@@ -22,7 +22,7 @@
 ####################################################################################
 #MZ: Parameter repeats is not really needed....
 spotCreateDesignLhs <- function(spotConfig, noDesPoints = NaN, repeats=NaN){	
-	spotWriteLines(spotConfig,2,"  Entering spotCreateDesignLhs.R::spotCreateDesignLhs()");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignLhs.R::spotCreateDesignLhs()");
 	spotInstAndLoadPackages("lhs")	
 	
 	## use roi or aroi:
@@ -53,6 +53,6 @@ spotCreateDesignLhs <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 	}
 	M <- as.data.frame(M)
 	colnames(M) <- pNames	
-	spotWriteLines(spotConfig,2,"  Leaving spotCreateDesignLhs.R::spotCreateDesignLhs");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotCreateDesignLhs.R::spotCreateDesignLhs");
 	return(M);		
 }

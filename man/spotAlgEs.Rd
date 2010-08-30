@@ -1,6 +1,6 @@
 \name{spotAlgEs}
 \alias{spotAlgEs}
-\title{Evolution Strategy...}
+\title{Evolution Strategy Implementation for SPOT package...}
 \usage{spotAlgEs(mue=10, nu=10, dimension=2, mutation="selfA", sigmaInit=1,
     nSigma=1, tau0=0, tau=1, rho="bi", sel=1, stratReco="1",
     objReco="2", maxGen=Inf, maxIter=100, seed=1, noise=0, thrs="no",
@@ -8,10 +8,10 @@
     verbosity=0, plotResult=FALSE, logPlotResult=FALSE, term="iter",
     resFileName="es.res", sigmaRestart=0.1, preScanMult=1,
     globalOpt=rep(0, dimension), conf=-1)}
-\description{Evolution Strategy}
+\description{Evolution Strategy Implementation for SPOT package}
 \details{This function is used by \code{\link{spotAlgStartEs}} as a main loop for running
 the Evolution Strategy with the given parameter set specified by SPOT.}
-\references{\code{\link{SPOT}}}
+\references{\code{\link{SPOT}} \code{\link{spotAlgStartEs}}}
 \arguments{\item{mue}{number of parents, default is \code{10}}
 \item{nu}{number, default is \code{10}}
 \item{dimension}{dimension number of the target function, default is \code{2}}

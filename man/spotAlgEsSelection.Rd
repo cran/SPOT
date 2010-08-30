@@ -4,7 +4,6 @@
 \usage{spotAlgEsSelection(parentPop, offspringPop, sel, gen, iter, maxIter)}
 \description{spotAlgEsSelection}
 \details{Selection function for the ES}
-\value{\code{obj}}
 \arguments{\item{parentPop}{Parent population}
 \item{offspringPop}{Offspring population}
 \item{sel}{number of individuals to be selected}

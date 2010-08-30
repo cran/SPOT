@@ -23,7 +23,12 @@ to\cr
 \code{x0=c(10,10)}\cr
 as in this example there are five values for \code{maxit} and four for \code{x0}
 a set of 20 different projects is evaluated. The results will be written to 
-\code{<configFileName>.fbs}}
+\code{<configFileName>.fbs}
+All temporary results will be deleted by default. If they should be kept fo further 
+investigation the .conf file should have the additional value
+\code{meta.keepAllFiles=TRUE} 
+Then each parameter configuration will be stored like a separate SPOT-project in an own
+subdirectory.}
 \references{\code{\link{spotStepAutoOpt}} 
 \code{\link{spotGetOptions}}}
 \arguments{\item{spotConfig}{the list of all parameters is given}}

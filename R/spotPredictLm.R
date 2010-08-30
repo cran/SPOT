@@ -19,7 +19,7 @@
 #' @references  \code{\link{SPOT}}
 ###################################################################################
 spotPredictLm <- function(rawB,mergedB,lhd,spotConfig) {
-	spotWriteLines(spotConfig,2,"  Entering spotPredictLm");	
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotPredictLm");	
 	spotInstAndLoadPackages("rsm")
 	
 	rawB <- spotGetRawDataMatrixB(spotConfig);
@@ -62,21 +62,21 @@ spotPredictLm <- function(rawB,mergedB,lhd,spotConfig) {
   #rsmDf<-NULL
   #rsmFormula<-NULL
   if (nExp >= nRequired1 && nExp < nRequired2) {
-    spotWriteLines(spotConfig,2,"spotPredictLm: First order (FO) effects estimated by rsm.");
+    spotWriteLines(spotConfig$io.verbosity,2,"spotPredictLm: First order (FO) effects estimated by rsm.");
     ## Because rsm demands it, rsmDf and rsmFormula must be visible in the global environment:
     rsmDf <- df2
     rsmFormula <- as.formula(sprintf("Y ~ FO(%s)", paramString))
     dfc.rsm1 <- spotRsm(formula = rsmFormula, data = rsmDf)
   }
   else if (nExp >= nRequired2 && nExp < nRequired3) {
-	  spotWriteLines(spotConfig,2,"spotPredictLm: First order (FO) with two-way interactions (TWI) effects estimated by rsm.");
+	  spotWriteLines(spotConfig$io.verbosity,2,"spotPredictLm: First order (FO) with two-way interactions (TWI) effects estimated by rsm.");
     ## Because rsm demands it, rsmDf and rsmFormula must be visible in the global environment:
     rsmDf <- df2
     rsmFormula <- as.formula(sprintf("Y ~ FO(%s) + TWI(%s)", paramString, paramString))
     dfc.rsm1 <- spotRsm(formula = rsmFormula, data = rsmDf)
   }
   else if (nExp >= nRequired3) {
-	  spotWriteLines(spotConfig,2,"spotPredictLm: Second order (SO) effects estimated by rsm.");
+	  spotWriteLines(spotConfig$io.verbosity,2,"spotPredictLm: Second order (SO) effects estimated by rsm.");
     ## Because rsm demands it, rsmDf and rsmFormula must be visible in the global environment:
     rsmDf <- df2
     ## This

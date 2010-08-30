@@ -5,15 +5,15 @@
 #' This is the noisy implementation of the Branin function used by some SPOT demos
 #'
 #' @param x	two dimensional vector that will be evauluated by the branin function
-#' @param noise	this number is added to the function value y as noise
+#' @param noise	this number is multiplied with \code{rnorm(1)}, the result is added to the function value.
 #'
 #' @return number \code{y} \cr
-#' - \code{y} is the value of the corresponding \code{x} vector
+#' - \code{y} is the function value of the corresponding vector \code{x}
 #'
 #' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{spotFuncStartBranin}}
-#' \code{\link{spotFuncStartBranin}} 
+#' \code{\link{spotFuncStartBranin}}  \code{\link{rnorm}} \code{\link{spotAlgEsF}}
 ###################################################################################################
-spotNoisyBraninFunction <- function (x, noise) {
+spotNoisyBraninFunction <- function (x, noise=0.0) {
 	x1 <- x[1] 
 	x2 <- x[2] 
 	(x2 - 5.1/(4 * pi^2) * (x1^2) + 5/pi * x1 - 6)^2 + 10 * (1 - 1/(8 * pi)) * cos(x1) + 10 + noise*rnorm(1)

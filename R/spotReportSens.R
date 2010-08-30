@@ -26,20 +26,22 @@ spotReportSensY <- function(B,fit,roi,nsens) {
 #' Function to generate a report with sensitivity plot.
 #'
 #' The sensitivity curves are based on a metamodel which is a random forest with 100 trees 
-#' fitted to the results
+#' fitted to the result points from RES-file. The plot contains: 
+#'    x-axis:   ROI for each parameter normalized to [-1,1]
+#'    y-axis: 
 #'
 #' @param spotConfig the configuration list of all spot parameters
 #' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepReport}} 
 ################################################################################################### 
 spotReportSens <- function(spotConfig) {		
-	spotWriteLines(spotConfig,2,"  Entering spotReportSens");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotReportSens");
 	spotInstAndLoadPackages("randomForest")	
 	rawB <- spotGetRawDataMatrixB(spotConfig);
 	print(summary(rawB));
 	mergedData <- spotPrepareData(spotConfig)
 	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);	
 	C1 = spotWriteBest(mergedData, spotConfig);
-	C1 = C1[C1$COUNT==max(C1$COUNT),];    # choose only among the solutions with high repeat
+	C1 = C1[C1$COUNT==max(C1$COUNT),];    # choose only among the solutions with highest repeat
 	xNames <- setdiff(names(rawB),c(spotConfig$alg.resultColumn,"y"))
 	B <- NULL 
 	nsens=20             # number of points along the normalized ROI range
@@ -67,6 +69,6 @@ spotReportSens <- function(spotConfig) {
   print(rwb);
 	cat(sprintf("\n Best solution found with %d evaluations:\n",nrow(rawB)));
 	print(C1[1,]);
-	spotWriteLines(spotConfig,2,"\n Leaving spotReportSens");
+	spotWriteLines(spotConfig$io.verbosity,2,"\n Leaving spotReportSens");
 }
 

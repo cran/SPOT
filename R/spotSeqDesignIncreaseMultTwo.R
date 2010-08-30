@@ -2,7 +2,8 @@
 ###################################################################################
 #' Increase Sequential Design Mult Two
 #' 
-#' This function increases the repeats done in each sequential designby multiplying by 2
+#' This function increases the repeats done in each sequential design step of SPOT by multiplying by 2.
+#' Increasing repeats ensures that SPOT prediction is getting more precise with growing step size.
 #' 
 #' @param actRepeats must hold the number of repeats recommended last time. 
 #'

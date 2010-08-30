@@ -22,8 +22,8 @@
 #' \tabular{ll}{
 #' Package: \tab SPOT\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.1.888\cr
-#' Date: \tab 22.06.2010\cr
+#' Version: \tab 0.1.1016\cr
+#' Date: \tab 30.08.2010\cr
 #' License: \tab GPL (>= 3)\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -92,33 +92,33 @@ spotPrepareSystem <- function(){
 			'fields','rpart', 'maptree', 'colorspace', 
 			'gtools' );
 	###### default packages with various use 
-			# 'gtools' Various R programming tools
-			# 'colorspace',Color Space Manipulation 
-			# 'lattice', 'graphics','fields' standard packages 
+	# 'gtools' Various R programming tools
+	# 'colorspace',Color Space Manipulation 
+	# 'lattice', 'graphics','fields' standard packages 
 	###### default packages that are specified to be used in:  
-			# spotPreditTree AND spotPlotBst: 'rpart'
-			# spotPlotBst: 'maptree'
+	# spotPreditTree AND spotPlotBst: 'rpart'
+	# spotPlotBst: 'maptree'
 	###### deleted because use was not found:  
-			# 'MASS' -  Main Package of Venables and Ripley's MASS -used in ???
-			# 'vcd' Visualizing Categorical Data - used in ???
-			# 'stats' -  R statistical functions used in ??? 
-			# 'DoE.base' used in ???
-			# 'car' used  in ???
+	# 'MASS' -  Main Package of Venables and Ripley's MASS -used in ???
+	# 'vcd' Visualizing Categorical Data - used in ???
+	# 'stats' -  R statistical functions used in ??? 
+	# 'DoE.base' used in ???
+	# 'car' used  in ???
 	######
 	## deleted from list and moved to the calling functions: 
 	## rsm, tgp, randomForest, mlegp, FrF2, DoE.wrapper, AlgDesign, lhs
-			# spotPredictLm: 'rsm'
-			# spotPredictTgp:  'tgp',
-			# spotPredictRandomForest: 'randomForest',
-			# spotPredictMlegp: 'mlegp',
-			# spotCreateDesignFrF2 : 'FrF2',  'DoE.wrapper',
-			# spotPredictDiceKriging: ,'DiceKriging' # depreciated
-			# spotCreateDesignBasicDoe: 'AlgDesign',
-			#
+	# spotPredictLm: 'rsm'
+	# spotPredictTgp:  'tgp',
+	# spotPredictRandomForest: 'randomForest',
+	# spotPredictMlegp: 'mlegp',
+	# spotCreateDesignFrF2 : 'FrF2',  'DoE.wrapper',
+	# spotPredictDiceKriging: ,'DiceKriging' # depreciated
+	# spotCreateDesignBasicDoe: 'AlgDesign',
+	#
 	
 	spotInstAndLoadPackages(necessaryPackages)
 	
-
+	
 }#end spotPrepareSystem
 
 ###################################################################################
@@ -180,6 +180,9 @@ spotPrepare <- function(srcPath,configFile){
 	if(!exists("spotMetaRead")){
 		source(createSourcePath("spotMeta.R"), local=FALSE);
 	}
+	if(!exists("spotFuncStartBranin")){
+		source(createSourcePath("spotFuncStartBranin.R"), local=FALSE);
+	}
 	
 	## everything happens relative to users configuration file
 	setwd(dirname(configFile));
@@ -219,12 +222,13 @@ spotPrepare <- function(srcPath,configFile){
 #'   \code{spotConfig$io.colname.repeats} column name for data of "spotConfig$init.design.repeats"\cr
 #'   \code{spotConfig$io.colname.step} if given a second Column is created \cr
 #'   \code{spotConfig$alg.seed} seed value for reproducable runs\cr
-#'   \code{spotConfig$srcPath} source path as given when spot() is called (or uses default)
+#'   \code{spotConfig$srcPath} source path as given when spot() is called (or uses default)\cr
+#'   \code{spotConfig$io.verbosity} verbosity for command window output, which is passed to the output function
 ###################################################################################
 
 spotStepInitial <- function(spotConfig) {
-	spotWriteLines(spotConfig,2,"Create Inital Design", con=stderr());	
-	spotSafelyAddSource(spotConfig$init.design.path,spotConfig$init.design.func,spotConfig)	
+	spotWriteLines(spotConfig$io.verbosity,2,"Create Inital Design", con=stderr());	
+	spotSafelyAddSource(spotConfig$init.design.path,spotConfig$init.design.func,spotConfig$io.verbosity)	
 	##
 	## write actual region of interest file (same data as roi file)	
 	## TODO: Add type information to aroi file
@@ -270,7 +274,7 @@ spotStepInitial <- function(spotConfig) {
 	}
 	## write the design to a NEW .des-file 
 	spotWriteDes(spotConfig,initDes)
-
+	
 	## Now delete the old .res and .bst files
 	if (spotConfig$init.delete.bstFile & file.exists(spotConfig$io.bstFileName)){
 		file.remove(spotConfig$io.bstFileName)
@@ -286,9 +290,9 @@ spotStepInitial <- function(spotConfig) {
 #' SPOT Step Algorithm Call 
 #'
 #' This is the second SPOT Step after step "initial" - but also needed 
-#' after each step "sequential", and is a call frame for the algorithm-call 
+#' after each step "sequential", and is a call frame for the algorithm-call.
 #'
-#' The Algorithm is the heart of what the user must provide, but SPOT should be 
+#' The algorithm is the heart of what the user must provide, but SPOT should be 
 #' able to handle them in the most flexible manner. So this is the interface 
 #' providing several possibilities to include an algorithm as (unix)-shell or as 
 #' R-function (the latter could also provide a system call, so it should be able
@@ -307,23 +311,24 @@ spotStepInitial <- function(spotConfig) {
 #'   \code{spotConfig$io.desFileName} filename for the input of the algorithm, 
 #' 			second parameter of the generically defined R-function spotConfig$alg.func \cr
 #'   \code{spotConfig$io.resFileName} filename for the output of the algorithm
-#' 			third parameter of the generically defined R-function spotConfig$alg.func
+#' 			third parameter of the generically defined R-function spotConfig$alg.func\cr
+#'   \code{spotConfig$io.verbosity} verbosity for command window output, which is passed to the output function
 #'
 #' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepInitial}}
 #' \code{\link{spotStepSequential}}
 ####################################################################################
 spotStepRunAlg <- function(spotConfig){
-	spotWriteLines(spotConfig,2,paste("spotStepRunAlg started with ",spotConfig$alg.path,spotConfig$alg.func,sep=""))
+	spotWriteLines(spotConfig$io.verbosity,2,paste("spotStepRunAlg started with ",spotConfig$alg.path,spotConfig$alg.func,sep=""))
 	# 1) algorithm is encapsulated in an R-file
 	if (spotConfig$alg.language=="sourceR"){
-		spotSafelyAddSource(spotConfig$alg.path,spotConfig$alg.func,spotConfig)
+		spotSafelyAddSource(spotConfig$alg.path,spotConfig$alg.func,spotConfig$io.verbosity)
 		retCall<-eval(call(spotConfig$alg.func, spotConfig$io.apdFileName, spotConfig$io.desFileName, spotConfig$io.resFileName))
 	}  else { # spotConfig$alg.language== "unixSh"
-	# 2) algorithm is encapsulated in a (unix)-shell script or a binary
+		# 2) algorithm is encapsulated in a (unix)-shell script or a binary
 		if(file.exists(spotConfig$alg.func)){
 			retCall<-system(paste(spotConfig$alg.func, spotConfig$io.apdFileName, spotConfig$io.desFileName, spotConfig$io.resFileName))
 		} else {
-			spotWriteLines(spotConfig,0,paste("Error: spot.R::sptStepRunAlg tries to execute non existing file ",spotConfig$alg.func,sep="" ))
+			spotWriteLines(spotConfig$io.verbosity,0,paste("Error: spot.R::sptStepRunAlg tries to execute non existing file ",spotConfig$alg.func,sep="" ))
 		}
 	}
 	return(retCall)
@@ -347,11 +352,11 @@ spotStepRunAlg <- function(spotConfig){
 #'   \code{spotConfig$userConfFileName} needed for the error message\cr
 ###################################################################################
 spotStepSequential <- function(spotConfig) {
-	spotWriteLines(spotConfig,2,"Create Sequential Design", con=stderr());
+	spotWriteLines(spotConfig$io.verbosity,2,"Create Sequential Design", con=stderr());
 	if (!file.exists(spotConfig$io.resFileName)){
-		spotWriteLines(spotConfig,0,"Error in spot.R::spotStepSequential:")
-		spotWriteLines(spotConfig,0,"spotStepAlgRun() has to be executed before.")
-		spotWriteLines(spotConfig,0,paste("Try: spot(",spotConfig$userConfFileName,",\"run\",",spotConfig$srcPath , sep=" "))		
+		spotWriteLines(spotConfig$io.verbosity,0,"Error in spot.R::spotStepSequential:")
+		spotWriteLines(spotConfig$io.verbosity,0,"spotStepAlgRun() has to be executed before.")
+		spotWriteLines(spotConfig$io.verbosity,0,paste("Try: spot(",spotConfig$userConfFileName,",\"run\",",spotConfig$srcPath , sep=" "))		
 	}	
 	seqDes <- spotGenerateSequentialDesign(spotConfig);	
 	## write the design to the .des-file
@@ -376,7 +381,7 @@ spotStepSequential <- function(spotConfig) {
 #' 
 ###################################################################################
 spotStepReport <- function(spotConfig) {
-	spotSafelyAddSource(spotConfig$report.path,spotConfig$report.func,spotConfig)
+	spotSafelyAddSource(spotConfig$report.path,spotConfig$report.func,spotConfig$io.verbosity)
 	retCall<-eval(call(spotConfig$report.func, spotConfig))
 }
 
@@ -408,7 +413,7 @@ spotStepAutoOpt <- function(spotConfig){
 	while (j <= spotConfig$auto.loop.steps && k <= spotConfig$auto.loop.nevals)
 	{
 		k <- nrow(spotGetRawDataMatrixB(spotConfig));	
-		spotWriteLines(spotConfig,2,paste("SPOT Step:", j), con=stderr());
+		spotWriteLines(spotConfig$io.verbosity,2,paste("SPOT Step:", j), con=stderr());
 		spotStepSequential(spotConfig);		
 		spotStepRunAlg(spotConfig)
 		j <- j+1;
@@ -441,7 +446,12 @@ spotStepAutoOpt <- function(spotConfig){
 #' as in this example there are five values for \code{maxit} and four for \code{x0}
 #' a set of 20 different projects is evaluated. The results will be written to 
 #' \code{<configFileName>.fbs}
-#'
+#' All temporary results will be deleted by default. If they should be kept fo further 
+#' investigation the .conf file should have the additional value
+#' \code{meta.keepAllFiles=TRUE} 
+#' Then each parameter configuration will be stored like a separate SPOT-project in an own
+#' subdirectory. 
+#' 
 #' @param spotConfig the list of all parameters is given
 #' 
 #' @references  \code{\link{spotStepAutoOpt}} 
@@ -452,22 +462,25 @@ spotStepAutoOpt <- function(spotConfig){
 ##		adding a usefull example: see /trunk/R.d/testSrc
 ##		deleting of temporary files, (and a switch to suppress this deleting)
 ##
-spotStepMetaOpt <- function(spotConfig){
+spotStepMetaOpt <- function(spotConfig) {
 	spotInstAndLoadPackages("AlgDesign")
 	# read the Meta File
 	writeLines(spotConfig$io.metaFileName)
 	myList<-spotMetaRead(spotConfig$io.metaFileName)
-	myAssOp<-spotMetaGetAssOp(spotConfig$io.metaFileName)# assignment operator
-	
+	myAssignmentOp<-spotMetaGetAssignmentOp(spotConfig$io.metaFileName)# assignment operator
+	#browser()
 	nVars<-length(myList)
 	# create a vector "x" holding the length of each variable
-	x<-numeric()
-	for (i in 1:length(myList))
-		x<-c(x,length(myList[[i]]))
-	# full factorial design with indicies for all combinations: 
-	dat<-gen.factorial(x,varNames=names(myList),factors="all")
-	## Loop over full factorial combination of all parameters specified in .meta
-	for (j in 1:nrow(dat)){
+	x <- as.numeric(lapply(myList, length))
+	# full factorial design with indicies for all combinations:
+	if (nVars==1){
+		dat <- matrix(1:x, byrow = TRUE)
+	}
+	else{
+		dat<-gen.factorial(x,varNames=names(myList),factors="all")
+	}
+	## Loop over full factorial combinations of all parameters specified in .meta
+	for (j in 1:nrow(dat)) {
 		## close all remaining graphic devices - from old spotStepAutoOpt Runs
 		graphics.off() 
 		
@@ -476,24 +489,26 @@ spotStepMetaOpt <- function(spotConfig){
 		projectName<-character()  
 		apdLines<-character()
 		myFbs<-list()
-		for (k in 1:nVars){
+		
+		for (k in 1:nVars) {
 			# left side of the  assignment 
-			## the factorial value of the kth variable for this dat[j]-row is given to a character variable:
-			kthFactor<-as.character(myList[[k]][dat[[j,k]]])
+			## the factorial value of the kth variable for this dat[j]-row is assigned to a character variable:
+			kthFactor <- myList[[k]][dat[[j,k]]]
+			kthFactorName <- as.character(kthFactor)
 			# projectName is generated from these Factors:
-			projectName<-paste(projectName,names(myList)[k],kthFactor,sep="")
+			projectName <- paste(projectName,names(myList)[k],kthFactorName,sep="")
 			# adapt the factor for proper writing, if it is a character it needs quotes \"
 			if((class(myList[[k]])=="list" && class(myList[[k]][[dat[[j,k]]]])=="character")||(class(myList[[k]])=="character"))
-				kthFactor<-paste("\"",kthFactor,"\"",sep="")
+				kthFactorName <- paste("\"",kthFactorName,"\"",sep="")
 			# now create a <varname>=<singleValue> line for the apd-file 
-			lVal<- paste(names(myList)[k],myAssOp,kthFactor,sep="")
+			lVal <- paste(names(myList)[k],myAssignmentOp,kthFactorName,sep="")
 			# and a list of all the variables to be added to .fbs file
-			myFbs<-c(myFbs,list(kthFactor))
-			names(myFbs)[length(myFbs)]<-names(myList)[k]
+			myFbs <- c(myFbs, list(kthFactor))
+			names(myFbs)[length(myFbs)] <- names(myList)[k]
 			## add the created line to the list of apd lines for this one dat-row: (a single spot-"auto" run)
-			apdLines<-(c(apdLines,lVal))
+			apdLines <- (c(apdLines,lVal))
 			if (k!=nVars){
-				projectName<-paste(projectName,"_",sep="")
+				projectName <- paste(projectName,"_",sep="")
 			}
 		}
 		## NOW: all values are generated for ONE run 
@@ -517,14 +532,19 @@ spotStepMetaOpt <- function(spotConfig){
 		if(!file.exists(spotConfig$io.fbsFileName)) {
 			colNames=TRUE
 		} else  colNames=FALSE
+		
+		myFbsFlattened <- spotMetaFlattenFbsRow(myFbs)
 		write.table(file=spotConfig$io.fbsFileName,
-				cbind(tmpBst[nrow(tmpBst),],myFbs),
-		, row.names = FALSE
-		, col.names = colNames
-		, sep = " "
-		, append = !colNames
-		, quote=FALSE)
-	}
+				cbind(tmpBst[nrow(tmpBst),],myFbsFlattened),
+				row.names = FALSE,
+				col.names = colNames,
+				sep = " ",
+				append = !colNames,
+				quote=FALSE)
+				
+	} # for (j in 1:nrow(dat))... (loop over full factorial design)
+	spotSafelyAddSource(spotConfig$report.meta.path,spotConfig$report.meta.func,spotConfig$io.verbosity)
+	retCall<-eval(call(spotConfig$report.meta.func, spotConfig))
 }
 
 ############# end function definitions ############################################################
@@ -532,21 +552,22 @@ spotStepMetaOpt <- function(spotConfig){
 ###################################################################################################
 ## PART THREE: SPOT: The Programm
 ###################################################################################################
-#' SPOT main function for the use of the SPO-Toolbox
+#' Main function for the use of SPOT
 #' 
 #' Sequential Parameter Optimization Toolbox (SPOT) provides a toolbox for the 
-#' sequential optimization of parameter driven tasks  
+#' sequential optimization of parameter driven tasks. 
 #' MUST be called with at least the first parameter specified (configFile)
 #'
 #' The path given with the \code{userConfigFile} also fixes the working directory used
 #' throughout the run of all SPOT functions. All files that are needed for input/output
 #' can and will be given relative to the path of the userConfigFile (this also holds for 
-#' the binary of the algorithm) 
+#' the binary of the algorithm). This refers to files that are specified in the configFile
+#' by the user. 
 #'
 #' @param configFile	the absolute path including filespecifier, there is no default, this value MUST be given.
 #' @param spotTask			[init|seq|run|auto|rep] the switch for the tool used, default is "auto" 
 #' @param srcPath		the absolute path to user written sources that extend SPOT, the default(NA) will search for sources in the path <.libPath()>/SPOT/R  
-#' @note \code{spot} expects char vectors as input
+#' @note \code{spot()} expects char vectors as input, e.g. \code{spot("c:/configfile.conf","auto")}
 #' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepAutoOpt}}  \code{\link{spotStepInitial}}
 #' \code{\link{spotStepSequential}} \code{\link{spotStepRunAlg}} \code{\link{spotStepReport}} 
 #' \code{\link{spotPrepare}} \code{\link{spotPrepareSystem}}  
@@ -576,19 +597,19 @@ spot <- function(configFile,spotTask="auto",srcPath=NA){
 			, rep=, report=spotStepReport(spotConfig)		# Fourth Step
 			, auto=, automatic=spotStepAutoOpt(spotConfig)	# Automatically call First to Forth Step
 			, meta=spotStepMetaOpt(spotConfig)	# Automatically call several spotStepAutoOpt - Runs to provide a systematic testing tool an fixed Parameters in .apd file	
-	, "invalid switch" # return this at wrong CMD task
+			, "invalid switch" # return this at wrong CMD task
 	);
 	
 	## ERROR handling 
 	## valid switch returns null, otherwise show error warning and short help
 	if (is.character(resSwitch) && resSwitch == "invalid switch") {
-		spotWriteLines(spotConfig,0,paste("ERROR, unknown task:", spotTask), con=stderr());
-		spotWriteLines(spotConfig,0,"\nValid tasks are:\
-auto       - run tuning in automated mode\
-initial    - to create an initial design\
-run        - start the program, algorithm, simulator\
-sequential - to create further design points\
-report     - to generate a report from your results"
+		spotWriteLines(spotConfig$io.verbosity,0,paste("ERROR, unknown task:", spotTask), con=stderr());
+		spotWriteLines(spotConfig$io.verbosity,0,"\nValid tasks are:\
+						auto       - run tuning in automated mode\
+						initial    - to create an initial design\
+						run        - start the program, algorithm, simulator\
+						sequential - to create further design points\
+						report     - to generate a report from your results"
 				, con=stderr());
 	}
 	# go back to -  well where ever you came from

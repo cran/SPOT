@@ -18,9 +18,9 @@
 ####################################################################################
 
 spotGetRawResData<- function(spotConfig){
-	spotWriteLines(spotConfig,2,"  Entering spotGetRawResData");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotGetRawResData");
 	## Load .res-file data, the result of the alg run
-	spotWriteLines(spotConfig
+	spotWriteLines(spotConfig$io.verbosity
 					, 2
 					, paste("Loading result data from::", spotConfig$io.resFileName)
 					, con=stderr());
@@ -30,7 +30,7 @@ spotGetRawResData<- function(spotConfig){
 			, header = TRUE	
 			, stringsAsFactors = TRUE
 			);
-	spotWriteLines(spotConfig,2,"  Leaving spotGetRawResData");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotGetRawResData");
 	return(rawResData)
 }
 
@@ -127,7 +127,7 @@ spotGetMergedDataMatrixB <- function(mergedData, spotConfig){
 #' @references  \code{\link{SPOT}} \code{\link{spot}}
 ####################################################################################
 spotPrepareData <- function(spotConfig){
-    spotWriteLines(spotConfig,2,"  Entering spotPrepareData");
+    spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotPrepareData");
 	rawData <- spotGetRawResData(spotConfig)
 	if (!any(names(rawData)=="CONFIG"))
   	   stop("Error: Result file is missing the required column CONFIG!")
@@ -138,7 +138,7 @@ spotPrepareData <- function(spotConfig){
 		if (any(names(rawData)==spotConfig$io.colname.step)) #=="STEP"
       		step.last <- max(rawData[spotConfig$io.colname.step])
 		else{
-			spotWriteLines(spotConfig,2,"Warning: user algorithm does not write STEP column to result file, 0-vector added")
+			spotWriteLines(spotConfig$io.verbosity,2,"Warning: user algorithm does not write STEP column to result file, 0-vector added")
 			step.last=0
 			rawData$STEP<-rep(0, length(rawData$CONFIG)) 
 		}
@@ -158,7 +158,7 @@ spotPrepareData <- function(spotConfig){
          , step.last = step.last
 		 , STEP = mergedSTEP
          )
-	spotWriteLines(spotConfig,2,"  Leaving spotPrepareData");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotPrepareData");
 	return(resultList)
 }
 
