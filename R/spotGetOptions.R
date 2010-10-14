@@ -41,6 +41,7 @@
 #' 			\item{auto.loop.steps}{[\code{1}] number of iterations the loop over all SPOT-steps should be repeated}
 #' 			\item{auto.loop.nevals}{[\code{Inf}] budget  of algorithm/simulator runs
 #' 			 - most important parameter for run-time of the algorithm in case the spot-function is called with the "auto"-task }
+#' 			\item{spot.fileMode}{[\code{TRUE}] boolean, that defines if files are used to read and write results (which is the "classic" spot procedure) or if SPOT will only use the workspace to store variables.}
 #' 			\item{spot.seed}{[\code{123}] global seed setting for all random generator dependent calls within SPOT. same seed shall repeat same results, \cr
 #' 						BUT: please note: this is NOT the seed for the algorithm!!! see alg.seed}
 #' 			\item{alg.language}{[\code{"sourceR"}] language the algorithm is written in. Can either be "sourceR" or "unixSh". 
@@ -57,6 +58,9 @@
 #'                       It is used to provide an easy to use matrix with the data from the  ".roi"-file (= Region Of Interest)}
 #' 			\item{alg.aroi}{internal parameter for the actual region of interest (do not try to set this one, it will be overwritten with default values). 
 #' 							It is used to provide an easy to use matrix with the data from the  ".aroi"-file (= Actual Region Of Interest)}
+#' 			\item{alg.currentDesign}{[usually not changed by user] data frame of the design that will be evaluated by the next call to \link{spotStepRunAlg}} 
+#' 			\item{alg.currentResult}{[usually not changed by user] data frame that contains the results of the target algorithm runs} 
+#' 			\item{alg.currentBest}{[usually not changed by user] data frame that contains the best results of each step conducted by spot} 
 #' 			\item{io.columnSep}{[\code{""}] column seperator for the input/output files, default means: arbitrary whitespace sequence, 
 #' 							should be set by the value you want to have between your columns}
 #' 			\item{io.colname.repeats}{[\code{"REPEATS"}] string holding the name of the column in the .des-file that indicates how much (randomly different) repeats with a design should be performed by the algorithm }
@@ -108,7 +112,6 @@
 #' 			\item{report.io.screen}{[\code{FALSE}] report graphics will be printed to screen (FALSE=no, TRUE=yes)}
 #' 			\item{report.io.pdf}{[\code{TRUE}] report graphics will be printed to pdf (FALSE=no, TRUE=yes)}
 #' 			\item{report.io.maxPlots}{[\code{11}] a plot of the performance is continuosly updated, showing the .roi variables in the order given in that file. The graphic is limited to 11 variables. A smaller value here may focus to the relevant variables only}
-#'
 #' @references  \code{SPOT} \code{spotPrepare}
 
 ## hint for programmers: 
@@ -120,24 +123,16 @@
 
 
 spotGetOptions <- function( srcPath=".",configFileName) {
-	writeLines("spotGetOptions... started", con=stderr());
-	
-	######################################
-	### set defaults
-	### task specific settings go to config File (configFileName)
-	######################################
-	
-	######################################
-	### Degin: Algorithm design related
-	######################################
-	
+	writeLines("spotGetOptions... started", con=stderr());	
+	#######################################
+	### Begin: Algorithm design related ###
+	#######################################	
 	## Specify language of algorithm to be tuned.
 	## Type: STRING:
 	## Can be one of the following:
 	## 1) sourceR, i.e., R script to be called by source("alg.func")
 	## 2) unixSh, i.e., unix Shell script, to be called by system("alg.func") 
-	alg.language = "sourceR"
-	
+	alg.language = "sourceR"	
 	## to specify the additional R source file for the algorithm 
 	## two information my be given: the path to the R-file
 	## and the functionname. The R-file now
@@ -146,8 +141,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	## 3) MUST be given in alg.func
 	## Type: STRING:
 	## This R script will be sourced by source(paste(alg.path,alg.func,sep="/"))
-	alg.path = NA;
-	
+	alg.path = NA;	
 	## Specify name of the function
 	## this may be 
 	## 1) (in case "alg.language==sourceR") a function in an R-file, 
@@ -158,31 +152,16 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	## 1) a shell script (Unix)
 	## 2) a .bat file (Win)
 	## Type: STRING
-	alg.func = "spotFuncStartBranin"
-	
+	alg.func = "spotFuncStartBranin"	
 	## Column name containing results
 	alg.resultColumn = "Y"
-	alg.seed <- 1234;
-	
-	######################################
-	### End: Algorithm design related
-	######################################
-	
-	## #########################################
-	## ##### Init AND Seq Design related   #####
-	## #########################################
-	## number of signicient digits of the design parameter
-	design.paramSignif <- NA;
-	
-	
+	alg.seed <- 1234;	
 	## ##########################
 	## ##### Init related   #####
-	## ##########################
-	
+	## ##########################	
 	## design create for initial step
 	init.design.path = NA
-	init.design.func = "spotCreateDesignLhs"
-	
+	init.design.func = "spotCreateDesignLhs"	
 	## Initial number of design points, 
 	## if NA, formula will be used
 	# number of initial design points
@@ -194,22 +173,19 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	# keep or delete existing resultfile? (default: TRUE)
 	init.delete.resFile <- TRUE
 	# keep or delete existing bstfile? (default: TRUE)
-	init.delete.bstFile <- TRUE
-	
-	## ##########################
-	## ##### Sequential Step related   #####
-	## ##########################
+	init.delete.bstFile <- TRUE	
+	## #################################
+	## ##### Sequential Step related ###
+	## #################################
 	## Function for a summary of the results from the algorithm at each design point
-	seq.merge.func <- mean;
-	
+	seq.merge.func <- mean;	
 	## function for transformation of "Y" before new model is created, default: Identitity function
 	seq.transformation.func <- I;
 	seq.log.x <- FALSE;
-	seq.log.y <- FALSE;
-	
+	seq.log.y <- FALSE;	
 	## design create for sequentiel step: (must guarantee a higher search space)
 	seq.design.path = NA
-	seq.design.func = "spotCreateDesignLhs"	
+	seq.design.func = "spotCreateDesignLhd"	
 	seq.design.size <- 200;
 	seq.design.retries <- 10;
 	seq.design.maxRepeats <- NA;
@@ -219,10 +195,9 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	seq.design.oldBest.size <- 1;
 	## how many new points shall be added 
 	seq.design.new.size <- 2;
-	## #####################################
-	## ##### Prediction Modell related #####
-	## #####################################
-	
+	## ###################################
+	## ##### Prediction Modell related ###
+	## ###################################	
 	seq.predictionModel.path = NA
 	seq.predictionModel.func = "spotPredictLm";
 	#seq.predictionModel.func = "spotPredictTree";	
@@ -233,7 +208,6 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	seq.useGradient = FALSE
 	seq.useAdaptiveRoi = FALSE
 	seq.useCanonicalPath = FALSE
-
 	## #####################################
 	## ##### Globally needed           #####
 	## #####################################
@@ -242,6 +216,8 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	## How many spot iterations should be performed?
 	auto.loop.steps <- 1;
 	auto.loop.nevals <- Inf;
+	## number of signicient digits of the design parameter (BOTH initial AND sequential design)
+	design.paramSignif <- NA;	
 	## #####################################
 	## ##### Step      meta            #####
 	## #####################################
@@ -250,17 +226,13 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	## ##### IO related (files for input and output, and variables to specify formatting of IO-files  #####
 	## ####################################################################################################
 	## TBB: 24 2 2009:
-	io.colname.repeats <- "REPEATS";
-	
+	io.colname.repeats <- "REPEATS";	
 	## Name of the column, where the actual auto.loop.step will be stored in the res file
-	io.colname.step <- "STEP";
-	
+	io.colname.step <- "STEP";	
 	## io.verbosity 0 means be quit, 3 means tell me everything
-	io.verbosity<-3
-	
+	io.verbosity<-3	
 	## Separation of columns, default: arbitrary Whitespacesequenz
 	io.columnSep = "";
-
 	## ###########################
 	## ##### Report related #####
 	## ###########################
@@ -273,8 +245,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	### generate simple histogram in report (0=no, 1 = yes, default =0):
 	report.hist = 0;
 	### generate simple scatterplot in report (0=no, 1 = yes, default =0):
-	report.scatter = 0;
-	
+	report.scatter = 0;	
     ## Should graphical output be generated in a pdf File? FALSE  = NO
 	# implemented only for default report
 	report.io.pdf<-FALSE
@@ -283,21 +254,19 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	report.io.screen<-TRUE
 	## reduce the number of relevant variables for the best-plot (that is also shown continuously)
 	report.io.maxPlots<-11
-	## path to the configuration file.
-	## all relevant files for the algorithm are relative to that path
+	## New variable:
+	spot.fileMode=TRUE;
+	##########################################################################
 	.dataPath <- dirname(configFileName);
-	
 	writeLines(paste("  Data Path (all experiment data are relevant to this location): "
 					, .dataPath
 					, collapse="")
-			, con=stderr());
+					, con=stderr());
 	.genericFileNamePrefix <-  unlist(strsplit(basename(configFileName), ".", fixed = TRUE))[1]
-	
 	writeLines(paste("  File name prefix: "
-					, .genericFileNamePrefix
-					, collapse="")
-			, con=stderr());
-	
+				, .genericFileNamePrefix
+				, collapse="")
+				, con=stderr());
 	io.resFileName <- paste(.genericFileNamePrefix,"res",sep=".")
 	io.desFileName <- paste(.genericFileNamePrefix,"des",sep=".")
 	io.bstFileName <- paste(.genericFileNamePrefix,"bst",sep=".")
@@ -307,7 +276,6 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	io.apdFileName <- paste(.genericFileNamePrefix,"apd",sep=".")
 	io.metaFileName <- paste(.genericFileNamePrefix,"meta",sep=".")
 	io.fbsFileName <- paste(.genericFileNamePrefix,"fbs",sep=".")
-	
 	
 	############################################################################
 	### load user settings, this overwrite the defaults that are set up to this line
@@ -322,7 +290,6 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	#################################################################
 	### load configuration done!!!!!!!
 	#################################################################
-	
 	.lsAfterSource<-ls()
 	### give some warnings if NEW variables are created by the conf-file
 	if (length(.lsDiff<-setdiff(.lsAfterSource,.lsBeforeSource))){
@@ -332,11 +299,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 						, userConfFileName
 						, collapse="")
 				, con=stderr());
-	}
-	
-	## Sets the seed for all random number generators in SPOT
-	set.seed(spot.seed)
-	
+	}	
 	### io.resFileName <- normalizePath(paste(dataPath,io.resFileName, sep="/"));
 	writeLines(paste("  ResultFile Name : ", io.resFileName, collapse="")
 			, con=stderr());
@@ -344,7 +307,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	writeLines(paste("  DesignFile Name : ", io.desFileName, collapse="")
 			, con=stderr());
 	### io.bstFileName <- normalizePath(paste(dataPath,io.bstFileName, sep="/"));
-	writeLines(paste("  BestFile Name : ", io.bstFileName, collapse="")
+		writeLines(paste("  BestFile Name : ", io.bstFileName, collapse="")
 			, con=stderr());
 	### io.fbsFileName <- normalizePath(paste(dataPath,io.fbsFileName, sep="/"));
 	writeLines(paste("  FinalBestSolution FbsFile Name : ", io.fbsFileName, collapse="")
@@ -353,7 +316,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	### io.pdfFileName <- normalizePath(paste(dataPath,io.pdfFileName, sep="/"));
 	writeLines(paste("  pdfFile Name : ", io.pdfFileName, collapse="")
 			, con=stderr());
-	
+		
 	writeLines(paste("  Load algorithm design (ROI): ", io.roiFileName, collapse="")
 			, con=stderr());
 	## alg.roi is a table that holds the data of the .roi-file for easy and quick use in some functions 
@@ -365,7 +328,8 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	);
 	## at startup, the actual roi (alg.aroi) is the same as the initial roi (alg.roi)
 	alg.aroi <- alg.roi
-	
+	#}
+		
 	##
 	##check the paths given to the user defined R-functions
 	##(or better:  the ones the user MAY define if he wishes) 
@@ -391,7 +355,6 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	if(is.na(report.meta.path)){
 		report.meta.path = srcPath ;
 	}
-	
 	writeLines("spotGetOptions finished", con=stderr());
 	## generate a list of ALL the defined variables (default AND user written = sourced by .conf-file!)
 	## ls returns a list of all variables in this environment, that is: all the "local" variables (except the ones with leading dot
@@ -404,4 +367,3 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 #	######################################
 	return(spotConfig)
 }
-

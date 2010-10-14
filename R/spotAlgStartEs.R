@@ -1,16 +1,25 @@
-# es.R
-#thomas.bartz-beielstein@udo.edu
-#liftFinal -> 10 times lift(), so that simfx is not evaluated
-
-## rm(list=ls()); source("/home/bartz/workspace/SvnSpot/trunk/SPOT/R/spot.R")
-## spot("es1.conf","auto","/home/bartz/workspace/SvnSpot/trunk/SPOT/R")
-
-### Threshold functions ###############################
+## Experimental research in evolutionary computation
+## author: thomas.bartz-beielstein@fh-koeln.de
+## http://www.springer.com/3-540-32026-1
+##
+## Copyright (C) 2003-2010 T. Bartz-Beielstein and C. Lasarczyk
+## This program is free software;
+## you can redistribute it and/or modify it under the terms of the 
+## GNU General Public License as published by the Free Software Foundation; 
+## either version 3 of the License,
+## or (at your option) any later version.
+## This program is distributed in the hope that it will be useful, 
+## but WITHOUT ANY WARRANTY; without even the implied warranty of 
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+## See the GNU General Public License for more details.
+## You should have received a copy of the GNU General Public License along
+##  with this program; if not, see <http://www.gnu.org/licenses/>.
+##
 
 ###################################################################################################
 #' get Success Rate
 #'
-#' This function is a threshold function, evaluating the success rate.
+#' This function determines the success rate.
 #'
 #' @param gen Generation number
 #' @param pop Population to be evaluated (only the generation \code{gen} will be evaluated)
@@ -179,7 +188,7 @@ spotAlgEsRastrigin <- function(x){
 #' @param gen generation
 #' @param low lower limit
 #' @param high upper limit
-#' @param des des
+#' @param des des scaling for placement between low and high
 #'
 #' @return numeric vector \cr
 #' - contains x value, sigma value, real fitness value, fitness with noise, and generation number
@@ -502,8 +511,8 @@ spotAlgEsTermination <- function(it, maxIt, ge, maxGe, xk, xOpt, term){
 #' @param tau number, learning parameter for self adaption, default is \code{1.0}
 #' @param rho number of parents involved in the procreation of an offspring (mixing number), default is \code{"bi"}
 #' @param sel number of selected individuals, default is \code{1}
-#' @param stratReco string, Recombination operator for strategy variables, default is \code{"1"}
-#' @param objReco string, Recombination operator for object variables, default is \code{"2"}
+#' @param stratReco value, Recombination operator for strategy variables, default is \code{1}
+#' @param objReco value, Recombination operator for object variables, default is \code{2}
 #' @param maxGen number of generations, stopping criterion, default is \code{Inf}
 #' @param maxIter number of iterations, stopping criterion, default is \code{100}
 #' @param seed number, random seed, default is \code{1}
@@ -517,7 +526,7 @@ spotAlgEsTermination <- function(it, maxIt, ge, maxGe, xk, xOpt, term){
 #' @param plotResult boolean, asks if results are plotted, default is \code{FALSE}
 #' @param logPlotResult boolean, asks if plot results should be logarithmic, default is \code{FALSE}
 #' @param term string, which termination criterion should be used, default is \code{"iter"}
-#' @param resFileName string, name of the file the results are written to, default is \code{"es.res"}
+# only needed in spotAlgStartEs, not used in spotAlgEs @param resFileName string, name of the file the results are written to, default is \code{"es.res"}
 #' @param sigmaRestart number, value of sigma on restart, default is \code{0.1}
 #' @param preScanMult initial population size is multiplied by this number for a pre-scan, default is \code{1}
 #' @param globalOpt termination criterion on reaching a desired optimum value, default is \code{rep(0,dimension)}
@@ -535,8 +544,8 @@ spotAlgEs <- function(mue = 10,
 		tau = 1.0,
 		rho = "bi",
 		sel = 1,
-		stratReco = "1",
-		objReco = "2",
+		stratReco = 1,
+		objReco = 2,
 		maxGen = Inf,
 		maxIter = 100,
 		seed = 1,
@@ -550,7 +559,7 @@ spotAlgEs <- function(mue = 10,
 		plotResult=FALSE,
 		logPlotResult=FALSE,
 		term="iter",
-		resFileName = "es.res",
+		#resFileName = "es.res",           only needed in spotAlgStartEs, not used in spotAlgEs
 		sigmaRestart = 0.1,
 		preScanMult= 1,
 		globalOpt=rep(0,dimension),
@@ -561,6 +570,9 @@ spotAlgEs <- function(mue = 10,
 	lambda <- round(mue*nu)
 	mue <- round(mue)
 	nSigma <- round(nSigma)
+	### Currently, there are 4 recombination operators:
+	stratReco <- max(round(stratReco) %% 5,1) 
+	objReco <- max(round(objReco) %% 5,1) 
 	
 	if(fName=="banana"){
 		dimension <- 2
@@ -603,7 +615,7 @@ spotAlgEs <- function(mue = 10,
 	bestFitness <- NULL
 	realBest <-  NULL
 	allTimeBest <- NULL
-	currentBest <- 0.0
+	alg.currentBest <- 0.0
 	###
 	## Perform pre-scan:
 	## the initial population size is multiplied by preScanMult, say 10. Then the mue best ind are
@@ -625,7 +637,7 @@ spotAlgEs <- function(mue = 10,
 	
 	iter <-  0
 	##while(iter < maxIter && gen < maxGen ){
-	while(currentBest < Inf & spotAlgEsTermination(it=iter, maxIt=maxIter, ge=gen, maxGe=maxGen, xk=bestInd[1:dimension], xOpt=globalOpt, term=term )){
+	while(alg.currentBest < Inf & spotAlgEsTermination(it=iter, maxIt=maxIter, ge=gen, maxGe=maxGen, xk=bestInd[1:dimension], xOpt=globalOpt, term=term )){
 		gen <- gen +1
 		###
 		if(verbosity==2)   print(paste("Gen:", gen))
@@ -639,16 +651,18 @@ spotAlgEs <- function(mue = 10,
 			if(verbosity==2)   print(marriagePop)
 # Recombination
 			stratRecombinant <- switch(stratReco,
-					"interRecoBeSw02" = spotAlgEsInterRecoBeSw02(marriagePop, dimension, nSigma, objType="strat"),
-					"inter" = spotAlgEsInterReco(marriagePop, rhoVal, dimension, nSigma, objType="strat"),
-					"disc" = spotAlgEsDominantReco(marriagePop, rhoVal, dimension, nSigma, objType="strat"),
-					"no" = as.matrix(marriagePop[1,I(dimension+1):I(dimension+nSigma)]))
+					as.matrix(marriagePop[1,I(dimension+1):I(dimension+nSigma)]), ### 1 = perform no reco
+					spotAlgEsDominantReco(marriagePop, rhoVal, dimension, nSigma, objType="strat"),
+					spotAlgEsInterReco(marriagePop, rhoVal, dimension, nSigma, objType="strat"),
+					spotAlgEsInterRecoBeSw02(marriagePop, dimension, nSigma, objType="strat")
+					)
 			
 			objRecombinant <- switch(objReco,
-					"interRecoBeSw02" = spotAlgEsInterRecoBeSw02(marriagePop, dimension, nSigma, objType="obj"),
-					"inter" = spotAlgEsInterReco(marriagePop, rhoVal, dimension, nSigma, objType="obj"),
-					"disc" = spotAlgEsDominantReco(marriagePop, rhoVal, dimension, nSigma, objType="obj"),
-					"no" = as.matrix(marriagePop[1,1:dimension]))
+					as.matrix(marriagePop[1,1:dimension]), ### 1 = perform no reco
+					spotAlgEsDominantReco(marriagePop, rhoVal, dimension, nSigma, objType="obj"),
+					spotAlgEsInterReco(marriagePop, rhoVal, dimension, nSigma, objType="obj"),					
+					spotAlgEsInterRecoBeSw02(marriagePop, dimension, nSigma, objType="obj")
+					)
 			###
 			if(verbosity==2)   print(paste("stratRecombinant:", i))
 			if(verbosity==2)   print(stratRecombinant)
@@ -695,7 +709,7 @@ spotAlgEs <- function(mue = 10,
 		if(verbosity==2)   print(parentPop)
 		
 		succ <- spotAlgEsGetSuccessRate(gen,parentPop)
-		currentBest <- parentPop$fitness[[1]]
+		alg.currentBest <- parentPop$fitness[[1]]
 		currentReal <- parentPop$realFitness[[1]]
 		
 		if(verbosity>=1) {
@@ -703,7 +717,7 @@ spotAlgEs <- function(mue = 10,
 #      currentSigma<- parentPop[1,I(dimension+1):I(dimension+nSigma)]
 			currentSigma<- parentPop[1,I(dimension+1):I(dimension+nSigma)]
 			if(verbosity==2){
-				print(c(currentBest, currentReal, currentSigma))
+				print(c(alg.currentBest, currentReal, currentSigma))
 			}
 			sigmaAvgList <- c(sigmaAvgList, mean(unlist(currentSigma)))
 			if(verbosity==2){
@@ -717,9 +731,9 @@ spotAlgEs <- function(mue = 10,
 		# store only the doe values
 		if(verbosity==0){
 			realBest <- currentReal
-			bestFitness <- currentBest
-			if (currentBest < allTimeBest){
-				allTimeBest <- currentBest
+			bestFitness <- alg.currentBest
+			if (alg.currentBest < allTimeBest){
+				allTimeBest <- alg.currentBest
 				bestInd <- parentPop[1,]
 			}
 		}
@@ -728,11 +742,11 @@ spotAlgEs <- function(mue = 10,
 			##
 			realBest <-  c(realBest, currentReal)
 			allBest <- allTimeBest[length(allTimeBest)]
-			bestFitness <- c(bestFitness, currentBest)
+			bestFitness <- c(bestFitness, alg.currentBest)
 			####
-			####cat(gen, "fitness: ", currentBest, "\n")
-			if (currentBest < allBest) {
-				allTimeBest <- c(allTimeBest, currentBest)
+			####cat(gen, "fitness: ", alg.currentBest, "\n")
+			if (alg.currentBest < allBest) {
+				allTimeBest <- c(allTimeBest, alg.currentBest)
 				bestInd <- parentPop[1,]
 			}
 			else{
@@ -750,7 +764,7 @@ spotAlgEs <- function(mue = 10,
 			par(mfrow=c(2,1))
 			#xlim=c(1,maxIter/lambda)
 			plot(bestFitness, ylim=c(min(min(bestFitness), min(realBest)), max(max(bestFitness), max(realBest))), type="l",
-					xlab = paste( "Generation: " , as.character(gen), "Fitness: ", as.character(currentBest)),
+					xlab = paste( "Generation: " , as.character(gen), "Fitness: ", as.character(alg.currentBest)),
 					main = paste(as.character(mue), stratName, as.character(lambda), ", nSgm: ",as.character(nSigma), ", tau0: ", as.character(tau0), ", tau: ", as.character(tau)  )
 			)
 			lines(realBest, col="red", type="b")
@@ -765,7 +779,7 @@ spotAlgEs <- function(mue = 10,
 			par(mfrow=c(2,1))
 			##xlim=c(1,maxIter/lambda)
 			plot(log(bestFitness), ylim=c(min(min(log(bestFitness)), min(log(realBest))), max(max(log(bestFitness)), max(log(realBest)))), type="b",
-					xlab = paste( "Generation: " , as.character(gen), "Fitness: ", as.character(currentBest)),
+					xlab = paste( "Generation: " , as.character(gen), "Fitness: ", as.character(alg.currentBest)),
 					main = paste(as.character(mue), stratName, as.character(lambda), ", nSgm: ",as.character(nSigma), ", tau0: ", as.character(tau0), ", tau: ", as.character(tau)  )           
 			)
 			lines(log(realBest), col="red", type="b")
@@ -792,8 +806,8 @@ spotAlgEs <- function(mue = 10,
 	#OBJRECO = paste('"',toString((1:length(recoType))[recoType==objReco]),'"', sep="")
 	#STRATRECO = paste('"',toString((1:length(recoType))[recoType==stratReco]),'"', sep="")
 	## TODO: use which for the following selection:
-	OBJRECO = toString((1:length(recoType))[recoType==objReco])
-	STRATRECO = toString((1:length(recoType))[recoType==stratReco])
+	#OBJRECO = toString((1:length(recoType))[recoType==objReco])
+	#STRATRECO = toString((1:length(recoType))[recoType==stratReco])
 	res <- list(Y=realBest[[length(realBest)]], # last value
 			NPARENTS=mue,
 			NU=nu,
@@ -814,8 +828,8 @@ spotAlgEs <- function(mue = 10,
 			TAU=tau,
 			SIGMAINIT=sigmaInit,
 			PRESCANMULT=preScanMult,
-			OBJRECO = OBJRECO,
-			STRATRECO = STRATRECO,
+			OBJRECO = objReco,
+			STRATRECO = stratReco,
 			Function=fName,
 			MaxIter=maxIter,
 			Dim=dimension,
@@ -834,13 +848,22 @@ spotAlgEs <- function(mue = 10,
 #' This function is needed as an interface, to ensure the right information
 #' are passed from SPOT to the target algorithm (e.g. the ES) and vice versa.
 #'
-#' @param io.apdFileName name of the apd file
-#' @param io.desFileName name of the des file
-#' @param io.resFileName name of the res file
-#'
+#' @param spotConfig Contains the list of spot configurations, results of the algorithm can be passed to this list instead of the .res file.
+#'		  spotConfig defaults to "NA", and will only be passed to the Algorithm if spotConfig$spot.fileMode=FALSE. See also: \code{\link{spotGetOptions}}
+#'			Items used are: \cr \cr
+#'			alg.currentDesign: data frame holding the design points that will be evaluated \cr
+#'			io.apdFileName: name of the apd file \cr
+#'			io.desFileName: name of the des file \cr
+#'			io.resFileName: name of the res file, for logging results (if spotConfig$spot.fileMode==TRUE)\cr
+#'			spot.fileMode: boolean, if selected with true the results will also be written to the res file, otherwise it will only be saved in the spotConfig returned by this function\cr
+#' @return this function returns the \code{spotConfig} list with the results in spotConfig$alg.currentResult
 #' @references  \code{\link{SPOT}} \code{\link{spotAlgEs}} \code{\link{spotAlgEsF}} 
 ###################################################################################################
-spotAlgStartEs <- function(io.apdFileName, io.desFileName, io.resFileName){
+spotAlgStartEs <- function(spotConfig){
+	io.apdFileName=spotConfig$io.apdFileName;
+	io.desFileName=spotConfig$io.desFileName;
+	io.resFileName=spotConfig$io.resFileName;	
+	
 	dimension<-NULL
 	mutation<-NULL
 	rho<-NULL
@@ -852,24 +875,27 @@ spotAlgStartEs <- function(io.apdFileName, io.desFileName, io.resFileName){
 	upperLimit<-NULL
 	verbosity<-NULL
 	plotResult<-NULL
-	resFileName<-NULL
+	
+	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
+		writeLines(paste("Loading design file data from::",  io.desFileName), con=stderr());
+		## read doe/dace etc settings:
+		des <- read.table( io.desFileName, sep=" ", header = TRUE);	
+	}else{
+		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
+	}
+	
 	#print( io.apdFileName)
-	## read default problem design
+	## read problem design	
 	source( io.apdFileName,local=TRUE)
 	## read doe/dace etc settings:
 	#print( io.desFileName)
-	writeLines(paste("Loading design file data from::",  io.desFileName), con=stderr());
-	des <- read.table( io.desFileName
-			, sep=" "
-			, header = TRUE
-	);
 	#print(summary(des));
 	##  NPARENTS NU TAU NSIGMA REPEATS SEED
 	config<-nrow(des);
 	print(config);
 	attach(des)
 	if (!exists("CONFIG"))
-		stop("Design file is missing the required column CONFIG!")
+		stop("Design is missing the required column CONFIG!")
 	for (k in 1:config){		
 		for (i in 1:des$REPEATS[k]){
 			##
@@ -902,12 +928,12 @@ spotAlgStartEs <- function(io.apdFileName, io.desFileName, io.resFileName){
 				prescanmult <- des$PRESCANMULT[k]
 			}				
 			## special treatment for factors
-			recoType <- c("no", "disc","inter","interRecoBeSw02")
+			##recoType <- c("no", "disc","inter","interRecoBeSw02")
 			if (exists("OBJRECO")){
-				objReco <- recoType[des$OBJRECO[k]]
+				objReco <- des$OBJRECO[k]
 			}
 			if (exists("STRATRECO")){
-				stratReco <- recoType[des$STRATRECO[k]]
+				stratReco <- des$STRATRECO[k]
 			}	  
 			conf <- k
 			if (exists("CONFIG")){
@@ -942,29 +968,33 @@ spotAlgStartEs <- function(io.apdFileName, io.desFileName, io.resFileName){
 					plotResult=plotResult,
 					sigmaRestart=sigmaRestart,
 					preScanMult=prescanmult,
-					resFileName=resFileName,
 					conf=des$CONFIG[k])     
 			print(res$Y)			
 			if (exists("STEP")){
 				res=c(res,STEP=spotStep)
 			} 
 			res <-data.frame(res)
-			colNames = TRUE
-			if (file.exists(io.resFileName)){
-				colNames = FALSE
-			}			
-			## quote = false is required for JAVA
-			write.table(res
+			###########
+			if (spotConfig$spot.fileMode){ ##Log the result in the .res file, only if user didnt set fileMode==FALSE
+				colNames = TRUE
+				if (file.exists(io.resFileName)){
+					colNames = FALSE
+				}					
+				## quote = false is required for JAVA
+				write.table(res
 					, file =  io.resFileName
 					, row.names = FALSE
 					, col.names = colNames
 					, sep = " "              
 					, append = !colNames
 					, quote = FALSE
-			);			
+				);		
+			}
+			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res);			
 		}
 	}	
 	detach(des)
+	return(spotConfig)
 }
 
 ###################################################################################################
@@ -1004,7 +1034,7 @@ spotAlgEsQuickTest <- function(mue=2, nu=2,tau=1){
 	logPlotResult=FALSE;
 	verbosity=1;
 	sigmaRestart = 0.2;
-	resFileName="esQuickTest.res";
+	#resFileName="esQuickTest.res"; only needed in spotAlgStartEs, not used in spotAlgEs
 	prescanmult=1;
 	##
 	esRun <- spotAlgEs(mue=mue,
@@ -1030,8 +1060,8 @@ spotAlgEsQuickTest <- function(mue=2, nu=2,tau=1){
 			plotResult=plotResult,
 			logPlotResult=logPlotResult,
 			sigmaRestart = sigmaRestart,
-			preScanMult=prescanmult,
-			resFileName=resFileName)
+			preScanMult=prescanmult)
+			#resFileName=resFileName) only needed in spotAlgStartEs, not used in spotAlgEs
 }
 
 

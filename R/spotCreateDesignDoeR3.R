@@ -18,6 +18,7 @@
 #' - \code{M} has \code{dimension} columns and \code{noDesPoints} rows
 ####################################################################################
 spotCreateDesignDoeR3 <- function(spotConfig, noDesPoints = 100, repeats=1){
+#MZ: Default value of noDesPoints is bad, should be NA instead, which should lead to a automatical determination of the number.
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignDoe.R::spotCreateDesignDoe()");
 	spotInstAndLoadPackages(c('FrF2',  'DoE.wrapper'))
 	
@@ -32,16 +33,16 @@ spotCreateDesignDoeR3 <- function(spotConfig, noDesPoints = 100, repeats=1){
 		stop("Number of initial design points (init.design.size) too large for this design")		
 	}
 	M<-add.center(M, ncenter =1)	
-	M<-as.matrix(M)	
+	M<-as.matrix(M)	#MZ: This is broken or useless, since M (as defined here) will not be used again
 	
 	d1<-ccd.design(nfactors=length(pNames), ncenter=1, default.levels=c(-1,1),blocks=1)
-	M<-as.matrix(unique(cbind(d1$X1,d1$X2)))
+	M<-as.matrix(unique(cbind(d1$X1,d1$X2))) #MZ: M is redefined here, limited to 2 variables... 
 		
 	for (i in 1:nrow(M)){
 		for (j in 1: ncol(M)){
 			M[i,j] <- A[j,1] + (M[i,j] +1)/2 * (A[j,2] - A[j,1])
 		}
-	}	
+	}
 	colnames(M) <- pNames
 	x <- 1:nrow(M)
 	# reduces to the number requestet

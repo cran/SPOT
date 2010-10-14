@@ -226,14 +226,15 @@ The first step of course is the initialisation, wich means we need to pass
 "init" to our function:
 
 <<step.init>>=
-spot(testFile,"init")
+myConfigAndResults=spot(testFile,"init")
 @
 
 This creates some output in the console, telling us which region of interest was chosen,
 and what files were created. However the most important thing, that the "init" step did, was creating the initial design. The initial design
 is a number of points in our search space, in this case a latin hypercube design.
 Since we chose the init.design.size in our .conf file with "5", there should be 5 points created, covering the whole
-search space. If you want to see those, you can look them up in the .des File that the "init" step created. It is
+search space. If you want to see those, they are part of the myConfigAndResults list.
+If the config parameter spot.fileMode was set to TRUE you could also look them up in the .des File that the "init" step then creates. It is
 located in the same directory as the other files of our example project.
 Since we allways start the example with the same random seeds, the result should look like this: \\[12pt]
 \parbox{\textwidth}{\fbox{\parbox{\textwidth}{
@@ -244,7 +245,7 @@ TEMP TMAX CONFIG REPEATS SEED \\
 93.8123979566153 93.9297357015312 4 1 1235 \\
 16.5563532061875 52.133604357997 5 1 1235 \\
 }}
----Listing: sann0001.des---} \\
+---Initial Design---} \\
 %TODO: Listing aktualisieren
 
 The values chosen for the parameters to be optimized are between 1 and 100, as defined in our .roi file.
@@ -259,9 +260,9 @@ so that SPOT will create new output instead of overwriting old output.
 \subsection{Running the algorithm with the initial design}
 This step basically just runs the algorithm to be optimized (SANN) on the created design points.
 <<step.run>>=
-spot(testFile,"run")
+myConfigAndResults=spot(testFile,"run",spotConfig=myConfigAndResults)
 @
-The results of that algorithm run will be written into a .res file in the project directory: \\[12pt]
+The results of that algorithm run will be written into a .res file or in the result varialbe myConfigAndResults: \\[12pt]
 \parbox{\textwidth}{\fbox{\parbox{\textwidth}{
 Y TEMP TMAX FUNCTION DIM SEED CONFIG STEP \\
 0.398463820722149 23.7707780034747 6 Branin0.0 2 1235 1 0 \\
@@ -270,7 +271,7 @@ Y TEMP TMAX FUNCTION DIM SEED CONFIG STEP \\
 0.408397362895338 93.8123979566153 94 Branin0.0 2 1235 4 0 \\
 0.398808497955464 16.5563532061875 52 Branin0.0 2 1235 5 0 \\
 }}
----Listing: sann0001.res---} \\
+---Initial Results---} \\
 %TODO: Listing aktualisieren
 
 For each of the design points the "run" step evaluated a Y-value of the target function.
@@ -283,7 +284,7 @@ about the underlying function, and chose one or more new design point in our sea
 get some improvement. This is called the sequential step, since it will usually be repeated sequentially.
 
 <<step.seq>>=
-spot(testFile,"seq")
+myConfigAndResults=spot(testFile,"seq",spotConfig=myConfigAndResults)
 @
 
 While doing so, the best design point of the initial design will be saved into a .bst file, before
@@ -295,13 +296,13 @@ TEMP TMAX CONFIG REPEATS repeatsLastConfig STEP SEED \\
 36.6815126021695 77.464058787974 6 2 2 1 1235 \\
 59.3121275147679 32.5098091041157 7 2 2 1 1235 \\
 }}
----Listing: sann0001.des---} \\
+---Sequential Design---} \\
 
 As we can see, the second design listed in the res file above is repeated, because it 
 had the best Y-value. Also the predictor chose two new configurations which can now be evaluated by the "run"
 step.
 <<step.run>>=
-spot(testFile,"run")
+myConfigAndResults=spot(testFile,"run",spotConfig=myConfigAndResults)
 @
 \parbox{\textwidth}{\fbox{\parbox{\textwidth}{
 Y TEMP TMAX FUNCTION DIM SEED CONFIG STEP \\
@@ -316,7 +317,7 @@ Y TEMP TMAX FUNCTION DIM SEED CONFIG STEP \\
 0.409063730358596 59.3121275147679 33 Branin0.0 2 1235 7 1 \\
 2.7324685600925 59.3121275147679 33 Branin0.0 2 1236 7 1 \\
 }}
----Listing: sann0001.res---} \\
+---Sequential Results---} \\
 
 Each new design got evaluated twice, because spot uses the default increase function to increase the number
 of repeats for each sequential step up to 4, since seq.design.maxRepeats is set to 4 in the .conf file.
@@ -329,16 +330,16 @@ We will now quietly repeat those two steps ("seq" and"run") 5 times, to get some
 If you want to see the results, just check the .res file.
 
 <<step.seq,results=hide>>=
-spot(testFile,"seq")
-spot(testFile,"run")
-spot(testFile,"seq")
-spot(testFile,"run")
-spot(testFile,"seq")
-spot(testFile,"run")
-spot(testFile,"seq")
-spot(testFile,"run")
-spot(testFile,"seq")
-spot(testFile,"run")
+myConfigAndResults=spot(testFile,"seq",spotConfig=myConfigAndResults)
+myConfigAndResults=spot(testFile,"run",spotConfig=myConfigAndResults)
+myConfigAndResults=spot(testFile,"seq",spotConfig=myConfigAndResults)
+myConfigAndResults=spot(testFile,"run",spotConfig=myConfigAndResults)
+myConfigAndResults=spot(testFile,"seq",spotConfig=myConfigAndResults)
+myConfigAndResults=spot(testFile,"run",spotConfig=myConfigAndResults)
+myConfigAndResults=spot(testFile,"seq",spotConfig=myConfigAndResults)
+myConfigAndResults=spot(testFile,"run",spotConfig=myConfigAndResults)
+myConfigAndResults=spot(testFile,"seq",spotConfig=myConfigAndResults)
+myConfigAndResults=spot(testFile,"run",spotConfig=myConfigAndResults)
 @
 
 Now of course we could just go on doing that, to create another additional design and evaluate them as shown above over and over again.
@@ -356,7 +357,7 @@ Like the other steps, the Report-Step is based on the settings in the .conf file
 So we will just check what results we get with our current settings.
 
 <<step.rep>>=
-spot(testFile,"rep")
+myConfigAndResults=spot(testFile,"rep",spotConfig=myConfigAndResults)
 @
 
 As we see the "rep" Step tells us what solution SPOT found for our

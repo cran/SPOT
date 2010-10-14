@@ -8,7 +8,7 @@
 #' returns a sequential design to be written to the file <xxx>.des (will be determined from calling function)
 #' 
 #' @param spotConfig the list of all parameters is given, but the used ones are: \cr
-#'   spotConfig$io.resFileName: is checked for existence is not, function fails with error\cr
+#'   spotConfig$io.resFileName: is checked for existence. If not found, function fails with error\cr
 #'   spotConfig$algSourceSrcPath: needed for the error message \cr
 #'   spotConfig$userConfFileName: needed for the error message \cr
 #'   spotConfig$io.verbosity: needed for command window output \cr
@@ -61,7 +61,7 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 #	1 145.87219  10.0  15.0
 #	2 308.12910  -5.0   0.0	
 #	
-	spotWriteBest(mergedData, spotConfig);
+	spotConfig=spotWriteBest(mergedData, spotConfig);
 	if(spotConfig$io.verbosity>2){
 		spotPlotBst(spotConfig)
 	}
@@ -164,5 +164,11 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 	colnames(design)[ncol(design)] <- "SEED";
 	#
 	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving generateSequentialDesign");
-	return(design);
+	## write the design to the .des-file	
+	if (spotConfig$spot.fileMode){
+		spotWriteDes(spotConfig,design)	
+	}#else{
+	spotConfig$alg.currentDesign<-design;		
+	#}
+	return(spotConfig);
 }

@@ -27,7 +27,12 @@ spotCreateDesignLhs <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 	
 	## use roi or aroi:
 	if (spotConfig$seq.useAdaptiveRoi){ 
-		roiConfig <- spotReadAroi(spotConfig)}
+		if(spotConfig$spot.fileMode){
+			roiConfig <- spotReadAroi(spotConfig)	
+		}else{
+			roiConfig <- spotConfig$alg.aroi
+		}
+	}
 	else{
 		roiConfig <- spotConfig$alg.roi
 	}
@@ -43,7 +48,6 @@ spotCreateDesignLhs <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 	A <- t(rbind(t(lowerBound), t(upperBound)))
 			
 	M<-as.matrix(maximinLHS(noDesPoints, length(pNames), dup=2))	
-	
 	## M has entries in the range from 0 to 1, so we 
 	## transform these values into the regions of interest:
 	for (i in 1:nrow(M)){

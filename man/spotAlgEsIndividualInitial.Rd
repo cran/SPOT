@@ -16,4 +16,4 @@
 \item{gen}{generation}
 \item{low}{lower limit}
 \item{high}{upper limit}
-\item{des}{des}}
+\item{des}{des scaling for placement between low and high}}

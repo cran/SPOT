@@ -16,23 +16,24 @@
 #'
 #' @references  \code{\link{spotPrepareData}} 
 ####################################################################################
-
+#TODO: Eigentlich nutzlos geworden, da result daten IMMER in der spotConfig stehen, und somit zwar zum loggen manchmal in 
+# die .res datei geschrieben werden, aber nicht ausgelesen werden müssen.
 spotGetRawResData<- function(spotConfig){
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotGetRawResData");
 	## Load .res-file data, the result of the alg run
 	spotWriteLines(spotConfig$io.verbosity
 					, 2
 					, paste("Loading result data from::", spotConfig$io.resFileName)
-					, con=stderr());
-	
+					, con=stderr());	
 	rawResData <- read.table(spotConfig$io.resFileName
 			, sep=spotConfig$io.columnSep
 			, header = TRUE	
 			, stringsAsFactors = TRUE
-			);
+			);			
 	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotGetRawResData");
 	return(rawResData)
 }
+
 
 ###################################################################################
 #' Get Raw Data Matrix B  
@@ -55,14 +56,18 @@ spotGetRawResData<- function(spotConfig){
 ####################################################################################
 spotGetRawDataMatrixB <- function(spotConfig){
 	## read data frame from res file
-	rawData <- spotGetRawResData(spotConfig)
+	if(spotConfig$spot.fileMode){
+		rawData <- spotGetRawResData(spotConfig)
+	}else{
+    rawData=spotConfig$alg.currentResult; 
+	}   # WK: if-else needed if a call 'spot(confFileName,"rep")' shall succeed (!)
 	## extract parameter names
 	pNames <- row.names(spotConfig$alg.roi);
 	y <- rawData[,spotConfig$alg.resultColumn]
 	## data frame of parameter values
 	x <- as.matrix(rawData[,pNames]);
 	A <- cbind(y,x)        
-	B <-  data.frame(A[order(y,decreasing=FALSE),]);
+	B <- data.frame(A[order(y,decreasing=FALSE),]);
 	return(B)
 }
 
@@ -127,8 +132,12 @@ spotGetMergedDataMatrixB <- function(mergedData, spotConfig){
 #' @references  \code{\link{SPOT}} \code{\link{spot}}
 ####################################################################################
 spotPrepareData <- function(spotConfig){
-    spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotPrepareData");
-	rawData <- spotGetRawResData(spotConfig)
+  spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotPrepareData");
+	if(spotConfig$spot.fileMode){
+		rawData <- spotGetRawResData(spotConfig)
+	}else{
+	  rawData=spotConfig$alg.currentResult;
+	}                                   # WK: if-else needed if a call 'spot(confFileName,"rep")' shall succeed (!)
 	if (!any(names(rawData)=="CONFIG"))
   	   stop("Error: Result file is missing the required column CONFIG!")
     ## extract parameter names

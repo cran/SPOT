@@ -8,25 +8,44 @@
 #a       step size muliplier (e.g. 1.2239)
 #g       history length ( e.g. 12 == n)
 
-spotAlgStartOnePlusOneEsJava <- function(io.apdFileName, io.desFileName, io.resFileName){
-	writeLines(paste("Loading design file data from::", io.desFileName), con=stderr());
-	writeLines("ES run...", con=stderr());
+###################################################################################################
+#' one plus one ES function call for SPOT
+#'
+#' SPOT uses this function for some demos to call an one plus one evolution strategy. 
+#'
+#' @param spotConfig Contains the list of spot configurations, results of the algorithm can be passed to this list instead of the .res file.
+#'		  spotConfig defaults to "NA", and will only be passed to the Algorithm if spotConfig$spot.fileMode=FALSE. See also: \code{\link{spotGetOptions}}
+#'			Items used are: 
+#'			\item{alg.currentDesign}{data frame holding the design points that will be evaluated} 
+#'			\item{io.apdFileName}{name of the apd file} 
+#'			\item{io.desFileName}{name of the des file} 
+#'			\item{io.resFileName}{name of the res file, for logging results (if spotConfig$spot.fileMode==TRUE)}
+#'			\item{spot.fileMode}{boolean, if selected with true the results will also be written to the res file, otherwise it will only be saved in the spotConfig returned by this function}
+#' @return this function returns the \code{spotConfig} list with the results in spotConfig$alg.currentResult
+#' @references  \code{\link{SPOT}}
+###################################################################################################
+spotAlgStartOnePlusOneEsJava<- function(spotConfig){
+	io.apdFileName=spotConfig$io.apdFileName;
+	io.desFileName=spotConfig$io.desFileName;
+	io.resFileName=spotConfig$io.resFileName;	
+	
+	writeLines("1+1-ES run...", con=stderr());
 	print(io.apdFileName)
 	## read default problem design
 	source(io.apdFileName,local=TRUE)
 	## read doe/dace etc settings:
-	print(io.desFileName)
-	des <- read.table(io.desFileName
-			, sep=" "
-			, header = TRUE
-	);
-	print(summary(des));
-	
+	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
+		writeLines(paste("Loading design file data from::",  io.desFileName), con=stderr());
+		## read doe/dace etc settings:
+		des <- read.table( io.desFileName, sep=" ", header = TRUE);	
+	}else{
+		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
+	}
+	print(summary(des));	
 	##  SIGMANULL VARA VARG REPEATS SEED
 	config<-nrow(des);
 	print(config);
-	attach(des)
-	
+	attach(des)	
 	for (k in 1:config){
 		if(des$REPEATS[k]>=1){
 			for (i in 1:des$REPEATS[k]){
@@ -53,9 +72,9 @@ spotAlgStartOnePlusOneEsJava <- function(io.apdFileName, io.desFileName, io.resF
 				callString <- paste("java -jar bin/simpleOnePlusOneES.jar", seed, steps, target, f, n, xp0, sigma0, a, g, px, py, sep = " ")
 				print(callString)
 				y <-system(callString, intern= TRUE)
-				print(y)
+				print(y)				
 				res <- NULL
-				res <- list(Y=y, 
+				res <- list(Y=as.numeric(as.character(y)), #converted to numeric because the java call return value is seen as a factor, which leads to problems later on.
 						SIGMANULL=sigma0,
 						VARA=a,
 						VARG=g,
@@ -70,25 +89,28 @@ spotAlgStartOnePlusOneEsJava <- function(io.apdFileName, io.desFileName, io.resF
 					res=c(res,STEP=spotStep)
 				} 
 				res <-data.frame(res)
-				colNames = TRUE
-				if (file.exists(io.resFileName)){
-					colNames = FALSE
-				}
-				
-				## quote = false is required for JAVA
-				write.table(res
-						, file = io.resFileName
+				if (spotConfig$spot.fileMode){ ##Log the result in the .res file, only if user didnt set fileMode==FALSE
+					colNames = TRUE
+					if (file.exists(io.resFileName)){
+						colNames = FALSE
+					}					
+					## quote = false is required for JAVA
+					write.table(res
+						, file =  io.resFileName
 						, row.names = FALSE
 						, col.names = colNames
 						, sep = " "              
 						, append = !colNames
 						, quote = FALSE
-				);		
-				colNames = FALSE
+					);		
+					colNames = FALSE
+				}
+				spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res);				
 			} # end for i
 		} # end if(des$REPEATS[k]>=1)
 	}	#end for k
 	detach(des)
+	return(spotConfig)
 }
 
 

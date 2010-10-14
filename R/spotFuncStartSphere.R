@@ -26,29 +26,39 @@ spotNoisySphereFunction <- function (x, noise) {
 #'
 #' SPOT uses this function for some demos to call the \code{\link{spotNoisySphereFunction}} function 
 #' 
-#' @param pdFile name of the apd file
-#' @param desFileName name of the des file
-#' @param resFileName name of the res file
+#' @param spotConfig Contains the list of spot configurations, results of the algorithm can be passed to this list instead of the .res file.
+#'		  spotConfig defaults to "NA", and will only be passed to the Algorithm if spotConfig$spot.fileMode=FALSE. See also: \code{\link{spotGetOptions}}
+#'			Items used are: \cr \cr
+#'			alg.currentDesign: data frame holding the design points that will be evaluated \cr
+#'			io.apdFileName: name of the apd file \cr
+#'			io.desFileName: name of the des file \cr
+#'			io.resFileName: name of the res file, for logging results (if spotConfig$spot.fileMode==TRUE)\cr
+#'			spot.fileMode: boolean, if selected with true the results will also be written to the res file, otherwise it will only be saved in the spotConfig returned by this function\cr
+#' @return this function returns the \code{spotConfig} list with the results in spotConfig$alg.currentResult
 #' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{optim}}
 #' \code{\link{spotNoisySphereFunction}}
 ###################################################################################################
-
-spotFuncStartSphere <- function(pdFile, desFileName, resFileName){
-	writeLines(paste("Loading design file data from::", desFileName), con=stderr());	
+spotFuncStartSphere <- function(spotConfig){
+	pdFile=spotConfig$io.apdFileName;
+	resFileName=spotConfig$io.resFileName;	
+	desFileName=spotConfig$io.desFileName;	
+	
+	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
+		writeLines(paste("Loading design file data from::",  desFileName), con=stderr());
+		## read doe/dace etc settings:
+		des <- read.table(desFileName, sep=" ", header = TRUE);	
+	}else{
+		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
+	}	
 	noise<-NULL
 	f<-NULL
 	n<-NULL
 	## read default problem design
 	source(pdFile,local=TRUE)
 	## read doe/dace etc settings:
-	des <- read.table(desFileName
-			, sep=" "
-			, header = TRUE
-	);	
 	##  VARX1 VARX2 VARX3 REPEATS SEED
 	config<-nrow(des);	
-	attach(des)
-	
+	attach(des)	
 	for (k in 1:config){
 		for (i in 1:des$REPEATS[k]){
 			##
@@ -84,23 +94,26 @@ spotFuncStartSphere <- function(pdFile, desFileName, resFileName){
 					CONFIG=conf
 			)
 			res <-data.frame(res)			
-			colNames = TRUE
-			if (file.exists(resFileName)){
-				colNames = FALSE
+			if (spotConfig$spot.fileMode){ ##Log the result in the .res file, only if user didnt set fileMode==FALSE
+				colNames = TRUE
+				if (file.exists(resFileName)){
+					colNames = FALSE
+				}				
+				## quote = false is required for JAVA
+				write.table(res
+						, file = resFileName
+						, row.names = FALSE
+						, col.names = colNames
+						, sep = " "              
+						, append = !colNames
+						, quote = FALSE
+				);		
 			}
-			
-			## quote = false is required for JAVA
-			write.table(res
-					, file = resFileName
-					, row.names = FALSE
-					, col.names = colNames
-					, sep = " "              
-					, append = !colNames
-					, quote = FALSE
-			);			
+			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res);					
 		}			
 	}	
 	detach(des)
+	return(spotConfig)
 }
 
 

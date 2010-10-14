@@ -69,21 +69,26 @@ spotWriteBest <- function(B, spotConfig){
 	Y <- B$mergedY;
 	A <- cbind(Y,x,COUNT=B$count,CONFIG=B$CONFIG)        
 	C <-  data.frame(A[order(Y,decreasing=FALSE),]);
-	## col.names should be written only once:
-	colNames = TRUE
-	if (file.exists(spotConfig$io.bstFileName)){
-		colNames = FALSE
+	#TODOMZ: Implement the following line right? Before only in report, but that resulted into differences between report/.bst file
+	C = C[C$COUNT==max(C$COUNT),];    # choose only among the solutions with highest repeat	
+	## col.names should be written only once:	
+	if(spotConfig$spot.fileMode){
+		colNames = TRUE
+		if (file.exists(spotConfig$io.bstFileName)){
+			colNames = FALSE
+		}
+		write.table(C[1,]
+				, file = spotConfig$io.bstFileName
+				, col.names= colNames
+				, row.name = FALSE
+				, append = !colNames         ## /WK/
+				, sep = " ",
+				, quote = FALSE
+				, eol = "\n"
+		);
 	}
-	write.table(C[1,]
-			, file = spotConfig$io.bstFileName
-			, col.names= colNames
-			, row.name = FALSE
-			, append = !colNames         ## /WK/
-			, sep = " ",
-			, quote = FALSE
-			, eol = "\n"
-	);
-	C; 
+	spotConfig$alg.currentBest=rbind(spotConfig$alg.currentBest,C[1,]); #Add the best to the bst list in spotConfig, if spot.fileMode is false
+	return(spotConfig); 
 }
 
 
@@ -148,8 +153,7 @@ spotWriteAroi<-function(spotConfig,aroi){
 			, quote = FALSE
 			, append = FALSE
 			, col.names=TRUE
-	);
-	
+	);	
 }
 
 ##################################################################################
@@ -166,14 +170,14 @@ spotWriteAroi<-function(spotConfig,aroi){
 #'		
 ###################################################################################
 spotReadAroi<-function(spotConfig){
-writeLines(paste("Load actual algorithm design (AROI): ", spotConfig$io.aroiFileName, collapse="")
-		, con=stderr());
-aroi.df <- read.table( spotConfig$io.aroiFileName		
-		, header = TRUE
-		, as.is=TRUE
-		, row.names = 1 #Parameter als Zeilennamen
-);
-return(aroi.df)
+	writeLines(paste("Load actual algorithm design (AROI): ", spotConfig$io.aroiFileName, collapse="")
+			, con=stderr());
+	aroi.df <- read.table( spotConfig$io.aroiFileName		
+			, header = TRUE
+			, as.is=TRUE
+			, row.names = 1 #Parameter als Zeilennamen
+	);
+	return(aroi.df)
 }
 
 
@@ -236,6 +240,68 @@ spotInstAndLoadPackages <- function(packageList,reposLoc="http://cran.r-project.
 #' holding the installed version of SPOT
 ####################################################################################
 spotVersion <- function(){
+
+	writeLines("Initial version: 0.1.888")
+	writeLines("")
+	writeLines("Changes from version 0.1.888 to version 0.1.1016:")
+	writeLines("1. New function: spotGui()")
+	writeLines("\t	Starts a java gui to work with SPOT")
+	writeLines("2. New parameters for the \"meta\" task:")
+	writeLines("\t	- spotConfig$report.meta.func")
+	writeLines("\t	- spotConfig$report.meta.path")
+	writeLines("\t	Define name and path of a report that summarizes a meta experiment")
+	writeLines("3. Fixed Documentation")
+	writeLines("")	
+	writeLines("Changes from version 0.1.1016 to version NEWVERSION")
+	writeLines("1. New parameters in spotConfig:")
+	writeLines("\t	a.\t	spot.fileMode: Boolean, defines if ")
+	writeLines("\t\t		created data is logged in res/des/bst/aroi files")
+	writeLines("\t\t		If TRUE (default) files will be written, else")
+	writeLines("\t\t		the results will be written to spotConfig (see")
+	writeLines("\t\t		the followind parameters)")
+	writeLines("\t	b.\t	alg.currentResult: Holds the results of the")
+	writeLines("\t\t		target algorithm or function that is optimized ")
+	writeLines("\t\t		by spot, as a data frame. (earlier only in .res file)")
+	writeLines("\t	c.\t	alg.aroi: this holds the aroi (earlier only in .aroi ")
+	writeLines("\t\t		file)")
+	writeLines("\t	d.\t	alg.currentBest: This holds a data frame with the best")
+	writeLines("\t\t		results (earlier only in .bst files)")
+	writeLines("\t	e.\t	alg.currentDesign: This holds a data frame with the ")	
+	writeLines("\t\t		design to be evaluated by the next \"run\" task.(earlier")
+	writeLines("\t\t		only in .des files)")
+	writeLines("")
+	writeLines("2. Changes to userdefined functions:")
+	writeLines("")
+	writeLines("\t	spotConfig$alg.func:")
+	writeLines("\t	This function now recieves and returns only spotConfig.")
+	writeLines("\t	This means resFileName, apdFileName, and desFileName are no")
+	writeLines("\t	input arguments anymore, they need to be read from 	spotConfig.")
+	writeLines("\t	The function needs to be changed to write the \"result\" data")
+	writeLines("\t	frame to the spotConfig$alg.currentResult.")
+	writeLines("\t	It can also be written to .res file, if wanted by the user.")
+	writeLines("\t	(check for spotConfig$spot.fileMode if needed)")
+	writeLines("")
+	writeLines("\t	spotConfig$report.func")
+	writeLines("\t	The function now also returns spotConfig.")
+	writeLines("\t	To get the best value the following lines are be used now in the default report: ")
+	writeLines("\t	#################################	")
+	writeLines("\t	spotConfig=spotWriteBest(mergedData, spotConfig);")
+	writeLines("\t	C1=spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),]")
+	writeLines("\t	#################################")
+	writeLines("")
+	writeLines("\t	In general some spot functions you might use in your")
+	writeLines("\t	userdefined functions will now return spotConfig.")
+	writeLines("")
+	writeLines("4. spot() can now be called with a list of settings, e.g. spotConfig.")
+	writeLines("\t	example: spot(\"example.conf\",\"auto\",spotConfig=list(auto.loop.nevals=150)).")
+	writeLines("\t	spot() will also return the spotConfig. This can then be feed into the next spot() run.")
+	writeLines("")
+	writeLines("4. Changes to the spotGui:")
+	writeLines("\t	a.\t	The spotGui layout was changed, a menu bar added.")
+	writeLines("\t	b.\t	New feature: Create your own test functions with")
+	writeLines("\t\t	the function generator")
+	writeLines("")
+	writeLines("")
 	return(packageDescription("SPOT")$Version)
 }
 

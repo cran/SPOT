@@ -23,6 +23,7 @@ that are designed to be open to adaptions where ever necessary.}
 \item{auto.loop.steps}{[\code{1}] number of iterations the loop over all SPOT-steps should be repeated}
 \item{auto.loop.nevals}{[\code{Inf}] budget  of algorithm/simulator runs
 - most important parameter for run-time of the algorithm in case the spot-function is called with the "auto"-task }
+\item{spot.fileMode}{[\code{TRUE}] boolean, that defines if files are used to read and write results (which is the "classic" spot procedure) or if SPOT will only use the workspace to store variables.}
 \item{spot.seed}{[\code{123}] global seed setting for all random generator dependent calls within SPOT. same seed shall repeat same results, \cr
 BUT: please note: this is NOT the seed for the algorithm!!! see alg.seed}
 \item{alg.language}{[\code{"sourceR"}] language the algorithm is written in. Can either be "sourceR" or "unixSh". 
@@ -39,6 +40,9 @@ This is needed to reproduce the results }
 It is used to provide an easy to use matrix with the data from the  ".roi"-file (= Region Of Interest)}
 \item{alg.aroi}{internal parameter for the actual region of interest (do not try to set this one, it will be overwritten with default values). 
 It is used to provide an easy to use matrix with the data from the  ".aroi"-file (= Actual Region Of Interest)}
+\item{alg.currentDesign}{[usually not changed by user] data frame of the design that will be evaluated by the next call to \link{spotStepRunAlg}} 
+\item{alg.currentResult}{[usually not changed by user] data frame that contains the results of the target algorithm runs} 
+\item{alg.currentBest}{[usually not changed by user] data frame that contains the best results of each step conducted by spot} 
 \item{io.columnSep}{[\code{""}] column seperator for the input/output files, default means: arbitrary whitespace sequence, 
 should be set by the value you want to have between your columns}
 \item{io.colname.repeats}{[\code{"REPEATS"}] string holding the name of the column in the .des-file that indicates how much (randomly different) repeats with a design should be performed by the algorithm }

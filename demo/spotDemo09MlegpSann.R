@@ -9,6 +9,6 @@ testPath<-file.path(testPath,"demo09MlegpSann")
 testPath
 ## run example
 testFile<-file.path(testPath,"demo09MlegpSann.conf")
-spot(testFile)
+spotConfig=spot(testFile)
 ## (for calls from demo():) reset confirmation of plots to previous setting
 options("demo.ask" = old.demo.ask)

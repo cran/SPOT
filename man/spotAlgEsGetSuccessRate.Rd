@@ -3,7 +3,7 @@
 \title{get Success Rate...}
 \usage{spotAlgEsGetSuccessRate(gen, pop)}
 \description{get Success Rate}
-\details{This function is a threshold function, evaluating the success rate.}
+\details{This function determines the success rate.}
 \value{number \cr
 - the success rate of the given population}
 \references{\code{\link{spotAlgEs}} \code{\link{spotAlgStartEs}}}

@@ -1,7 +1,7 @@
 \name{spot}
 \alias{spot}
 \title{Main function for the use of SPOT...}
-\usage{spot(configFile, spotTask="auto", srcPath=NA)}
+\usage{spot(configFile, spotTask="auto", srcPath=NA, spotConfig=NA)}
 \description{Main function for the use of SPOT}
 \details{Sequential Parameter Optimization Toolbox (SPOT) provides a toolbox for the 
 sequential optimization of parameter driven tasks. 
@@ -16,6 +16,9 @@ by the user.}
 \references{\code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepAutoOpt}}  \code{\link{spotStepInitial}}
 \code{\link{spotStepSequential}} \code{\link{spotStepRunAlg}} \code{\link{spotStepReport}} 
 \code{\link{spotPrepare}} \code{\link{spotPrepareSystem}}}
-\arguments{\item{configFile}{the absolute path including filespecifier, there is no default, this value MUST be given.}
+\arguments{\item{configFile}{the absolute path including filespecifier, there is no default, this value should always be given}
 \item{spotTask}{[init|seq|run|auto|rep] the switch for the tool used, default is "auto"}
-\item{srcPath}{the absolute path to user written sources that extend SPOT, the default(NA) will search for sources in the path <.libPath()>/SPOT/R}}
+\item{srcPath}{the absolute path to user written sources that extend SPOT, the default(NA) will search for sources in the path <.libPath()>/SPOT/R}
+\item{spotConfig}{a list of parameters used to configure spot, default is spotConfig=NA, which means the configuration will only be read from the \code{configFile}, not given by manual user input. 		
+Notice that parameters given in spotConfig will overwrite both default values assigned by SPOT, AND values defined in the Config file
+However, values not passed by spotConfig will still be used as defaults. If you want to see those defaults, look at \code{\link{spotGetOptions}}}}

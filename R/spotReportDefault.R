@@ -19,13 +19,11 @@ spotReportDefault <- function(spotConfig) {
 	print(summary(rawB));
 	mergedData <- spotPrepareData(spotConfig)
 	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);	
-	C1 = spotWriteBest(mergedData, spotConfig);
-	C1 = C1[C1$COUNT==max(C1$COUNT),];    # choose only among the solutions with high repeat
+	spotConfig=spotWriteBest(mergedData, spotConfig);
+	C1=spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),]
 	cat(sprintf("\n Best solution found with %d evaluations:\n",nrow(rawB)));
-	print(C1[1,]);
-		
-	fit.tree <- rpart(y ~ ., data= rawB)	
-	
+	print(C1);		
+	fit.tree <- rpart(y ~ ., data= rawB)		
 	if (!is.null(fit.tree$splits)){
 		if(spotConfig$report.io.pdf==TRUE){ #if pdf should be created
 			pdf(spotConfig$io.pdfFileName) #start pdf creation
@@ -40,5 +38,6 @@ spotReportDefault <- function(spotConfig) {
 			par(mfrow=c(1,1), xpd=NA)
 			draw.tree(fit.tree, digits=4)	
 		}
-	}	
+	}
+	return(spotConfig)	
 }

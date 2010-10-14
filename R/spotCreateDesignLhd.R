@@ -59,9 +59,7 @@ spotCreateDesignLhd <- function(spotConfig, noDesPoints = NaN, retries=NaN) {
 		dim <- nrow(spotConfig$alg.roi);
 		## Im letzten Term ist das zweite +1 für die Crossvalidierung nötig
 		noDesPoints <- max(11*dim,1 + 3 * dim + dim * (dim - 1) / 2 + 1);
-		## dim higher than 16, max will take the second arguent, else the first
-		## TBB 23 2 2009:
-		#noDesPoints <- 10;    
+		## dim higher than 16, max will take the second arguent, else the first		
 	}
 	
 	## Bei einer Wiederholung muss die Distanz nicht berechnet werden
@@ -75,7 +73,7 @@ spotCreateDesignLhd <- function(spotConfig, noDesPoints = NaN, retries=NaN) {
 				best <- tmpDes;
 		}
 	}
-	#browser()
+	
 	design <- as.data.frame(best$design);
 	colnames(design) <- row.names(spotConfig$alg.roi);  
 	print(spotConfig$alg.roi)
@@ -84,7 +82,7 @@ spotCreateDesignLhd <- function(spotConfig, noDesPoints = NaN, retries=NaN) {
 		lowerBound <-  spotConfig$alg.roi[param,"low"];
 		upperBound <-  spotConfig$alg.roi[param,"high"];
 		
-		## Bei x.5 wird zum nächsten GERADEN Wert gerundet (nach IEEE)
+		## Bei x.5 wird zum nächsten GERADEN Wert gerundet (nach IEEE), so wird aus 2.2500 2.2 und aus 2.3500 2.4
 		if (spotConfig$alg.roi[param,"type"]  == "INT" || spotConfig$alg.roi[param,"type"]  == "FACTOR"){
 			## print( c(param, spotConfig$alg.roi[param,"type"], lowerBound))
 			lowerBound <- lowerBound - 0.5;
@@ -92,15 +90,15 @@ spotCreateDesignLhd <- function(spotConfig, noDesPoints = NaN, retries=NaN) {
 		}
 		design[param] <- lowerBound + design[param] * (upperBound-lowerBound);
 	}
-	## Integers (and Factor) Runden
-	if (any(spotConfig$alg.roi[["type"]] == "INT") || any(spotConfig$alg.roi[param,"type"]  == "FACTOR"))
-		design[spotConfig$alg.roi[["type"]]  == "INT"] <- floor(design[spotConfig$alg.roi[["type"]]  == "INT"]+0.5);
+	## Integers (and Factor) runden
+	###if (any(spotConfig$alg.roi[["type"]] == "INT") || any(spotConfig$alg.roi[param,"type"]  == "FACTOR"))
+	design[spotConfig$alg.roi[["type"]]  == "INT"] <- floor(design[spotConfig$alg.roi[["type"]]  == "INT"]+0.5);
 	design[spotConfig$alg.roi[["type"]]  == "FACTOR"] <- floor(design[spotConfig$alg.roi[["type"]]  == "FACTOR"]+0.5);	
 	
 	if (!is.na(spotConfig$design.paramSignif))
 		## Auf den signifikanten Anteil  reduzieren
 		design <- signif(design,spotConfig$design.paramSignif);
 	##
-	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotDesignLhd");	
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotCreateDesignLhd");	
 	return(design);
 }

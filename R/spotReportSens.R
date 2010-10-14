@@ -40,8 +40,14 @@ spotReportSens <- function(spotConfig) {
 	print(summary(rawB));
 	mergedData <- spotPrepareData(spotConfig)
 	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);	
-	C1 = spotWriteBest(mergedData, spotConfig);
-	C1 = C1[C1$COUNT==max(C1$COUNT),];    # choose only among the solutions with highest repeat
+	#rawD<-spotGetRawResData(spotConfig);  # raw data with CONFIG, needed for sd(BestSolution)      MZ: replaced with if/else for fileMode
+	if(spotConfig$spot.fileMode) {
+		rawD <- spotGetRawResData(spotConfig)
+	}else{
+		rawD=spotConfig$alg.currentResult; 
+	}	
+	spotConfig=spotWriteBest(mergedData, spotConfig);
+	C1=spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),]       # WK: added ","
 	xNames <- setdiff(names(rawB),c(spotConfig$alg.resultColumn,"y"))
 	B <- NULL 
 	nsens=20             # number of points along the normalized ROI range
@@ -50,25 +56,40 @@ spotReportSens <- function(spotConfig) {
 	   B <- rbind(B,data.frame(C1[1,xNames]));
 	}
 	fit <- randomForest(rawB[,xNames], rawB$y, ntree=100)			
-#	fit <- rpart(y ~ ., data= rawB)
-
-  rwb <- cbind(spotConfig$alg.roi,t(B[1,]));      # rwb: roi with 'BEST' column
-  names(rwb)[length(rwb)] <- "BEST";
-  Y <- spotReportSensY(B,fit,spotConfig$alg.roi,nsens);
-  # scale each ROI to the normalized ROI range [-1,+1]:
-  X=seq(-1,1,length.out=nsens)
-  matplot(X,Y,type="l",lwd=rep(2,ncol(Y)),col=1:ncol(Y),xlab="normalized ROI") #,sub=palette(rainbow(6)));
-  # XP is the location of the SPOT best point for each parameter in the normalized ROI range
-  XP = (rwb$BEST-rwb$low)/(rwb$high-rwb$low)*2-1; 
-  XP=rbind(XP,XP);   # matpoints needs at least two rows to plot each column in a different color
-  YP = min(Y);  YP=rbind(YP,YP);
-  matpoints(XP,YP,pch=rep(21,ncol(Y)),bg=1:ncol(Y),cex=2)
-  legend("topleft",legend=names(Y),lwd=rep(2,ncol(Y)),lty=1:ncol(Y),col=1:ncol(Y),text.col=1:ncol(Y));
-  #palette("default")
-  cat(sprintf("\n Sensitivity plot for this ROI:\n"));
-  print(rwb);
+	#fit <- rpart(y ~ ., data= rawB)
+	rwb <- cbind(spotConfig$alg.roi,t(B[1,]));      # rwb: roi with 'BEST' column
+	names(rwb)[length(rwb)] <- "BEST";
+	Y <- spotReportSensY(B,fit,spotConfig$alg.roi,nsens);
+	# scale each ROI to the normalized ROI range [-1,+1]:
+	X=seq(-1,1,length.out=nsens)	
+	# XP is the location of the SPOT best point for each parameter in the normalized ROI range
+	XP = (rwb$BEST-rwb$low)/(rwb$high-rwb$low)*2-1; 
+	XP=rbind(XP,XP);   # matpoints needs at least two rows to plot each column in a different color
+	YP = min(Y);  YP=rbind(YP,YP);	
+#palette("default")
+	cat(sprintf("\n Sensitivity plot for this ROI:\n"));
+	print(rwb);
 	cat(sprintf("\n Best solution found with %d evaluations:\n",nrow(rawB)));
 	print(C1[1,]);
+	cat(sprintf("\n Standard deviation of best solution:\n"));
+	y<-rawD[rawD$CONFIG==C1[1,"CONFIG"],spotConfig$alg.resultColumn];
+	cat(sprintf("  %f	 +-  %f\n",mean(y),sd(y)));
+	#finally the plot commands, both for screen and pdf file
+  	if(spotConfig$report.io.pdf==TRUE){ #if pdf should be created
+		pdf(spotConfig$io.pdfFileName) #start pdf creation
+		matplot(X,Y,type="l",lwd=rep(3,ncol(Y)),cex.axis=1.5,cex.lab=1.5,col=1:ncol(Y),xlab="normalized ROI",main=spotConfig$userConfFileName) 
+		matpoints(XP,YP,pch=rep(21,ncol(Y)),bg=1:ncol(Y),cex=2)	
+		legend("topleft",legend=names(Y),lwd=rep(2,ncol(Y)),lty=1:ncol(Y),col=1:ncol(Y),text.col=1:ncol(Y));		
+		dev.off() #close pdf device
+	}
+	if(spotConfig$report.io.screen==TRUE) #if graphic should be on screen
+	{
+		matplot(X,Y,type="l",lwd=rep(3,ncol(Y)),cex.axis=1.5,cex.lab=1.5,col=1:ncol(Y),xlab="normalized ROI",main=spotConfig$userConfFileName) 
+		matpoints(XP,YP,pch=rep(21,ncol(Y)),bg=1:ncol(Y),cex=2)	
+		legend("topleft",legend=names(Y),lwd=rep(2,ncol(Y)),lty=1:ncol(Y),col=1:ncol(Y),text.col=1:ncol(Y));
+	}
 	spotWriteLines(spotConfig$io.verbosity,2,"\n Leaving spotReportSens");
+	return(spotConfig)	
 }
+
 

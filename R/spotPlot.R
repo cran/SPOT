@@ -41,7 +41,11 @@ spotPlotBst <- function(spotConfig){
 	rawB <- spotGetRawDataMatrixB(spotConfig);
 	nEvals <- nrow(rawB)
 	pNames <- row.names(spotConfig$alg.roi);
-	b<-spotReadBstFile(spotConfig)	
+	if(spotConfig$spot.fileMode){
+		b<-spotReadBstFile(spotConfig)	
+	}else{
+		b<-spotConfig$alg.currentBest
+	}		
 	Y = b$Y
 	n <- length(Y)
 	step<-1:n

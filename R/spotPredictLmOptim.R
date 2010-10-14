@@ -26,11 +26,13 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 	nParam <- length(pNames)
 	##
 	# fmla update required based on new aroi:
-	spotConfig$alg.aroi <- read.table(spotConfig$io.aroiFileName			
-			, header = TRUE
-			, as.is=TRUE
-			, row.names = 1 #Parameter als Zeilennamen
-	);
+	if(spotConfig$spot.fileMode){
+		spotConfig$alg.aroi <- read.table(spotConfig$io.aroiFileName			
+				, header = TRUE
+				, as.is=TRUE
+				, row.names = 1 #Parameter als Zeilennamen
+		);
+	}
 	print(spotConfig$alg.aroi)
 	fmla <- NULL				
 	for (i in 1:nParam) {
@@ -96,7 +98,7 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 		x11()
 		contour(dfc.rsm1, as.formula(paste("~",makeNParametersSum(nParam))))
 		dev.off()
-		fName= paste (tail(mergedData$STEP,1), spotConfig$io.pdfFileName, sep="")
+		fName= paste (tail(mergedData$STEP,1), spotConfig$io.pdfFileName, sep="") 
 		pdf(file=fName)
 		contour(dfc.rsm1, as.formula(paste("~",makeNParametersSum(nParam))))
 		dev.off()
@@ -171,9 +173,17 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 			A <- cbind(pNames, A)  
 			colnames(A) <- c("name", "low", "high")
 			## Now we add type information
-			aroi <- spotReadAroi(spotConfig)
+			if(spotConfig$spot.fileMode){ #CHECK IF CORRECT TODOMZ
+				aroi<- spotReadAroi(spotConfig)	
+			}else{
+				aroi <- spotConfig$alg.aroi;
+			}
 			A <- cbind(A, type=aroi$type)		
-			spotWriteAroi(spotConfig, A)
+			if(spotConfig$spot.fileMode){ 
+				spotWriteAroi(spotConfig, A)	
+			}#else{
+				spotConfig$alg.aroi<-A;
+			#}
 			spotWriteLines(spotConfig$io.verbosity,2,"AROI modified. Execution with continued in the adapted ROI.");
 			## generate a new design 
 			spotConfig$seq.useAdaptiveRoi <- TRUE

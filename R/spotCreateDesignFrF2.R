@@ -24,7 +24,12 @@ spotCreateDesignFrF2 <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 	#require(DoE.wrapper)#allready required in spotInstAndLoadPackages function
 	
 	if (spotConfig$seq.useAdaptiveRoi){ 
-		roiConfig <- spotReadAroi(spotConfig)}
+		if(spotConfig$spot.fileMode){ 
+			roiConfig <- spotReadAroi(spotConfig)	
+		}else{
+			roiConfig <- spotConfig$alg.aroi
+		}
+	}	
 	else{
 		roiConfig <- spotConfig$alg.roi
 	}	

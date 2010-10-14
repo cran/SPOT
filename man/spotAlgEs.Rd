@@ -2,12 +2,12 @@
 \alias{spotAlgEs}
 \title{Evolution Strategy Implementation for SPOT package...}
 \usage{spotAlgEs(mue=10, nu=10, dimension=2, mutation="selfA", sigmaInit=1,
-    nSigma=1, tau0=0, tau=1, rho="bi", sel=1, stratReco="1",
-    objReco="2", maxGen=Inf, maxIter=100, seed=1, noise=0, thrs="no",
+    nSigma=1, tau0=0, tau=1, rho="bi", sel=1, stratReco=1, objReco=2,
+    maxGen=Inf, maxIter=100, seed=1, noise=0, thrs="no",
     thrsConstant=0, fName="sphere", lowerLimit=-1, upperLimit=1,
     verbosity=0, plotResult=FALSE, logPlotResult=FALSE, term="iter",
-    resFileName="es.res", sigmaRestart=0.1, preScanMult=1,
-    globalOpt=rep(0, dimension), conf=-1)}
+    sigmaRestart=0.1, preScanMult=1, globalOpt=rep(0, dimension),
+    conf=-1)}
 \description{Evolution Strategy Implementation for SPOT package}
 \details{This function is used by \code{\link{spotAlgStartEs}} as a main loop for running
 the Evolution Strategy with the given parameter set specified by SPOT.}
@@ -22,8 +22,8 @@ the Evolution Strategy with the given parameter set specified by SPOT.}
 \item{tau}{number, learning parameter for self adaption, default is \code{1.0}}
 \item{rho}{number of parents involved in the procreation of an offspring (mixing number), default is \code{"bi"}}
 \item{sel}{number of selected individuals, default is \code{1}}
-\item{stratReco}{string, Recombination operator for strategy variables, default is \code{"1"}}
-\item{objReco}{string, Recombination operator for object variables, default is \code{"2"}}
+\item{stratReco}{value, Recombination operator for strategy variables, default is \code{1}}
+\item{objReco}{value, Recombination operator for object variables, default is \code{2}}
 \item{maxGen}{number of generations, stopping criterion, default is \code{Inf}}
 \item{maxIter}{number of iterations, stopping criterion, default is \code{100}}
 \item{seed}{number, random seed, default is \code{1}}
@@ -37,7 +37,6 @@ the Evolution Strategy with the given parameter set specified by SPOT.}
 \item{plotResult}{boolean, asks if results are plotted, default is \code{FALSE}}
 \item{logPlotResult}{boolean, asks if plot results should be logarithmic, default is \code{FALSE}}
 \item{term}{string, which termination criterion should be used, default is \code{"iter"}}
-\item{resFileName}{string, name of the file the results are written to, default is \code{"es.res"}}
 \item{sigmaRestart}{number, value of sigma on restart, default is \code{0.1}}
 \item{preScanMult}{initial population size is multiplied by this number for a pre-scan, default is \code{1}}
 \item{globalOpt}{termination criterion on reaching a desired optimum value, default is \code{rep(0,dimension)}}
