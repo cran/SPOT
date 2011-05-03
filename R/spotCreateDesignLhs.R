@@ -47,7 +47,9 @@ spotCreateDesignLhs <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 	
 	A <- t(rbind(t(lowerBound), t(upperBound)))
 			
-	M<-as.matrix(maximinLHS(noDesPoints, length(pNames), dup=2))	
+        ## modified Jan, 31 2011 TBB:
+        ## M<-as.matrix(maximinLHS(noDesPoints, length(pNames), dup=2))
+        M<-as.matrix(improvedLHS(noDesPoints, length(pNames), dup=2))
 	## M has entries in the range from 0 to 1, so we 
 	## transform these values into the regions of interest:
 	for (i in 1:nrow(M)){

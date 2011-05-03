@@ -59,13 +59,13 @@ spotGetRawDataMatrixB <- function(spotConfig){
 	if(spotConfig$spot.fileMode){
 		rawData <- spotGetRawResData(spotConfig)
 	}else{
-    rawData=spotConfig$alg.currentResult; 
+		rawData=spotConfig$alg.currentResult; 
 	}   # WK: if-else needed if a call 'spot(confFileName,"rep")' shall succeed (!)
 	## extract parameter names
 	pNames <- row.names(spotConfig$alg.roi);
 	y <- rawData[,spotConfig$alg.resultColumn]
 	## data frame of parameter values
-	x <- as.matrix(rawData[,pNames]);
+	x <- as.matrix(rawData[pNames]); #MZ: Bugfix for 1 dimensional optimization
 	A <- cbind(y,x)        
 	B <- data.frame(A[order(y,decreasing=FALSE),]);
 	return(B)
@@ -107,8 +107,8 @@ spotGetMergedDataMatrixB <- function(mergedData, spotConfig){
 #' 
 #' spotPrepareData prepares the data from .res-file  
 #'
-#' The result (.res) file is read and the data are prepared for further procesing
-#' results in a list of several values
+#' The result (.res) file is read and the data are prepared for further processing
+#' results in an unsorted list of several values
 #' 
 #' @param spotConfig the list of all parameters is given, used parameters are: 
 #' 		\code{spotConfig$io.resFileName}
@@ -154,18 +154,31 @@ spotPrepareData <- function(spotConfig){
     }
 	z <- split(rawData[,spotConfig$alg.resultColumn], rawData$CONFIG);
 	fs <- function(xs) { spotConfig$seq.transformation.func(spotConfig$seq.merge.func(xs)) }
-	mergedY <- sapply(z,fs)	
-	count <- sapply(z,length) 	
+	mergedY <- sapply(z,fs)
+        varY <- sapply(z,var)
+  	count <- sapply(z,length) 	
 	mergedCONFIG <- sapply(split(rawData$CONFIG, rawData$CONFIG),min)
 	mergedSTEP <- sapply(split(rawData$STEP, rawData$CONFIG),min)
-	x <- as.data.frame(t(sapply(split(rawData[,pNames], rawData$CONFIG),mean)));	
+  ### added Seed 6.Jan 2011:
+        mergedSEED <- sapply(split(rawData$SEED, rawData$CONFIG),min)
+	#x1 <- as.data.frame(t(sapply(split(rawData[,pNames], rawData$CONFIG),mean)));	# This expression results into errors if just one variable is in the ROI
+	{if (length(pNames)==1){ 
+		x <- as.data.frame(sapply(split(rawData[,pNames], rawData$CONFIG),mean))
+		names(x)<-pNames;
+	}
+	else{
+		x <- as.data.frame(t(sapply(split(rawData[,pNames], rawData$CONFIG),mean)))
+	}}
+	
 	resultList<-list( x = x
          , mergedY = mergedY
+         , varY = varY                
          , count = count          
          , CONFIG = mergedCONFIG 
          , pNames = pNames
          , step.last = step.last
-		 , STEP = mergedSTEP
+         , STEP = mergedSTEP
+         , SEED = mergedSEED
          )
 	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotPrepareData");
 	return(resultList)

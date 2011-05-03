@@ -4,7 +4,7 @@
 \usage{spotStepSequential(spotConfig)}
 \description{SPOT Step Sequential}
 \details{Third SPOT Step to generate a sequential new design, this
-is mainly a call of \code{\link{spotGenerateSequentialDesign}}
+is mainly a call of \code{\link{spotGenerateSequentialDesignOcba}}
 
 Creates a sequential design based on the results derived so far. Therefor it is
 essential to have another design evaluated before and have a .res file to use.

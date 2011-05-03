@@ -8,8 +8,8 @@
   tau0=1.5;
   tau=1.0;
   rho="bi";
-  stratReco="inter";
-  objReco="inter"; # default: "disc"
+  stratReco=3; #inter reco
+  objReco=3; #inter reco
   kappa=-1;
   maxGen=Inf;
   maxIter=100;

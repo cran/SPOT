@@ -37,7 +37,7 @@ spotReportSens <- function(spotConfig) {
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotReportSens");
 	spotInstAndLoadPackages("randomForest")	
 	rawB <- spotGetRawDataMatrixB(spotConfig);
-	print(summary(rawB));
+	spotPrint(spotConfig$io.verbosity,1,summary(rawB));
 	mergedData <- spotPrepareData(spotConfig)
 	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);	
 	#rawD<-spotGetRawResData(spotConfig);  # raw data with CONFIG, needed for sd(BestSolution)      MZ: replaced with if/else for fileMode
@@ -55,7 +55,8 @@ spotReportSens <- function(spotConfig) {
 	   # replicate best solution (row 1), but cut away 1st column (Y):   
 	   B <- rbind(B,data.frame(C1[1,xNames]));
 	}
-	fit <- randomForest(rawB[,xNames], rawB$y, ntree=100)			
+	names(B)=xNames; 	#MZ: Bugfix for 1 dimensional optimization	
+	fit <- randomForest(rawB[xNames], rawB$y, ntree=100)		#MZ: Bugfix for 1 dimensional optimization	
 	#fit <- rpart(y ~ ., data= rawB)
 	rwb <- cbind(spotConfig$alg.roi,t(B[1,]));      # rwb: roi with 'BEST' column
 	names(rwb)[length(rwb)] <- "BEST";
@@ -67,13 +68,16 @@ spotReportSens <- function(spotConfig) {
 	XP=rbind(XP,XP);   # matpoints needs at least two rows to plot each column in a different color
 	YP = min(Y);  YP=rbind(YP,YP);	
 #palette("default")
-	cat(sprintf("\n Sensitivity plot for this ROI:\n"));
-	print(rwb);
-	cat(sprintf("\n Best solution found with %d evaluations:\n",nrow(rawB)));
-	print(C1[1,]);
-	cat(sprintf("\n Standard deviation of best solution:\n"));
+	spotWriteLines(spotConfig$io.verbosity,1," ");
+	spotWriteLines(spotConfig$io.verbosity,1,"Sensitivity plot for this ROI:");
+	spotPrint(spotConfig$io.verbosity,1,rwb);
+	spotWriteLines(spotConfig$io.verbosity,1," ");
+	spotWriteLines(spotConfig$io.verbosity,1,paste("Best solution found with ",nrow(rawB)," evaluations:",sep=""));
+	spotPrint(spotConfig$io.verbosity,1,C1[1,]);
+	spotWriteLines(spotConfig$io.verbosity,1," ");
+	spotWriteLines(spotConfig$io.verbosity,1,"Standard deviation of best solution:");
 	y<-rawD[rawD$CONFIG==C1[1,"CONFIG"],spotConfig$alg.resultColumn];
-	cat(sprintf("  %f	 +-  %f\n",mean(y),sd(y)));
+	spotWriteLines(spotConfig$io.verbosity,1,paste(mean(y),"+-",sd(y)));
 	#finally the plot commands, both for screen and pdf file
   	if(spotConfig$report.io.pdf==TRUE){ #if pdf should be created
 		pdf(spotConfig$io.pdfFileName) #start pdf creation

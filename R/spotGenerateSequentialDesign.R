@@ -84,28 +84,45 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 	### the prediction model is build with the values from the resfiles
 	spotSafelyAddSource(spotConfig$seq.predictionModel.path,
 			spotConfig$seq.predictionModel.func, spotConfig$io.verbosity)
-	largeDesignEvaluated <-eval(call(spotConfig$seq.predictionModel.func,
-					rawB, 
-					mergedB, 
-					largeDesign, 
-					spotConfig))	
-	## print(largeDesignEvaluated)	
+	spotConfig <- eval(call(spotConfig$seq.predictionModel.func
+                                        , rawB
+                                        , mergedB
+                                        , largeDesign
+                                         , spotConfig));
+	largeDesign <-  as.data.frame(largeDesign[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
+	spotConfig$seq.largeDesignY <-  as.data.frame(spotConfig$seq.largeDesignY[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
+	##################################################
+    ## (2b) If desired, optimize fit returned by prediction model
+	if (!is.na(spotConfig$seq.predictionOpt.func)){
+		spotConfig <- eval(call(spotConfig$seq.predictionOpt.func
+											, as.numeric(largeDesign[1,]) #start point of optimization	
+											, spotConfig));
+		largeDesign <- as.data.frame(rbind(spotConfig$optDesign, largeDesign[1:spotConfig$seq.design.new.size-1,]));
+		spotConfig$seq.largeDesignY <- as.data.frame(rbind(spotConfig$optDesignY, spotConfig$seq.largeDesignY[1:spotConfig$seq.design.new.size-1,]));
+	}
+	names(largeDesign)<- setdiff(names(rawB),"y")
+	names(spotConfig$seq.largeDesignY)<-"y"
+	largeDesignEvaluated <- as.data.frame(largeDesign[1:spotConfig$seq.design.new.size,]); #limit to set design size
+	spotPrint(spotConfig$io.verbosity,1,largeDesignEvaluated)
 	##################################################
     ## (3) Adaptation of the number of repeats and
     ## (4) Combination of old (which should be re-evaluated)  and new design points 
 	selection <- order(mergedData$mergedY)[1:spotConfig$seq.design.oldBest.size];
 	lastConfigNr<-max(mergedData$CONFIG)
-	oldD <- cbind(mergedData$x[selection,]
+	selectedData=as.data.frame(mergedData$x[selection,]) #MZ: Bugfix for 1 dimensional optimization
+	names(selectedData)= row.names(spotConfig$alg.roi); #MZ: Bugfix for 1 dimensional optimization
+	oldD <- cbind(selectedData #MZ: Bugfix for 1 dimensional optimization
 			, CONFIG = mergedData$CONFIG[selection]           
 			, repeatsInternal = mergedData$count[selection]
 			, repeatsLastConfig = mergedData$count[lastConfigNr] # holds the number of repeats used for the last configuration of the last step...
 	)
 	#	      	
 
-## new, increased number of experiments
+        ## new, increased number of experiments
 	## definable increase function is used - see  seq.design.increase.func in spotGetOptions 
 	spotSafelyAddSource(spotConfig$seq.design.increase.path,
 			spotConfig$seq.design.increase.func,spotConfig$io.verbosity)
+
 	totalWanted<-(eval(call(spotConfig$seq.design.increase.func, 
 								max(oldD$repeatsLastConfig))));
 	
@@ -113,6 +130,7 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 	totalWanted <- min(totalWanted,
 			spotConfig$seq.design.maxRepeats, 
 			na.rm=TRUE);	
+
 	## now calculate the number of repeats for those configurations, that were 
 	## already evaluated before - but perhaps not with less repeats, so some repeats are 
 	## to be done NOW (but not the same as for the new configurations)
@@ -129,14 +147,16 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 	## additionalConfigNumbers <- min(spotConfig$seq.design.new.size, nrow(largeDesignEvaluated))
 	##
 	## [BUGFIX1]
-	additionalConfigNumbers <- nrow(largeDesignEvaluated)
+        additionalConfigNumbers <- nrow(largeDesignEvaluated)
 	newCONFIG <- max(mergedData$CONFIG) + 1:additionalConfigNumbers;
+	#use computed config number to link the design point with the model that created it
+	spotConfig$seq.predictDual$links<-rbind(spotConfig$seq.predictDual$links,cbind(newCONFIG, MODEL=rep(spotConfig$seq.predictDual$last,1)))# TODOMZ
 	newD <- cbind(  largeDesignEvaluated
 			, CONFIG = newCONFIG
 			, repeatsInternal = totalWanted
 			, repeatsLastConfig= totalWanted);
 	## if old design points have to be evaluated:
-	if (oldD$repeatsInternal > 0){
+	if (sum(oldD$repeatsInternal) > 0){
 		design <- rbind(oldD,newD);
 	}
 	## otherwise take the new design points only:

@@ -4,9 +4,9 @@
 \usage{spotPredictTgp(rawB, mergedB, lhd, spotConfig)}
 \description{SPOT Predictor Tgp}
 \details{This function implements a  model for prediction, based on Mat's tgp}
-\value{data.frame \code{lhd} \cr
-- \code{lhd} is a sorted (with respect to fitness, i.e., smallest estimated function value) largeDesign. 
-Best is first}
+\value{returns the list \code{spotConfig} with a new entry:\cr
+spotConfig$seq.modelFit fit of the Krig model used with predict() \cr
+spotConfig$seq.largeDesignY the y values of the large design, evaluated with the fit}
 \references{\code{\link{SPOT}}}
 \arguments{\item{rawB}{unmerged data}
 \item{mergedB}{merged data}

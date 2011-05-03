@@ -10,9 +10,9 @@
 #' @param lhd design points to be evaluated by the meta model  
 #' @param spotConfig the list of all parameters is given 
 #'
-#' @return data.frame \code{steepestDesc} \cr
-#' - \code{steepestDesc} is a sorted (with respect to fitness, i.e., smallest estimated function value) largeDesign. 
-#' Best is first   
+#' @return returns the list \code{spotConfig} with two new entries:\cr
+#' 	spotConfig$seq.modelFit fit of the Krig model used with predict() \cr
+#'	spotConfig$seq.largeDesignY the y values of the large design, evaluated with the fit
 #'
 #' @references  \code{\link{SPOT}}
 ###################################################################################
@@ -33,13 +33,13 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 				, row.names = 1 #Parameter als Zeilennamen
 		);
 	}
-	print(spotConfig$alg.aroi)
+	spotPrint(spotConfig$io.verbosity,1,spotConfig$alg.aroi)
 	fmla <- NULL				
 	for (i in 1:nParam) {
 		a <- spotConfig$alg.aroi$low[i]
-		print(a)
+		spotPrint(spotConfig$io.verbosity,1,a)
 		b <- spotConfig$alg.aroi$high[i]
-		print(b)
+		spotPrint(spotConfig$io.verbosity,1,b)
 		v1 <- mean(c(a,b))
 		v2 <- (b-a)/2	
 		fmla <- c(fmla,
@@ -90,7 +90,7 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 		rsmDf <- df2		
 		rsmFormula <- as.formula(sprintf("y ~ FO(%s) + TWI(%s) + PQ(%s)", paramString, paramString, paramString))
 		dfc.rsm1 <- spotRsm(formula = rsmFormula, data = rsmDf)
-		print(summary(dfc.rsm1))		
+		spotPrint(spotConfig$io.verbosity,1,summary(dfc.rsm1))		
 		### pdf and x11() plots
 		nCol <- ceiling(sqrt(sum(1:(nParam-1))))
 		par(mfrow=c(nCol,nCol) )		
@@ -112,7 +112,8 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 #	
 #	## In addition, we build a tree:	
 	spotSafelyAddSource(spotConfig$init.design.path,"spotPredictTree",spotConfig$io.verbosity)	
-	treeBest <- spotPredictTree(rawB,mergedB,lhd,spotConfig)[1,]	
+	treeBest <- spotPredictTree(rawB,mergedB,lhd,spotConfig)$newDesign
+	
 	#######################################################################################
 	### Start optimization (experimental):  
 	## a) even (=> if branch) determine steepest descent
@@ -136,7 +137,10 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 			}
 			steepestDesc <- code2val(steepestDesc, codings = codings(df2))			
 			###steepestDesc <- steepestDesc[1:spotConfig$seq.design.new.size,];  
-			return(steepestDesc)  
+			spotConfig$newDesign<-steepestDesc;
+			colnames(steepestDesc)<- as.character(makeNNames(nParam))
+			spotConfig$newDesignPredictedY<-predict(dfc.rsm1,steepestDesc);
+			return(spotConfig);
 		}
 		else{ # do not use gradient information
 			largeDataCoded <- val2code(lhd,codings = codings(dfc.rsm1))
@@ -144,7 +148,11 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 			index <- order(yPred)
 			lhd <- cbind(lhd, index)
 			newPoints <- lhd[index <= spotConfig$seq.design.new.size, ]
-			return(newPoints)						
+			newPoints <- newPoints[pNames]
+			spotConfig$newDesign<-newPoints;
+			colnames(newPoints)<- as.character(makeNNames(nParam))
+			spotConfig$newDesignPredictedY<-predict(dfc.rsm1,newPoints);
+			return(spotConfig);			
 		}
 	}
 	else{
@@ -154,22 +162,22 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 		best <- df2[df2.min,]
 		## take the best, ensure that the best is used only once
 		xB <- unique(best[,-1])
-		print(xB)
+		spotPrint(spotConfig$io.verbosity,1,xB)
 		nVals <- nrow(xB)		
-		print(nVals)
+		spotPrint(spotConfig$io.verbosity,1,nVals)
 		# if different x vals result in the same y val, take one randomly
 		xB <- xB[sample(1:nVals)[1],]
-		print(xB)
+		spotPrint(spotConfig$io.verbosity,1,xB)
 		##xB <- xB[1,]
 		ds <- min( rep(1,nParam) - abs(xB))	
 		if (ds > 0.1){
-			print("ds:")
-			print(ds)
+			spotPrint(spotConfig$io.verbosity,1,"ds:")
+			spotPrint(spotConfig$io.verbosity,1,ds)
 			low <- xB - ds
 			high <- xB + ds      
 			A <- t(rbind(low, high))		
 			A <- t(code2val(data.frame(t(A)), attr(df2,"codings")))
-			A <- matrix(A, nrow =nParam)
+			A <- data.frame(A, nrow =nParam)
 			A <- cbind(pNames, A)  
 			colnames(A) <- c("name", "low", "high")
 			## Now we add type information
@@ -184,6 +192,7 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 			}#else{
 				spotConfig$alg.aroi<-A;
 			#}
+
 			spotWriteLines(spotConfig$io.verbosity,2,"AROI modified. Execution with continued in the adapted ROI.");
 			## generate a new design 
 			spotConfig$seq.useAdaptiveRoi <- TRUE
@@ -196,6 +205,9 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 		## combine best tree point and new ccd points:		
 		M <- rbind(treeBest,M)
 		spotWriteLines(spotConfig$io.verbosity,2,"spotPredictLmOptim finished.")
-		return(M)
+		spotConfig$newDesign<-M;
+		colnames(M)<- as.character(makeNNames(nParam))
+		spotConfig$newDesignPredictedY<-predict(dfc.rsm1,M);
+		return(spotConfig);		
 	}
 }  

@@ -8,22 +8,29 @@
 #' @param lhd new design points which should be predicted
 #' @param spotConfig global list of all options, needed to provide data for calling functions
 #' 
-#' @return data.frame \code{lhd} \cr
-#' - \code{lhd} is a sorted (with respect to fitness, i.e., smallest estimated function value) largeDesign. 
-#' Best is first   
+#' @return returns the list \code{spotConfig} with two new entries:\cr
+#' 	spotConfig$seq.modelFit fit of the Krig model used with predict() \cr
+#'	spotConfig$seq.largeDesignY the y values of the large design, evaluated with the fit
+#'  
 #' @references \code{\link{SPOT}}
 ###################################################################################
 spotPredictTree <- function(rawB,mergedB,lhd,spotConfig){	
-	writeLines("spotPredictTree started");
+	spotWriteLines(spotConfig$io.verbosity,1,"spotPredictTree started");
 	spotInstAndLoadPackages("rpart")
 	xNames <- setdiff(names(rawB),"y")
-	x <- rawB[,xNames]	
+	x <- rawB[xNames] #MZ: Bugfix for 1 dimensional optimization	
 	y <- rawB$y	
 	fit <- rpart(y ~ ., data= rawB)	
 	res<-predict(fit,lhd)
-	lhd <-  lhd[order(res,decreasing=FALSE),];
-	lhd <- lhd[1:spotConfig$seq.design.new.size,];	
-	print(lhd)
-	writeLines("spotPredictTree finished");
-	return(lhd)
+	#lhd <-   as.data.frame(lhd[order(res,decreasing=FALSE),]); #MZ: Bugfix for 1 dimensional optimization
+	#lhd <-  as.data.frame(lhd[1:spotConfig$seq.design.new.size,]); #MZ: Bugfix for 1 dimensional optimization
+	#names(lhd)=xNames; #MZ: Bugfix for 1 dimensional optimization
+	#spotPrint(spotConfig$io.verbosity,1,lhd)
+	spotWriteLines(spotConfig$io.verbosity,1,"spotPredictTree finished");
+	
+	#spotConfig$newDesign<-lhd;
+	#spotConfig$newDesignPredictedY<-predict(fit,lhd);
+	spotConfig$seq.modelFit<-fit;
+	spotConfig$seq.largeDesignY<-as.data.frame(res);
+	return(spotConfig);
 }

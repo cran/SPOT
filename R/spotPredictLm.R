@@ -12,9 +12,9 @@
 #' @param lhd new design points which should be predicted
 #' @param spotConfig global list of all options, needed to provide data for calling functions
 #' 
-#' @return data.frame \code{lhd} \cr 
-#' - \code{lhd} is a sorted (with respect to fitness, i.e., smallest estimated function value) largeDesign. 
-#' Best is first 
+#' @return returns the list \code{spotConfig} with two new entries:\cr
+#' 	spotConfig$seq.modelFit fit of the Krig model used with predict() \cr
+#'	spotConfig$seq.largeDesignY the y values of the large design, evaluated with the fit
 #'  
 #' @references  \code{\link{SPOT}}
 ###################################################################################
@@ -22,13 +22,13 @@ spotPredictLm <- function(rawB,mergedB,lhd,spotConfig) {
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotPredictLm");	
 	spotInstAndLoadPackages("rsm")
 	
-	rawB <- spotGetRawDataMatrixB(spotConfig);
+	#rawB <- spotGetRawDataMatrixB(spotConfig);
 	mergedData <- spotPrepareData(spotConfig)
 	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);		
 	Y<-rawB$y
 	pNames <- row.names(spotConfig$alg.roi);
 	nParam <- length(pNames)
-	X <- rawB[,pNames]
+	X <- rawB[pNames] #MZ: Bugfix for 1 dimensional optimization
 	df1 <- data.frame(cbind(Y,X))
 			
 	fmla <- NULL				
@@ -88,9 +88,15 @@ spotPredictLm <- function(rawB,mergedB,lhd,spotConfig) {
   lhd <- data.frame(apply(lhd, 2, spotHlpF.norm))
   colnames(lhd)<- as.character(makeNNames(nParam))
   res<-predict(dfc.rsm1, lhd)
-  lhd <-  lhd[order(res,decreasing=FALSE),];
-  lhd <- lhd[1:spotConfig$seq.design.new.size,];
+  lhd <-  as.data.frame(lhd[order(res,decreasing=FALSE),]); #MZ: Bugfix for 1 dimensional optimization
+  lhd <- as.data.frame(lhd[1:spotConfig$seq.design.new.size,]);#MZ: Bugfix for 1 dimensional optimization
   lhd <- code2val(lhd, codings = codings(df2))
-  return(lhd)
-  writeLines("spotPredictLm finished");
+  names(lhd)=pNames;#MZ: Bugfix for 1 dimensional optimization
+  spotWriteLines(spotConfig$io.verbosity,1,"spotPredictLm finished");
+  #spotConfig$newDesign<-lhd;
+  colnames(lhd)<- as.character(makeNNames(nParam))
+  #spotConfig$newDesignPredictedY<-predict(dfc.rsm1,lhd);
+  	spotConfig$seq.modelFit<-dfc.rsm1;
+	spotConfig$seq.largeDesignY<-as.data.frame(res);
+	return(spotConfig);
 }

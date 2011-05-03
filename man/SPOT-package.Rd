@@ -4,8 +4,8 @@
 \details{\tabular{ll}{
 Package: \tab SPOT\cr
 Type: \tab Package\cr
-Version: \tab 0.1.1065\cr
-Date: \tab 14.10.2010\cr
+Version: \tab 0.1.1375\cr
+Date: \tab 03.05.2011\cr
 License: \tab GPL (>= 3)\cr
 LazyLoad: \tab yes\cr
 }
@@ -23,4 +23,5 @@ Konen, O. Flasch, P. Koch, M. Zaefferer}
 \references{\url{http://www.gm.fh-koeln.de/campus/personen/lehrende/thomas.bartz-beielstein/00489/} \cr
 \url{http://www.springer.com/3-540-32026-1}}
 \keyword{package}
-\seealso{\code{\link{spot}}}
+\seealso{Main interface functions are \code{\link{spot}} and \code{\link{spotOptim}}, 
+also a graphical interface can be used with \code{\link{spotGui}}}

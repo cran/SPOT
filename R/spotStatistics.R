@@ -80,12 +80,4 @@ spotHlpF.norminv <- function(x,z){
 	x/2 * ( max(z) - min(z) ) +  mean(z) 
 }
 
-## tests for helper functions:
-#x1 <- c(-20,0, 20)
-#spotHlpF.norm(x1)
-#m <- matrix ( c(-2,0,2,3,0,-3), ncol = 2 )
-#print(m)
-#apply(m, 2, spotHlpF.norm)
-#spotHlpF.norminv(0.5, c(-20,20))
-# end testing the helper function
-# apply(df0012[,c("DAMPS","NPARENTS","NU","TCCS")], 2, f.norm)
+#Test implemented in runit

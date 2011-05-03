@@ -69,8 +69,8 @@ spotWriteBest <- function(B, spotConfig){
 	Y <- B$mergedY;
 	A <- cbind(Y,x,COUNT=B$count,CONFIG=B$CONFIG)        
 	C <-  data.frame(A[order(Y,decreasing=FALSE),]);
-	#TODOMZ: Implement the following line right? Before only in report, but that resulted into differences between report/.bst file
-	C = C[C$COUNT==max(C$COUNT),];    # choose only among the solutions with highest repeat	
+	### commented the following line (ocba):
+        ### C = C[C$COUNT==max(C$COUNT),];    # choose only among the solutions with highest repeat	
 	## col.names should be written only once:	
 	if(spotConfig$spot.fileMode){
 		colNames = TRUE
@@ -170,8 +170,7 @@ spotWriteAroi<-function(spotConfig,aroi){
 #'		
 ###################################################################################
 spotReadAroi<-function(spotConfig){
-	writeLines(paste("Load actual algorithm design (AROI): ", spotConfig$io.aroiFileName, collapse="")
-			, con=stderr());
+	spotWriteLines(spotConfig$io.verbosity,1,paste("Load actual algorithm design (AROI): ", spotConfig$io.aroiFileName, collapse=""));
 	aroi.df <- read.table( spotConfig$io.aroiFileName		
 			, header = TRUE
 			, as.is=TRUE
@@ -196,9 +195,28 @@ spotReadAroi<-function(spotConfig){
 ###################################################################################
 spotWriteLines<-function(set.io.verbosity,io.verbosity,myString,con=stderr()){	
 	if(set.io.verbosity>=io.verbosity){
-		writeLines(myString)
+		writeLines(myString,con)
 	}	
 }
+
+##################################################################################
+#' Spot Print
+#'
+#' This help function prints the given argument "myArg" 
+#' only if user gives the io.verbosity to do so 
+#'
+#' @param set.io.verbosity	\code{spotConfig$io.verbosity} should be passed here. Global flag to drive the \code{io.verbosity} of the programm
+#' @param io.verbosity \code{io.verbosity} for this specified output string
+#' @param myArg the argument to be printed
+#' 
+#' @references  \code{\link{SPOT}} \code{\link{writeLines}}
+###################################################################################
+spotPrint<-function(set.io.verbosity,io.verbosity,myArg){	
+	if(set.io.verbosity>=io.verbosity){
+		print(myArg)
+	}	
+}
+
 
 ###################################################################################
 #' Spot install and load required packages
@@ -240,68 +258,6 @@ spotInstAndLoadPackages <- function(packageList,reposLoc="http://cran.r-project.
 #' holding the installed version of SPOT
 ####################################################################################
 spotVersion <- function(){
-
-	writeLines("Initial version: 0.1.888")
-	writeLines("")
-	writeLines("Changes from version 0.1.888 to version 0.1.1016:")
-	writeLines("1. New function: spotGui()")
-	writeLines("\t	Starts a java gui to work with SPOT")
-	writeLines("2. New parameters for the \"meta\" task:")
-	writeLines("\t	- spotConfig$report.meta.func")
-	writeLines("\t	- spotConfig$report.meta.path")
-	writeLines("\t	Define name and path of a report that summarizes a meta experiment")
-	writeLines("3. Fixed Documentation")
-	writeLines("")	
-	writeLines("Changes from version 0.1.1016 to version NEWVERSION")
-	writeLines("1. New parameters in spotConfig:")
-	writeLines("\t	a.\t	spot.fileMode: Boolean, defines if ")
-	writeLines("\t\t		created data is logged in res/des/bst/aroi files")
-	writeLines("\t\t		If TRUE (default) files will be written, else")
-	writeLines("\t\t		the results will be written to spotConfig (see")
-	writeLines("\t\t		the followind parameters)")
-	writeLines("\t	b.\t	alg.currentResult: Holds the results of the")
-	writeLines("\t\t		target algorithm or function that is optimized ")
-	writeLines("\t\t		by spot, as a data frame. (earlier only in .res file)")
-	writeLines("\t	c.\t	alg.aroi: this holds the aroi (earlier only in .aroi ")
-	writeLines("\t\t		file)")
-	writeLines("\t	d.\t	alg.currentBest: This holds a data frame with the best")
-	writeLines("\t\t		results (earlier only in .bst files)")
-	writeLines("\t	e.\t	alg.currentDesign: This holds a data frame with the ")	
-	writeLines("\t\t		design to be evaluated by the next \"run\" task.(earlier")
-	writeLines("\t\t		only in .des files)")
-	writeLines("")
-	writeLines("2. Changes to userdefined functions:")
-	writeLines("")
-	writeLines("\t	spotConfig$alg.func:")
-	writeLines("\t	This function now recieves and returns only spotConfig.")
-	writeLines("\t	This means resFileName, apdFileName, and desFileName are no")
-	writeLines("\t	input arguments anymore, they need to be read from 	spotConfig.")
-	writeLines("\t	The function needs to be changed to write the \"result\" data")
-	writeLines("\t	frame to the spotConfig$alg.currentResult.")
-	writeLines("\t	It can also be written to .res file, if wanted by the user.")
-	writeLines("\t	(check for spotConfig$spot.fileMode if needed)")
-	writeLines("")
-	writeLines("\t	spotConfig$report.func")
-	writeLines("\t	The function now also returns spotConfig.")
-	writeLines("\t	To get the best value the following lines are be used now in the default report: ")
-	writeLines("\t	#################################	")
-	writeLines("\t	spotConfig=spotWriteBest(mergedData, spotConfig);")
-	writeLines("\t	C1=spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),]")
-	writeLines("\t	#################################")
-	writeLines("")
-	writeLines("\t	In general some spot functions you might use in your")
-	writeLines("\t	userdefined functions will now return spotConfig.")
-	writeLines("")
-	writeLines("4. spot() can now be called with a list of settings, e.g. spotConfig.")
-	writeLines("\t	example: spot(\"example.conf\",\"auto\",spotConfig=list(auto.loop.nevals=150)).")
-	writeLines("\t	spot() will also return the spotConfig. This can then be feed into the next spot() run.")
-	writeLines("")
-	writeLines("4. Changes to the spotGui:")
-	writeLines("\t	a.\t	The spotGui layout was changed, a menu bar added.")
-	writeLines("\t	b.\t	New feature: Create your own test functions with")
-	writeLines("\t\t	the function generator")
-	writeLines("")
-	writeLines("")
 	return(packageDescription("SPOT")$Version)
 }
 
@@ -321,13 +277,11 @@ spotRsm <- function(formula, data)
 	CALL = match.call(lm)
 	CALL[[1]] = as.name("lm")
 	oc = as.character(deparse(formula))
-	nc = sub("SO\\(([a-zA-Z0-9, ._]+)\\)", "FO\\(\\1\\) + TWI\\(\\1\\) + PQ\\(\\1\\)", 
-			oc)
+	nc = sub("SO\\(([a-zA-Z0-9, ._]+)\\)", "FO\\(\\1\\) + TWI\\(\\1\\) + PQ\\(\\1\\)",oc)
 	nc = sub("TWI\\([a-zA-Z0-9 ._]+\\)", "", nc)
 	CALL$formula = formula(nc)
 	CALL$data = data
 	LM = eval(CALL)
-
 	LM$call[[1]] = as.name("rsm")
 	LM$call$formula = formula(oc)
 	nm = names(LM$coef)
@@ -362,8 +316,7 @@ spotRsm <- function(formula, data)
 		LM$labels$TWI = list(idx = i.twi, lab = twi.lab)
 	}
 	else if (length(i.twi) > 0) 
-		warning(paste("TWI() term not usable because it has", 
-						length(i.twi), "d.f. instead of", k * (k - 1)/2))
+		warning(paste("TWI() term not usable because it has",length(i.twi), "d.f. instead of", k * (k - 1)/2))
 	i.pq = grep("PQ\\(", nm)
 	if (length(i.pq) == k) {
 		LM$order = 2
@@ -374,12 +327,10 @@ spotRsm <- function(formula, data)
 			dimnames(LM$B) = list(fonm, fonm)
 		}
 		else diag(LM$B) = LM$coef[i.pq]
-		LM$labels$PQ = list(idx = i.pq, lab = paste(fonm, 2, 
-						sep = "^"))
+		LM$labels$PQ = list(idx = i.pq, lab = paste(fonm, 2,sep = "^"))
 	}
 	else if (length(i.pq) > 0) 
-		warning(paste("PQ() term not usable because it has", 
-						length(i.pq), "d.f. instead of", k))
+		warning(paste("PQ() term not usable because it has",length(i.pq), "d.f. instead of", k))
 	if (LM$order == 1) 
 		aliased = any(is.na(LM$b))
 	else aliased = any(is.na(cbind(LM$B, LM$b)))
@@ -393,4 +344,43 @@ spotRsm <- function(formula, data)
 	}
 	LM
 }
+
+###################################################################################
+#' write ROI for repeats
+#'
+#' @param workingDir Working directory as string
+#' @param bstFile best file
+#' @param roiInFile ROI in file
+#' @param roiOutFile ROI out file
+####################################################################################
+writeRoiFileForRepeats <- function(workingDir = "~/workspace/SvnFiwaSoma.d/trunk/doc/OwnPublicationsAndTalks.d/Bart10t.d/Experiments.d"
+                                   , bstFile = "lmSann02.bst"
+                                   , roiInFile = "lmSann02.roi"
+                                   , roiOutFile = "lmSann03.roi"){
+setwd(workingDir)
+best.df <- read.table(bstFile, header=TRUE, sep="", na.strings="NA", dec=".", strip.white=TRUE)
+## Since the names are in the first column of the roi file, we use "row.names=1" in the following command:
+roi.df <- read.table(roiInFile, header=TRUE, row.names=1)
+pNames <- row.names(roi.df)
+best <- (best.df[,pNames])[nrow(best.df),]
+ncol(best)
+A <- rep(as.matrix(best[1]),2)
+for( i in 2:ncol(best)){
+  A <- rbind(A,  rep(as.matrix(best[i]),2))
+}
+A <- cbind(pNames, A)
+rownames(A) <- pNames
+typeCol <- rep("FLOAT", ncol(best))
+A <- cbind(A, typeCol)
+colnames(A) <- c("name", "low", "high", "type")	
+write.table(A
+			, file = roiOutFile
+			, row.names = FALSE
+			, sep = " "
+			, quote = FALSE
+			, append = FALSE
+			, col.names=TRUE
+	)	
+}
+
 

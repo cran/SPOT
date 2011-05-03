@@ -4,27 +4,25 @@
 #' Example for SPOT optimizing the 6-hump camel back function, see 
 #'   http://www.it.lut.fi/ip/evo/functions/node26.html
 #'
-#'
 #' @param x	two dimensional vector that will be evauluated by the branin function
-#' @param noise	this number is added to the function value y as noise
 #'
 #' @return number \code{y} \cr
-#' - \code{y} is the value of the corresponding \code{x} vector
+#' - \code{y} is the function value of the corresponding \code{x} vector. Min function value: -1.031628453
 #'
 #' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{spotFuncStartBranin}}
 #' \code{\link{spotFuncStartBranin}} \code{\link{spotFuncStartSixHump}}
 ###################################################################################################
-spotNoisySixHumpFunction <- function (x, noise=0.0) {
+spotSixHumpFunction <- function (x) {
 	x1 <- x[1] 
-	x2 <- x[2] 
-	y<-(4-2.1*x1^2+x1^4/3)*x1^2+x1*x2+(-4+4*x2^2)*x2^2  + noise*rnorm(1)
+	x2 <- x[2]	
+	y<-(4-2.1*x1^2+x1^4/3)*x1^2+x1*x2+(-4+4*x2^2)*x2^2	
 	return(y)
 }
 
 ###################################################################################################
 #' Six Hump function call for SPOT
 #'
-#' SPOT uses this function for some demos to call the \code{\link{spotNoisySixHumpFunction}} function 
+#' SPOT uses this function for some demos to call the \code{\link{spotSixHumpFunction}} function 
 #' 
 #' @param spotConfig Contains the list of spot configurations, results of the algorithm can be passed to this list instead of the .res file.
 #'		  spotConfig defaults to "NA", and will only be passed to the Algorithm if spotConfig$spot.fileMode=FALSE. See also: \code{\link{spotGetOptions}}
@@ -36,7 +34,7 @@ spotNoisySixHumpFunction <- function (x, noise=0.0) {
 #'			spot.fileMode: boolean, if selected with true the results will also be written to the res file, otherwise it will only be saved in the spotConfig returned by this function\cr
 #' @return this function returns the \code{spotConfig} list with the results in spotConfig$alg.currentResult
 ##' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{spotFuncStartBranin}}
-#' \code{\link{spotFuncStartBranin}} \code{\link{spotNoisySixHumpFunction}}
+#' \code{\link{spotFuncStartBranin}} \code{\link{spotSixHumpFunction}}
 ###################################################################################################
 spotFuncStartSixHump <- function(spotConfig){
 	pdFile=spotConfig$io.apdFileName;
@@ -44,23 +42,28 @@ spotFuncStartSixHump <- function(spotConfig){
 	desFileName=spotConfig$io.desFileName;	
 	
 	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
-		writeLines(paste("Loading design file data from::",  desFileName), con=stderr());
+		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr());
 		## read doe/dace etc settings:
 		des <- read.table(desFileName, sep=" ", header = TRUE);	
 	}else{
 		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
 	}
-	print(summary(des));
-	writeLines("spotFuncStartSixHump...", con=stderr());
-	print(pdFile)
-	noise<-NULL
-	f<-NULL
-	n<-NULL
-	## read default problem design
-	source(pdFile,local=TRUE)
+	spotPrint(spotConfig$io.verbosity,1,summary(des));
+	spotWriteLines(spotConfig$io.verbosity,1,"spotFuncStartSixHump...", con=stderr());
+	spotPrint(spotConfig$io.verbosity,1,pdFile)
+	#default Values that can be changed with apd file
+	noise<-spotConfig$spot.noise;
+	noise.type <- spotConfig$spot.noise.type;
+	spot.noise.minimum.at.value <- spotConfig$spot.noise.minimum.at.value;
+	f<-"SixHump"
+	n<-2;
+	## read problem design file
+	if(file.exists(pdFile)){
+		source(pdFile,local=TRUE)
+	}
 	##  VARX1 VARX2 REPEATS SEED
 	config<-nrow(des);
-	print(config);
+	spotPrint(spotConfig$io.verbosity,1,config);
 	attach(des)	
 	for (k in 1:config){
 		for (i in 1:des$REPEATS[k]){
@@ -79,9 +82,11 @@ spotFuncStartSixHump <- function(spotConfig){
 				step <- des$STEP[k]
 			}
 			seed <- des$SEED[k]+i-1			
-			print(c("Config:",k ," Repeat:",i))
-			y <- spotNoisySixHumpFunction(c(x1,x2), noise)
-			print(y)
+			spotPrint(spotConfig$io.verbosity,1,c("Config:",k ," Repeat:",i))
+			y <- spotSixHumpFunction(c(x1,x2))
+			## add noise
+			y <- y + spotCalcNoise(y, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value);
+			spotPrint(spotConfig$io.verbosity,1,y)
 			res <- NULL
 			res <- list(Y=y,					
 					VARX1=x1,
@@ -112,6 +117,7 @@ spotFuncStartSixHump <- function(spotConfig){
 		}			
 	}	
 	detach(des)
+        spotWriteLines(spotConfig$io.verbosity,1,"Leaving spotFuncStartSixHump...", con=stderr());
 	return(spotConfig)
 }
 #
@@ -131,7 +137,7 @@ spotFuncStartSixHump <- function(spotConfig){
 #			seed <- des$SEED[k]+i			
 #			cat(sprintf("Config: %5d,   Repeat: %5d\n",conf,i))		
 #			browser()
-#			y <- spotNoisySixHumpFunction(x1,x2,noise)
+#			y <- spotSixHumpFunction(x1,x2,noise)
 #			print(y)
 #			res <- NULL
 #			res <- list(Y=y

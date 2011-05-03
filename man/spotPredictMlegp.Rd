@@ -4,9 +4,9 @@
 \usage{spotPredictMlegp(rawB, mergedB, largeDesign, spotConfig)}
 \description{Spot Predictor Kriging}
 \details{Kriging model based on mlegp}
-\value{data.frame \code{lhd} \cr
-- \code{lhd} is a sorted (with respect to fitness, i.e., smallest estimated function value) largeDesign   
-Best is first}
+\value{returns the list \code{spotConfig} with two new entries:\cr
+spotConfig$seq.modelFit fit of the Krig model used with predict() \cr
+spotConfig$seq.largeDesignY the y values of the large design, evaluated with the fit}
 \references{\code{\link{SPOT}}}
 \arguments{\item{rawB}{matrix of raw x and y values}
 \item{mergedB}{matrix of merged x and y values, does not have replicate entries}

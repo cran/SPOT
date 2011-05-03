@@ -76,7 +76,7 @@ spotCreateDesignLhd <- function(spotConfig, noDesPoints = NaN, retries=NaN) {
 	
 	design <- as.data.frame(best$design);
 	colnames(design) <- row.names(spotConfig$alg.roi);  
-	print(spotConfig$alg.roi)
+	spotPrint(spotConfig$io.verbosity,1,spotConfig$alg.roi);
 	
 	for (param in row.names(spotConfig$alg.roi)){
 		lowerBound <-  spotConfig$alg.roi[param,"low"];

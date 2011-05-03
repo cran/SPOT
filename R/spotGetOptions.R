@@ -38,8 +38,8 @@
 #' @param configFileName users config file (.conf) the absolute path including filespecifier of the user config File
 #' @return spotGetOptions returns the list of all SPOT options  created by this function:
 #' 			\item{srcPath}{[see 3rd Parameter of \link{spot}] internal variable: global path to all user written sources that should be added to SPOT.} 
-#' 			\item{auto.loop.steps}{[\code{1}] number of iterations the loop over all SPOT-steps should be repeated}
-#' 			\item{auto.loop.nevals}{[\code{Inf}] budget  of algorithm/simulator runs
+#' 			\item{auto.loop.steps}{[\code{Inf}] number of iterations the loop over all SPOT-steps should be repeated}
+#' 			\item{auto.loop.nevals}{[\code{200}] budget  of algorithm/simulator runs
 #' 			 - most important parameter for run-time of the algorithm in case the spot-function is called with the "auto"-task }
 #' 			\item{spot.fileMode}{[\code{TRUE}] boolean, that defines if files are used to read and write results (which is the "classic" spot procedure) or if SPOT will only use the workspace to store variables.}
 #' 			\item{spot.seed}{[\code{123}] global seed setting for all random generator dependent calls within SPOT. same seed shall repeat same results, \cr
@@ -74,12 +74,12 @@
 #' 			\item{io.metaFileName}{[depends: \code{<configFileName>.meta}] name of the .meta -file, a file holding additional parameters for a full-factorial test-field starting several "auto" tasks}
 #' 			\item{io.fbsFileName}{[depends: \code{<configFileName>.bst}] name of the .fbs -file (Final BestSolution file) collects all final best values of all .bst files during a .meta-run }
 #' 			\item{io.verbosity}{[\code{3}] level of verbosity of the programm, 0 should be silent and 3 should produce all output- sometimes just interesting for the developer...}
-#' 			\item{init.design.func}{[\code{"spotCreateDesignLhs"}] name of the function to create an initial design. Please also see the notes SPOT - extensions}
+#' 			\item{init.design.func}{[\code{"spotCreateDesignLhd"}] name of the function to create an initial design. Please also see the notes SPOT - extensions}
 #' 			\item{init.design.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <init.design.func>.R -file}
-#' 			\item{init.design.size}{[\code{NA}] number of initial design points to be created. Required by some space filling desing generators. Will be used in the <init.design.func>.R-file.  Default (NA) will start a formula to calculate a good value.}
+#' 			\item{init.design.size}{[\code{10}] number of initial design points to be created. Required by some space filling desing generators. Will be used in the <init.design.func>.R-file.  \code{NA} will start a formula to calculate a good value.}
 #' 			\item{init.design.retries}{[\code{100}] number of retries the initial designs should be retried to find randomly a design with maximum distance between the points 
 #' 								This parameter will be ignored if the function is deterministic (like doe)}
-#' 			\item{init.design.repeats}{[\code{1}] number of repeats for each design point to be called with the <alg.func>}
+#' 			\item{init.design.repeats}{[\code{2}] number of repeats for each design point to be called with the <alg.func>}
 #' 			\item{init.delete.resFile}{[\code{TRUE}] delete an existing resultfile }
 #' 			\item{init.delete.bstFile}{[\code{TRUE}] delete an existing bst file }
 #' 			\item{design.paramSignif}{[\code{NA}] number of significant digits that should be considered in the design process of building an initial AND a sequential design}
@@ -91,10 +91,12 @@
 #' 			\item{seq.design.maxRepeats}{[\code{NA}] each design point is to be evaluated several times for statistically sound results. The number of "repeats" will increase, but will not exceed this seq.design.maxRepeats - value }
 #' 			\item{seq.design.increase.func}{[\code{"spotSeqDesignIncreasePlusOne"}] functional description of how the repeats are increased (until the seq.design.maxRepeats are reached). Default increases the number of repeats by adding one.}
 #' 			\item{seq.design.increase.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <seq.design.increase.func>.R -file. Please also see the notes SPOT - extensions}
-#' 			\item{seq.design.func}{[\code{"spotCreateDesignLhs"}] name of the function to create sequential design. Please also see the notes SPOT - extensions}
+#' 			\item{seq.design.func}{[\code{"spotCreateDesignLhd"}] name of the function to create sequential design. Please also see the notes SPOT - extensions}
 #' 			\item{seq.design.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <seq.design.func>.R -file}
 #' 			\item{seq.predictionModel.func}{[\code{"spotPredictLm"}] name of the function calling a predictor. Default uses a Linear Model. Please also see the notes SPOT - extensions}
 #' 			\item{seq.predictionModel.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <seq.predictionModel.func>.R -file}
+#'			\item{seq.predictionOpt.func}{[\code{NA} If not NA this string will be interpreted as a function name. The function is expected to add a new setting to the sequential design. See \code{\link{spotPredictOptMulti}}}
+#' 			\item{seq.predict.subMethod}{[\code{"none"} This sets which method is used in \link{spotPredictOptMulti}}
 #' 			\item{seq.log.x}{[\code{FALSE}] use log(x) values for the prediction model}
 #' 			\item{seq.log.y}{[\code{FALSE}] use log(y) values for the prediction model}
 #' 			\item{seq.merge.func}{ [\code{mean}] defines the function that merges the results from the different repeat-runs for a design. Default is to calculate the mean value.}
@@ -122,8 +124,7 @@
 ##
 
 
-spotGetOptions <- function( srcPath=".",configFileName) {
-	writeLines("spotGetOptions... started", con=stderr());	
+spotGetOptions <- function( srcPath=".",configFileName) {	
 	#######################################
 	### Begin: Algorithm design related ###
 	#######################################	
@@ -161,15 +162,15 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	## ##########################	
 	## design create for initial step
 	init.design.path = NA
-	init.design.func = "spotCreateDesignLhs"	
+	init.design.func = "spotCreateDesignLhd"	
 	## Initial number of design points, 
 	## if NA, formula will be used
 	# number of initial design points
-	init.design.size <- NA;
+	init.design.size <- 10;
 	# repeats for improving min-max designs (not used by doe)
 	init.design.retries <- 100;
 	# number of repeated runs of each configuration:
-	init.design.repeats <- 1;
+	init.design.repeats <- 2;
 	# keep or delete existing resultfile? (default: TRUE)
 	init.delete.resFile <- TRUE
 	# keep or delete existing bstfile? (default: TRUE)
@@ -192,30 +193,47 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	seq.design.increase.func <- "spotSeqDesignIncreasePlusOne"
 	seq.design.increase.path <- NA
 	## how many old (best) points shall be repeated 
-	seq.design.oldBest.size <- 1;
+	seq.design.oldBest.size <- 3;
 	## how many new points shall be added 
-	seq.design.new.size <- 2;
+	seq.design.new.size <- 3;
 	## ###################################
 	## ##### Prediction Modell related ###
 	## ###################################	
 	seq.predictionModel.path = NA
-	seq.predictionModel.func = "spotPredictLm";
+	#seq.predictionModel.func = "spotPredictLm";
 	#seq.predictionModel.func = "spotPredictTree";	
 	#seq.predictionModel.func = "spotPredictMlegp";	
-	#seq.predictionModel.func = "spotPredictRandomForrest";	
+	seq.predictionModel.func = "spotPredictRandomForest";	
 	#seq.predictionModel.func = "spotPredictTgp";	
 	#seq.predictionModel.func = "spotPredictLmOptim";
+	seq.predict.subMethod = "none";
+	seq.predictionOpt.func<-NA;
 	seq.useGradient = FALSE
 	seq.useAdaptiveRoi = FALSE
 	seq.useCanonicalPath = FALSE
+        seq.ocba.budget = 3;
+        ## Use constant mean (mu) in mlegp (=1) or linear model (=0)
+        seq.mlegp.constantMean = 1;
+        seq.mlegp.min.nugget = 0.0;
+        seq.modelHistory = c();
+        seq.modelDistribution = c();
 	## #####################################
 	## ##### Globally needed           #####
 	## #####################################
 	spot.seed <- 123
+	spot.ocba <- TRUE
+	## default noise for noisy functions, overwritten by noise value from the apd file 
+	spot.noise <- 10.0
+	## default noise type for noisy function, overwritten by noise value from the apd file
+	## spot.noise.type in {"weighted", "additive"}
+	## weighted: y = y + y * noiseValue / 100
+	## constant: y = y + noiseValue
+	spot.noise.type <- "weighted"
+	spot.noise.minimum.at.value <- 0.0
 	
 	## How many spot iterations should be performed?
-	auto.loop.steps <- 1;
-	auto.loop.nevals <- Inf;
+	auto.loop.steps <- Inf;
+	auto.loop.nevals <- 200;
 	## number of signicient digits of the design parameter (BOTH initial AND sequential design)
 	design.paramSignif <- NA;	
 	## #####################################
@@ -229,8 +247,8 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	io.colname.repeats <- "REPEATS";	
 	## Name of the column, where the actual auto.loop.step will be stored in the res file
 	io.colname.step <- "STEP";	
-	## io.verbosity 0 means be quit, 3 means tell me everything
-	io.verbosity<-3	
+	## io.verbosity 0 means be quite, 3 means tell me everything
+	io.verbosity<-0	
 	## Separation of columns, default: arbitrary Whitespacesequenz
 	io.columnSep = "";
 	## ###########################
@@ -246,7 +264,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	report.hist = 0;
 	### generate simple scatterplot in report (0=no, 1 = yes, default =0):
 	report.scatter = 0;	
-    ## Should graphical output be generated in a pdf File? FALSE  = NO
+        ## Should graphical output be generated in a pdf File? FALSE  = NO
 	# implemented only for default report
 	report.io.pdf<-FALSE
 	## Should graphical output be generated on screen? FALSE  = NO
@@ -257,16 +275,23 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	## New variable:
 	spot.fileMode=TRUE;
 	##########################################################################
+	if(io.verbosity>0){
+          writeLines("spotGetOptions... started", con=stderr());
+        }
 	.dataPath <- dirname(configFileName);
-	writeLines(paste("  Data Path (all experiment data are relevant to this location): "
-					, .dataPath
-					, collapse="")
-					, con=stderr());
+	if(io.verbosity>0){
+          writeLines(paste("  Data Path (all experiment data are relevant to this location): "
+                           , .dataPath
+                           , collapse="")
+                     , con=stderr());
+        }
 	.genericFileNamePrefix <-  unlist(strsplit(basename(configFileName), ".", fixed = TRUE))[1]
-	writeLines(paste("  File name prefix: "
-				, .genericFileNamePrefix
-				, collapse="")
-				, con=stderr());
+	if(io.verbosity>0) {
+          writeLines(paste("  File name prefix: "
+                           , .genericFileNamePrefix
+                           , collapse="")
+                     , con=stderr());
+        }
 	io.resFileName <- paste(.genericFileNamePrefix,"res",sep=".")
 	io.desFileName <- paste(.genericFileNamePrefix,"des",sep=".")
 	io.bstFileName <- paste(.genericFileNamePrefix,"bst",sep=".")
@@ -275,57 +300,65 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	io.aroiFileName <- paste(.genericFileNamePrefix,"aroi",sep=".")
 	io.apdFileName <- paste(.genericFileNamePrefix,"apd",sep=".")
 	io.metaFileName <- paste(.genericFileNamePrefix,"meta",sep=".")
-	io.fbsFileName <- paste(.genericFileNamePrefix,"fbs",sep=".")
-	
+	io.fbsFileName <- paste(.genericFileNamePrefix,"fbs",sep=".")	
 	############################################################################
 	### load user settings, this overwrite the defaults that are set up to this line
 	### the basename of the configFile was used in the main 
 	############################################################################
-	userConfFileName  <-  basename(configFileName);
+	userConfFileName  <-  basename(configFileName);	
 	.lsBeforeSource<-ls()
 	#################################################################
 	### load configuration
 	#################################################################
-	source(userConfFileName, local=TRUE); # ! otherwise default values will not be overwritten
+	if(file.exists(userConfFileName)){
+		source(userConfFileName, local=TRUE); # ! otherwise default values will not be overwritten
+	}
 	#################################################################
 	### load configuration done!!!!!!!
 	#################################################################
 	.lsAfterSource<-ls()
 	### give some warnings if NEW variables are created by the conf-file
 	if (length(.lsDiff<-setdiff(.lsAfterSource,.lsBeforeSource))){
-		writeLines(paste("WARNING, a new variable defined by conf-file (",userConfFileName,"):",.lsDiff))
+		spotWriteLines(io.verbosity,1,paste("WARNING, a new variable defined by conf-file (",userConfFileName,"):",.lsDiff))
 	}	else{
-		writeLines(paste("  User conf loaded from: "
+		spotWriteLines(io.verbosity,1,paste("  User conf loaded from: "
 						, userConfFileName
 						, collapse="")
 				, con=stderr());
 	}	
 	### io.resFileName <- normalizePath(paste(dataPath,io.resFileName, sep="/"));
-	writeLines(paste("  ResultFile Name : ", io.resFileName, collapse="")
+	spotWriteLines(io.verbosity,1,paste("  ResultFile Name : ", io.resFileName, collapse="")
 			, con=stderr());
 	### io.desFileName <- normalizePath(paste(dataPath,io.desFileName, sep="/"));
-	writeLines(paste("  DesignFile Name : ", io.desFileName, collapse="")
+	spotWriteLines(io.verbosity,1,paste("  DesignFile Name : ", io.desFileName, collapse="")
 			, con=stderr());
 	### io.bstFileName <- normalizePath(paste(dataPath,io.bstFileName, sep="/"));
-		writeLines(paste("  BestFile Name : ", io.bstFileName, collapse="")
+	spotWriteLines(io.verbosity,1,paste("  BestFile Name : ", io.bstFileName, collapse="")
 			, con=stderr());
 	### io.fbsFileName <- normalizePath(paste(dataPath,io.fbsFileName, sep="/"));
-	writeLines(paste("  FinalBestSolution FbsFile Name : ", io.fbsFileName, collapse="")
+	spotWriteLines(io.verbosity,1,paste("  FinalBestSolution FbsFile Name : ", io.fbsFileName, collapse="")
 			, con=stderr());
 	## TBB: Added 26 Feb 2009:
 	### io.pdfFileName <- normalizePath(paste(dataPath,io.pdfFileName, sep="/"));
-	writeLines(paste("  pdfFile Name : ", io.pdfFileName, collapse="")
+	spotWriteLines(io.verbosity,1,paste("  pdfFile Name : ", io.pdfFileName, collapse="")
 			, con=stderr());
 		
-	writeLines(paste("  Load algorithm design (ROI): ", io.roiFileName, collapse="")
+	spotWriteLines(io.verbosity,1,paste("  Load algorithm design (ROI): ", io.roiFileName, collapse="")
 			, con=stderr());
 	## alg.roi is a table that holds the data of the .roi-file for easy and quick use in some functions 
+	if(file.exists(io.roiFileName)){
 	alg.roi <- read.table( io.roiFileName
 			, sep = io.columnSep
 			, header = TRUE
 			, as.is=TRUE
 			, row.names = 1 #Parameter als Zeilennamen
-	);
+		);
+	}
+	else if (userConfFileName=="NULL"){
+		alg.roi=data.frame(low=c(-5,0),high=c(10,15),type=c("FLOAT","FLOAT"),row.names=c("VARX1","VARX2"))#Demo, using the branin function
+		spot.fileMode=FALSE;
+	}
+	
 	## at startup, the actual roi (alg.aroi) is the same as the initial roi (alg.roi)
 	alg.aroi <- alg.roi
 	#}
@@ -355,7 +388,15 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	if(is.na(report.meta.path)){
 		report.meta.path = srcPath ;
 	}
-	writeLines("spotGetOptions finished", con=stderr());
+	set.seed(paste(format(Sys.time(), "%S"),format(Sys.time(), "%M"),format(Sys.time(), "%H"),sep="")); 
+	if(is.null(spot.seed)){ #Random numbers for seeds, if set to NULL
+		spot.seed =  runif(1)*1000;
+	}
+	if(is.null(alg.seed)){
+		alg.seed =  runif(1)*1000;
+	}
+
+	spotWriteLines(io.verbosity,1,"spotGetOptions finished", con=stderr());
 	## generate a list of ALL the defined variables (default AND user written = sourced by .conf-file!)
 	## ls returns a list of all variables in this environment, that is: all the "local" variables (except the ones with leading dot
 	.x<-ls();

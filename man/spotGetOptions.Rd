@@ -20,8 +20,8 @@ may be refered to by spotConfig$my.var and can be used in all functions - especi
 that are designed to be open to adaptions where ever necessary.}
 \value{spotGetOptions returns the list of all SPOT options  created by this function:
 \item{srcPath}{[see 3rd Parameter of \link{spot}] internal variable: global path to all user written sources that should be added to SPOT.} 
-\item{auto.loop.steps}{[\code{1}] number of iterations the loop over all SPOT-steps should be repeated}
-\item{auto.loop.nevals}{[\code{Inf}] budget  of algorithm/simulator runs
+\item{auto.loop.steps}{[\code{Inf}] number of iterations the loop over all SPOT-steps should be repeated}
+\item{auto.loop.nevals}{[\code{200}] budget  of algorithm/simulator runs
 - most important parameter for run-time of the algorithm in case the spot-function is called with the "auto"-task }
 \item{spot.fileMode}{[\code{TRUE}] boolean, that defines if files are used to read and write results (which is the "classic" spot procedure) or if SPOT will only use the workspace to store variables.}
 \item{spot.seed}{[\code{123}] global seed setting for all random generator dependent calls within SPOT. same seed shall repeat same results, \cr
@@ -56,12 +56,12 @@ should be set by the value you want to have between your columns}
 \item{io.metaFileName}{[depends: \code{<configFileName>.meta}] name of the .meta -file, a file holding additional parameters for a full-factorial test-field starting several "auto" tasks}
 \item{io.fbsFileName}{[depends: \code{<configFileName>.bst}] name of the .fbs -file (Final BestSolution file) collects all final best values of all .bst files during a .meta-run }
 \item{io.verbosity}{[\code{3}] level of verbosity of the programm, 0 should be silent and 3 should produce all output- sometimes just interesting for the developer...}
-\item{init.design.func}{[\code{"spotCreateDesignLhs"}] name of the function to create an initial design. Please also see the notes SPOT - extensions}
+\item{init.design.func}{[\code{"spotCreateDesignLhd"}] name of the function to create an initial design. Please also see the notes SPOT - extensions}
 \item{init.design.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <init.design.func>.R -file}
-\item{init.design.size}{[\code{NA}] number of initial design points to be created. Required by some space filling desing generators. Will be used in the <init.design.func>.R-file.  Default (NA) will start a formula to calculate a good value.}
+\item{init.design.size}{[\code{10}] number of initial design points to be created. Required by some space filling desing generators. Will be used in the <init.design.func>.R-file.  \code{NA} will start a formula to calculate a good value.}
 \item{init.design.retries}{[\code{100}] number of retries the initial designs should be retried to find randomly a design with maximum distance between the points 
 This parameter will be ignored if the function is deterministic (like doe)}
-\item{init.design.repeats}{[\code{1}] number of repeats for each design point to be called with the <alg.func>}
+\item{init.design.repeats}{[\code{2}] number of repeats for each design point to be called with the <alg.func>}
 \item{init.delete.resFile}{[\code{TRUE}] delete an existing resultfile }
 \item{init.delete.bstFile}{[\code{TRUE}] delete an existing bst file }
 \item{design.paramSignif}{[\code{NA}] number of significant digits that should be considered in the design process of building an initial AND a sequential design}
@@ -73,10 +73,12 @@ This parameter will be ignored if the function is deterministic (like doe)}
 \item{seq.design.maxRepeats}{[\code{NA}] each design point is to be evaluated several times for statistically sound results. The number of "repeats" will increase, but will not exceed this seq.design.maxRepeats - value }
 \item{seq.design.increase.func}{[\code{"spotSeqDesignIncreasePlusOne"}] functional description of how the repeats are increased (until the seq.design.maxRepeats are reached). Default increases the number of repeats by adding one.}
 \item{seq.design.increase.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <seq.design.increase.func>.R -file. Please also see the notes SPOT - extensions}
-\item{seq.design.func}{[\code{"spotCreateDesignLhs"}] name of the function to create sequential design. Please also see the notes SPOT - extensions}
+\item{seq.design.func}{[\code{"spotCreateDesignLhd"}] name of the function to create sequential design. Please also see the notes SPOT - extensions}
 \item{seq.design.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <seq.design.func>.R -file}
 \item{seq.predictionModel.func}{[\code{"spotPredictLm"}] name of the function calling a predictor. Default uses a Linear Model. Please also see the notes SPOT - extensions}
 \item{seq.predictionModel.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <seq.predictionModel.func>.R -file}
+\item{seq.predictionOpt.func}{[\code{NA} If not NA this string will be interpreted as a function name. The function is expected to add a new setting to the sequential design. See \code{\link{spotPredictOptMulti}}}
+\item{seq.predict.subMethod}{[\code{"none"} This sets which method is used in \link{spotPredictOptMulti}}
 \item{seq.log.x}{[\code{FALSE}] use log(x) values for the prediction model}
 \item{seq.log.y}{[\code{FALSE}] use log(y) values for the prediction model}
 \item{seq.merge.func}{ [\code{mean}] defines the function that merges the results from the different repeat-runs for a design. Default is to calculate the mean value.}

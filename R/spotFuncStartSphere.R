@@ -1,11 +1,10 @@
 
 ###################################################################################################
-#' 3-dim sphere function
+#' multi-dim sphere function
 #'
 #' This is the noisy implementation of the Sphere function used by some SPOT demos
 #'
-#' @param x	two dimensional vector that will be evauluated by the sphere function
-#' @param noise	this number is added to the function value y as noise
+#' @param x	two dimensional vector that will be evauluated by the branin function
 #'
 #' @return number \code{y} \cr
 #' - \code{y} is the value of the corresponding \code{x} vector
@@ -13,18 +12,15 @@
 #' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{spotFuncStartSphere}}
 #' \code{\link{spotFuncStartSphere}} 
 ###################################################################################################
-spotNoisySphereFunction <- function (x, noise) {
-	x1 <- x[1] 
-	x2 <- x[2] 
-	x3 <- x[3]
-	return(x1*x1+x2*x2+x3*x3+noise*rnorm(1))	
+spotSphereFunction <- function (x) {
+	y <- sum(x^2)
+	return(y)
 }
-
 
 ###################################################################################################
 #' Sphere function call for SPOT
 #'
-#' SPOT uses this function for some demos to call the \code{\link{spotNoisySphereFunction}} function 
+#' SPOT uses this function for some demos to call the \code{\link{spotSphereFunction}} function 
 #' 
 #' @param spotConfig Contains the list of spot configurations, results of the algorithm can be passed to this list instead of the .res file.
 #'		  spotConfig defaults to "NA", and will only be passed to the Algorithm if spotConfig$spot.fileMode=FALSE. See also: \code{\link{spotGetOptions}}
@@ -36,7 +32,7 @@ spotNoisySphereFunction <- function (x, noise) {
 #'			spot.fileMode: boolean, if selected with true the results will also be written to the res file, otherwise it will only be saved in the spotConfig returned by this function\cr
 #' @return this function returns the \code{spotConfig} list with the results in spotConfig$alg.currentResult
 #' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{optim}}
-#' \code{\link{spotNoisySphereFunction}}
+#' \code{\link{spotSphereFunction}}
 ###################################################################################################
 spotFuncStartSphere <- function(spotConfig){
 	pdFile=spotConfig$io.apdFileName;
@@ -44,17 +40,22 @@ spotFuncStartSphere <- function(spotConfig){
 	desFileName=spotConfig$io.desFileName;	
 	
 	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
-		writeLines(paste("Loading design file data from::",  desFileName), con=stderr());
+		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr());
 		## read doe/dace etc settings:
 		des <- read.table(desFileName, sep=" ", header = TRUE);	
 	}else{
 		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
 	}	
-	noise<-NULL
-	f<-NULL
-	n<-NULL
-	## read default problem design
-	source(pdFile,local=TRUE)
+	#default Values that can be changed with apd file
+	noise<-0;
+	noise.type <- spotConfig$spot.noise.type;
+	spot.noise.minimum.at.value <- spotConfig$spot.noise.minimum.at.value;
+	f<-"Sphere"
+	n<-3;
+	## read problem design file
+	if(file.exists(pdFile)){
+		source(pdFile,local=TRUE)
+	}
 	## read doe/dace etc settings:
 	##  VARX1 VARX2 VARX3 REPEATS SEED
 	config<-nrow(des);	
@@ -79,9 +80,12 @@ spotFuncStartSphere <- function(spotConfig){
 				step <- des$STEP[k]
 			}
 			seed <- des$SEED[k]+i-1			
-			print(c("Config:",k ," Repeat:",i))
-			y <- spotNoisySphereFunction(c(x1,x2,x3), noise)
-			print(y)
+			spotPrint(spotConfig$io.verbosity,1,c("Config:",k ," Repeat:",i))
+			y <- spotSphereFunction(c(x1,x2,x3))
+			## add noise
+			y <- y + spotCalcNoise(y, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value);
+			
+			spotPrint(spotConfig$io.verbosity,1,y)
 			res <- NULL
 			res <- list(Y=y,					
 					VARX1=x1,

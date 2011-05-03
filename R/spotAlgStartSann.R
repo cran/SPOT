@@ -23,20 +23,26 @@ spotAlgStartSann <- function(spotConfig){
 	io.apdFileName=spotConfig$io.apdFileName;
 	io.desFileName=spotConfig$io.desFileName;
 	io.resFileName=spotConfig$io.resFileName;	
-	
-	x0<-NULL
-	maxit<-NULL
-	parscale<-NULL
-	f<-NULL
-	n<-NULL
+	#default Values that can be changed with apd file
+	x0<-c(10,10);
+	maxit<-250;
+	parscale<-c(1,1);
+	f<-"Branin0.0";
+	n<-2;
+	## read problem design file
+	if(file.exists(io.apdFileName)){
+		source(io.apdFileName,local=TRUE)
+	}
+	else{
+		spotWriteLines(spotConfig$io.verbosity,1,"apd File not found, defaults used");
+	}
 	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
-		writeLines(paste("Loading design file data from::",  io.desFileName), con=stderr());
+		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  io.desFileName), con=stderr());
 		## read doe/dace etc settings:
 		des <- read.table( io.desFileName, sep=" ", header = TRUE);	
 	}else{
 		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
-	}		
-	source(io.apdFileName,local=TRUE)	
+	}			
 	pNames <- names(des);	
 	config<-nrow(des);	
 	for (k in 1:config){
@@ -57,7 +63,7 @@ spotAlgStartSann <- function(spotConfig){
 			}			
 			seed <- des$SEED[k]+i-1	
 			set.seed(seed)
-			y <- optim(x0, spotNoisyBraninFunction, method="SANN",
+			y <- optim(x0, spotBraninFunction, method="SANN",
 					control=list(maxit=maxit, temp=temp, tmax=tmax, parscale=parscale))	
 			res <- NULL
 			res <- list(Y=y$value, TEMP=temp, TMAX=tmax, FUNCTION=f, DIM=n, SEED=seed, CONFIG=conf)

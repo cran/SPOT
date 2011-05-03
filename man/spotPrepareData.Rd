@@ -5,8 +5,8 @@
 \description{Prepare Data for SPOT}
 \details{spotPrepareData prepares the data from .res-file  
 
-The result (.res) file is read and the data are prepared for further procesing
-results in a list of several values}
+The result (.res) file is read and the data are prepared for further processing
+results in an unsorted list of several values}
 \value{list \code{resultList}  \cr
 - \code{resultList} is a list of values (not sorted in increasing order!)
 \code{x}: vector of vector (=matrix) of input values, the "points"

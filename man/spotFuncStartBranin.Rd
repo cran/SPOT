@@ -3,10 +3,10 @@
 \title{Branin function call for SPOT...}
 \usage{spotFuncStartBranin(spotConfig)}
 \description{Branin function call for SPOT}
-\details{SPOT uses this function for some demos to call the \code{\link{spotNoisyBraninFunction}} function}
+\details{SPOT uses this function for some demos to call the \code{\link{spotBraninFunction}} function}
 \value{this function returns the \code{spotConfig} list with the results in spotConfig$alg.currentResult}
 \references{\code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{optim}}
-\code{\link{spotNoisyBraninFunction}}}
+\code{\link{spotBraninFunction}}}
 \arguments{\item{spotConfig}{Contains the list of spot configurations, results of the algorithm can be passed to this list instead of the .res file.
 spotConfig defaults to "NA", and will only be passed to the Algorithm if spotConfig$spot.fileMode=FALSE. See also: \code{\link{spotGetOptions}}
 Items used are: \cr \cr

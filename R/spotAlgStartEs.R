@@ -41,7 +41,7 @@ spotAlgEsGetSuccessRate <- function(gen,pop){
 #' Function Call to Fitness functions
 #'
 #' This function is used by the ES-implementation in SPOT to call the different fitness functions:
-#' \code{\link{spotNoisyBraninFunction}}, \code{\link{spotAlgEsSphere}}, \code{\link{spotAlgEsSphere1}}, \code{\link{spotAlgEsBanana}}, \code{\link{spotAlgEsWild}}, \code{\link{spotAlgEsRastrigin}}.
+#' \code{\link{spotBraninFunction}}, \code{\link{spotAlgEsSphere}}, \code{\link{spotAlgEsSphere1}}, \code{\link{spotAlgEsBanana}}, \code{\link{spotAlgEsWild}}, \code{\link{spotAlgEsRastrigin}}.
 #'
 #' @param x vector to be evaluated by the fitness function
 #' @param fType name of fitness function, choose by \code{branin, sphere, sphere1, banana, wild, rastrigin}
@@ -53,7 +53,7 @@ spotAlgEsGetSuccessRate <- function(gen,pop){
 ###################################################################################################
 spotAlgEsF <- function(x, fType){
 	switch(fType,
-			branin=spotNoisyBraninFunction(x),
+			branin=spotBraninFunction(x),
 			sphere=spotAlgEsSphere(x),
 			sphere1=spotAlgEsSphere1(x),
 			banana=spotAlgEsBanana(x),
@@ -863,36 +863,34 @@ spotAlgStartEs <- function(spotConfig){
 	io.apdFileName=spotConfig$io.apdFileName;
 	io.desFileName=spotConfig$io.desFileName;
 	io.resFileName=spotConfig$io.resFileName;	
-	
-	dimension<-NULL
-	mutation<-NULL
-	rho<-NULL
-	maxGen<-NULL
-	maxIter<-NULL
-	noise<-NULL
-	fName<-NULL
-	lowerLimit<-NULL
-	upperLimit<-NULL
-	verbosity<-NULL
-	plotResult<-NULL
-	
+	#default settings, can be changed with apd file
+	dimension<-2;
+	mutation<-"selfA";
+	rho<-"bi";
+	maxGen<-Inf;
+	maxIter<-100;
+	noise<-0.0;
+	fName<-"branin";
+	lowerLimit<-(-1);
+	upperLimit<-1;
+	verbosity<-0;
+	plotResult<-FALSE;
+	#print( io.apdFileName)
+	## read problem design	
+	source( io.apdFileName,local=TRUE)	
 	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
-		writeLines(paste("Loading design file data from::",  io.desFileName), con=stderr());
+		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  io.desFileName), con=stderr());
 		## read doe/dace etc settings:
 		des <- read.table( io.desFileName, sep=" ", header = TRUE);	
 	}else{
 		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
 	}
-	
-	#print( io.apdFileName)
-	## read problem design	
-	source( io.apdFileName,local=TRUE)
 	## read doe/dace etc settings:
 	#print( io.desFileName)
 	#print(summary(des));
 	##  NPARENTS NU TAU NSIGMA REPEATS SEED
 	config<-nrow(des);
-	print(config);
+	spotPrint(spotConfig$io.verbosity,1,config);
 	attach(des)
 	if (!exists("CONFIG"))
 		stop("Design is missing the required column CONFIG!")
@@ -944,7 +942,7 @@ spotAlgStartEs <- function(spotConfig){
 				spotStep <- des$STEP[k]
 			}				
 			seed <- des$SEED[k]+i-1				
-			print(c("Config:",k ," Repeat:",i))				
+			spotPrint(spotConfig$io.verbosity,1,c("Config:",k ," Repeat:",i))				
 			res <- spotAlgEs(mue=mue,
 					nu=nu,
 					dimension=dimension,
@@ -969,7 +967,7 @@ spotAlgStartEs <- function(spotConfig){
 					sigmaRestart=sigmaRestart,
 					preScanMult=prescanmult,
 					conf=des$CONFIG[k])     
-			print(res$Y)			
+			spotPrint(spotConfig$io.verbosity,1,res$Y)			
 			if (exists("STEP")){
 				res=c(res,STEP=spotStep)
 			} 

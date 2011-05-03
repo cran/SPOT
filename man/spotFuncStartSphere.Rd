@@ -3,10 +3,10 @@
 \title{Sphere function call for SPOT...}
 \usage{spotFuncStartSphere(spotConfig)}
 \description{Sphere function call for SPOT}
-\details{SPOT uses this function for some demos to call the \code{\link{spotNoisySphereFunction}} function}
+\details{SPOT uses this function for some demos to call the \code{\link{spotSphereFunction}} function}
 \value{this function returns the \code{spotConfig} list with the results in spotConfig$alg.currentResult}
 \references{\code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{optim}}
-\code{\link{spotNoisySphereFunction}}}
+\code{\link{spotSphereFunction}}}
 \arguments{\item{spotConfig}{Contains the list of spot configurations, results of the algorithm can be passed to this list instead of the .res file.
 spotConfig defaults to "NA", and will only be passed to the Algorithm if spotConfig$spot.fileMode=FALSE. See also: \code{\link{spotGetOptions}}
 Items used are: \cr \cr
