@@ -144,6 +144,12 @@ spotGenerateSequentialDesignOcba <- function(spotConfig) {
                                         , largeDesign
                                          , spotConfig));
 	largeDesign <-  as.data.frame(largeDesign[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
+
+	if (!invalid(spotConfig$seq.predictDual$predictions)){
+		for (i in 1:length(spotConfig$seq.predictDual$predictions)){
+			spotConfig$seq.predictDual$predictions[[i]] <- as.data.frame(spotConfig$seq.predictDual$predictions[[i]][order(spotConfig$seq.largeDesignY,decreasing=FALSE),])
+		}	
+	}
 	spotConfig$seq.largeDesignY <-  as.data.frame(spotConfig$seq.largeDesignY[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
 	##################################################
     ## (2b) If desired, optimize fit returned by prediction model
@@ -163,8 +169,10 @@ spotGenerateSequentialDesignOcba <- function(spotConfig) {
     additionalConfigNumbers <- nrow(largeDesignEvaluated)
 	CONFIG <- lastConfigNr + 1:additionalConfigNumbers;
 	#use computed config number to link the design point with the model that created it
-	spotConfig$seq.predictDual$links<-rbind(spotConfig$seq.predictDual$links,cbind(CONFIG, MODEL=rep(spotConfig$seq.predictDual$last,1)))# TODOMZ
-    REPEATS <- rep(spotConfig$init.design.repeats, additionalConfigNumbers)
+	if (spotConfig$seq.predictionModel.func == "spotPredictDualM"||spotConfig$seq.predictionModel.func == "spotPredictDualB"||spotConfig$seq.predictionModel.func == "spotPredictDual")
+	{	spotConfig$seq.predictDual$links<-rbind(spotConfig$seq.predictDual$links,cbind(CONFIG, MODEL=rep(spotConfig$seq.predictDual$last,1)))# TODOMZ
+    }
+	REPEATS <- rep(spotConfig$init.design.repeats, additionalConfigNumbers)
     SEED <- spotConfig$alg.seed
     STEP <- lastStepNr +1
     newD <- cbind(largeDesignEvaluated

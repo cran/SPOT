@@ -1,13 +1,10 @@
 \name{spotAlgEs}
 \alias{spotAlgEs}
 \title{Evolution Strategy Implementation for SPOT package...}
-\usage{spotAlgEs(mue=10, nu=10, dimension=2, mutation="selfA", sigmaInit=1,
-    nSigma=1, tau0=0, tau=1, rho="bi", sel=1, stratReco=1, objReco=2,
-    maxGen=Inf, maxIter=100, seed=1, noise=0, thrs="no",
-    thrsConstant=0, fName="sphere", lowerLimit=-1, upperLimit=1,
-    verbosity=0, plotResult=FALSE, logPlotResult=FALSE, term="iter",
-    sigmaRestart=0.1, preScanMult=1, globalOpt=rep(0, dimension),
-    conf=-1)}
+\usage{spotAlgEs(mue=10, nu=10, dimension=2, mutation="selfA", sigmaInit=1, nSigma=1, tau0=0, tau=1, rho="bi", sel=1, stratReco=1,
+    objReco=2, maxGen=Inf, maxIter=100, seed=1, noise=0, thrs="no", thrsConstant=0, fName="sphere", lowerLimit=-1,
+    upperLimit=1, verbosity=0, plotResult=FALSE, logPlotResult=FALSE, term="iter", sigmaRestart=0.1, preScanMult=1,
+    globalOpt=rep(0, dimension), conf=-1)}
 \description{Evolution Strategy Implementation for SPOT package}
 \details{This function is used by \code{\link{spotAlgStartEs}} as a main loop for running
 the Evolution Strategy with the given parameter set specified by SPOT.}

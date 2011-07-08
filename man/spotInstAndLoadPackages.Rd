@@ -1,8 +1,7 @@
 \name{spotInstAndLoadPackages}
 \alias{spotInstAndLoadPackages}
 \title{Spot install and load required packages...}
-\usage{spotInstAndLoadPackages(packageList,
-    reposLoc="http://cran.r-project.org")}
+\usage{spotInstAndLoadPackages(packageList, reposLoc="http://cran.r-project.org")}
 \description{Spot install and load required packages}
 \details{Help function that installs and loads the packages that are given by a list
 new predictors should use this function to install their packages, to make sure

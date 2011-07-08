@@ -4,8 +4,8 @@
 \details{\tabular{ll}{
 Package: \tab SPOT\cr
 Type: \tab Package\cr
-Version: \tab 0.1.1375\cr
-Date: \tab 03.05.2011\cr
+Version: \tab 0.1.1550\cr
+Date: \tab 08.07.2011\cr
 License: \tab GPL (>= 3)\cr
 LazyLoad: \tab yes\cr
 }
@@ -19,7 +19,7 @@ some defaults are given that already work perfectly well for 90 percent of the u
 \alias{SPOT}
 \docType{package}
 \author{Thomas Bartz-Beielstein \email{thomas.bartz-beielstein@fh-koeln.de} with contributions from: J. Ziegenhirt, W.
-Konen, O. Flasch, P. Koch, M. Zaefferer}
+Konen, O. Flasch, M. Friese, P. Koch, M. Zaefferer}
 \references{\url{http://www.gm.fh-koeln.de/campus/personen/lehrende/thomas.bartz-beielstein/00489/} \cr
 \url{http://www.springer.com/3-540-32026-1}}
 \keyword{package}

@@ -8,6 +8,21 @@
 \usepackage[utf8]{inputenc}
 \usepackage[colorlinks=true,linkcolor=blue]{hyperref} 
 
+%% Set PDF 1.5 and compression, including object compression
+%% Needed for MiKTeX -- most other distributions default to this
+\ifx\pdfoutput\undefined
+\else
+  \ifx\pdfoutput\relax
+  \else
+    \ifnum\pdfoutput>0
+      % PDF output
+      \pdfminorversion=5
+      \pdfcompresslevel=9
+      \pdfobjcompresslevel=9
+    \fi
+  \fi
+\fi
+
 \DeclareMathOperator{\var}{var}
 \DeclareMathOperator{\cov}{cov}
 
@@ -31,7 +46,7 @@ For more detailed information on how to work with spot
 scientificly, check the literature, as this is basically just a technical
 description on how to use the different functions.
 A more detailed manual that explains how to use these functions successfully
-can be seen in other SPOT vignette, \href{SPOTmanual.pdf}{SPOTmanual}.
+can be found in the overview of user guides and package vignettes (see help index).
 
 As an easy example this vignette will demonstrate how to 
 apply SPOT to a Simulated Annealing (SANN) algorithm. 
@@ -356,9 +371,16 @@ the results that were produced by the above described steps.
 Like the other steps, the Report-Step is based on the settings in the .conf file.
 So we will just check what results we get with our current settings.
 
-<<step.rep>>=
+<<nofig>>=
 myConfigAndResults=spot(testFile,"rep",spotConfig=myConfigAndResults)
 @
+
+<<fig=TRUE,include=TRUE,echo=FALSE>>=
+rawB <- spotGetRawDataMatrixB(myConfigAndResults);
+fit.tree <- rpart(y ~ ., data= rawB)	
+draw.tree(fit.tree, digits=4)	
+@
+
 
 As we see the "rep" Step tells us what solution SPOT found for our
 problem and some additional information about our experiment. 
@@ -367,13 +389,11 @@ The report also creates some graphics, both on screen and as a pdf.
 The pdf is located in the folder where all the other files are stored,
 too. \\
 
-\includegraphics{tree.pdf}
-
-What we see here, is a tree for our SPOT run. This is created by the default
+What we see there, is a tree for our SPOT run. This is created by the default
 report function, as we didnt tell spot to use anything else. The default report
 only gives text output and tries to draw a tree with the available data. This tree
 will be drawn regardless of the model used for the sequential steps, as the report
-step uses the availabe data to create a new tree for data created by any kind of 
+step uses the available data to create a new tree for data created by any kind of 
 prediction model. 
 Of course the tree is rather small, since the we didnt get much data from so few steps.
 For real improvement and a bigger tree we would need to invest more time.

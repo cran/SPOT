@@ -22,8 +22,8 @@
 #' \tabular{ll}{
 #' Package: \tab SPOT\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.1.1375\cr
-#' Date: \tab 03.05.2011\cr
+#' Version: \tab 0.1.1550\cr
+#' Date: \tab 08.07.2011\cr
 #' License: \tab GPL (>= 3)\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -40,7 +40,7 @@
 #' @docType package
 #' @title Sequential Parameter Optimization Toolbox in R
 #' @author Thomas Bartz-Beielstein \email{thomas.bartz-beielstein@@fh-koeln.de} with contributions from: J. Ziegenhirt, W.
-#'    Konen, O. Flasch, P. Koch, M. Zaefferer
+#'    Konen, O. Flasch, M. Friese, P. Koch, M. Zaefferer
 #' @references
 #' \url{http://www.gm.fh-koeln.de/campus/personen/lehrende/thomas.bartz-beielstein/00489/} \cr
 #' \url{http://www.springer.com/3-540-32026-1}
@@ -166,7 +166,7 @@ spotPrepare <- function(srcPath,configFile,spotConfigUser){
 	if(!exists("spotPrepareData")){
 		source(createSourcePath("spotPrepareData.R"), local=FALSE);
 	}
-        if(!exists("spotGenerateSequentialDesign")){
+    if(!exists("spotGenerateSequentialDesign")){
 		source(createSourcePath("spotGenerateSequentialDesign.R"), local=FALSE);
 	}
 	if(!exists("spotGenerateSequentialDesignOcba")){
@@ -181,7 +181,7 @@ spotPrepare <- function(srcPath,configFile,spotConfigUser){
 	if(!exists("spotPlotBst")){
 		source(createSourcePath("spotPlot.R"), local=FALSE);
 	}
-	if(!exists("spotMetaRead")){
+	if(!exists("spotMetaFlattenFbsRow")){
 		source(createSourcePath("spotMeta.R"), local=FALSE);
 	}
 	if(!exists("spotFuncStartBranin")){
@@ -200,6 +200,10 @@ spotPrepare <- function(srcPath,configFile,spotConfigUser){
 	if(is.list(spotConfigUser)){
 		spotConfig <- append(spotConfigUser,spotConfig); 
 		spotConfig <- spotConfig[!duplicated(names(spotConfig))];#Commandline Input from user will overwrite configfile/default parameters here !!
+		if(file.exists(spotConfig$io.roiFileName)){ #Read in the roi, just in case that spotConfigUser contained a new roi file name
+			spotConfig$alg.roi <- spotReadRoi(spotConfig$io.roiFileName,spotConfig$io.columnSep)
+			spotConfig$alg.aroi <- spotConfig$alg.roi
+		}
 		# funktion in String wandeln
 		if (class(spotConfig$alg.func)=="character"){
 			spotConfig$alg.func.tar<-NA;
@@ -210,8 +214,7 @@ spotPrepare <- function(srcPath,configFile,spotConfigUser){
 		}
 		else{
 			stop("The optimization target function is neither a character string, nor a function handle")
-		}
-			
+		}			
 	}
 #	if (spotConfig$spot.ocba == TRUE){#Bugfix: If ocba is chosen, makes sure that max repeats, and initial repeats are more than 1. However this will still crash with noise=0
 #		if (!is.na(spotConfig$init.design.repeats)){
@@ -447,6 +450,10 @@ spotStepSequential <- function(spotConfig) {
 		SPOT with OCBA makes only sense if the target function is noisy.
 		If a non noisy function is used, the default settings should 
 		be adopted,	as described in the help of spot() or spotOptim().
+		That means: either use spot.ocba=FALSE, or set the repeats
+		(init.design.repeats) to values larger
+		than 1.
+		
 		The current variance vector is for the used design points is: 
 		",paste(varY," "))
 	}
@@ -521,7 +528,9 @@ spotStepAutoOpt <- function(spotConfig){
 ###################################################################################
 #' SPOT Step Meta 
 #'
-#' The \code{meta} task calls spotStepMetaOpt which itself calls the task \code{auto} 
+#' Attention: This feature is work in progress, documentation is not up to date.
+#'
+#' The \code{meta} task calls spotStepMetaOpt which itself calls \code{\link{spot}}
 #' with several different fixed
 #' parameters to provide a mixed optimization mechanism: analyse a fully qualified 
 #' test of some parameters and the intelligent optimization of other parameters.
@@ -529,125 +538,75 @@ spotStepAutoOpt <- function(spotConfig){
 #' 
 #' To start this step you could for example do this:\cr
 #' \code{spot("configFileName.conf","meta")}\cr 
-#' An additional \code{<configFileName>.meta} is needed. This meta file should have lines with 
-#' vectors of values that are to be given to parameters used in the .apd file. \cr
-#' \code{maxit=c(100,200,300,400,500)}\cr
-#' \code{x0=list(c(1,1),c(2,2),c(5,5),c(10,10))}\cr
-#' will lead to .apd files with each combination for the params starting with:\cr
-#' \code{maxit=100}\cr
-#' \code{x0=c(1,1)}\cr
-#' to\cr
-#' \code{maxit=500}\cr
-#' \code{x0=c(10,10)}\cr
-#' as in this example there are five values for \code{maxit} and four for \code{x0}
-#' a set of 20 different projects is evaluated. The results will be written to 
-#' \code{<configFileName>.fbs}
-#' All temporary results will be deleted by default. If they should be kept fo further 
-#' investigation the .conf file should have the additional value
-#' \code{meta.keepAllFiles=TRUE} 
-#' Then each parameter configuration will be stored like a separate SPOT-project in an own
-#' subdirectory. 
 #' 
 #' @param spotConfig the list of all parameters is given
 #' 
-#' @references  \code{\link{spotStepAutoOpt}} 
-#' \code{\link{spotGetOptions}} 
+#' @references  \code{\link{spotGetOptions}} 
 ###################################################################################
-## TODO JZ: .meta-file syntax explanation, 
-##			 testing
-##		adding a usefull example: see /trunk/R.d/testSrc
-##		deleting of temporary files, (and a switch to suppress this deleting)
-##
 spotStepMetaOpt <- function(spotConfig) {
 	spotInstAndLoadPackages("AlgDesign")
-	# read the Meta File
-	spotWriteLines(spotConfig$io.verbosity,1,spotConfig$io.metaFileName)
-	myList<-spotMetaRead(spotConfig$io.metaFileName)
-	myAssignmentOp<-spotMetaGetAssignmentOp(spotConfig$io.metaFileName)# assignment operator
-	#browser()
+	### Delete old FBS file
+	if(file.exists(spotConfig$io.fbsFileName)) {
+		unlink(spotConfig$io.fbsFileName)
+	} 
+		
+	myList<-spotConfig$meta.list
+	mySetList<-spotConfig$meta.conf.list
 	nVars<-length(myList)
-	# create a vector "x" holding the length of each variable
-	x <- as.numeric(lapply(myList, length))
-	# full factorial design with indicies for all combinations:
-	if (nVars==1){
+	x <- as.numeric(lapply(myList, length))	# create a vector "x" holding the length of each variable
+	if (nVars==1){	# full factorial design with indicies for all combinations:
 		dat <- matrix(1:x, byrow = TRUE)
 	}
 	else{
 		dat<-gen.factorial(x,varNames=names(myList),factors="all")
-	}
-	## Loop over full factorial combinations of all parameters specified in .meta
-	for (j in 1:nrow(dat)) {
-		## close all remaining graphic devices - from old spotStepAutoOpt Runs
-		graphics.off() 
-		
-		# empty the vectors for projectName and apdLines that are to be added to the apdFile
-		# dependent to the factors of that one row of dat[j]
-		projectName<-character()  
-		apdLines<-character()
+	}	
+	for (j in 1:nrow(dat)) {## Loop over full factorial combinations of all parameters specified in .meta
+		graphics.off() ## close all remaining graphic devices - from old spotStepAutoOpt Runs
 		myFbs<-list()
-		
+		newConf<-list()
+		newConfSet<-list()
 		for (k in 1:nVars) {
 			# left side of the  assignment 
 			## the factorial value of the kth variable for this dat[j]-row is assigned to a character variable:
-			kthFactor <- myList[[k]][dat[[j,k]]]
-			kthFactorName <- as.character(kthFactor)
-			# projectName is generated from these Factors:
-			projectName <- paste(projectName,names(myList)[k],kthFactorName,sep="")
-			# adapt the factor for proper writing, if it is a character it needs quotes \"
-			if((class(myList[[k]])=="list" && class(myList[[k]][[dat[[j,k]]]])=="character")||(class(myList[[k]])=="character"))
-				kthFactorName <- paste("\"",kthFactorName,"\"",sep="")
-			# now create a <varname>=<singleValue> line for the apd-file 
-			lVal <- paste(names(myList)[k],myAssignmentOp,kthFactorName,sep="")
-			# and a list of all the variables to be added to .fbs file
-			myFbs <- c(myFbs, list(kthFactor))
-			names(myFbs)[length(myFbs)] <- names(myList)[k]
-			## add the created line to the list of apd lines for this one dat-row: (a single spot-"auto" run)
-			apdLines <- (c(apdLines,lVal))
-			if (k!=nVars){
-				projectName <- paste(projectName,"_",sep="")
+			newConf[[names(myList[k])]] <-  myList[[k]][[dat[j,k]]]
+			for (ii in 1:length(mySetList[[k]])){
+				if(length(mySetList[[k]])>0){
+					newConfSet[[names(mySetList[[k]][ii])]]<-mySetList[[k]][[ii]][dat[j,k]]
+				}
 			}
 		}
-		## NOW: all values are generated for ONE run 
-		oldDir<-getwd()
-		## create a temporary spotConfig for the calling of spotStepAuto 
-		newSpotConfig<-spotMetaCreateSubProject(spotConfig,projectName,apdLines)
-		###############   THIS calls the spotAutoOpt for ONE line
-		newSpotConfig=spotStepAutoOpt(newSpotConfig)
-		#now transfer the last line of the bst-file to the parent directory
-		################
-		#if(spotConfig$spot.fileMode){
-		#	tmpBst<-read.table(newSpotConfig$io.bstFileName,header=TRUE,sep=" ");
-		#}else{
+		myFbs <- c(myFbs, newConf)
+		newConf<-append(newConf,newConfSet)
+		newSpotConfig<-append(newConf,spotConfig)	## create a temporary spotConfig for the calling of spotStepAuto 
+		newSpotConfig$spot.fileMode=FALSE;
+		newSpotConfig <- newSpotConfig[!duplicated(names(newSpotConfig))]; ## delete unneeded entries
+		newSpotConfig=spot(spotConfig=newSpotConfig) ##  THIS calls spot for ONE configuration of the meta run
 		tmpBst<-newSpotConfig$alg.currentBest;
-		#}
-		################
-		# remove files if not necessary
-		if (!spotConfig$meta.keepAllFiles) 
-			file.remove(dir())
-		setwd(oldDir)
-		if (!spotConfig$meta.keepAllFiles) {
-			conFilePrefix <- unlist(strsplit(basename(spotConfig$configFileName), ".", fixed = TRUE))[1]
-			myProject<-paste(conFilePrefix,projectName,sep="_")
-			file.remove(myProject)
-		}
-		myFbsFlattened <- spotMetaFlattenFbsRow(myFbs)
+		design = as.list(dat[j,])
+		names(design)=paste(names(design),"NUM", sep="")
+		myFbsFlattened <- spotMetaFlattenFbsRow(append(myFbs,design))
+	
+		dataTHIS<-as.data.frame(cbind(tmpBst[nrow(tmpBst),],myFbsFlattened))
 		
-		if(!file.exists(spotConfig$io.fbsFileName)) {
-			colNames=TRUE
-		} else  colNames=FALSE
-				
+		if(file.exists(spotConfig$io.fbsFileName)) {
+			dataLAST<-as.data.frame(read.table(file=spotConfig$io.fbsFileName,header=TRUE))
+			data<-merge(dataLAST,dataTHIS,all=TRUE,sort=FALSE)
+		}
+		else{
+			data=dataTHIS
+		}
 		write.table(file=spotConfig$io.fbsFileName,
-				cbind(tmpBst[nrow(tmpBst),],myFbsFlattened),
+				data,
 				row.names = FALSE,
-				col.names = colNames,
+				col.names = TRUE,
 				sep = " ",
-				append = !colNames,
+				append = FALSE,
 				quote=FALSE)
 				
 	} # for (j in 1:nrow(dat))... (loop over full factorial design)
+	spotConfig$meta.fbs.result=data
 	spotSafelyAddSource(spotConfig$report.meta.path,spotConfig$report.meta.func,spotConfig$io.verbosity)
-	retCall<-eval(call(spotConfig$report.meta.func, spotConfig))
-	#return(spotConfig) #TODOMZ
+	spotConfig<-eval(call(spotConfig$report.meta.func, spotConfig))
 }
 
 ############# end function definitions ############################################################
@@ -688,7 +647,10 @@ spotStepMetaOpt <- function(spotConfig) {
 ###################################################################################################
 spot <- function(configFile="NULL",spotTask="auto",srcPath=NA,spotConfig=NA){
 	writeLines("spot.R::spot started ") #bugfix MZ: spotWriteLines will not allways work here, since spotConfig could be NA
-	callingDirectory<-getwd()	
+	callingDirectory<-getwd()
+	if(!(configFile=="NULL")&!file.exists(configFile)){
+		stop("Error, configFile not found (or not \"NULL\")")
+	}	
 	if(is.na(srcPath)){
 		for(k in 1:length(.libPaths())){ 
 			if(file.exists(paste(.libPaths()[k],"SPOT","R",sep="/"))){

@@ -15,37 +15,47 @@
 ###################################################################################################
 spotReportMetaDefault <- function(spotConfig) {		
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotReportMetaDefault");
-	### generate formula for scatterplots:
-	pNames <- spotMetaGetMetaVarNames(spotConfig)
-	## number of parameters
-	nParam <- length(pNames)
-	##
-	fmla <- "~Y"
-	for (i in 1:nParam) {
-		fmla <- paste(fmla,pNames[i],sep="+")
-	}
-	### Now that we have the formula, we read the data from the fbs file
 	fbs.df <- read.table(spotConfig$io.fbsFileName			
-			, header = TRUE
-			, as.is=TRUE
+			 , header = TRUE
+			 , as.is=TRUE
 	);
+	print(summary(fbs.df))
+	return(spotConfig)
 	
-	### ToDo: Library handling:
-	library(car)
 	
-  plotFormula <- as.formula(fmla)
-	if(spotConfig$report.io.pdf==TRUE){ #if pdf should be created
-		pdf(spotConfig$io.pdfFileName) #start pdf creation
-		scatterplot.matrix(plotFormula, reg.line=lm, smooth=TRUE, span=0.5, 
-				diagonal = 'density', data=fbs.df)
-		dev.off() #close pdf device
-	}
-	if(spotConfig$report.io.screen==TRUE) #if graphic should be on screen
-	{
-		x11()
-		#par(mfrow=c(1,1), xpd=NA)
-		scatterplot.matrix(plotFormula, reg.line=lm, smooth=TRUE, span=0.5, 
-				diagonal = 'density', data=fbs.df)			
-	}
+	########################################### DEPRECATED!
+	##
+	### generate formula for scatterplots:
+	#browser()
+	#pNames <- names(spotConfig$meta.list)
+	## number of parameters
+	#nParam <- length(pNames)
+	# fmla <- "~Y"
+	# for (i in 1:nParam) {
+		# fmla <- paste(fmla,pNames[i],sep="+")
+	# }
+	## Now that we have the formula, we read the data from the fbs file
+	# fbs.df <- read.table(spotConfig$io.fbsFileName			
+			# , header = TRUE
+			# , as.is=TRUE
+	# );
+	
+	## ToDo: Library handling:
+	# library(car)
+	
+  # plotFormula <- as.formula(fmla)
+	# if(spotConfig$report.io.pdf==TRUE){ #if pdf should be created
+		# pdf(spotConfig$io.pdfFileName) #start pdf creation
+		# scatterplot.matrix(plotFormula, reg.line=lm, smooth=TRUE, span=0.5, 
+				# diagonal = 'density', data=fbs.df)
+		# dev.off() #close pdf device
+	# }
+	# if(spotConfig$report.io.screen==TRUE) #if graphic should be on screen
+	# {
+		# x11()
+	#	par(mfrow=c(1,1), xpd=NA)
+		# scatterplot.matrix(plotFormula, reg.line=lm, smooth=TRUE, span=0.5, 
+				# diagonal = 'density', data=fbs.df)			
+	# }
 }	
 

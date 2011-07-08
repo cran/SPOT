@@ -36,7 +36,7 @@ spotReportDefault <- function(spotConfig) {
 		}
 		if(spotConfig$report.io.screen==TRUE && spotConfig$io.verbosity>0) #if graphic should be on screen
 		{
-			x11()
+			dev.new()
 			par(mfrow=c(1,1), xpd=NA)
 			draw.tree(fit.tree, digits=4)	
 		}

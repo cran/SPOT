@@ -30,13 +30,20 @@ spotPredictMlegp <- function(rawB,mergedB,largeDesign,spotConfig){
             constantMean <-1
             }
         }
-        
+		#if(spotConfig$io.verbosity==0){
+		#	if(.Platform$OS.type=="windows"){
+		#		sink("NUL");
+		#	}else{
+		#		sink("/dev/null");
+		#	}
+		#}
         fit <- mlegp(X=x
                      , Z=y
                      , verbose = spotConfig$io.verbosity
                      , constantMean = constantMean
                      , min.nugget = spotConfig$seq.mlegp.min.nugget
                      )
+		#if(spotConfig$io.verbosity==0){sink();}		
         ## as.matrix makes the prediction faster:
         ###print(largeDesign)
 	res<-predict(fit,as.matrix(largeDesign))

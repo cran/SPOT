@@ -53,7 +53,6 @@ should be set by the value you want to have between your columns}
 \item{io.resFileName}{[depends: \code{<configFileName>.res}] name of the .res -file (RESult file) the user written algorithm has to write its results into this file }
 \item{io.bstFileName}{[depends: \code{<configFileName>.bst}] name of the .bst -file (BeST file) the result-file will be condensed to this file }
 \item{io.pdfFileName}{[depends: \code{<configFileName>.pdf}] name of the .pdf -file the default report will write its summary of results in this pdf file }
-\item{io.metaFileName}{[depends: \code{<configFileName>.meta}] name of the .meta -file, a file holding additional parameters for a full-factorial test-field starting several "auto" tasks}
 \item{io.fbsFileName}{[depends: \code{<configFileName>.bst}] name of the .fbs -file (Final BestSolution file) collects all final best values of all .bst files during a .meta-run }
 \item{io.verbosity}{[\code{3}] level of verbosity of the programm, 0 should be silent and 3 should produce all output- sometimes just interesting for the developer...}
 \item{init.design.func}{[\code{"spotCreateDesignLhd"}] name of the function to create an initial design. Please also see the notes SPOT - extensions}
@@ -86,7 +85,6 @@ This parameter will be ignored if the function is deterministic (like doe)}
 \item{seq.useGradient}{[\code{FALSE}] use gradient information for the prediction model}
 \item{seq.useCanonicalPath}{[\code{FALSE}] if gradient information is used, start at saddle point and follow the most steeply rising ridge in both directions. Default: start at origin and follow the path of the steepest descent in one direction}
 \item{seq.useAdaptiveRoi}{[\code{FALSE}] use region of intereset adaptation}
-\item{meta.keepAllFiles}{[\code{FALSE}] Meta optimization produces lots of temporary files - to keep these files for analysis this switch must be set to TRUE}
 \item{report.func}{[\code{"spotReportDefault"}] name of the function providing the report (default="spotReportDefault" Please also see the notes SPOT - extensions }
 \item{report.meta.func}{[\code{"spotReportMetaDefault"}] name of the function providing the report for meta runs, do not use these functions for \code{report.func}.}
 \item{report.path}{[\code{NA} defaults to \code{srcPath}] path where to find the <report.func>.R -file}
@@ -95,7 +93,8 @@ This parameter will be ignored if the function is deterministic (like doe)}
 \item{report.scatter}{[\code{0}] report should hold a scatterplot (0=no, 1=yes)}
 \item{report.io.screen}{[\code{FALSE}] report graphics will be printed to screen (FALSE=no, TRUE=yes)}
 \item{report.io.pdf}{[\code{TRUE}] report graphics will be printed to pdf (FALSE=no, TRUE=yes)}
-\item{report.io.maxPlots}{[\code{11}] a plot of the performance is continuosly updated, showing the .roi variables in the order given in that file. The graphic is limited to 11 variables. A smaller value here may focus to the relevant variables only}}
+\item{report.io.maxPlots}{[\code{11}] a plot of the performance is continuosly updated, showing the .roi variables in the order given in that file. The graphic is limited to 11 variables. A smaller value here may focus to the relevant variables only}
+\item{meta.list}{[NULL] a list of vectors. Each vector names specific values to be tested in a meta run, for the setting give by the name of the list element. To use it, start SPOT with spotTask="meta"}}
 \references{\code{SPOT} \code{spotPrepare}}
 \arguments{\item{srcPath}{the absolute path to the SPOT sources}
 \item{configFileName}{users config file (.conf) the absolute path including filespecifier of the user config File}}

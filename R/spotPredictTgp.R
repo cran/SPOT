@@ -22,17 +22,7 @@ spotPredictTgp <- function(rawB,mergedB,lhd,spotConfig){
 	x <- rawB[xNames]	#MZ: Bugfix for 1 dimensional optimization	
 	y <- rawB$y
 	fit <- btgpllm(X=x,Z=y,XX=lhd,verb=spotConfig$io.verbosity,improv=c(1,spotConfig$seq.design.size));	
-	##pdf(file=spotConfig$io.pdfFileName)
-	# plot(fit, main = "btgpllm", as="improv")
-	##tgp.trees(fit)
-	##sf <- sens( X=x, Z=y, nn.lhs=100, model = btgpllm, verb=0)
-	##plot(sf, layout="sens", legendloc="topleft")
-	# dev.off()
-	#lhd<- as.data.frame(cbind(fit$improv,lhd)[fit$improv$rank<=spotConfig$seq.design.new.size,]);	#MZ: Bugfix for 1 dimensional optimization
-	#lhd<- as.data.frame(lhd[,-c(1,2)]);	#MZ: Bugfix for 1 dimensional optimization	
-  	#names(lhd)=xNames; #MZ: Bugfix for 1 dimensional optimization
-	#spotWriteLines(spotConfig$io.verbosity,1,"spotPredictTgp finished");
-	#browser()
+	#res=predict(fit,lhd)$ZZ.mean;
 	res=fit$improv$rank;
 	spotConfig$seq.modelFit=fit; #can be used for adding new points later on, or in ensemble
 	spotConfig$seq.largeDesignY<-as.data.frame(res);

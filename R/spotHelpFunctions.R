@@ -178,7 +178,27 @@ spotReadAroi<-function(spotConfig){
 	);
 	return(aroi.df)
 }
-
+##################################################################################
+#' Spot Read ROI
+#'
+#' help function spotReadRoi reads region of interest from the .roi-file
+#'
+#' @param roiFile this file contains the roi
+#' @param sep this is used as a column separator
+#'
+#' @return data.frame \code{aroi} \cr
+#' - \code{roi} contains the data from the roi file
+#'		
+###################################################################################
+spotReadRoi<-function(roiFile,sep){
+	alg.roi <- read.table(roiFile
+			, sep = sep
+			, header = TRUE
+			, as.is=TRUE
+			, row.names = 1 #Parameter als Zeilennamen
+		);
+	return(alg.roi)
+}
 
 ##################################################################################
 #' Spot Write Lines

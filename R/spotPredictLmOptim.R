@@ -95,7 +95,7 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 		nCol <- ceiling(sqrt(sum(1:(nParam-1))))
 		par(mfrow=c(nCol,nCol) )		
 		attach(dfc.rsm1)
-		x11()
+		dev.new()
 		contour(dfc.rsm1, as.formula(paste("~",makeNParametersSum(nParam))))
 		dev.off()
 		fName= paste (tail(mergedData$STEP,1), spotConfig$io.pdfFileName, sep="") 

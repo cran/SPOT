@@ -88,6 +88,7 @@ spotReportSens <- function(spotConfig) {
 	}
 	if(spotConfig$report.io.screen==TRUE) #if graphic should be on screen
 	{
+		dev.new()
 		matplot(X,Y,type="l",lwd=rep(3,ncol(Y)),cex.axis=1.5,cex.lab=1.5,col=1:ncol(Y),xlab="normalized ROI",main=spotConfig$userConfFileName) 
 		matpoints(XP,YP,pch=rep(21,ncol(Y)),bg=1:ncol(Y),cex=2)	
 		legend("topleft",legend=names(Y),lwd=rep(2,ncol(Y)),lty=1:ncol(Y),col=1:ncol(Y),text.col=1:ncol(Y));

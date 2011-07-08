@@ -1,8 +1,7 @@
 \name{spotAlgEsInitParentPop}
 \alias{spotAlgEsInitParentPop}
 \title{spotAlgEsInitParentPop...}
-\usage{spotAlgEsInitParentPop(sigmaInit, dimension, nSigma, noise, fName, gen,
-    low, high, mue)}
+\usage{spotAlgEsInitParentPop(sigmaInit, dimension, nSigma, noise, fName, gen, low, high, mue)}
 \description{spotAlgEsInitParentPop}
 \details{Creates initial parent population}
 \value{matrix \cr

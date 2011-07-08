@@ -1,8 +1,7 @@
 \name{spotAlgEsDominantReco}
 \alias{spotAlgEsDominantReco}
 \title{spotAlgEsDominantReco...}
-\usage{spotAlgEsDominantReco(parents, rhoVal, dimension, nSigma,
-    objType="obj")}
+\usage{spotAlgEsDominantReco(parents, rhoVal, dimension, nSigma, objType="obj")}
 \description{spotAlgEsDominantReco}
 \details{Recombination function for the Evolution Strategy.}
 \references{\code{\link{spotAlgEs}} \code{\link{spotAlgEsInterRecoBeSw02}}  \code{\link{spotAlgEsInterReco}}}

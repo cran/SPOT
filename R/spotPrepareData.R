@@ -163,11 +163,16 @@ spotPrepareData <- function(spotConfig){
         mergedSEED <- sapply(split(rawData$SEED, rawData$CONFIG),min)
 	#x1 <- as.data.frame(t(sapply(split(rawData[,pNames], rawData$CONFIG),mean)));	# This expression results into errors if just one variable is in the ROI
 	{if (length(pNames)==1){ 
-		x <- as.data.frame(sapply(split(rawData[,pNames], rawData$CONFIG),mean))
-		names(x)<-pNames;
+		#x <- as.data.frame(sapply(split(rawData[,pNames], rawData$CONFIG),mean))
+		x<-as.data.frame(unique(rawData[,pNames]))
+		colnames(x)<-pNames;
 	}
 	else{
-		x <- as.data.frame(t(sapply(split(rawData[,pNames], rawData$CONFIG),mean)))
+	#browser()
+		x<-unique(rawData[,pNames])
+		#x<-matrix(colMeans(as.data.frame(split(rawData[,pNames], rawData$CONFIG))),ncol=length(pNames),byrow=TRUE)
+		#colnames(x)=pNames;
+		#x <- as.data.frame(t(sapply(split(rawData[,pNames], rawData$CONFIG),mean)))
 	}}
 	
 	resultList<-list( x = x

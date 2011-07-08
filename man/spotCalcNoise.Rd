@@ -1,8 +1,7 @@
 \name{spotCalcNoise}
 \alias{spotCalcNoise}
 \title{spotCalcNoise...}
-\usage{spotCalcNoise(y, noise=0, noise.type="weighted",
-    spot.noise.minimum.at.value=0)}
+\usage{spotCalcNoise(y, noise=0, noise.type="weighted", spot.noise.minimum.at.value=0)}
 \description{spotCalcNoise}
 \details{Calculates Noise for a given Function-Value (y) dependant on the
 noise intensity (noise) and the way of calculating noise (noise.type)}

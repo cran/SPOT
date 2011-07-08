@@ -1,8 +1,7 @@
 \name{spotAlgEsIndividualInitial}
 \alias{spotAlgEsIndividualInitial}
 \title{Individual Initialization...}
-\usage{spotAlgEsIndividualInitial(s, dimension, n, noise=0, fName, gen,
-    low=-1, high=1, des)}
+\usage{spotAlgEsIndividualInitial(s, dimension, n, noise=0, fName, gen, low=-1, high=1, des)}
 \description{Individual Initialization}
 \details{Creates a new Individual for the Evolution Strategy implemented in SPOT.}
 \value{numeric vector \cr
