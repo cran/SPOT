@@ -2,7 +2,7 @@
 #seed    random seed (e.g. 12345)
 #steps   maximum number of evolution steps (e.g. 10000)
 #target  objective function threshold for priliminary evolution end (e.g. 0.0001)
-#f       objective function class name (e.g. TODO)
+#f       objective function class name (e.g. "de.fhkoeln.spot.objectivefunctions.Ball")
 #n       problem dimension (e.g. 12)
 #sigma0  initial step size (e.g. 1.0)
 #a       step size muliplier (e.g. 1.2239)

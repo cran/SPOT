@@ -15,7 +15,7 @@
   maxIter=100;
   seed=123;
   noise=0.0;
-  fName="branin";
+  fName=spotBraninFunction;
   lowerLimit=-1;
   upperLimit=1;
   mue = 2;

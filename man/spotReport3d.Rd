@@ -1,0 +1,39 @@
+\name{spotReport3d}
+\alias{spotReport3d}
+\title{3d Plot of Meta Model - Report Function}
+\usage{
+  spotReport3d(spotConfig)
+}
+\arguments{
+  \item{spotConfig}{the configuration list of all spot
+  parameters. \cr The parameter
+  spotConfig$report.interactive=TRUE will be set as default
+  if not contained in the list.  That means, by default the
+  user will be asked to specify which parameters will be
+  varied when the report is started. This is done in a
+  small twiddler gui.  If the user wants to specify which
+  parameters should be plotted against each other, before
+  starting the report, he can set the parameter
+  spotConfig$report.aIndex and spotConfig$report.bIndex.
+  They should be two different integer numbers. They will
+  only be used if spotConfig$report.interactive is FALSE.
+  By default they will be set to 1 and 2, so the first two
+  parameters in the ROI will be plotted.}
+}
+\description{
+  Function to generate a 3d surface plot of the predicted
+  meta model.
+}
+\details{
+  This report function uses the parameter
+  spotConfig$seq.modelFit to plot the predicted model. If
+  spotConfig$seq.modelFit is NULL, the model is generated,
+  based on spotConfig$seq.predictionModel.func. It is not
+  recommended to use this function at the end of an "auto"
+  run of SPOT, make sure to save results first. By default,
+  twiddler will be used to let the user specify which of
+  the parameters should be varied in the plot. Values not
+  varied in the graph are fixed to their "best" value
+  according to the current Results.
+}
+

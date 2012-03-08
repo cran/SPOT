@@ -1,5 +1,5 @@
 ###################################################################################
-#' Spot Predictor Linear Model Optimized
+#' Meta Model Interface: Spot Predictor Linear Model Optimized
 #' 
 #' A linear prediction model with optimization on the response surface
 #' and automated adaptation of the region of interest is used to predict 
@@ -9,16 +9,34 @@
 #' @param mergedB matrix of merged x and y values, does not have replicate entries
 #' @param lhd design points to be evaluated by the meta model  
 #' @param spotConfig the list of all parameters is given 
+#' @param externalFit if an existing model fit is supplied, the model will not be build based on 
+#'				data, but only evaluated with the model fit (on the lhd data). To build the model, 
+#'				this parameter has to be NULL. If it is not NULL the paramters mergedB and rawB will not be 
+#'				used at all in the function.
+#'
+#' If spotConfig does not contain the list element seq.useCanonicalPath (boolean),
+#' it will be created with the default value FALSE. This setting tells
+#' if to start at saddle point in both directions (canonical path analysis).
+#' If spotConfig does not contain the list element seq.useGradient (boolean),
+#' it will be created with the default value FALSE. This setting tells
+#' if gradient information is used or not.
 #'
 #' @return returns the list \code{spotConfig} with two new entries:\cr
 #' 	spotConfig$seq.modelFit fit of the Krig model used with predict() \cr
 #'	spotConfig$seq.largeDesignY the y values of the large design, evaluated with the fit
 #'
-#' @references  \code{\link{SPOT}}
+#' @seealso \code{\link{SPOT}}
+#' @export
 ###################################################################################
-spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
+spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig,externalFit=NULL){	
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotPredictLmOptim");	
 	spotInstAndLoadPackages("rsm")
+# 			\item{seq.useGradient}{[\code{FALSE}] use gradient information for the prediction model}
+# 			\item{seq.useCanonicalPath}{[\code{FALSE}] if gradient information is used, start at saddle point and follow the most steeply rising ridge in both directions. Default: start at origin and follow the path of the steepest descent in one direction}
+	if(is.null(spotConfig$seq.useCanonicalPath)){
+	spotConfig$seq.useCanonicalPath=F}
+	if(is.null(spotConfig$seq.useGradient)){
+	spotConfig$seq.useGradient=F}
 	
 	mergedData <- spotPrepareData(spotConfig)	
 	pNames <- row.names(spotConfig$alg.aroi);
@@ -36,9 +54,9 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 	spotPrint(spotConfig$io.verbosity,1,spotConfig$alg.aroi)
 	fmla <- NULL				
 	for (i in 1:nParam) {
-		a <- spotConfig$alg.aroi$low[i]
+		a <- spotConfig$alg.aroi$lower[i]
 		spotPrint(spotConfig$io.verbosity,1,a)
-		b <- spotConfig$alg.aroi$high[i]
+		b <- spotConfig$alg.aroi$upper[i]
 		spotPrint(spotConfig$io.verbosity,1,b)
 		v1 <- mean(c(a,b))
 		v2 <- (b-a)/2	
@@ -91,14 +109,14 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 		rsmFormula <- as.formula(sprintf("y ~ FO(%s) + TWI(%s) + PQ(%s)", paramString, paramString, paramString))
 		dfc.rsm1 <- spotRsm(formula = rsmFormula, data = rsmDf)
 		spotPrint(spotConfig$io.verbosity,1,summary(dfc.rsm1))		
-		### pdf and x11() plots
+		### pdf and dev.new() plots
 		nCol <- ceiling(sqrt(sum(1:(nParam-1))))
 		par(mfrow=c(nCol,nCol) )		
 		attach(dfc.rsm1)
 		dev.new()
 		contour(dfc.rsm1, as.formula(paste("~",makeNParametersSum(nParam))))
 		dev.off()
-		fName= paste (tail(mergedData$STEP,1), spotConfig$io.pdfFileName, sep="") 
+		fName= paste (tail(mergedData$STEP,1), spotConfig$io.pdfFileName, sep="") #TODO tail can be very slow...
 		pdf(file=fName)
 		contour(dfc.rsm1, as.formula(paste("~",makeNParametersSum(nParam))))
 		dev.off()
@@ -107,12 +125,10 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 	}
 	###################################################################################
 #	## In addition, we build a random forest:	
-#	spotSafelyAddSource(spotConfig$init.design.path,"spotPredictRandomForest",spotConfig$io.verbosity)	
 #	rfBest <- spotPredictRandomForest(rawB,mergedB,lhd,spotConfig)[1,]	
 #	
 #	## In addition, we build a tree:	
-	spotSafelyAddSource(spotConfig$init.design.path,"spotPredictTree",spotConfig$io.verbosity)	
-	treeBest <- spotPredictTree(rawB,mergedB,lhd,spotConfig)$newDesign
+	treeBest <- spotPredictTree(rawB,mergedB,lhd,spotConfig)$newDesign   #todo
 	
 	#######################################################################################
 	### Start optimization (experimental):  
@@ -173,26 +189,24 @@ spotPredictLmOptim <- function(rawB,mergedB,lhd,spotConfig) {
 		if (ds > 0.1){
 			spotPrint(spotConfig$io.verbosity,1,"ds:")
 			spotPrint(spotConfig$io.verbosity,1,ds)
-			low <- xB - ds
-			high <- xB + ds      
-			A <- t(rbind(low, high))		
+			lower <- xB - ds
+			upper <- xB + ds      
+			A <- t(rbind(lower, upper))		
 			A <- t(code2val(data.frame(t(A)), attr(df2,"codings")))
 			A <- data.frame(A, nrow =nParam)
 			A <- cbind(pNames, A)  
-			colnames(A) <- c("name", "low", "high")
+			colnames(A) <- c("name", "lower", "upper")
 			## Now we add type information
-			if(spotConfig$spot.fileMode){ #CHECK IF CORRECT TODOMZ
-				aroi<- spotReadAroi(spotConfig)	
+			if(spotConfig$spot.fileMode){
+				aroi<- spotReadRoi(spotConfig$io.aroiFileName,spotConfig$io.columnSep,spotConfig$io.verbosity)
 			}else{
 				aroi <- spotConfig$alg.aroi;
 			}
 			A <- cbind(A, type=aroi$type)		
-			if(spotConfig$spot.fileMode){ 
-				spotWriteAroi(spotConfig, A)	
-			}#else{
-				spotConfig$alg.aroi<-A;
-			#}
-
+			if(spotConfig$spot.fileMode){ #write aroi file
+				spotWriteAroi(A,spotConfig$io.verbosity,spotConfig$io.columnSep,spotConfig$io.aroiFileName)	
+			}
+			spotConfig$alg.aroi<-A;
 			spotWriteLines(spotConfig$io.verbosity,2,"AROI modified. Execution with continued in the adapted ROI.");
 			## generate a new design 
 			spotConfig$seq.useAdaptiveRoi <- TRUE

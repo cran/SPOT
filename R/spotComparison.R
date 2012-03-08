@@ -11,6 +11,7 @@
 
 ## define helper functions for power and plotting power:
 
+#TODO: These functions desperately need a description...
 
 ###################################################################################################
 #' spotPower
@@ -27,8 +28,10 @@
 #'
 #' @return 		description of return value
 #'
-#' @references  \code{\link{spotPlotPower}} 
+#' @seealso  \code{\link{spotPlotPower}} 
 #' \code{\link{spotCompare}}
+#' @export
+#' @keywords internal
 ###################################################################################################
 spotPower <- function(alpha, mu0, mu1, n, sigma){
 	1 - pnorm( qnorm(1-alpha,0,1) + (mu0-mu1)*sqrt(n)/sigma);
@@ -50,8 +53,10 @@ spotPower <- function(alpha, mu0, mu1, n, sigma){
 #'
 #' @return 		description of return value
 #'
-#' @references  \code{\link{spotPower}} 
+#' @seealso  \code{\link{spotPower}} 
 #' \code{\link{spotCompare}}
+#' @export
+#' @keywords internal
 ###################################################################################################
 spotPlotPower <- function(y0, y1, alpha=0.05, add=FALSE, n=NA, rightLimit=1){
 	##y1 > y0
@@ -87,7 +92,9 @@ spotPlotPower <- function(y0, y1, alpha=0.05, add=FALSE, n=NA, rightLimit=1){
 #'
 #' @return 		description of return value
 #'
-#' @references  \code{\link{spotPlotSeverity}}  \code{\link{spotCompare}}
+#' @seealso  \code{\link{spotPlotSeverity}}  \code{\link{spotCompare}}
+#' @export
+#' @keywords internal
 ###################################################################################################
 spotSeverity <- function(x0, mu1, n, sigma, alpha){
 	## x0 is the sample mean. 
@@ -125,7 +132,9 @@ spotSeverity <- function(x0, mu1, n, sigma, alpha){
 #'
 #' @return 		description of return value
 #'
-#' @references  \code{\link{spotSeverity}}  \code{\link{spotCompare}}
+#' @seealso \code{\link{spotSeverity}}  \code{\link{spotCompare}}
+#' @export
+#' @keywords internal
 ###################################################################################################
 spotPlotSeverity <- function(y0, y1, add=FALSE, n=NA, alpha, rightLimit=1){
 	## y1 > y0
@@ -319,6 +328,8 @@ spotPlotSeverity <- function(y0, y1, add=FALSE, n=NA, alpha, rightLimit=1){
 #'						have no effect. If a function name is passed as a string, the according function will be called with a noice variable
 #'						set to zero. This way the result can be evaluated without noise
 #' @return performance, a matrix of y-Values for each single run. One Column for each file.
+#' @export
+#' @keywords internal
 ####################################################################################
 spotCompare <- function(configFile,repeats=2,NoNoiseFun=NULL){
 	performance<-matrix(data=0,nrow=repeats,ncol=length(configFile)); #pre-allocate performance matrix
@@ -326,11 +337,11 @@ spotCompare <- function(configFile,repeats=2,NoNoiseFun=NULL){
 		for(k in 1:repeats){ # loop for each feature repeat
 			result=spot(configFile[ii],spotConfig=list(spot.seed=k));
 			if (is.null(NoNoiseFun)){
-				performance[k,ii]=as.numeric(tail(result$alg.currentBest[1],1));				
+				performance[k,ii]=as.numeric(tail(result$alg.currentBest[1],1));#TODO tail can be very slow...				
 			}
 			else{
 				pNames <- row.names(result$alg.roi);
-				xx <- as.numeric(tail(result$alg.currentBest[pNames],1));				
+				xx <- as.numeric(tail(result$alg.currentBest[pNames],1));		#TODO tail can be very slow...		
 				eval(call(NoNoiseFun,xx,noise=0));
 			}
 		}		

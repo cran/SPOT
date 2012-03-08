@@ -27,7 +27,7 @@
 #############################################
 
 ##################################################################################
-#' spot OCBA
+#' Optimal Computing Budget Allocation OCBA for SPOT
 #'
 #' Spreads the budget in an optimal way for the different design points,
 #' considering a minimization problem
@@ -39,7 +39,8 @@
 #' @param iz indifference zone
 #' @param verbose verbosity {0|1|2|3} 0 is no printing
 #' 
-#' @references  \code{\link{spotGenerateSequentialDesignOcba}}
+#' @seealso  \code{\link{spotGenerateSequentialDesignOcba}}
+#' @export
 ###################################################################################
 spotOcba <- function(samp.mean, samp.var, samp.count, budget.add, iz=NA, verbose=0)
   {
@@ -124,7 +125,9 @@ spotOcba <- function(samp.mean, samp.var, samp.count, budget.add, iz=NA, verbose
 #'
 #' Just a function for test purpose
 #'
-#' @references  \code{\link{spotOcba}}
+#' @seealso  \code{\link{spotOcba}}
+#' @keywords internal
+#' @export
 ###################################################################################
 spotOcbaTest <- function(){
   samp.mean <- numeric();

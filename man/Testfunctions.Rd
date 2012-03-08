@@ -1,0 +1,59 @@
+\name{Testfunctions}
+\alias{spotBraninFunction}
+\alias{spotMexicanHatFunction}
+\alias{spotRastriginFunction}
+\alias{spotRosenbrockFunction}
+\alias{spotRosenbrockGradientFunction}
+\alias{spotSixHumpFunction}
+\alias{spotSphere1Function}
+\alias{spotSphereFunction}
+\alias{spotWildFunction}
+\alias{Testfunctions}
+\title{Single objective test functions for SPOT}
+\usage{
+  spotSphereFunction(x); spotSphere1Function(x);
+    spotSixHumpFunction(x); spotRosenbrockFunction(x);
+    spotRosenbrockGradientFunction(x);
+    spotRastriginFunction(x); spotMexicanHatFunction(x);
+    spotBraninFunction(x); spotWildFunction(x);
+}
+\arguments{
+  \item{x}{vector that will be evauluated by the
+  testfunction}
+}
+\value{
+  number \code{y} \cr - \code{y} is the value of the
+  corresponding \code{x} vector
+}
+\description{
+  The following target functions are available:\cr \cr
+  spotSphereFunction:\cr multi-dimensional sphere function,
+  one global optimum: Sum[x^2] \cr \cr
+  spotSphere1Function:\cr multi-dimensional sphere
+  function, one global optimum: Sum[i^2*(x[[i]]-i)^2, {i,
+  1, ndim}] \cr\cr spotSixHumpFunction:\cr Two dimensional
+  target function, two global optima the 6-hump camel back
+  function, see
+  \url{http://www.it.lut.fi/ip/evo/functions/node26.html}
+  \cr \cr spotRosenbrockFunction:\cr Two dimensional
+  Rosenbrocks function with one global optimum, see:
+  \url{http://en.wikipedia.org/wiki/Rosenbrock_function}.
+  Maple: f := (1-x)^2+100*(y-x^2)^2 plot3d(f, x = -1.5 ..
+  1.5, y = -.5 .. 2) \cr \cr
+  spotRosenbrockGradientFunction:\cr Gradient of
+  Rosenbrocks function.\cr \cr spotRastriginFunction:\cr
+  Multi-dimensional rastrigin function, one global optimum
+  see
+  \url{http://en.wikipedia.org/wiki/Rastrigin_function}\cr
+  \cr spotMexicanHatFunction:\cr Two dimensional MexicanHat
+  function, with a circular valley of global optima\cr \cr
+  spotBraninFunction:\cr Two dimensional Branin function
+  implementation, 3 global optima, see also:
+  \url{http://www.it.lut.fi/ip/evo/functions/node27.html}
+  \cr \cr spotWildFunction: \cr Another test functions,
+  y=10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
+}
+\seealso{
+  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}}
+}
+

@@ -1,5 +1,5 @@
 ###################################################################################################
-#'  Default Report Function for Meta Runs
+#'  Default Report for Meta Runs
 #' 
 #' Function to generate a simple report for meta runs.
 #'
@@ -11,7 +11,8 @@
 #' \code{\link{spotGetOptions}}, which means there will be only screen output, and no pdf.
 #' 
 #' @param spotConfig the configuration list of all spot parameters
-#' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepReport}} 
+#' @seealso \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepReport}} 
+#' @export
 ###################################################################################################
 spotReportMetaDefault <- function(spotConfig) {		
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotReportMetaDefault");
@@ -21,41 +22,5 @@ spotReportMetaDefault <- function(spotConfig) {
 	);
 	print(summary(fbs.df))
 	return(spotConfig)
-	
-	
-	########################################### DEPRECATED!
-	##
-	### generate formula for scatterplots:
-	#browser()
-	#pNames <- names(spotConfig$meta.list)
-	## number of parameters
-	#nParam <- length(pNames)
-	# fmla <- "~Y"
-	# for (i in 1:nParam) {
-		# fmla <- paste(fmla,pNames[i],sep="+")
-	# }
-	## Now that we have the formula, we read the data from the fbs file
-	# fbs.df <- read.table(spotConfig$io.fbsFileName			
-			# , header = TRUE
-			# , as.is=TRUE
-	# );
-	
-	## ToDo: Library handling:
-	# library(car)
-	
-  # plotFormula <- as.formula(fmla)
-	# if(spotConfig$report.io.pdf==TRUE){ #if pdf should be created
-		# pdf(spotConfig$io.pdfFileName) #start pdf creation
-		# scatterplot.matrix(plotFormula, reg.line=lm, smooth=TRUE, span=0.5, 
-				# diagonal = 'density', data=fbs.df)
-		# dev.off() #close pdf device
-	# }
-	# if(spotConfig$report.io.screen==TRUE) #if graphic should be on screen
-	# {
-		# x11()
-	#	par(mfrow=c(1,1), xpd=NA)
-		# scatterplot.matrix(plotFormula, reg.line=lm, smooth=TRUE, span=0.5, 
-				# diagonal = 'density', data=fbs.df)			
-	# }
 }	
 

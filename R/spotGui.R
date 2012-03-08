@@ -5,9 +5,10 @@
 #' is based on java. The .jar File started with this function is
 #' in the directory where SPOT is installed. 
 #'
-#' Java needs to be installed to use the gui.
+#' Java runtime environment needs to be installed to use the gui.
 #'
-#' @references  \code{\link{SPOT}}
+#' @seealso  \code{\link{SPOT}}
+#' @export
 ####################################################################################
 spotGui<-function(){
 	guiPath=.find.package("SPOT");

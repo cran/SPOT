@@ -14,10 +14,9 @@
 #' @return data.frame \code{rawResData}  \cr
 #' - \code{rawResData} contains values from the result file 
 #'
-#' @references  \code{\link{spotPrepareData}} 
+#' @seealso \code{\link{spotPrepareData}} 
+#' @export
 ####################################################################################
-#TODO: Eigentlich nutzlos geworden, da result daten IMMER in der spotConfig stehen, und somit zwar zum loggen manchmal in 
-# die .res datei geschrieben werden, aber nicht ausgelesen werden müssen.
 spotGetRawResData<- function(spotConfig){
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotGetRawResData");
 	## Load .res-file data, the result of the alg run
@@ -29,11 +28,16 @@ spotGetRawResData<- function(spotConfig){
 			, sep=spotConfig$io.columnSep
 			, header = TRUE	
 			, stringsAsFactors = TRUE
-			);			
+			);		
+	if (length(spotConfig$alg.resultColumn)==1){ #If result column setting is one dimensional, check if more columns starting with that name exist, like Y.1, Y.2, etc.
+		tmp<-length(grep(paste(spotConfig$alg.resultColumn,".",sep=""),names(rawResData)));
+		if(tmp>1){
+			spotConfig$alg.resultColumn<- names(rawResData)[grep(paste(spotConfig$alg.resultColumn,".",sep=""),names(rawResData))]
+		}
+	}		
 	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotGetRawResData");
-	return(rawResData)
+	return(list(conf=spotConfig,rawD=rawResData))
 }
-
 
 ###################################################################################
 #' Get Raw Data Matrix B  
@@ -52,12 +56,16 @@ spotGetRawResData<- function(spotConfig){
 #' and all columns with column-names derived from .roi file (should be the parameters
 #' of the algorithm. Values are sorted with respect to the y values (increasing) 
 #'
-#' @references \code{\link{spotPrepareData}} 
+#' @seealso \code{\link{spotPrepareData}} 
+#' @export
 ####################################################################################
 spotGetRawDataMatrixB <- function(spotConfig){
 	## read data frame from res file
 	if(spotConfig$spot.fileMode){
-		rawData <- spotGetRawResData(spotConfig)
+		res<- spotGetRawResData(spotConfig)
+		spotConfig<-res$conf
+		rawData<-res$rawD
+		res<-NULL
 	}else{
 		rawData=spotConfig$alg.currentResult; 
 	}   # WK: if-else needed if a call 'spot(confFileName,"rep")' shall succeed (!)
@@ -66,8 +74,9 @@ spotGetRawDataMatrixB <- function(spotConfig){
 	y <- rawData[,spotConfig$alg.resultColumn]
 	## data frame of parameter values
 	x <- as.matrix(rawData[pNames]); #MZ: Bugfix for 1 dimensional optimization
-	A <- cbind(y,x)        
-	B <- data.frame(A[order(y,decreasing=FALSE),]);
+	A <- cbind(y,x) 
+	if(!is.null(dim(y))){B <- data.frame(A[order(y[,1],y[,2],decreasing=FALSE),]);}
+	else{B <- data.frame(A[order(y,decreasing=FALSE),]);}
 	return(B)
 }
 
@@ -87,7 +96,8 @@ spotGetRawDataMatrixB <- function(spotConfig){
 #' and all columns with column-names derived from .roi file (should be the parameters
 #' of the algorithm. Values are sorted with respect to the y values (increasing) 
 #'
-#' @references  \code{\link{spotPrepareData}} 
+#' @seealso \code{\link{spotPrepareData}} 
+#' @export
 ####################################################################################
 spotGetMergedDataMatrixB <- function(mergedData, spotConfig){
 	## Note: requires pre-processing via spotPrepareData()
@@ -98,7 +108,9 @@ spotGetMergedDataMatrixB <- function(mergedData, spotConfig){
 	## data frame of parameter values	
 	x <- as.matrix(mergedData$x);
 	A <- cbind(y,x)        
-	B <-  data.frame(A[order(y,decreasing=FALSE),]);
+	if(!is.null(dim(y))){B <- data.frame(A[order(y[,1],y[,2],decreasing=FALSE),]);}
+	else{B <- data.frame(A[order(y,decreasing=FALSE),]);}
+	#B <-  data.frame(A[order(y,decreasing=FALSE),]);
 	return(B)
 }
 
@@ -114,7 +126,6 @@ spotGetMergedDataMatrixB <- function(mergedData, spotConfig){
 #' 		\code{spotConfig$io.resFileName}
 #' 		\code{spotConfig$io.columnSep}
 #' 		\code{spotConfig$alg.roi}
-#' 		\code{spotConfig$io.colname.step}
 #' 		\code{spotConfig$alg.resultColumn}
 #' 		\code{spotConfig$seq.transformation.func()}
 #' 		\code{spotConfig$seq.merge.func()}
@@ -129,12 +140,17 @@ spotGetMergedDataMatrixB <- function(mergedData, spotConfig){
 #' 		\code{step.last}: the maximum number of the step-column of the result-file
 #' 		\code{STEP}: SPOT STEP when design point was created  
 #'
-#' @references  \code{\link{SPOT}} \code{\link{spot}}
+#' @seealso \code{\link{SPOT}} \code{\link{spot}}
+#' @export
 ####################################################################################
 spotPrepareData <- function(spotConfig){
-  spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotPrepareData");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotPrepareData");
 	if(spotConfig$spot.fileMode){
-		rawData <- spotGetRawResData(spotConfig)
+		res<- spotGetRawResData(spotConfig)
+		spotConfig<-res$conf
+		rawData<-res$rawD
+		spotConfig$alg.currentResult<-rawData
+		res<-NULL
 	}else{
 	  rawData=spotConfig$alg.currentResult;
 	}                                   # WK: if-else needed if a call 'spot(confFileName,"rep")' shall succeed (!)
@@ -143,38 +159,44 @@ spotPrepareData <- function(spotConfig){
     ## extract parameter names
     pNames <- row.names(spotConfig$alg.roi);
 	step.last <- NA;
-    if (!is.na(spotConfig$io.colname.step)) {
-		if (any(names(rawData)==spotConfig$io.colname.step)) #=="STEP"
-      		step.last <- max(rawData[spotConfig$io.colname.step])
-		else{
-			spotWriteLines(spotConfig$io.verbosity,2,"Warning: user algorithm does not write STEP column to result file, 0-vector added")
-			step.last=0
-			rawData$STEP<-rep(0, length(rawData$CONFIG)) 
-		}
-    }
-	z <- split(rawData[,spotConfig$alg.resultColumn], rawData$CONFIG);
-	fs <- function(xs) { spotConfig$seq.transformation.func(spotConfig$seq.merge.func(xs)) }
-	mergedY <- sapply(z,fs)
+	if (any(names(rawData)=="STEP"))
+   		step.last <- max(rawData["STEP"])
+	else{
+		warning("Warning: user algorithm does not write STEP column to result file, 0-vector added")
+		step.last=0
+		rawData$STEP<-rep(0, length(rawData$CONFIG)) 
+	}
+	z <- split(rawData[,spotConfig$alg.resultColumn], rawData$CONFIG); 
+	
+	if(length(spotConfig$alg.resultColumn)==1)
+	{
+		fs <- function(xs) { spotConfig$seq.transformation.func(spotConfig$seq.merge.func(xs)) }
+		mergedY <- sapply(z,fs)
         varY <- sapply(z,var)
-  	count <- sapply(z,length) 	
-	mergedCONFIG <- sapply(split(rawData$CONFIG, rawData$CONFIG),min)
-	mergedSTEP <- sapply(split(rawData$STEP, rawData$CONFIG),min)
-  ### added Seed 6.Jan 2011:
-        mergedSEED <- sapply(split(rawData$SEED, rawData$CONFIG),min)
-	#x1 <- as.data.frame(t(sapply(split(rawData[,pNames], rawData$CONFIG),mean)));	# This expression results into errors if just one variable is in the ROI
-	{if (length(pNames)==1){ 
-		#x <- as.data.frame(sapply(split(rawData[,pNames], rawData$CONFIG),mean))
-		x<-as.data.frame(unique(rawData[,pNames]))
-		colnames(x)<-pNames;
+		count <- sapply(z,length)
 	}
 	else{
-	#browser()
-		x<-unique(rawData[,pNames])
-		#x<-matrix(colMeans(as.data.frame(split(rawData[,pNames], rawData$CONFIG))),ncol=length(pNames),byrow=TRUE)
-		#colnames(x)=pNames;
-		#x <- as.data.frame(t(sapply(split(rawData[,pNames], rawData$CONFIG),mean)))
-	}}
-	
+		fs <- function(xs) { spotConfig$seq.transformation.func(apply(xs,2,spotConfig$seq.merge.func))}
+		fnvar<-function(x){apply(x,2,var)}
+		varY <- sapply(z,fnvar);#sapply(as.data.frame(z),var);
+		mergedY <- t(sapply(z,fs))
+		count <- sapply(z,dim)[1,]
+	}
+	mergedCONFIG <- sapply(split(rawData$CONFIG, rawData$CONFIG),min)
+	mergedSTEP <- sapply(split(rawData$STEP, rawData$CONFIG),min)
+	### added Seed 6.Jan 2011: x
+        mergedSEED <- sapply(split(rawData$SEED, rawData$CONFIG),min)
+	#x1 <- as.data.frame(t(sapply(split(rawData[,pNames], rawData$CONFIG),mean)));	# This expression results into errors if just one variable is in the ROI
+	if (length(pNames)==1){ 
+		#x <- as.data.frame(sapply(split(rawData[,pNames], rawData$CONFIG),mean)) #mean on dataframes gives warnings in R-14.x
+		x<- as.data.frame(unique(cbind(rawData[,pNames], rawData$CONFIG))[,1])
+		names(x)<-pNames;
+	}
+	else{
+		#browser()
+		x<-unique(cbind(rawData[,pNames], rawData$CONFIG))[,pNames]
+		#x <- as.data.frame(t(sapply(split(rawData[,pNames], rawData$CONFIG),mean))) #mean on dataframes gives warnings in R-14.x
+	}
 	resultList<-list( x = x
          , mergedY = mergedY
          , varY = varY                
@@ -191,7 +213,7 @@ spotPrepareData <- function(spotConfig){
 
 
 ###################################################################################
-#' Spot Prepare Data As Matrix C
+#' Prepare Data As Matrix C
 #'
 #' The result (.res) file is read and the data are prepared for further procesing
 #' results in "Matrix C" that consits of the y-vector of the results and the x-Matrix
@@ -206,9 +228,10 @@ spotPrepareData <- function(spotConfig){
 #' and all columns with column-names derived from .roi file (should be the parameters
 #' of the algorithm) plus the columns "count", "sdev" and "CONFIG"
 #
-#' @references  \code{\link{spotPrepareData}} 
+#' @seealso \code{\link{spotPrepareData}} 
+#' @keywords internal
 ####################################################################################
-spotPrepareDataAsMatrixC <- function(spotConfig){
+spotPrepareDataAsMatrixC <- function(spotConfig){ #TODO this function is used NOWHERE ?
 	algResults<-spotPrepareData(spotConfig)
 	x <- as.matrix(algResults$x);
 	y <- algResults$Y;

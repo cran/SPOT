@@ -20,14 +20,15 @@
 #'
 #' @return Matrix \code{M} \cr
 #' - \code{M} has \code{dimension} columns and \code{noDesPoints} rows
+#' @export
 ####################################################################################
 spotCreateDesignBasicDoe <- function(spotConfig, noDesPoints = 100, repeats=1){
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignDoe.R::spotCreateDesignDoe()");
 	spotInstAndLoadPackages("AlgDesign")
 	
 	pNames <- row.names(spotConfig$alg.roi);
-	lowerBound <-  spotConfig$alg.roi[ ,"low"];
-	upperBound <-  spotConfig$alg.roi[ ,"high"];
+	lowerBound <-  spotConfig$alg.roi[ ,"lower"];
+	upperBound <-  spotConfig$alg.roi[ ,"upper"];
 	
 	A <- t(rbind(t(lowerBound), t(upperBound)))
 	

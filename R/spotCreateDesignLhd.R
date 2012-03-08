@@ -15,6 +15,7 @@
 #'
 #' @return list \code{L}  \cr
 #' - \code{L} consists of a matrix and nd (if required) a minimal distance 
+#' @export
 ####################################################################################
 spotNormDesign <- function(dim,size, calcMinDistance=FALSE){
 	step <- 1/size;
@@ -47,8 +48,8 @@ spotNormDesign <- function(dim,size, calcMinDistance=FALSE){
 #' @return matrix \code{design} \cr
 #' - \code{design} has \code{dimension} columns and \code{noDesPoints} rows
 #' with entries corresponding to the region of interest.
+#' @export
 ####################################################################################
-
 spotCreateDesignLhd <- function(spotConfig, noDesPoints = NaN, retries=NaN) {
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotDesignLhd");
 	#noDesPoints <- spotConfig$init.design.size
@@ -76,11 +77,11 @@ spotCreateDesignLhd <- function(spotConfig, noDesPoints = NaN, retries=NaN) {
 	
 	design <- as.data.frame(best$design);
 	colnames(design) <- row.names(spotConfig$alg.roi);  
-	spotPrint(spotConfig$io.verbosity,1,spotConfig$alg.roi);
+	#spotPrint(spotConfig$io.verbosity,1,spotConfig$alg.roi);
 	
 	for (param in row.names(spotConfig$alg.roi)){
-		lowerBound <-  spotConfig$alg.roi[param,"low"];
-		upperBound <-  spotConfig$alg.roi[param,"high"];
+		lowerBound <-  spotConfig$alg.roi[param,"lower"];
+		upperBound <-  spotConfig$alg.roi[param,"upper"];
 		
 		## Bei x.5 wird zum nächsten GERADEN Wert gerundet (nach IEEE), so wird aus 2.2500 2.2 und aus 2.3500 2.4
 		if (spotConfig$alg.roi[param,"type"]  == "INT" || spotConfig$alg.roi[param,"type"]  == "FACTOR"){
@@ -95,10 +96,6 @@ spotCreateDesignLhd <- function(spotConfig, noDesPoints = NaN, retries=NaN) {
 	design[spotConfig$alg.roi[["type"]]  == "INT"] <- floor(design[spotConfig$alg.roi[["type"]]  == "INT"]+0.5);
 	design[spotConfig$alg.roi[["type"]]  == "FACTOR"] <- floor(design[spotConfig$alg.roi[["type"]]  == "FACTOR"]+0.5);	
 	
-	if (!is.na(spotConfig$design.paramSignif))
-		## Auf den signifikanten Anteil  reduzieren
-		design <- signif(design,spotConfig$design.paramSignif);
-	##
 	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotCreateDesignLhd");	
 	return(design);
 }

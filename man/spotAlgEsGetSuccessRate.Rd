@@ -1,11 +1,23 @@
 \name{spotAlgEsGetSuccessRate}
 \alias{spotAlgEsGetSuccessRate}
-\title{get Success Rate...}
-\usage{spotAlgEsGetSuccessRate(gen, pop)}
-\description{get Success Rate}
-\details{This function determines the success rate.}
-\value{number \cr
-- the success rate of the given population}
-\references{\code{\link{spotAlgEs}} \code{\link{spotAlgStartEs}}}
-\arguments{\item{gen}{Generation number}
-\item{pop}{Population to be evaluated (only the generation \code{gen} will be evaluated)}}
+\title{get Success Rate}
+\usage{
+  spotAlgEsGetSuccessRate(gen, pop)
+}
+\arguments{
+  \item{gen}{Generation number}
+
+  \item{pop}{Population to be evaluated (only the
+  generation \code{gen} will be evaluated)}
+}
+\value{
+  number \cr - the success rate of the given population
+}
+\description{
+  This function determines the success rate.
+}
+\seealso{
+  \code{\link{spotAlgEs}} \code{\link{spotAlgStartEs}}
+}
+\keyword{internal}
+

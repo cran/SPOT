@@ -19,8 +19,8 @@
 #' @return matrix \code{M} \cr
 #' - \code{M} has \code{dimension} columns and \code{noDesPoints} rows
 #' with entries corresponding to the region of interest.
+#' @export
 ####################################################################################
-#MZ: Parameter repeats is not really needed....
 spotCreateDesignLhs <- function(spotConfig, noDesPoints = NaN, repeats=NaN){	
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignLhs.R::spotCreateDesignLhs()");
 	spotInstAndLoadPackages("lhs")	
@@ -28,7 +28,7 @@ spotCreateDesignLhs <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 	## use roi or aroi:
 	if (spotConfig$seq.useAdaptiveRoi){ 
 		if(spotConfig$spot.fileMode){
-			roiConfig <- spotReadAroi(spotConfig)	
+			roiConfig <- spotReadRoi(spotConfig$io.aroiFileName,spotConfig$io.columnSep,spotConfig$io.verbosity)
 		}else{
 			roiConfig <- spotConfig$alg.aroi
 		}
@@ -37,13 +37,13 @@ spotCreateDesignLhs <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 		roiConfig <- spotConfig$alg.roi
 	}
 	pNames <- row.names(roiConfig);
-	lowerBound <-  roiConfig[ ,"low"];
-	upperBound <-  roiConfig[ ,"high"];
+	lowerBound <-  roiConfig[ ,"lower"];
+	upperBound <-  roiConfig[ ,"upper"];
 		
 	## old version
 	#pNames <- row.names(spotConfig$alg.roi);
-	#lowerBound <-  spotConfig$alg.roi[ ,"low"];
-	#upperBound <-  spotConfig$alg.roi[ ,"high"];
+	#lowerBound <-  spotConfig$alg.roi[ ,"lower"];
+	#upperBound <-  spotConfig$alg.roi[ ,"upper"];
 	
 	A <- t(rbind(t(lowerBound), t(upperBound)))
 			

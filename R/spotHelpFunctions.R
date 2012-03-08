@@ -1,74 +1,76 @@
 ##################################################################################
-#' Spot Safely Add Source
+#' Sorting by NDS-rank and Hypervolume Contribution
 #'
-#' spotSafelyAddSource is a call frame for all user written 
-#' R-functions 
+#' Sorts the large design for the purpose of multi objective optimization with SPOT.
+#' First non dominated sorting rank is used. If the choice of points for the next
+#' sequential step is not clear by nds rank, the hypervolume contribution of the 
+#' competing points is recalculated sequentially to remove those with the smallest 
+#' contribution.
 #'
-#' All these functions to be sourced in any case, MUST follow this rule: 
-#' The name of the file MUST be THE SAME as the function that should be  
-#' included (plus extension of the two characters ".R" to indicate the R-File) 
-#' This interface may be used for adding
-#' - spotCreateDesign<xxx> functions
-#' - spotPredictor<xxx> functions
-#' - spotReport<xxx> functions
-#' - but also for the algorithm, where the srcPath cannot be \code{spotConfig$srcPath}
-#' Result/Effects: sources external, user written function or does nothing if the 
-#' function alreadey exists
-#' returns Error if 
-#' 1) file is not found or 
-#' 2) function is not part of the existing file 
-#' after including a function you can use it by 
-#' eval(call(functionName, <functionParamList>))
-#'
-#' @param srcPath location where to find the R-file to be sourced (mostly: \code{spotConfig$srcPath}) 
-#' @param functionName the name of a R-function that MUST be part of a sourceFile
-#' with the same name, mostly
-#' @param set.io.verbosity needed only for transfer to \code{\link{spotWriteLines}}, mostly \code{spotConfig$io.verbosity}
-#' @return boolean \cr 
-#' - The boolean tells if adding the source was successfull (TRUE) or not (FALSE)
+#' @param largeDesign the design matrix in the parameter space, to be sorted by the associated y-values for each objective
+#' @param designY objective value matrix. Contains objective values associated to largeDesign
+#' @param newsize this is the number of points that need to be selected, i.e. the seq.design.new.size
+#' @return largeDesign \cr 
+#' - The sorted large design
+#' @export
 ###################################################################################
-
-spotSafelyAddSource <- function(srcPath,functionName,set.io.verbosity){	
-	if (exists(functionName)){
-		return(TRUE)
-	} else { # function does not exist, so we try to source the file...
-		fileToAdd<-paste(srcPath,"/",functionName,".R",sep="")
-		if(file.exists(fileToAdd)){
-			source(fileToAdd,local=FALSE)
-			if(exists(functionName)){
-				return(TRUE)
-			}else{
-				spotWriteLines(set.io.verbosity,0,paste("Error: spot.R::spotSafelyAddSource::",functionName,".R"," added. The following function is not available: ",functionName,sep="" ))
-				return(FALSE)
+spotMcoSort <- function (largeDesign, designY, newsize){
+	lhdY=t(as.matrix(designY))
+	ndsR<-nds_rank(lhdY) #First: Sort by nds rank
+	largeDesign <-  as.data.frame(largeDesign[order(ndsR,decreasing=FALSE),]);
+	lhdY<-lhdY[,order(ndsR,decreasing=FALSE)]
+	ndsR<-ndsR[order(ndsR)]
+	summe<-0
+	if(newsize<nrow(largeDesign)){
+		for(i in 1:max(ndsR)){ #Look for front that will not be used completely, sort it by hypervol contrib
+			index<-which(ndsR==i)
+			summe<-summe+length(index)
+			if(summe==newsize)break;
+			if((summe>newsize) && (length(index)>1)){
+				set<-largeDesign[index,]
+				removeN=summe-newsize
+				sortVec=rep(0,length(index))
+				frontY<-lhdY[,index]
+				for(jj in 1:removeN){ #repeated selection by hypervolume contribution, selected individuals will be last in order
+					iREM=nds_hv_selection(frontY[,sortVec==0])
+					iREM= which(frontY==frontY[,sortVec==0][,iREM],arr.ind=T)[1,2] #ugly hack to select which column to remove by comparing with original front
+					sortVec[iREM]=1						
+				}
+				set<-set[order(sortVec),]
+				largeDesign[index,]<-set
+				break;
 			}
-		}else{
-			spotWriteLines(set.io.verbosity,0,paste("Error: spot.R::spotSafelyAddSource::",functionName,".R"," does not exist in ",srcPath,sep="" ))
-			spotWriteLines(set.io.verbosity,0,paste(fileToAdd," was identified, but not found - something wrong in building the string?"))
-			return(FALSE)
 		}
 	}
+	return(largeDesign)	
 }
-
 
 ##################################################################################
 #' Spot Write Best
 #' 
-#' Help function that simply writes data to the .bst-file 
+#' Helper function that simply writes data to the .bst-file 
 #' (appending or creating - depends on the existance of the .bst-file)
 #' 
 #' Result/Effects: 
-#' adds  one row to the best file 
+#' adds one row to the best file and the alg.currentBest data frame.
 #'
-#' @param B matrix 
-#' @param spotConfig all parameters, the only one of interest is the name of the
-#' file for the best-data to be stored in: \code{spotConfig$io.bstFileName}
+#' @param B matrix containing the merged result data of the current SPOT run
+#' @param spotConfig all parameters, the ones of interest are:\cr
+#' the name of the file for the best-data to be stored in: \code{spotConfig$io.bstFileName}\cr
+#' the name string of the result column: \code{spotConfig$alg.resultColumn}\cr
+#' the boolean that specifies if files are actually used or not: \code{spot.fileMode}\cr
+#' the data frame that will be extended with the current best: \code{alg.currentBest}\cr
 #'
+#' @export
 ###################################################################################
 spotWriteBest <- function(B, spotConfig){
 	x <- as.matrix(B$x);
-	Y <- B$mergedY;
-	A <- cbind(Y,x,COUNT=B$count,CONFIG=B$CONFIG)        
-	C <-  data.frame(A[order(Y,decreasing=FALSE),]);
+	y <- B$mergedY;
+	A <- cbind(y,x,COUNT=B$count,CONFIG=B$CONFIG)        
+	#C <-  data.frame(A[order(y,decreasing=FALSE),]);
+	colnames(A)[1:length(spotConfig$alg.resultColumn)]<-spotConfig$alg.resultColumn
+	if(!is.null(dim(y))){C <- data.frame(A[order(y[,1],y[,2],decreasing=FALSE),]);}  #TODO this means the best will only be determined by first objective, second objective breaking ties
+	else{C <- data.frame(A[order(y,decreasing=FALSE),]);}
 	### commented the following line (ocba):
         ### C = C[C$COUNT==max(C$COUNT),];    # choose only among the solutions with highest repeat	
 	## col.names should be written only once:	
@@ -77,10 +79,10 @@ spotWriteBest <- function(B, spotConfig){
 		if (file.exists(spotConfig$io.bstFileName)){
 			colNames = FALSE
 		}
-		write.table(C[1,]
+		write.table(as.matrix(C[1,]) #MZ bugfix: added as.matrix, because elements are sometimes lists for some reason??
 				, file = spotConfig$io.bstFileName
 				, col.names= colNames
-				, row.name = FALSE
+				, row.names = FALSE
 				, append = !colNames         ## /WK/
 				, sep = " ",
 				, quote = FALSE
@@ -100,23 +102,24 @@ spotWriteBest <- function(B, spotConfig){
 #' Result/Effects: 
 #' rewrites the design-file for the next call of the \code{\link{spotStepRunAlg}}
 #'
-#' @param spotConfig all parameters, only two are used:
-#'		\code{spotConfig$io.columnSep}: the column separator should not be empty for writing table to .des-file
-#'		\code{spotConfig$io.desFileName}: the filename the design should be written to
+
 #' @param des design provided by any spotCreateDesignXXX()-function 
+#' @param verbosity for values greater than two, a message is given
+#' @param sep the column separator (should not be empty for writing table to .des-file)
+#' @param filename the filename the design should be written to
 #'
-#' @references  \code{\link{spotStepRunAlg}}
+#' @seealso \code{\link{spotStepRunAlg}}
+#' @export
 ###################################################################################
-spotWriteDes<-function(spotConfig,des){
-	
+spotWriteDes<-function(des, verbosity, sep, filename){	
 	## empty separator is only required by input, because then it can distinguish all whitespaces, 
 	## but output must be separated with a well defined separator, so the empty separator is changed to a space " "
-	outsep <- spotConfig$io.columnSep;
+	outsep <- sep;
 	if(outsep=="")
 		outsep <- " ";
-	spotWriteLines(spotConfig$io.verbosity,2,paste(" design written to::", spotConfig$io.desFileName), con=stderr());
+	spotWriteLines(verbosity,3,paste(" design written to::", filename), con=stderr());
 		write.table(des
-			, file = spotConfig$io.desFileName
+			, file = filename
 			, row.names = FALSE
 			, sep = outsep
 			, quote = FALSE
@@ -133,21 +136,23 @@ spotWriteDes<-function(spotConfig,des){
 #' Result/Effects: 
 #' rewrites the actual region of interest-file 
 #'
-#' @param spotConfig all parameters, only two are used:
-#'		\code{spotConfig$io.columnSep}: the column separator should not be empty for writing table to .des-file
-#'		\code{spotConfig$io.aroiFileName}: the filename the design should be written to
 #' @param aroi data frame.  
+#' @param verbosity for values greater than two, a message is given
+#' @param sep the column separator used when writing the table to .aroi-file
+#' @param filename the filename the aroi should be written to
+#'
+#' @export
 ###################################################################################
-spotWriteAroi<-function(spotConfig,aroi){
-	## Colnames have to be supplied by the user, e.g., colnames(aroi) <- c("name", "low", "high")
+spotWriteAroi<-function(aroi, verbosity, sep, filename){	
+	colnames(aroi) <- c("name", "lower", "upper", "type")	
 	## Empty separator is only required by input, because then it can distinguish all whitespaces, 
 	## but output must be separated with a well defined separator, so the empty separator is changed to a space " "
-	outsep <- spotConfig$io.columnSep;
+	outsep <- sep;
 	if(outsep=="")
 		outsep <- " ";
-	spotWriteLines(spotConfig$io.verbosity,2,paste(" aroi written to::", spotConfig$io.aroiFileName), con=stderr());
+	spotWriteLines(verbosity,3,paste(" aroi written to::", filename), con=stderr());
 	write.table(aroi
-			, file = spotConfig$io.aroiFileName
+			, file = filename
 			, row.names = FALSE
 			, sep = outsep
 			, quote = FALSE
@@ -156,49 +161,31 @@ spotWriteAroi<-function(spotConfig,aroi){
 	);	
 }
 
+
 ##################################################################################
-#' Spot Read Aroi
-#'
-#' help function spotReadAroi reads actual region of interest from the .aroi-file
-#'
-#' @param spotConfig all parameters, only two are used: \cr
-#'		\code{spotConfig$io.columnSep}: the column separator should not be empty for writing table to .des-file \cr
-#'		\code{spotConfig$io.aroiFileName}: the filename the design should be read from
-#'
-#' @return data.frame \code{aroi} \cr
-#' - \code{aroi} contains the data from the aroi file
-#'		
+# Spot Read Aroi
+#
+# Helper function spotReadAroi reads actual region of interest from the .aroi-file
+#
+# @param filename the filename the AROI should be read from
+# @param verbosity for values greater than two, a message is given
+#
+# @return data.frame \code{aroi} \cr
+# - \code{aroi} contains the data from the aroi file
+#		
+# @export
 ###################################################################################
-spotReadAroi<-function(spotConfig){
-	spotWriteLines(spotConfig$io.verbosity,1,paste("Load actual algorithm design (AROI): ", spotConfig$io.aroiFileName, collapse=""));
-	aroi.df <- read.table( spotConfig$io.aroiFileName		
-			, header = TRUE
-			, as.is=TRUE
-			, row.names = 1 #Parameter als Zeilennamen
-	);
-	return(aroi.df)
-}
-##################################################################################
-#' Spot Read ROI
-#'
-#' help function spotReadRoi reads region of interest from the .roi-file
-#'
-#' @param roiFile this file contains the roi
-#' @param sep this is used as a column separator
-#'
-#' @return data.frame \code{aroi} \cr
-#' - \code{roi} contains the data from the roi file
-#'		
-###################################################################################
-spotReadRoi<-function(roiFile,sep){
-	alg.roi <- read.table(roiFile
-			, sep = sep
-			, header = TRUE
-			, as.is=TRUE
-			, row.names = 1 #Parameter als Zeilennamen
-		);
-	return(alg.roi)
-}
+#read aroi is deprecated, replaced by spotReadRoi
+# spotReadAroi<-function(filename,verbosity){
+	# spotWriteLines(verbosity,3,paste("Load actual algorithm design (AROI): ", filename, collapse=""));
+	# aroi.df <- read.table( filename		
+			# , header = TRUE
+			# , as.is=TRUE
+			# , row.names = 1 #Parameter als Zeilennamen
+	# );
+	# return(aroi.df)
+# }
+
 
 ##################################################################################
 #' Spot Write Lines
@@ -211,7 +198,8 @@ spotReadRoi<-function(roiFile,sep){
 #' @param myString the string to be written to stdout
 #' @param con defines the output stream, defaults to \code{stderr()}
 #' 
-#' @references  \code{\link{SPOT}} \code{\link{writeLines}}
+#' @seealso  \code{\link{SPOT}} \code{\link{writeLines}}
+#' @keywords internal
 ###################################################################################
 spotWriteLines<-function(set.io.verbosity,io.verbosity,myString,con=stderr()){	
 	if(set.io.verbosity>=io.verbosity){
@@ -229,7 +217,8 @@ spotWriteLines<-function(set.io.verbosity,io.verbosity,myString,con=stderr()){
 #' @param io.verbosity \code{io.verbosity} for this specified output string
 #' @param myArg the argument to be printed
 #' 
-#' @references  \code{\link{SPOT}} \code{\link{writeLines}}
+#' @seealso  \code{\link{SPOT}} \code{\link{writeLines}}
+#' @keywords internal
 ###################################################################################
 spotPrint<-function(set.io.verbosity,io.verbosity,myArg){	
 	if(set.io.verbosity>=io.verbosity){
@@ -255,6 +244,8 @@ spotPrint<-function(set.io.verbosity,io.verbosity,myArg){
 #' 		the package is to be downloaded - the default is the cran R-Project page, but 
 #' 		if special packages are needed from other locations this can be set here too 
 #' 
+#' @export
+#' @keywords internal
 ####################################################################################
 spotInstAndLoadPackages <- function(packageList,reposLoc="http://cran.r-project.org"){
 	installed = packageList %in% installed.packages()[, 'Package'];
@@ -276,11 +267,15 @@ spotInstAndLoadPackages <- function(packageList,reposLoc="http://cran.r-project.
 #'
 #' @return string \cr
 #' holding the installed version of SPOT
+#' @export
+#' @keywords internal
 ####################################################################################
 spotVersion <- function(){
 	return(packageDescription("SPOT")$Version)
 }
 
+
+#todo this should not be here?
 ###################################################################################
 #' rsm Model 
 #'
@@ -290,6 +285,7 @@ spotVersion <- function(){
 #' @param data parameter holding the data for the formula  
 #' @return model usd by predict \cr
 #' fix of rsm - Model 
+#' @export
 ####################################################################################
 spotRsm <- function(formula, data) 
 {
@@ -372,11 +368,10 @@ spotRsm <- function(formula, data)
 #' @param bstFile best file
 #' @param roiInFile ROI in file
 #' @param roiOutFile ROI out file
+#' @export
+#' @keywords internal
 ####################################################################################
-writeRoiFileForRepeats <- function(workingDir = "~/workspace/SvnFiwaSoma.d/trunk/doc/OwnPublicationsAndTalks.d/Bart10t.d/Experiments.d"
-                                   , bstFile = "lmSann02.bst"
-                                   , roiInFile = "lmSann02.roi"
-                                   , roiOutFile = "lmSann03.roi"){
+spotWriteRoiFileForRepeats <- function(workingDir, bstFile, roiInFile, roiOutFile){
 setwd(workingDir)
 best.df <- read.table(bstFile, header=TRUE, sep="", na.strings="NA", dec=".", strip.white=TRUE)
 ## Since the names are in the first column of the roi file, we use "row.names=1" in the following command:
@@ -392,7 +387,7 @@ A <- cbind(pNames, A)
 rownames(A) <- pNames
 typeCol <- rep("FLOAT", ncol(best))
 A <- cbind(A, typeCol)
-colnames(A) <- c("name", "low", "high", "type")	
+colnames(A) <- c("name", "lower", "upper", "type")	
 write.table(A
 			, file = roiOutFile
 			, row.names = FALSE
@@ -404,3 +399,110 @@ write.table(A
 }
 
 
+
+
+###################################################################################################
+#' Region Of Interest Constructor
+#'
+#' This function can be used to construct a region of interest, to be passed on to spot().
+#'
+#' @param lower vector or a single number, specifiying lower boundary of ROI variables
+#' @param upper vector or a single number, specifiying upper boundary of ROI variables
+#' @param type vector of strings or single string, specifiying the data type of the variables. Can be: "FLOAT", "INT", "FACTOR"
+#' @param varnames vector or NULL, telling the name of each variable. Can be NULL, so that default variable names will be used.
+#' @param dimROI defines the number of variables. If dimROI is set (not NULL), the other vectors should have length=dimROI, or length=1.
+#' @examples
+#' ## without varnames or dimROI
+#' alg.roi <- spotROI(c(0,0),c(1,1),c("FLOAT","FLOAT"))
+#' ## with varnames
+#' alg.roi <- spotROI(c(0,0),c(1,1),c("FLOAT","FLOAT"),c("VARX1","VARX3"))
+#' ## lower and upper only
+#' alg.roi <- spotROI(c(0,1,-2),10)
+#' alg.roi <- spotROI(c(0,1,-2),c(2,3,100))
+#' ## with dimROI
+#' alg.roi <- spotROI(-10,10,"FLOAT",dimROI=4)
+#' ## with varnames and dimROI
+#' alg.roi <- spotROI(-10,10,"FLOAT",c("x1","x2","x3","x4"),dimROI=4)
+#' @export
+###################################################################################################
+spotROI<-function(lower,upper,type="FLOAT",varnames=NULL,dimROI=NULL){	
+	#dim is either the length of varnames, or of lower boundary
+	if(is.null(dimROI)){
+		if(length(lower)>1)dimROI=length(lower)
+		else if(length(upper)>1)dimROI=length(upper)
+		else if(length(type)>1)dimROI=length(type)
+		else if(length(varnames)>1)dimROI=length(varnames)
+		else dimROI=1
+	}
+	#If length of any vector is one, repeat it to match dimension. 
+	if(length(upper)==1)upper=rep(upper,dimROI)
+	if(length(lower)==1)lower=rep(lower,dimROI)
+	if(length(type)==1)type=rep(type,dimROI)
+	#determine varnames if not specified by user
+	if(is.null(varnames)){
+		helpFx <- function(x){paste("VARX",x,sep="")}
+		varnames = helpFx(c(1:length(lower)))		
+	}
+	#check if all vector lengths are consistent
+	if(length(lower)!=length(upper))stop("'upper' and 'lower' boundaries of region of interest have not the same length.");
+	if(length(lower)!=length(type))stop("The 'lower' vector and the 'type' vector for the region of interest have not the same length");
+	if(length(lower)!=length(varnames))stop("The 'lower' vector and the 'varnames' vector for the region of interest have not the same length");
+	#determine varnames if not specified by user
+	if(is.null(varnames)){
+		helpFx <- function(x){paste("VARX",x,sep="")}
+		varnames = helpFx(c(1:length(lower)))		
+	}
+	#check data format
+	for(i in 1:dimROI){
+		if((type[i]=="FLOAT")&&(!(is.numeric(upper[i])&&is.numeric(lower[i]))))stop("upper and lower values should be numerics if type == 'INT' ")
+	}
+	#check each variable for consistence
+	for(i in 1:dimROI){
+		#check if lower is lower than upper
+		if(!(lower[i]<upper[i]))stop("A value in the lower boundary of the 
+		ROI is not smaller than the value of the upper boundary. 
+		Check your 'upper' and 'lower' vectors or the respective .roi file")
+		#TODO check for valid data type
+		if(!(type=="FLOAT"||type=="INT"||type=="FACTOR"))stop("
+		The data type in the Region Of Interest is not valid.
+		Check your 'type' vectors or the respective .roi file.
+		Possible data types are 'FLOAT', 'INT' or 'FACTOR'")
+	}
+	#check for equal varnames
+	if( any(duplicated(varnames))){
+		stop(paste("Not all variables in the region of interest have unique names.\n Check the variable names column vector.\n Duplicated variable names are: ", paste(varnames[duplicated(varnames)],collapse=" ")))
+	}	
+	alg.roi=data.frame(lower=lower,upper=upper,type=type,row.names=varnames)
+}
+
+
+##################################################################################
+#' Spot Read ROI
+#'
+#' help function spotReadRoi reads region of interest from the .roi-file
+#'
+#' @param roiFile this file contains the roi
+#' @param sep this is used as a column separator
+#' @param verbosity \code{io.verbosity} for this specified output string
+#'
+#' @return data.frame \code{aroi} \cr
+#' - \code{roi} contains the data from the roi file
+#'		
+#' @export
+###################################################################################
+spotReadRoi<-function(roiFile,sep,verbosity=0){
+	spotWriteLines(verbosity,3,paste("Load actual algorithm design (AROI): ", roiFile, collapse=""));
+	alg.roi <- read.table(roiFile
+			, sep = sep
+			, header = TRUE
+			, as.is=TRUE
+			, row.names = 1 #Parameter als Zeilennamen
+		);
+	#checking format of file	
+	if(colnames(alg.roi)[1]!="low" && colnames(alg.roi)[1]!="lower") stop("Second Column in the .roi file should be named 'lower' ('low' works, too, but is deprecated). Check if the header is wrong or missing in this file.")
+	if(colnames(alg.roi)[2]!="high" && colnames(alg.roi)[2]!="upper") stop("Third Column in the .roi file should be named 'upper' ('high' works, too, but is deprecated). Check if the header is wrong or missing in this file.")
+	if(colnames(alg.roi)[3]!="type") stop("Fourth column in the .roi file should be named 'type'. Check if the header is wrong or missing in this file.")
+	#use the roi constructor to check for validity and convert to correct column names
+	alg.roi <- spotROI(alg.roi[,1],alg.roi[,2],alg.roi[,3],rownames(alg.roi))
+	return(alg.roi)
+}

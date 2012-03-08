@@ -26,6 +26,8 @@
 #' @param configList list of configuration numbers 
 #' @return number \code{repList} \cr
 #' -  \code{repList} contains the number of repeats of the given config
+#' @export
+#' @keywords internal
 ###################################################################################################
 
 spotGetRepeats <- function(configNumber, configList){
@@ -44,6 +46,8 @@ spotGetRepeats <- function(configNumber, configList){
 #' @param configList config list
 #' @return list \code{all} \cr
 #' - \code{all} contains all repeats of the given config list
+#' @export
+#' @keywords internal
 ###################################################################################################
 spotGetAllRepeats <- function(configList){
 	all<-NULL;
@@ -61,6 +65,8 @@ spotGetAllRepeats <- function(configList){
 #' @param x parameter vector
 #' @return vector \code{y} \cr
 #' - \code{y} is the transformed/normalized version of \code{x}
+#' @export
+#' @keywords internal
 ###################################################################################################
 spotHlpF.norm <- function(x){
 	2* ( x - mean(x) ) / ( max(x) - min(x) )
@@ -75,6 +81,8 @@ spotHlpF.norm <- function(x){
 #' @param z vector (zmin, zmax)
 #' @return vector \code{y} \cr
 #' - \code{y} is the transformed/normalized version of \code{x}
+#' @export
+#' @keywords internal
 ###################################################################################################
 spotHlpF.norminv <- function(x,z){
 	x/2 * ( max(z) - min(z) ) +  mean(z) 

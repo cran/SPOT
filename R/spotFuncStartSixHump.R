@@ -1,26 +1,5 @@
 ###################################################################################################
-#' noisy Six Hump function
-#'
-#' Example for SPOT optimizing the 6-hump camel back function, see 
-#'   http://www.it.lut.fi/ip/evo/functions/node26.html
-#'
-#' @param x	two dimensional vector that will be evauluated by the branin function
-#'
-#' @return number \code{y} \cr
-#' - \code{y} is the function value of the corresponding \code{x} vector. Min function value: -1.031628453
-#'
-#' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{spotFuncStartBranin}}
-#' \code{\link{spotFuncStartBranin}} \code{\link{spotFuncStartSixHump}}
-###################################################################################################
-spotSixHumpFunction <- function (x) {
-	x1 <- x[1] 
-	x2 <- x[2]	
-	y<-(4-2.1*x1^2+x1^4/3)*x1^2+x1*x2+(-4+4*x2^2)*x2^2	
-	return(y)
-}
-
-###################################################################################################
-#' Six Hump function call for SPOT
+#' Six Hump function call interface for SPOT, deprecated
 #'
 #' SPOT uses this function for some demos to call the \code{\link{spotSixHumpFunction}} function 
 #' 
@@ -33,14 +12,21 @@ spotSixHumpFunction <- function (x) {
 #'			io.resFileName: name of the res file, for logging results (if spotConfig$spot.fileMode==TRUE)\cr
 #'			spot.fileMode: boolean, if selected with true the results will also be written to the res file, otherwise it will only be saved in the spotConfig returned by this function\cr
 #' @return this function returns the \code{spotConfig} list with the results in spotConfig$alg.currentResult
-##' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{spotFuncStartBranin}}
+#' @seealso  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{spotFuncStartBranin}}
 #' \code{\link{spotFuncStartBranin}} \code{\link{spotSixHumpFunction}}
+#' @keywords internal
 ###################################################################################################
 spotFuncStartSixHump <- function(spotConfig){
 	pdFile=spotConfig$io.apdFileName;
 	resFileName=spotConfig$io.resFileName;	
 	desFileName=spotConfig$io.desFileName;	
-	
+	if(is.null(spotConfig$spot.noise)){spotConfig$spot.noise=10.0}
+	if(is.null(spotConfig$spot.noise.type)){spotConfig$spot.noise.type="weighted"}
+	if(is.null(spotConfig$spot.noise.minimum.at.value)){spotConfig$spot.noise.minimum.at.value=0.0}
+	## spot.noise.type in {"weighted", "constant"}
+	## weighted: y = y + y * noiseValue / 100
+	## constant: y = y + noiseValue
+		
 	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
 		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr());
 		## read doe/dace etc settings:

@@ -1,13 +1,27 @@
 \name{spotWriteAroi}
 \alias{spotWriteAroi}
-\title{Spot Write Aroi...}
-\usage{spotWriteAroi(spotConfig, aroi)}
-\description{Spot Write Aroi}
-\details{help function spotWriteAroi writes actual region of interest to the .aroi-file
+\title{Spot Write Aroi}
+\usage{
+  spotWriteAroi(aroi, verbosity, sep, filename)
+}
+\arguments{
+  \item{aroi}{data frame.}
 
-Result/Effects: 
-rewrites the actual region of interest-file}
-\arguments{\item{spotConfig}{all parameters, only two are used:
-\code{spotConfig$io.columnSep}: the column separator should not be empty for writing table to .des-file
-\code{spotConfig$io.aroiFileName}: the filename the design should be written to}
-\item{aroi}{data frame.}}
+  \item{verbosity}{for values greater than two, a message
+  is given}
+
+  \item{sep}{the column separator used when writing the
+  table to .aroi-file}
+
+  \item{filename}{the filename the aroi should be written
+  to}
+}
+\description{
+  help function spotWriteAroi writes actual region of
+  interest to the .aroi-file
+}
+\details{
+  Result/Effects: rewrites the actual region of
+  interest-file
+}
+

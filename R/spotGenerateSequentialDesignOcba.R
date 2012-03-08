@@ -15,12 +15,12 @@
 ## You should have received a copy of the GNU General Public License along 
 ## with this program; if not, see <http://www.gnu.org/licenses/>.
 ############################################################################################
-#' function spotGenerateSequentialDesignOcba() 
+#' Generate Design for next sequential evaluation with OCBA
 #' 
 #' Creates a new design. Design points are determined with respect to the current result file. 
 #' Number of repeats are adapted according to the OCBA approach. 
 #' Uses the functions \link{spotPrepareData},\link{spotGetRawDataMatrixB},\link{spotGetMergedDataMatrixB},\link{spotWriteLines}
-#' \link{spotWriteBest},\link{spotPlotBst},\link{spotSafelyAddSource},\link{spotOcba}
+#' \link{spotWriteBest},\link{spotPlotBst},\link{spotOcba}
 #' returns a sequential design to be written to the file <xxx>.des (will be determined from calling function)
 #' 
 #' @param spotConfig the list of all parameters is given, but the used ones are: \cr
@@ -31,6 +31,7 @@
 #' 
 #' @return data.frame \code{design} \cr
 #' - \code{design} contains one or more new design points to be calculated 
+#' @export
 ############################################################################################
 spotGenerateSequentialDesignOcba <- function(spotConfig) {
 	spotWriteLines(spotConfig$io.verbosity,2,"Entering generateSequentialDesign");	
@@ -38,6 +39,10 @@ spotGenerateSequentialDesignOcba <- function(spotConfig) {
         ## merged data, unsorted:
 	mergedData <- spotPrepareData(spotConfig)
 	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);
+	
+	#bugfix, for continuing runs without saving results in spotConfig:
+	if(is.null(spotConfig$alg.currentResult))spotConfig$alg.currentResult<- spotGetRawResData(spotConfig)$rawD;
+	
 # Example data: 
 #	"rawB:"
 #	          y VARX1 VARX2
@@ -122,9 +127,8 @@ spotGenerateSequentialDesignOcba <- function(spotConfig) {
         oldD$count <- NULL
 ### Now we have constructed the first part of the des file, i.e., how many repeats should be distributed among existing design points.
 ### Next, we have to determine new design points based on the meta model (prediction):
-	spotSafelyAddSource(spotConfig$seq.design.path
-                            , spotConfig$seq.design.func
-                            , spotConfig$io.verbosity)
+	if(!exists(spotConfig$seq.design.func))stop(paste("The design function name", spotConfig$seq.design.func, "is not found in the workspace \n
+		Please make sure to load the design function in the workspace, or specify the correct function in spotConfig$seq.design.func" ))
 	largeDesign <- (eval(call(spotConfig$seq.design.func
                                   , spotConfig
                                   , spotConfig$seq.design.size
@@ -134,44 +138,49 @@ spotGenerateSequentialDesignOcba <- function(spotConfig) {
 ### Fit the prediction model and generate new sample points:
 ### x contains input, y output values
 ### now calling the seq.predictionModel.func specified in spotConfigure
-### the prediction model is build with the values from the resfiles	
-	spotSafelyAddSource(spotConfig$seq.predictionModel.path
-                            , spotConfig$seq.predictionModel.func
-                            , spotConfig$io.verbosity)
+	if(!exists(spotConfig$seq.predictionModel.func))stop(paste("The prediction model function name", spotConfig$seq.predictionModel.func, "is not found in the workspace \n
+		Please make sure to load the prediction model function in the workspace, or specify the correct function in spotConfig$seq.predictionModel.func" ))	
 	spotConfig <- eval(call(spotConfig$seq.predictionModel.func
                                         , rawB
                                         , mergedB
                                         , largeDesign
-                                         , spotConfig));
+                                         , spotConfig));		 
 	largeDesign <-  as.data.frame(largeDesign[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
-
-	if (!invalid(spotConfig$seq.predictDual$predictions)){
-		for (i in 1:length(spotConfig$seq.predictDual$predictions)){
-			spotConfig$seq.predictDual$predictions[[i]] <- as.data.frame(spotConfig$seq.predictDual$predictions[[i]][order(spotConfig$seq.largeDesignY,decreasing=FALSE),])
-		}	
-	}
 	spotConfig$seq.largeDesignY <-  as.data.frame(spotConfig$seq.largeDesignY[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
+	#if (!invalid(spotConfig$seq.predictDual$predictions)){
+	#	for (i in 1:length(spotConfig$seq.predictDual$predictions)){
+	#		spotConfig$seq.predictDual$predictions[[i]] <- as.data.frame(spotConfig$seq.predictDual$predictions[[i]][order(spotConfig$seq.largeDesignY,decreasing=FALSE),])
+	#	}	
+	#}	
 	##################################################
     ## (2b) If desired, optimize fit returned by prediction model
 	if (!is.na(spotConfig$seq.predictionOpt.func)){
 		spotConfig <- eval(call(spotConfig$seq.predictionOpt.func
-											, as.numeric(largeDesign[1,]) #start point of optimization	
+											, largeDesign #start point of optimization	
 											, spotConfig));
-		largeDesign <- as.data.frame(rbind(spotConfig$optDesign, largeDesign[1:spotConfig$seq.design.new.size-1,]));
+		largeDesign <- as.data.frame(rbind(spotConfig$optDesign, largeDesign));
 		spotConfig$seq.largeDesignY <-  as.data.frame(rbind(spotConfig$optDesignY, spotConfig$seq.largeDesignY[1:spotConfig$seq.design.new.size-1,]));
+		spotConfig$optDesignY<-NULL
+		spotConfig$optDesign<-NULL
 	}
 	names(largeDesign)<- setdiff(names(rawB),"y")
 	names(spotConfig$seq.largeDesignY)<-"y"
+	#TODO: now remove any designs that are allready in the design list, to avoid
+	# doubled design points
+	#browser()
+	#if(nrow(spotConfig$alg.roi)>1){ 
+	#	removeElements=which(duplicated(rbind(mergedData$x,largeDesign)))-nrow(mergedData$x)
+	#	removeElements<-removeElements[removeElements>0] #ignore allready existing doubles in result file (due to rounding etc.)
+	#	if(length(removeElements>0))largeDesign<-largeDesign[-removeElements,];
+	#}else{
+		#...
+	#}	
 	largeDesignEvaluated <- as.data.frame(largeDesign[1:spotConfig$seq.design.new.size,]); #limit to set design size
 	#####################################################
     spotPrint(spotConfig$io.verbosity,1,"largeDesignEvaluated:")
 	spotPrint(spotConfig$io.verbosity,1,largeDesignEvaluated)
     additionalConfigNumbers <- nrow(largeDesignEvaluated)
 	CONFIG <- lastConfigNr + 1:additionalConfigNumbers;
-	#use computed config number to link the design point with the model that created it
-	if (spotConfig$seq.predictionModel.func == "spotPredictDualM"||spotConfig$seq.predictionModel.func == "spotPredictDualB"||spotConfig$seq.predictionModel.func == "spotPredictDual")
-	{	spotConfig$seq.predictDual$links<-rbind(spotConfig$seq.predictDual$links,cbind(CONFIG, MODEL=rep(spotConfig$seq.predictDual$last,1)))# TODOMZ
-    }
 	REPEATS <- rep(spotConfig$init.design.repeats, additionalConfigNumbers)
     SEED <- spotConfig$alg.seed
     STEP <- lastStepNr +1
@@ -187,7 +196,7 @@ spotGenerateSequentialDesignOcba <- function(spotConfig) {
 	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving generateSequentialDesign");
 	## write the design to the .des-file	
 	if (spotConfig$spot.fileMode){
-		spotWriteDes(spotConfig,design)	
+		spotWriteDes(design,spotConfig$io.verbosity,spotConfig$io.columnSep,spotConfig$io.desFileName)	
 	}#else{
 	spotConfig$alg.currentDesign<-design;		
 	#}

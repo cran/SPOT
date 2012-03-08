@@ -1,20 +1,27 @@
 ###################################################################################
-#' SPOT Predictor Random Forest combined with Mlegp
+#' Meta Model Interface: Random Forest combined with Mlegp
 #'  
-#' A prediction model based on rpart, using a random forest and mlegp
+#' A prediction model based on rpart, using a random forest and mlegp.
 #' 
 #' @param rawB unmerged data
 #' @param mergedB merged data
 #' @param largeDesign new design points which should be predicted
 #' @param spotConfig global list of all options, needed to provide data for calling functions
-#' 
+#' @param externalFit if an existing model fit is supplied, the model will not be build based on 
+#'				data, but only evaluated with the model fit (on the largeDesign data). To build the model, 
+#'				this parameter has to be NULL. If it is not NULL the paramters mergedB and rawB will not be 
+#'				used at all in the function.
+#'
 #' @return returns the list \code{spotConfig} with two new entries:\cr
 #' 	spotConfig$seq.modelFit fit of the Krig model used with predict() \cr
 #'	spotConfig$seq.largeDesignY the y values of the large design, evaluated with the fit
 #'
-#' @references  \code{\link{SPOT}}
+#' @seealso \code{\link{SPOT}}
+#' @export
 ###################################################################################
-spotPredictRandomForestMlegp <- function(rawB,mergedB,largeDesign,spotConfig){	
+spotPredictRandomForestMlegp <- function(rawB,mergedB,largeDesign,spotConfig,externalFit=NULL){	
+    if(is.null(spotConfig$seq.mlegp.constantMean)) spotConfig$seq.mlegp.constantMean = 1;  #default handling for user options  
+	if(is.null(spotConfig$seq.mlegp.min.nugget)) spotConfig$seq.mlegp.min.nugget = 0.0;	      
 	spotWriteLines(spotConfig$io.verbosity,1,"spotPredictRandomForestMlegp started");
 	spotInstAndLoadPackages("randomForest")	
 	spotInstAndLoadPackages("mlegp")	

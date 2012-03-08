@@ -17,6 +17,7 @@
 #'
 #' @return matrix \code{M} \cr
 #' - \code{M} has \code{dimension} columns and \code{noDesPoints} rows
+#' @export
 ####################################################################################
 spotCreateDesignFrF2 <- function(spotConfig, noDesPoints = NaN, repeats=NaN){	
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignFrF2.R::spotCreateDesignFrF2()");
@@ -25,7 +26,7 @@ spotCreateDesignFrF2 <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 	
 	if (spotConfig$seq.useAdaptiveRoi){ 
 		if(spotConfig$spot.fileMode){ 
-			roiConfig <- spotReadAroi(spotConfig)	
+			roiConfig <- spotReadRoi(spotConfig$io.aroiFileName,spotConfig$io.columnSep,spotConfig$io.verbosity)
 		}else{
 			roiConfig <- spotConfig$alg.aroi
 		}
@@ -34,8 +35,8 @@ spotCreateDesignFrF2 <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 		roiConfig <- spotConfig$alg.roi
 	}	
 	pNames <- row.names(roiConfig);
-	lowerBound <-  roiConfig[ ,"low"];
-	upperBound <-  roiConfig[ ,"high"];
+	lowerBound <-  roiConfig[ ,"lower"];
+	upperBound <-  roiConfig[ ,"upper"];
 	
 	A <- t(rbind(t(lowerBound), t(upperBound)))
 	

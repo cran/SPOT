@@ -16,6 +16,7 @@
 #'
 #' @return matrix \code{M} \cr
 #' - \code{M} has \code{dimension} columns and \code{noDesPoints} rows
+#' @export
 ####################################################################################
 spotCreateDesignDoeR3 <- function(spotConfig, noDesPoints = 100, repeats=1){
 #MZ: Default value of noDesPoints is bad, should be NA instead, which should lead to a automatical determination of the number.
@@ -23,8 +24,8 @@ spotCreateDesignDoeR3 <- function(spotConfig, noDesPoints = 100, repeats=1){
 	spotInstAndLoadPackages(c('FrF2',  'DoE.wrapper'))
 	
 	pNames <- row.names(spotConfig$alg.roi);
-	lowerBound <-  spotConfig$alg.roi[ ,"low"];
-	upperBound <-  spotConfig$alg.roi[ ,"high"];
+	lowerBound <-  spotConfig$alg.roi[ ,"lower"];
+	upperBound <-  spotConfig$alg.roi[ ,"upper"];
 	
 	A <- t(rbind(t(lowerBound), t(upperBound)))
 		 

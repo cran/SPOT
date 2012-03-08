@@ -1,24 +1,5 @@
-
 ###################################################################################################
-#' multi-dim sphere function
-#'
-#' This is the noisy implementation of the Sphere function used by some SPOT demos
-#'
-#' @param x	two dimensional vector that will be evauluated by the branin function
-#'
-#' @return number \code{y} \cr
-#' - \code{y} is the value of the corresponding \code{x} vector
-#'
-#' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{spotFuncStartSphere}}
-#' \code{\link{spotFuncStartSphere}} 
-###################################################################################################
-spotSphereFunction <- function (x) {
-	y <- sum(x^2)
-	return(y)
-}
-
-###################################################################################################
-#' Sphere function call for SPOT
+#' Sphere function call interface for SPOT, deprecated
 #'
 #' SPOT uses this function for some demos to call the \code{\link{spotSphereFunction}} function 
 #' 
@@ -31,14 +12,21 @@ spotSphereFunction <- function (x) {
 #'			io.resFileName: name of the res file, for logging results (if spotConfig$spot.fileMode==TRUE)\cr
 #'			spot.fileMode: boolean, if selected with true the results will also be written to the res file, otherwise it will only be saved in the spotConfig returned by this function\cr
 #' @return this function returns the \code{spotConfig} list with the results in spotConfig$alg.currentResult
-#' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{optim}}
+#' @seealso  \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}} \code{\link{optim}}
 #' \code{\link{spotSphereFunction}}
+#' @keywords internal
 ###################################################################################################
 spotFuncStartSphere <- function(spotConfig){
 	pdFile=spotConfig$io.apdFileName;
 	resFileName=spotConfig$io.resFileName;	
 	desFileName=spotConfig$io.desFileName;	
-	
+	if(is.null(spotConfig$spot.noise)){spotConfig$spot.noise=10.0}
+	if(is.null(spotConfig$spot.noise.type)){spotConfig$spot.noise.type="weighted"}
+	if(is.null(spotConfig$spot.noise.minimum.at.value)){spotConfig$spot.noise.minimum.at.value=0.0}
+	## spot.noise.type in {"weighted", "constant"}
+	## weighted: y = y + y * noiseValue / 100
+	## constant: y = y + noiseValue
+		
 	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
 		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr());
 		## read doe/dace etc settings:

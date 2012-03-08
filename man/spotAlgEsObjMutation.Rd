@@ -1,8 +1,16 @@
 \name{spotAlgEsObjMutation}
 \alias{spotAlgEsObjMutation}
-\title{spotAlgEsObjMutation...}
-\usage{spotAlgEsObjMutation(obj, strat)}
-\description{spotAlgEsObjMutation}
-\details{Mutation function for the ES}
-\arguments{\item{obj}{Object}
-\item{strat}{Strat}}
+\title{spotAlgEsObjMutation}
+\usage{
+  spotAlgEsObjMutation(obj, strat)
+}
+\arguments{
+  \item{obj}{Object}
+
+  \item{strat}{Strat}
+}
+\description{
+  Mutation function for the ES
+}
+\keyword{internal}
+

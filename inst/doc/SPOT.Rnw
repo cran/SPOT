@@ -378,7 +378,7 @@ myConfigAndResults=spot(testFile,"rep",spotConfig=myConfigAndResults)
 <<fig=TRUE,include=TRUE,echo=FALSE>>=
 rawB <- spotGetRawDataMatrixB(myConfigAndResults);
 fit.tree <- rpart(y ~ ., data= rawB)	
-draw.tree(fit.tree, digits=4)	
+draw.tree(fit.tree, digits=4)
 @
 
 

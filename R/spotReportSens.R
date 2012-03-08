@@ -1,5 +1,5 @@
 ###################################################################################################
-#'  Sensivity Report Help Function
+#'  Sensivity Report Helper Function
 #' 
 #' Helper function for the sensivity report
 #'
@@ -7,13 +7,15 @@
 #' @param fit random forest fit
 #' @param roi internal parameter for the initial region of interest, or: \code{spotConfig$alg.roi}
 #' @param nsens number of parameters estimated with sensitivity
-#' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepReport}} \code{\link{spotReportSens}} 
+#' @seealso  \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepReport}} \code{\link{spotReportSens}} 
+#' @export
+#' @keywords internal
 ################################################################################################### 
 spotReportSensY <- function(B,fit,roi,nsens) {	
   	Y <- NULL;
   	for (k in 1:length(B)) {
     	BV <- B;
-    	BV[,k] <- seq(roi[k,"low"],roi[k,"high"],length.out=nsens)
+    	BV[,k] <- seq(roi[k,"lower"],roi[k,"upper"],length.out=nsens)
       Y <- data.frame(cbind(Y,predict(fit,BV)))
       names(Y)[length(Y)] <- names(B)[k];
     }	
@@ -21,7 +23,7 @@ spotReportSensY <- function(B,fit,roi,nsens) {
 }
 
 ###################################################################################################
-#'  Sensitivity Report Function
+#' Sensitivity Report 
 #' 
 #' Function to generate a report with sensitivity plot.
 #'
@@ -31,7 +33,8 @@ spotReportSensY <- function(B,fit,roi,nsens) {
 #'    y-axis: 
 #'
 #' @param spotConfig the configuration list of all spot parameters
-#' @references  \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepReport}} 
+#' @seealso  \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepReport}} 
+#' @export
 ################################################################################################### 
 spotReportSens <- function(spotConfig) {		
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotReportSens");
@@ -42,7 +45,7 @@ spotReportSens <- function(spotConfig) {
 	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);	
 	#rawD<-spotGetRawResData(spotConfig);  # raw data with CONFIG, needed for sd(BestSolution)      MZ: replaced with if/else for fileMode
 	if(spotConfig$spot.fileMode) {
-		rawD <- spotGetRawResData(spotConfig)
+		rawD <- spotGetRawResData(spotConfig)$rawD
 	}else{
 		rawD=spotConfig$alg.currentResult; 
 	}	
@@ -64,7 +67,7 @@ spotReportSens <- function(spotConfig) {
 	# scale each ROI to the normalized ROI range [-1,+1]:
 	X=seq(-1,1,length.out=nsens)	
 	# XP is the location of the SPOT best point for each parameter in the normalized ROI range
-	XP = (rwb$BEST-rwb$low)/(rwb$high-rwb$low)*2-1; 
+	XP = (rwb$BEST-rwb$lower)/(rwb$upper-rwb$lower)*2-1; 
 	XP=rbind(XP,XP);   # matpoints needs at least two rows to plot each column in a different color
 	YP = min(Y);  YP=rbind(YP,YP);	
 #palette("default")
@@ -86,7 +89,7 @@ spotReportSens <- function(spotConfig) {
 		legend("topleft",legend=names(Y),lwd=rep(2,ncol(Y)),lty=1:ncol(Y),col=1:ncol(Y),text.col=1:ncol(Y));		
 		dev.off() #close pdf device
 	}
-	if(spotConfig$report.io.screen==TRUE) #if graphic should be on screen
+	if(spotConfig$report.io.screen==TRUE && spotConfig$io.verbosity>0) #if graphic should be on screen
 	{
 		dev.new()
 		matplot(X,Y,type="l",lwd=rep(3,ncol(Y)),cex.axis=1.5,cex.lab=1.5,col=1:ncol(Y),xlab="normalized ROI",main=spotConfig$userConfFileName) 

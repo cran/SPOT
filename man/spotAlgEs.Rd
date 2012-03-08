@@ -1,40 +1,107 @@
 \name{spotAlgEs}
 \alias{spotAlgEs}
-\title{Evolution Strategy Implementation for SPOT package...}
-\usage{spotAlgEs(mue=10, nu=10, dimension=2, mutation="selfA", sigmaInit=1, nSigma=1, tau0=0, tau=1, rho="bi", sel=1, stratReco=1,
-    objReco=2, maxGen=Inf, maxIter=100, seed=1, noise=0, thrs="no", thrsConstant=0, fName="sphere", lowerLimit=-1,
-    upperLimit=1, verbosity=0, plotResult=FALSE, logPlotResult=FALSE, term="iter", sigmaRestart=0.1, preScanMult=1,
-    globalOpt=rep(0, dimension), conf=-1)}
-\description{Evolution Strategy Implementation for SPOT package}
-\details{This function is used by \code{\link{spotAlgStartEs}} as a main loop for running
-the Evolution Strategy with the given parameter set specified by SPOT.}
-\references{\code{\link{SPOT}} \code{\link{spotAlgStartEs}}}
-\arguments{\item{mue}{number of parents, default is \code{10}}
-\item{nu}{number, default is \code{10}}
-\item{dimension}{dimension number of the target function, default is \code{2}}
-\item{mutation}{string of mutation type, default is \code{"selfA"}}
-\item{sigmaInit}{initial sigma value (standard deviation), default is \code{1.0}}
-\item{nSigma}{number of standard deviations, default is \code{1}}
-\item{tau0}{number, default is \code{0.0}}
-\item{tau}{number, learning parameter for self adaption, default is \code{1.0}}
-\item{rho}{number of parents involved in the procreation of an offspring (mixing number), default is \code{"bi"}}
-\item{sel}{number of selected individuals, default is \code{1}}
-\item{stratReco}{value, Recombination operator for strategy variables, default is \code{1}}
-\item{objReco}{value, Recombination operator for object variables, default is \code{2}}
-\item{maxGen}{number of generations, stopping criterion, default is \code{Inf}}
-\item{maxIter}{number of iterations, stopping criterion, default is \code{100}}
-\item{seed}{number, random seed, default is \code{1}}
-\item{noise}{number, value of noise added to fitness values, default is \code{0.0}}
-\item{thrs}{threshold string, default is \code{"no"}}
-\item{thrsConstant}{number, default is \code{0.0}}
-\item{fName}{string, name of fitness function, default is \code{"sphere"}}
-\item{lowerLimit}{number, lower limit for search space, default is \code{-1.0}}
-\item{upperLimit}{number, upper limit for search space, default is \code{1.0}}
-\item{verbosity}{defines output verbosity of the ES, default is \code{0}}
-\item{plotResult}{boolean, asks if results are plotted, default is \code{FALSE}}
-\item{logPlotResult}{boolean, asks if plot results should be logarithmic, default is \code{FALSE}}
-\item{term}{string, which termination criterion should be used, default is \code{"iter"}}
-\item{sigmaRestart}{number, value of sigma on restart, default is \code{0.1}}
-\item{preScanMult}{initial population size is multiplied by this number for a pre-scan, default is \code{1}}
-\item{globalOpt}{termination criterion on reaching a desired optimum value, default is \code{rep(0,dimension)}}
-\item{conf}{config number passed to the result file, default is \code{-1}}}
+\title{Evolution Strategy Implementation}
+\usage{
+  spotAlgEs(mue = 10, nu = 10, dimension = 2,
+    mutation = "selfA", sigmaInit = 1, nSigma = 1,
+    tau0 = 0, tau = 1, rho = "bi", sel = -1, stratReco = 1,
+    objReco = 2, maxGen = Inf, maxIter = 100, seed = 1,
+    noise = 0, thrs = "no", thrsConstant = 0,
+    fName = spotBraninFunction, lowerLimit = -1,
+    upperLimit = 1, verbosity = 0, plotResult = FALSE,
+    logPlotResult = FALSE, term = "iter",
+    sigmaRestart = 0.1, preScanMult = 1,
+    globalOpt = rep(0, dimension), conf = -1)
+}
+\arguments{
+  \item{mue}{number of parents, default is \code{10}}
+
+  \item{nu}{number, default is \code{10}}
+
+  \item{dimension}{dimension number of the target function,
+  default is \code{2}}
+
+  \item{mutation}{string of mutation type, default is
+  \code{"selfA"}}
+
+  \item{sigmaInit}{initial sigma value (standard
+  deviation), default is \code{1.0}}
+
+  \item{nSigma}{number of standard deviations, default is
+  \code{1}}
+
+  \item{tau0}{number, default is \code{0.0}}
+
+  \item{tau}{number, learning parameter for self adaption,
+  default is \code{1.0}}
+
+  \item{rho}{number of parents involved in the procreation
+  of an offspring (mixing number), default is \code{"bi"}}
+
+  \item{sel}{number of selected individuals, default is
+  \code{1}}
+
+  \item{stratReco}{value, Recombination operator for
+  strategy variables, default is \code{1}}
+
+  \item{objReco}{value, Recombination operator for object
+  variables, default is \code{2}}
+
+  \item{maxGen}{number of generations, stopping criterion,
+  default is \code{Inf}}
+
+  \item{maxIter}{number of iterations, stopping criterion,
+  default is \code{100}}
+
+  \item{seed}{number, random seed, default is \code{1}}
+
+  \item{noise}{number, value of noise added to fitness
+  values, default is \code{0.0}}
+
+  \item{thrs}{threshold string, default is \code{"no"}}
+
+  \item{thrsConstant}{number, default is \code{0.0}}
+
+  \item{fName}{function, fitness function, default is
+  \code{\link{spotBraninFunction}}}
+
+  \item{lowerLimit}{number, lower limit for search space,
+  default is \code{-1.0}}
+
+  \item{upperLimit}{number, upper limit for search space,
+  default is \code{1.0}}
+
+  \item{verbosity}{defines output verbosity of the ES,
+  default is \code{0}}
+
+  \item{plotResult}{boolean, asks if results are plotted,
+  default is \code{FALSE}}
+
+  \item{logPlotResult}{boolean, asks if plot results should
+  be logarithmic, default is \code{FALSE}}
+
+  \item{term}{string, which termination criterion should be
+  used, default is \code{"iter"}}
+
+  \item{sigmaRestart}{number, value of sigma on restart,
+  default is \code{0.1}}
+
+  \item{preScanMult}{initial population size is multiplied
+  by this number for a pre-scan, default is \code{1}}
+
+  \item{globalOpt}{termination criterion on reaching a
+  desired optimum value, default is
+  \code{rep(0,dimension)}}
+
+  \item{conf}{config number passed to the result file,
+  default is \code{-1}}
+}
+\description{
+  This function is used by \code{\link{spotAlgStartEs}} as
+  a main loop for running the Evolution Strategy with the
+  given parameter set specified by SPOT.
+}
+\seealso{
+  \code{\link{SPOT}} \code{\link{spotAlgStartEs}}
+}
+

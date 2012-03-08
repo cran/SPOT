@@ -9,6 +9,11 @@ spotDemo08LmSann     Parameter optimization of R's Simulated Annealing Algorithm
 spotDemo09MlegpSann     Parameter optimization of R's Simulated Annealing Algorithm (SANN) trying to find the optimum of a Branin-Function by means of a Mlegp meta model
 spotDemo10TgpSann     Parameter optimization of R's Simulated Annealing Algorithm (SANN) trying to find the optimum of a Branin-Function by means of a Tgp meta model
 spotDemo11Java      Parameter optimization of a (1+1)-ES implemented in JAVA
-spotDemo12Sann      Parameter optimization of R's Simulated Annealing Algorithm (SANN) implemented in R
-spotDemo14LmOptimSann      Parameter optimization of R's Simulated Annealing Algorithm (SANN) implemented in R
-spotDemo16EsBranin  Demo for optimization with Evolutionary Strategy
+spotDemo12Sann      Parameter optimization of R's Simulated Annealing Algorithm (SANN), short example
+spotDemo13RandomForestMlegpSann  Parameter Optimization for R's Simulated Annealing Algorithm (SANN) using combination of Random Forest and Mlegp
+spotDemo14LmOptimSann      Parameter optimization of R's Simulated Annealing Algorithm (SANN) 
+spotDemo16EsBranin  Demo for tuning an Evolution Strategy for optimization of the Branin Function
+spotDemo17Rgp		Demo for optimizing RGP with SPOT
+spotDemo18ForresterOptim Demonstrates an example with the Forrester Kriging Model, both with spot() and spotOptim()
+spotDemo19MultiObjective This demo presents usage and settings of SPOT, for a multi objective optimization problem
+spotDemo20SurfacePlots Two report functions for plotting the surface of a surrogat model are demonstrated here

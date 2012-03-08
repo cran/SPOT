@@ -1,11 +1,25 @@
 \name{spotAlgEsInterRecoBeSw02}
 \alias{spotAlgEsInterRecoBeSw02}
-\title{spotAlgEsInterRecoBeSw02...}
-\usage{spotAlgEsInterRecoBeSw02(parents, dimension, nSigma, objType="obj")}
-\description{spotAlgEsInterRecoBeSw02}
-\details{Recombination function for the Evolution Strategy.}
-\references{\code{\link{spotAlgEs}} \code{\link{spotAlgEsInterReco}} \code{\link{spotAlgEsDominantReco}}}
-\arguments{\item{parents}{Parent individuals}
-\item{dimension}{number of dimensions}
-\item{nSigma}{number of standard deviations}
-\item{objType}{string, default is "obj"}}
+\title{spotAlgEsInterRecoBeSw02}
+\usage{
+  spotAlgEsInterRecoBeSw02(parents, dimension, nSigma,
+    objType = "obj")
+}
+\arguments{
+  \item{parents}{Parent individuals}
+
+  \item{dimension}{number of dimensions}
+
+  \item{nSigma}{number of standard deviations}
+
+  \item{objType}{string, default is "obj"}
+}
+\description{
+  Recombination function for the Evolution Strategy.
+}
+\seealso{
+  \code{\link{spotAlgEs}} \code{\link{spotAlgEsInterReco}}
+  \code{\link{spotAlgEsDominantReco}}
+}
+\keyword{internal}
+
