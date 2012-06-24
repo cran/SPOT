@@ -15,6 +15,8 @@
 ## You should have received a copy of the GNU General Public License along
 ##  with this program; if not, see <http://www.gnu.org/licenses/>.
 ##
+## May, 25th 2012: Major changes:
+## mutation uses 0 instead of "no" and 1 instead of "selfA"
 
 ###################################################################################################
 #' get Success Rate
@@ -36,141 +38,6 @@ spotAlgEsGetSuccessRate <- function(gen,pop){
 	return(succ/len)
 }  
 
-### Fitness functions <---DEPRECATED, see spotTargetFunctions.R ######################
-
-###################################################################################################
-# Function Call to Fitness functions
-#
-# This function is used by the ES-implementation in SPOT to call the different fitness functions:
-# \code{\link{spotBraninFunction}}, \code{\link{spotAlgEsSphere}}, \code{\link{spotAlgEsSphere1}}, \code{\link{spotAlgEsBanana}}, \code{\link{spotAlgEsWild}}, \code{\link{spotAlgEsRastrigin}}.
-#
-# @param x vector to be evaluated by the fitness function
-# @param fType name of fitness function, choose by \code{branin, sphere, sphere1, banana, wild, rastrigin}
-#
-# @return number \code{y} \cr
-# - \code{res} is the function value of the corresponding vector \code{x} 
-#
-# @references  \code{\link{spotAlgEs}} \code{\link{spotAlgStartEs}}
-###################################################################################################
-# deprecated. Functions calls should be passed by ES directly
-# spotAlgEsF <- function(x, fType){
-	# switch(fType,
-			# branin=spotBraninFunction(x),
-			# sphere=spotAlgEsSphere(x),
-			# sphere1=spotAlgEsSphere1(x),
-			# banana=spotAlgEsBanana(x),
-			# wild = spotAlgEsWild(x),
-			# rastrigin = spotAlgEsRastrigin(x)
-	# )
-# }
-
-###################################################################################################
-# Wild Function
-#
-# This is a fitness function that could be used for the ES which is an example algorithm to be optimized by SPOT.
-#
-# @param x vector to be evaluated by the fitness function
-#
-# @return number \code{res} \cr
-# - \code{res} is the function value of the corresponding vector \code{x}
-#
-# @references  \code{\link{spotAlgEsF}}
-###################################################################################################
-#spotAlgEsWild <- function (x){
-#	res <- 10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80  
-#}
-
-###################################################################################################
-# Rosenbrock Banana Function
-#
-# This is a fitness function that could be used for the ES which is an example algorithm to be optimized by SPOT.
-#
-# @param x vector to be evaluated by the fitness function
-#
-# @return number \code{res} \cr
-# - \code{res} is the function value of the corresponding vector \code{x}
-#
-# @references  \code{\link{spotAlgEsF}}
-###################################################################################################
-#spotAlgEsBanana <- function(x) {   ## Rosenbrock Banana function
-#	x1 <- x[1]
-#	x2 <- x[2]
-#	res <- 100 * (x2 - x1 * x1)^2 + (1 - x1)^2
-#}
-
-###################################################################################################
-# Gradient Function of 'spotAlgEsBanana'
-#
-# This is a fitness function that could be used for the ES which is an example algorithm to be optimized by SPOT.
-#
-# @param x vector to be evaluated by the fitness function
-#
-# @return number \code{res} \cr
-# - \code{res} is the function value of the corresponding vector \code{x}
-#
-# @references  \code{\link{spotAlgEsBanana}} \code{\link{spotAlgEsF}}
-###################################################################################################
-#spotAlgEsBananaGradient <- function(x) { ## Gradient of `spotAlgEsBanana'
-#	x1 <- x[1]
-#	x2 <- x[2]
-#	c(-400 * x1 * (x2 - x1 * x1) - 2 * (1 - x1),
-#			200 *      (x2 - x1 * x1))
-#}
-
-
-###################################################################################################
-# Sphere Function
-#
-# This is a fitness function that could be used for the ES which is an example algorithm to be optimized by SPOT.
-#
-# @param x vector to be evaluated by the fitness function
-#
-# @return number \code{res} \cr
-# - \code{res} is the function value of the corresponding vector \code{x}
-#
-# @references  \code{\link{spotAlgEsSphere1}} \code{\link{spotAlgEsF}}
-###################################################################################################
-#spotAlgEsSphere <- function(x){
-#	res <- sum(x^2)
-#}
-
-###################################################################################################
-# Sphere Function
-#
-# This is a fitness function that could be used for the ES which is an example algorithm to be optimized by SPOT.
-#
-# @param x vector to be evaluated by the fitness function
-#
-# @return number \code{res} \cr
-# - \code{res} is the function value of the corresponding vector \code{x}
-#
-# @references  \code{\link{spotAlgEsSphere}} \code{\link{spotAlgEsF}}
-###################################################################################################
-#spotAlgEsSphere1 <- function(x){
-#	sum <- 0
-#	for(i in 1:length(x)){
-#		sum <- sum+(i^2*x[[i]]^2 - i)^2
-#	}
-#	## Sum[i^2*(x[[i]]-i)^2, {i, 1, ndim}] )
-#	sum
-#}
-
-###################################################################################################
-# rastrigin
-#
-# This is a fitness function that could be used for the ES which is an example algorithm to be optimized by SPOT.
-#
-# @param x vector to be evaluated by the fitness function
-#
-# @return number \code{res} \cr
-# - \code{res} is the function value of the corresponding vector \code{x}
-#
-# @references  \code{\link{spotAlgEsF}}
-###################################################################################################
-#spotAlgEsRastrigin <- function(x){
-#	res <- sum( x^2 - 10*cos(2*pi*x) + 10)
-#}
-
 ### Initialization ########################################################
 
 ###################################################################################################
@@ -187,6 +54,7 @@ spotAlgEsGetSuccessRate <- function(gen,pop){
 #' @param low lower limit
 #' @param high upper limit
 #' @param des des scaling for placement between low and high
+#' @param ... additional parameters to be passed on to \code{fName}
 #'
 #' @return numeric vector \cr
 #' - contains x value, sigma value, real fitness value, fitness with noise, and generation number
@@ -202,10 +70,10 @@ spotAlgEsIndividualInitial <- function(s,
 		gen,
 		low=-1.0,
 		high=1.0,
-		des){
-	c(x = x <- low + (high-low)*des,     #  *runif(dimension),
+		des,...){
+ 	c(x = x <- low + (high-low)*des,     #  *runif(dimension),
 			sigma = sigma <- rep(s,n),
-			realFitness = realFitness <- fName(x),#spotAlgEsF(x,fName),
+			realFitness = realFitness <- fName(x,...),#spotAlgEsF(x,fName),
 			fitness = fitness <- realFitness + rnorm(1,0,noise),
 			generation = generation <- gen
 	)
@@ -225,6 +93,7 @@ spotAlgEsIndividualInitial <- function(s,
 #' @param low lower limit
 #' @param high upper limit
 #' @param mue number of parents in the ES
+#' @param ... additional parameters to be passed on to \code{fName}
 #'
 #' @return matrix \cr
 #' - holds the parent population created by this function
@@ -232,7 +101,7 @@ spotAlgEsIndividualInitial <- function(s,
 #' @seealso  \code{\link{spotAlgEs}} \code{\link{spotAlgEsIndividualInitial}}
 #' @keywords internal
 ###################################################################################################
-spotAlgEsInitParentPop <- function(sigmaInit, dimension, nSigma, noise, fName, gen, low, high, mue)
+spotAlgEsInitParentPop <- function(sigmaInit, dimension, nSigma, noise, fName, gen, low, high, mue,...)
 {
 	parentPop <- NULL	
 	ld <- randomLHS(mue, dimension)
@@ -247,7 +116,7 @@ spotAlgEsInitParentPop <- function(sigmaInit, dimension, nSigma, noise, fName, g
 						gen=gen,
 						low=low,
 						high=high,
-						des = ld[i,]))
+						des = ld[i,],...))
 	}                                        
 	return(parentPop)
 }
@@ -513,7 +382,7 @@ spotAlgEsTermination <- function(it, maxIt, ge, maxGe, xk, xOpt, term){
 #' @param mue number of parents, default is \code{10}
 #' @param nu number, default is \code{10}
 #' @param dimension dimension number of the target function, default is \code{2}
-#' @param mutation string of mutation type, default is \code{"selfA"}
+#' @param mutation mutation type, either \code{1} or \code{2}, default is \code{1}
 #' @param sigmaInit initial sigma value (standard deviation), default is \code{1.0}
 #' @param nSigma number of standard deviations, default is \code{1}
 #' @param tau0 number, default is \code{0.0}
@@ -526,8 +395,8 @@ spotAlgEsTermination <- function(it, maxIt, ge, maxGe, xk, xOpt, term){
 #' @param maxIter number of iterations, stopping criterion, default is \code{100}
 #' @param seed number, random seed, default is \code{1}
 #' @param noise number, value of noise added to fitness values, default is \code{0.0}
-#' @param thrs threshold string, default is \code{"no"}
-#' @param thrsConstant number, default is \code{0.0}
+# @param thrs threshold string, default is \code{"no"}
+# @param thrsConstant number, default is \code{0.0}
 #' @param fName function, fitness function, default is \code{\link{spotBraninFunction}}
 #' @param lowerLimit number, lower limit for search space, default is \code{-1.0}
 #' @param upperLimit number, upper limit for search space, default is \code{1.0}
@@ -539,7 +408,8 @@ spotAlgEsTermination <- function(it, maxIt, ge, maxGe, xk, xOpt, term){
 #' @param sigmaRestart number, value of sigma on restart, default is \code{0.1}
 #' @param preScanMult initial population size is multiplied by this number for a pre-scan, default is \code{1}
 #' @param globalOpt termination criterion on reaching a desired optimum value, default is \code{rep(0,dimension)}
-#' @param conf config number passed to the result file, default is \code{-1}
+# @param conf config number passed to the result file, default is \code{-1}
+#' @param ... additional parameters to be passed on to \code{fName}
 #'
 #' @seealso \code{\link{SPOT}} \code{\link{spotAlgStartEs}} 
 #' @export
@@ -547,7 +417,7 @@ spotAlgEsTermination <- function(it, maxIt, ge, maxGe, xk, xOpt, term){
 spotAlgEs <- function(mue = 10,
 		nu = 10,
 		dimension = 2,
-		mutation = "selfA",
+		mutation = 1,
 		sigmaInit = 1.0,
 		nSigma = 1,
 		tau0 = 0.0,
@@ -560,8 +430,8 @@ spotAlgEs <- function(mue = 10,
 		maxIter = 100,
 		seed = 1,
 		noise = 0.0,
-		thrs = "no",
-		thrsConstant = 0.0,
+		#thrs = "no",
+		#thrsConstant = 0.0,
 		fName = spotBraninFunction,
 		lowerLimit = -1.0,
 		upperLimit = 1.0,
@@ -569,11 +439,10 @@ spotAlgEs <- function(mue = 10,
 		plotResult=FALSE,
 		logPlotResult=FALSE,
 		term="iter",
-		#resFileName = "es.res",           only needed in spotAlgStartEs, not used in spotAlgEs
 		sigmaRestart = 0.1,
 		preScanMult= 1,
 		globalOpt=rep(0,dimension),
-		conf   = -1){                  # /WK/
+		...){                 
 	# load packages needed for this 
 	spotInstAndLoadPackages("lhs")
 	### Parameter corrections
@@ -624,6 +493,7 @@ spotAlgEs <- function(mue = 10,
 	}
 	bestFitness <- NULL
 	realBest <-  NULL
+	realBestPar <- NULL
 	allTimeBest <- NULL
 	alg.currentBest <- 0.0
 	###
@@ -680,19 +550,19 @@ spotAlgEs <- function(mue = 10,
 			if(verbosity==2)   print(objRecombinant)
 			
 			sigmaNew <- switch(mutation,
-					"no" = stratRecombinant,
-					"selfA" = spotAlgEsStratMutation(stratRecombinant, tau0, tau, sigmaRestart, sigmaInit))
+					stratRecombinant, ### 1 = perform no mutation
+					spotAlgEsStratMutation(stratRecombinant, tau0, tau, sigmaRestart, sigmaInit))
 			####
 			xNew <- switch(mutation,
-					"no" = objRecombinant,
-					"selfA" = spotAlgEsObjMutation(objRecombinant,sigmaNew))
+					objRecombinant, ### 1 = perform no mutation
+					spotAlgEsObjMutation(objRecombinant,sigmaNew))
 			###
 			if(verbosity==2)   print(paste("sigmaNew:", i))
 			if(verbosity==2)   print(sigmaNew)
 			if(verbosity==2)   print(paste("xNew:", i))
 			if(verbosity==2)   print(xNew)
 			
-			result <- fName(xNew)
+			result <- fName(xNew,...)
 			realFitness <- result
 			fitness <- result
 			
@@ -721,6 +591,7 @@ spotAlgEs <- function(mue = 10,
 		succ <- spotAlgEsGetSuccessRate(gen,parentPop)
 		alg.currentBest <- parentPop$fitness[[1]]
 		currentReal <- parentPop$realFitness[[1]]
+		currentPar <- as.numeric(parentPop[setdiff(names(parentPop),c("sigma","realFitness","fitness","generation"))][1,])
 		
 		if(verbosity>=1) {
 #      currentSigma<- parentPop[1,I(dimension+1)]
@@ -741,7 +612,8 @@ spotAlgEs <- function(mue = 10,
 		# store only the doe values
 		if(verbosity==0){
 			realBest <- currentReal
-			bestFitness <- alg.currentBest
+			realBestPar <- currentPar # TODO also log par for alltime best
+			bestFitness <- alg.currentBest 
 			if (alg.currentBest < allTimeBest){
 				allTimeBest <- alg.currentBest
 				bestInd <- parentPop[1,]
@@ -751,6 +623,7 @@ spotAlgEs <- function(mue = 10,
 			## log every generation:
 			##
 			realBest <-  c(realBest, currentReal)
+			realBestPar <- rbind(realBestPar, currentPar)  
 			allBest <- allTimeBest[length(allTimeBest)]
 			bestFitness <- c(bestFitness, alg.currentBest)
 			####
@@ -799,6 +672,7 @@ spotAlgEs <- function(mue = 10,
 	}
 	if(verbosity>=1){
 		print(list(real=realBest,
+						realPar=realBestPar,
 						best=bestFitness,
 						allTime=allTimeBest,
 						bestInd=bestInd))
@@ -818,37 +692,21 @@ spotAlgEs <- function(mue = 10,
 	## TODO: use which for the following selection:
 	#OBJRECO = toString((1:length(recoType))[recoType==objReco])
 	#STRATRECO = toString((1:length(recoType))[recoType==stratReco])
-	res <- list(Y=realBest[[length(realBest)]], # last value
-			NPARENTS=mue,
-			NU=nu,
-			KAPPA=sel,
-			InitSgm=sigmaInit,
-			TauMult=tauMult,
-			XRecombination=objReco,
-			SRecombination=stratReco,
-			Rho=rho,
-			NSIGMA=nSigma,
-			SIGMARESTART=sigmaRestart,
+	if(is.matrix(realBestPar)){
+		X=realBestPar[length(realBestPar),]
+	}else{
+		X=realBestPar
+	}	
+	res <- list(Y=realBest[[length(realBest)]], # last value     #TODO: should be alltime best?
+				X=X,
 			NoisyFitness=bestFitness[[length(bestFitness)]],
 			AllTimeBest=allTimeBest[[length(allTimeBest)]],
 			Generation=bestInd$generation,
-			Percentage=bestInd$generation/gen*100,
-			Mutation=mutation,
-			TAU0=tau0,
-			TAU=tau,
-			SIGMAINIT=sigmaInit,
-			PRESCANMULT=preScanMult,
-			OBJRECO = objReco,
-			STRATRECO = stratReco,
-			#Function=fName,   #can lead to read/write errors, since it is a function and not a string now
-			MaxIter=maxIter,
-			Dim=dimension,
-			SEED=seed,
-			CONFIG=conf  
+			Percentage=bestInd$generation/gen*100			
 	)
-	res <-data.frame(res)	
 	return(res)
 }
+
 
 ###################################################################################################
 #' Interface for an Evolution Strategy to be tuned by SPOT...
@@ -893,7 +751,7 @@ spotAlgStartEs <- function(spotConfig){
 	nu = 10;
 	sigmaRestart=0;
 	prescanmult = 1; 	
-	mutation<-"selfA";
+	mutation<-1;
 	rho<-"bi";
 	maxGen<-Inf;
 	noise<-0.0;
@@ -966,7 +824,7 @@ spotAlgStartEs <- function(spotConfig){
 			}				
 			seed <- des$SEED[k]+i-1				
 			spotPrint(spotConfig$io.verbosity,1,c("Config:",k ," Repeat:",i))				
-			res <- spotAlgEs(mue=mue,
+			result <- spotAlgEs(mue=mue,
 					nu=nu,
 					dimension=dimension,
 					mutation=mutation,
@@ -988,8 +846,35 @@ spotAlgStartEs <- function(spotConfig){
 					verbosity = verbosity,
 					plotResult=plotResult,
 					sigmaRestart=sigmaRestart,
-					preScanMult=prescanmult,
-					conf=des$CONFIG[k])     
+					preScanMult=prescanmult)   
+										
+			res <- list(Y=result$Y, # last value     #TODO: should be alltime best?
+				NPARENTS=mue,
+				NU=nu,
+				KAPPA=kappa,
+				InitSgm=sigmaInit,
+				#TauMult=tauMult,###########################TODO?
+				Rho=rho,
+				NSIGMA=nSigma,
+				SIGMARESTART=sigmaRestart,
+				NoisyFitness=result$NoisyFitness,
+				AllTimeBest=result$AllTimeBest,
+				Generation=result$Generation,
+				Percentage=result$Percentage,
+				Mutation=mutation,
+				TAU0=tau0,
+				TAU=tau,
+				SIGMAINIT=sigmaInit,
+				PRESCANMULT=prescanmult,
+				OBJRECO = objReco,
+				STRATRECO = stratReco,
+				#Function=fName,   #can lead to read/write errors, since it is a function and not a string now
+				MaxIter=maxIter,
+				Dim=dimension,
+				SEED=seed,
+				CONFIG=des$CONFIG[k]  
+			)
+			res <-data.frame(res)						
 			spotPrint(spotConfig$io.verbosity,1,res$Y)			
 			if (exists("STEP")){
 				res=c(res,STEP=spotStep)
@@ -1065,7 +950,7 @@ spotAlgStartEsVar <- function(spotConfig){
 	nu = 10;
 	sigmaRestart=0;
 	prescanmult = 1; 	
-	mutation<-"selfA";
+	mutation<- 1;
 	rho<-"bi";
 	maxGen<-Inf;
 	noise<-0.0;
@@ -1140,7 +1025,7 @@ spotAlgStartEsVar <- function(spotConfig){
 			}				
 			seed <- des$SEED[k]+i-1				
 			spotPrint(spotConfig$io.verbosity,1,c("Config:",k ," Repeat:",i))				
-			res <- spotAlgEs(mue=mue,
+			result <- spotAlgEs(mue=mue,
 					nu=nu,
 					dimension=dimension,
 					mutation=mutation,
@@ -1162,8 +1047,35 @@ spotAlgStartEsVar <- function(spotConfig){
 					verbosity = verbosity,
 					plotResult=plotResult,
 					sigmaRestart=sigmaRestart,
-					preScanMult=prescanmult,
-					conf=des$CONFIG[k])     
+					preScanMult=prescanmult)   
+										
+			res <- list(Y=result$Y, # last value     #TODO: should be alltime best?
+				NPARENTS=mue,
+				NU=nu,
+				KAPPA=kappa,
+				InitSgm=sigmaInit,
+				#TauMult=tauMult,###########################TODO?
+				Rho=rho,
+				NSIGMA=nSigma,
+				SIGMARESTART=sigmaRestart,
+				NoisyFitness=result$NoisyFitness,
+				AllTimeBest=result$AllTimeBest,
+				Generation=result$Generation,
+				Percentage=result$Percentage,
+				Mutation=mutation,
+				TAU0=tau0,
+				TAU=tau,
+				SIGMAINIT=sigmaInit,
+				PRESCANMULT=prescanmult,
+				OBJRECO = objReco,
+				STRATRECO = stratReco,
+				#Function=fName,   #can lead to read/write errors, since it is a function and not a string now
+				MaxIter=maxIter,
+				Dim=dimension,
+				SEED=seed,
+				CONFIG=des$CONFIG[k]  
+			)
+			res <-data.frame(res)		     
 			spotPrint(spotConfig$io.verbosity,1,res$Y)			
 			if (exists("STEP")){
 				res=c(res,STEP=spotStep,Ysd=NA)
@@ -1206,8 +1118,8 @@ spotAlgStartEsVar <- function(spotConfig){
 ###################################################################################################
 spotAlgEsQuickTest <- function(mue=2, nu=2,tau=1){
 	## Problem design:
-	dimension=2;
-	mutation="selfA";
+	dimension = 2;
+	mutation = 1;
 	sigmaInit=0.1;
 	nSigma=2;
 	tau0=1.5;

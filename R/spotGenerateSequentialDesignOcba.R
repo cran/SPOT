@@ -145,36 +145,38 @@ spotGenerateSequentialDesignOcba <- function(spotConfig) {
                                         , mergedB
                                         , largeDesign
                                          , spotConfig));		 
-	largeDesign <-  as.data.frame(largeDesign[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
-	spotConfig$seq.largeDesignY <-  as.data.frame(spotConfig$seq.largeDesignY[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
-	#if (!invalid(spotConfig$seq.predictDual$predictions)){
-	#	for (i in 1:length(spotConfig$seq.predictDual$predictions)){
-	#		spotConfig$seq.predictDual$predictions[[i]] <- as.data.frame(spotConfig$seq.predictDual$predictions[[i]][order(spotConfig$seq.largeDesignY,decreasing=FALSE),])
-	#	}	
-	#}	
+
 	##################################################
     ## (2b) If desired, optimize fit returned by prediction model
 	if (!is.na(spotConfig$seq.predictionOpt.func)){
 		spotConfig <- eval(call(spotConfig$seq.predictionOpt.func
 											, largeDesign #start point of optimization	
 											, spotConfig));
-		largeDesign <- as.data.frame(rbind(spotConfig$optDesign, largeDesign));
-		spotConfig$seq.largeDesignY <-  as.data.frame(rbind(spotConfig$optDesignY, spotConfig$seq.largeDesignY[1:spotConfig$seq.design.new.size-1,]));
+		largeDesign <-  as.data.frame(rbind(spotConfig$optDesign, as.matrix(largeDesign)),row.names=FALSE); 
+		spotConfig$seq.largeDesignY <-  as.data.frame(rbind(spotConfig$optDesignY, as.matrix(spotConfig$seq.largeDesignY)),row.names=FALSE);  #TODO: check where largeDesignY is used, and if it is used correctly!
 		spotConfig$optDesignY<-NULL
 		spotConfig$optDesign<-NULL
 	}
-	names(largeDesign)<- setdiff(names(rawB),"y")
-	names(spotConfig$seq.largeDesignY)<-"y"
-	#TODO: now remove any designs that are allready in the design list, to avoid
-	# doubled design points
-	#browser()
-	#if(nrow(spotConfig$alg.roi)>1){ 
-	#	removeElements=which(duplicated(rbind(mergedData$x,largeDesign)))-nrow(mergedData$x)
-	#	removeElements<-removeElements[removeElements>0] #ignore allready existing doubles in result file (due to rounding etc.)
-	#	if(length(removeElements>0))largeDesign<-largeDesign[-removeElements,];
-	#}else{
-		#...
-	#}	
+	names(largeDesign)<- row.names(spotConfig$alg.roi);
+	#names(spotConfig$seq.largeDesignY)<-"y"
+	
+	#now sort the largeDesign, to select only best points for next evaluation
+	if(length(spotConfig$alg.resultColumn)>1){ #in case of multi criteria spot: "sort" large design by hypervolume contribution nds rank
+		#if(spotConfig$seq.mco.infill=="sort"){
+		#	largeDesign <- spotMcoSort(largeDesign,spotConfig$seq.largeDesignY,spotConfig$seq.design.new.size)} #TODO only largedesign not largedesignY is sorted. For future applications might be needed to sort both
+		#if(spotConfig$seq.mco.infill=="fill"){
+			mergY <-  eval(call(spotConfig$seq.predictionModel.func, NULL, NULL  #reevaluate known points on model, to be in the same scale as the largeDesignY
+								, mergedData$x
+								, spotConfig
+                                , spotConfig$seq.modelFit 
+								))$seq.largeDesignY
+			largeDesign <- spotMcoInfill(largeDesign,spotConfig$seq.largeDesignY,spotConfig$seq.design.new.size, mergedData$x,mergY)
+		#}
+	}else{ #in case of single criteria spot: sort large design by criteria value
+		largeDesign <-  as.data.frame(largeDesign[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
+		#spotConfig$seq.largeDesignY <-  as.data.frame(spotConfig$seq.largeDesignY[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
+	}		
+	
 	largeDesignEvaluated <- as.data.frame(largeDesign[1:spotConfig$seq.design.new.size,]); #limit to set design size
 	#####################################################
     spotPrint(spotConfig$io.verbosity,1,"largeDesignEvaluated:")

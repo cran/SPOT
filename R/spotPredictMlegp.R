@@ -39,16 +39,7 @@ spotPredictMlegp <- function(rawB,mergedB,largeDesign,spotConfig,externalFit=NUL
 		y <- unname(as.matrix(mergedB[yNames]))
 		#x <- unname(as.matrix(rawB[xNames]))
 		#y <- unname(as.matrix(rawB[yNames]))
-		if(!is.null(spotConfig$mlegp.reduce)){
-			if(nrow(as.matrix(mergedB[xNames]))>spotConfig$mlegp.reduce){
-				samp<-sample(1:nrow(as.matrix(mergedB[xNames])),spotConfig$mlegp.reduce,replace=F)
-				x<-x[samp,]
-				y<-y[samp,]
-				#if(nrow(spotConfig$alg.roi)==1){
-				#	x<-x[samp]
-				#}else{ x<-x[,samp]
-			}
-		}
+#####################################################################
 		constantMean <- spotConfig$seq.mlegp.constantMean
 		if (constantMean != 1) {
 			ones = rep(1, dim(x)[1])
@@ -58,9 +49,6 @@ spotPredictMlegp <- function(rawB,mergedB,largeDesign,spotConfig,externalFit=NUL
 				constantMean <-1
 			}		
 		}
-		#if (spotConfig$seq.log.y == TRUE){ #TODO nicht hier, besser woanders
-		#	y <- log(y)
-		#}		
 #######################################################################################################		
 #		START ERROR Handling and Model Building	
 #######################################################################################################		

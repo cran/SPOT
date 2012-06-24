@@ -35,7 +35,7 @@ spotFuncStartSphere <- function(spotConfig){
 		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
 	}	
 	#default Values that can be changed with apd file
-	noise<-0;
+	noise<-spotConfig$spot.noise;
 	noise.type <- spotConfig$spot.noise.type;
 	spot.noise.minimum.at.value <- spotConfig$spot.noise.minimum.at.value;
 	f<-"Sphere"
@@ -53,12 +53,18 @@ spotFuncStartSphere <- function(spotConfig){
 			##
 			if (exists("VARX1")){
 				x1 <- des$VARX1[k]
+			} else {
+        x1 <- NA;
 			}
 			if (exists("VARX2")){
 				x2 <- des$VARX2[k]
+			} else {
+			  x2 <- NA;
 			}
 			if (exists("VARX3")){
 				x3 <- des$VARX3[k]
+			} else {
+			  x3 <- NA;
 			}
 			conf <- k
 			if (exists("CONFIG")){
@@ -69,9 +75,20 @@ spotFuncStartSphere <- function(spotConfig){
 			}
 			seed <- des$SEED[k]+i-1			
 			spotPrint(spotConfig$io.verbosity,1,c("Config:",k ," Repeat:",i))
-			y <- spotSphereFunction(c(x1,x2,x3))
+      
+      if (exists("VARX2")){
+        if (exists("VARX3")){
+          values <- c(x1,x2,x3);          
+        } else {
+          values <- c(x1,x2);
+        }        
+      } else{
+        values <- c(x1);
+      }
+      
+			y <- spotSphereFunction(values)
 			## add noise
-			y <- y + spotCalcNoise(y, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value);
+      y <- y + spotCalcNoise(y, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value);
 			
 			spotPrint(spotConfig$io.verbosity,1,y)
 			res <- NULL

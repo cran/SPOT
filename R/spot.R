@@ -22,9 +22,9 @@
 #' \tabular{ll}{
 #' Package: \tab SPOT\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.0.2257\cr
-#' Date: \tab 08.03.2012\cr
-#' License: \tab GPL (>= 3)\cr
+#' Version: \tab 1.0.2661\cr
+#' Date: \tab 24.06.2012\cr
+#' License: \tab GPL (>= 2)\cr
 #' LazyLoad: \tab yes\cr
 #' }
 #'
@@ -166,7 +166,9 @@ spotPrepare <- function(srcPath,configFile,spotConfigUser){
 		if(file.exists(spotConfig$io.roiFileName)){ #Read in the roi, just in case that spotConfigUser contained a new roi file name
 			spotConfig$alg.roi <- spotReadRoi(spotConfig$io.roiFileName,spotConfig$io.columnSep,spotConfig$io.verbosity)
 			spotConfig$alg.aroi <- spotConfig$alg.roi
-		}		
+		}
+		colnames(spotConfig$alg.roi) <- c("lower","upper","type")		
+		colnames(spotConfig$alg.aroi) <- c("lower","upper","type")
 	}
 	if(is.function(spotConfig$alg.func)){
 		spotConfig$alg.tar.func<-spotConfig$alg.func;

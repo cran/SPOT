@@ -1,5 +1,14 @@
 SPOT - Sequential Parameter Optimization Toolbox
 
+Release Notes Version 1.0.2661
+	1. Significant speedup for spotPredictForrester, by factors of 2 or more (depending on dimensionality and number of observations)
+	2. Fix in spotPredictForrester: Sometimes L-BFGS-B might violate boundaries, this is now checked and controlled by the calling function
+	3. Better coloring in 3d plots (spotReport3d), both surface plot reports (spotReport3d and spotReportContour) use the same color scheme.
+	4. Bugfix when using OCBA: RNG seeds are now determined in the right order
+	5. Multi criteria optimization with SPOT now uses a more appropriate infill criterion: When estimating the hypervolume contribution of points suggested by a model, allready known points will also be considered.
+	6. The Evolutionary Strategy used as a target algorithm for SPOT can now be called with an optim-like interface: esOptim
+	7. For stability reasons, the nugget effect in the kriging model spotPredictDice is now always on.
+	
 Release Notes Version 1.0.2257
 	Version has changed from 0.1.* to 1.0.*, since now one of the most
 	important predictors from the original Matlab package is implemented, 

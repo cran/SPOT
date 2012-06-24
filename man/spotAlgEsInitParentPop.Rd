@@ -3,7 +3,7 @@
 \title{Initialize Parent Population}
 \usage{
   spotAlgEsInitParentPop(sigmaInit, dimension, nSigma,
-    noise, fName, gen, low, high, mue)
+    noise, fName, gen, low, high, mue, ...)
 }
 \arguments{
   \item{sigmaInit}{initial sigma value (standard
@@ -24,6 +24,9 @@
   \item{high}{upper limit}
 
   \item{mue}{number of parents in the ES}
+
+  \item{...}{additional parameters to be passed on to
+  \code{fName}}
 }
 \value{
   matrix \cr - holds the parent population created by this

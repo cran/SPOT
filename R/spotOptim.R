@@ -61,9 +61,12 @@ spotOptim <- function(par=NULL
 	
 	control$alg.func<-fn; #will  be checked for string or function in spotGetOptions, here it is only passed
 	control$seq.predictionModel.func<- method;
-	control$auto.loop.nevals<-control$maxit;
-	control$spot.seed<- control$seed;
-
+	if(is.null(control$auto.loop.nevals)){
+		control$auto.loop.nevals<-control$maxit;
+	}
+	if(is.null(control$spot.seed)){
+		control$spot.seed<- control$seed; 
+	}
 
 	# transform parameters for SPOT			
 	### lower & upper ... region of interest

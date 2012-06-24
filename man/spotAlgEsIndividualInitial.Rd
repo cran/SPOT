@@ -3,7 +3,7 @@
 \title{Individual Initialization}
 \usage{
   spotAlgEsIndividualInitial(s, dimension, n, noise = 0,
-    fName, gen, low = -1, high = 1, des)
+    fName, gen, low = -1, high = 1, des, ...)
 }
 \arguments{
   \item{s}{sigma}
@@ -24,6 +24,9 @@
 
   \item{des}{des scaling for placement between low and
   high}
+
+  \item{...}{additional parameters to be passed on to
+  \code{fName}}
 }
 \value{
   numeric vector \cr - contains x value, sigma value, real

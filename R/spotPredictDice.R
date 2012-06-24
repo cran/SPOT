@@ -28,8 +28,8 @@ spotPredictDice <- function(rawB,mergedB,largeDesign,spotConfig,externalFit=NULL
 		xNames <- setdiff(names(rawB),"y")
 		x <- mergedB[xNames]
 		y <- data.frame(y=mergedB$y)
-		if(spotConfig$io.verbosity>2){fit<-km(design=x,response=y)}
-		else{fit<-km(design=x,response=y,control=list(trace=FALSE))}
+		if(spotConfig$io.verbosity>2){fit<-km(design=x,response=y,nugget.estim=TRUE)}
+		else{fit<-km(design=x,response=y,control=list(trace=FALSE),nugget.estim=TRUE)}
 		res <- predict(fit,largeDesign,"UK")
 	}else{
 		fit<-externalFit

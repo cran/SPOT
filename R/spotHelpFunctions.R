@@ -1,51 +1,4 @@
 ##################################################################################
-#' Sorting by NDS-rank and Hypervolume Contribution
-#'
-#' Sorts the large design for the purpose of multi objective optimization with SPOT.
-#' First non dominated sorting rank is used. If the choice of points for the next
-#' sequential step is not clear by nds rank, the hypervolume contribution of the 
-#' competing points is recalculated sequentially to remove those with the smallest 
-#' contribution.
-#'
-#' @param largeDesign the design matrix in the parameter space, to be sorted by the associated y-values for each objective
-#' @param designY objective value matrix. Contains objective values associated to largeDesign
-#' @param newsize this is the number of points that need to be selected, i.e. the seq.design.new.size
-#' @return largeDesign \cr 
-#' - The sorted large design
-#' @export
-###################################################################################
-spotMcoSort <- function (largeDesign, designY, newsize){
-	lhdY=t(as.matrix(designY))
-	ndsR<-nds_rank(lhdY) #First: Sort by nds rank
-	largeDesign <-  as.data.frame(largeDesign[order(ndsR,decreasing=FALSE),]);
-	lhdY<-lhdY[,order(ndsR,decreasing=FALSE)]
-	ndsR<-ndsR[order(ndsR)]
-	summe<-0
-	if(newsize<nrow(largeDesign)){
-		for(i in 1:max(ndsR)){ #Look for front that will not be used completely, sort it by hypervol contrib
-			index<-which(ndsR==i)
-			summe<-summe+length(index)
-			if(summe==newsize)break;
-			if((summe>newsize) && (length(index)>1)){
-				set<-largeDesign[index,]
-				removeN=summe-newsize
-				sortVec=rep(0,length(index))
-				frontY<-lhdY[,index]
-				for(jj in 1:removeN){ #repeated selection by hypervolume contribution, selected individuals will be last in order
-					iREM=nds_hv_selection(frontY[,sortVec==0])
-					iREM= which(frontY==frontY[,sortVec==0][,iREM],arr.ind=T)[1,2] #ugly hack to select which column to remove by comparing with original front
-					sortVec[iREM]=1						
-				}
-				set<-set[order(sortVec),]
-				largeDesign[index,]<-set
-				break;
-			}
-		}
-	}
-	return(largeDesign)	
-}
-
-##################################################################################
 #' Spot Write Best
 #' 
 #' Helper function that simply writes data to the .bst-file 
@@ -74,12 +27,15 @@ spotWriteBest <- function(B, spotConfig){
 	### commented the following line (ocba):
         ### C = C[C$COUNT==max(C$COUNT),];    # choose only among the solutions with highest repeat	
 	## col.names should be written only once:	
+	best <-  C[1,]
+	n <- max(spotConfig$alg.currentResult$STEP)+1
+	best$STEP<-n
 	if(spotConfig$spot.fileMode){
 		colNames = TRUE
 		if (file.exists(spotConfig$io.bstFileName)){
 			colNames = FALSE
 		}
-		write.table(as.matrix(C[1,]) #MZ bugfix: added as.matrix, because elements are sometimes lists for some reason??
+		write.table(as.matrix(best) #MZ bugfix: added as.matrix, because elements are sometimes lists for some reason??
 				, file = spotConfig$io.bstFileName
 				, col.names= colNames
 				, row.names = FALSE
@@ -89,7 +45,7 @@ spotWriteBest <- function(B, spotConfig){
 				, eol = "\n"
 		);
 	}
-	spotConfig$alg.currentBest=rbind(spotConfig$alg.currentBest,C[1,]); #Add the best to the bst list in spotConfig, if spot.fileMode is false
+	spotConfig$alg.currentBest=rbind(spotConfig$alg.currentBest,best); #Add the best to the bst list in spotConfig, if spot.fileMode is false
 	return(spotConfig); 
 }
 

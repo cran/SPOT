@@ -96,3 +96,8 @@ spotSphere1Function <- function(x){
 	## Sum[i^2*(x[[i]]-i)^2, {i, 1, ndim}] )
 	sum
 }
+
+
+
+
+

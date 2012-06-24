@@ -86,6 +86,7 @@
 #' 			\item{seq.predictionModel.func}{[\code{"spotPredictLm"}] name of the function calling a predictor. Default uses a Linear Model. Please also see the notes SPOT - extensions}
 #'			\item{seq.predictionOpt.func}{[\code{NA} If not NA this string will be interpreted as a function name. The function is expected to add a new setting to the sequential design. See \code{\link{spotPredictOptMulti}}}
 #' 			\item{seq.merge.func}{ [\code{mean}] defines the function that merges the results from the different repeat-runs for a design. Default is to calculate the mean value.}
+
 #' 			\item{seq.transformation.func}{[\code{I}] function for transformation of "Y" before new model is created, default: Identitity function}
 #' 			\item{seq.useAdaptiveRoi}{[\code{FALSE}] use region of intereset adaptation}
 #'			\item{report.func}{[\code{"spotReportDefault"}] name of the function providing the report ("spotReportSens","spotReport3d","spotReportContour") }
@@ -151,7 +152,15 @@ spotGetOptions <- function( srcPath=".",configFileName) {
  	seq.predictionOpt.func<-NA
 	seq.predictionOpt.budget<-100
 	seq.useAdaptiveRoi <- FALSE #todo für weitere prediktoren 
-    seq.ocba.budget <- 3       
+    seq.ocba.budget <- 3       		
+		## ###################################
+		## ##### For MCO ###
+		## ###################################	
+		#	seq.mco.infill="fill"    
+		# 			\item{seq.mco.infill}{ [\code{"fill"}] string that defines the infill criterion for multi criteria optimization with SPOT. }
+		# 			\item{}{ Either "sort", which sorts design points only by non dominated sorting rank and hypervolume contribution\cr
+		#					or "fill" which also consideres known points during the sorting, to avoid clusters of similar points being evaluated\cr
+		# 					Default is "fill".} 
 	## #####################################
 	## ##### Globally needed           #####
 	## #####################################

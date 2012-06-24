@@ -2,7 +2,7 @@
 ## Problem design:
 
   dimension=2;
-  mutation="selfA";
+  mutation=2; #self adaptive mutation
   sigmaInit=1.0;
   nSigma=2;
   tau0=1.5;

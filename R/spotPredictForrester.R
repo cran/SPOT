@@ -37,23 +37,32 @@ spotPredictForrester <- function(rawB,mergedB,largeDesign,spotConfig,externalFit
 			spotConfig$seq.forrester$loval=1e-3 
 			spotConfig$seq.forrester$upval=100
 			spotConfig$seq.forrester$algtheta="cmaes" #else optim-L-BFGS-B
-			spotConfig$seq.forrester$budgetalgtheta=1000		
+			spotConfig$seq.forrester$budgetalgtheta=1000	
+			spotConfig$seq.forrester$savetheta=FALSE			
 		}
+		if(is.null(spotConfig$seq.forrester$savetheta))spotConfig$seq.forrester$savetheta=FALSE;	
 		if(is.null(spotConfig$seq.forrester$Option))spotConfig$seq.forrester$Option="Pred";
 		if(is.null(spotConfig$seq.forrester$loval))spotConfig$seq.forrester$loval=1e-3;
 		if(is.null(spotConfig$seq.forrester$upval))spotConfig$seq.forrester$upval=100;
 		if(is.null(spotConfig$seq.forrester$algtheta))spotConfig$seq.forrester$algtheta="cmaes";
 		if(is.null(spotConfig$seq.forrester$budgetalgtheta))spotConfig$seq.forrester$budgetalgtheta=1000;
+
 		yNames <- setdiff(names(rawB),xNames)
 		x <- as.matrix(rawB[xNames])
 		if(length(yNames)==1){
 			y <- as.matrix(rawB[[yNames]])
+			if(!is.null(spotConfig$seq.modelFit) && spotConfig$seq.forrester$savetheta){ #if available use last theta/lambda for startpoint of this run
+				spotConfig$seq.forrester$starttheta=c(spotConfig$seq.modelFit$Theta,spotConfig$seq.modelFit$Lambda)
+			}
 			fit <- spotDetermineTheta(x, y, spotConfig$seq.forrester);		
 		}
 		else{#Distinction for multi criteria spot 
 			y <- rawB[yNames]
 			fit=list()
 			for (i in 1:length(yNames)){
+				if(!is.null(spotConfig$seq.modelFit) && spotConfig$seq.forrester$savetheta){ #if available use last theta/lambda for startpoint of this run
+					spotConfig$seq.forrester$starttheta=c(spotConfig$seq.modelFit[[i]]$Theta,spotConfig$seq.modelFit[[i]]$Lambda)
+				}
 				fit[[i]]<-spotDetermineTheta(x, as.matrix(y[,i]), spotConfig$seq.forrester);	
 			}			
 		}
@@ -118,27 +127,42 @@ spotDetermineTheta <- function(X, y, fit=list()){
 	#Wrapper for optimizing theta  based on spotRegLikelihood:
 	fitFun <- function (x, fX, fy){ #todo vectorize, at least for cma_es with active vectorize?
 		result=spotRegLikelihood(x,fX,fy)
+		#print(c(as.numeric(result$NegLnLike),x))
 		return(as.numeric(result$NegLnLike))
 	}
 	a=log10(fit$loval);
 	b=log10(fit$upval);
-	# start point for theta:
-	x0 =  a+(b-a)*runif(k);
-	# start value for lambda:
-	x1 = lambda.loval + (lambda.upval - lambda.loval)*runif(1);
-	x0 = c(x0 , x1);
+	if(is.null(fit$starttheta)){
+		# start point for theta:
+		x0 =  a+(b-a)*runif(k)
+		# start value for lambda:
+		x1 = lambda.loval + (lambda.upval - lambda.loval)*runif(1)
+		x0 = c(x0 , x1)
+	}else{
+		x0 = fit$starttheta
+	}
+	n=nrow(fit$X) #number of observations
+	p=2
+	A=array(0,dim=c(k,n,n)) #preallocate array
+	for(i in 1:n){ #calculate array for reglikelihood function
+		A[,,i]=(fit$X[i,]-t(fit$X))^p
+	}
 	if(fit$algtheta=="cmaes"){
 		opts=list()
 		opts$sigma0=0.3*abs(b-a);
 		spotInstAndLoadPackages("cmaes")	
 		opts$maxit=ceiling(fit$budgetalgtheta / (4 + floor(3 * log(length(x0)))))
-		res = cma_es(par=x0,fn=fitFun,fX=fit$X,fy=fit$y,lower=LowerTheta,upper=UpperTheta,control=opts); 
+		res = cma_es(par=x0,fn=fitFun,fX=A,fy=fit$y,lower=LowerTheta,upper=UpperTheta,control=opts); 
 		if(is.null(res$par))res$par=x0;
 		Params = res$par	
 	}else if (fit$algtheta=="optim-L-BFGS-B"){
-		res <- optim(x0, fitFun,NULL,fX=fit$X,fy=fit$y,method="L-BFGS-B",lower=LowerTheta,upper=UpperTheta,
+		res <- optim(x0, fitFun,NULL,fX=A,fy=fit$y,method="L-BFGS-B",lower=LowerTheta,upper=UpperTheta,
 			control=list(maxit=fit$budgetalgtheta)); 
-		Params <- res$par;	
+		Params <- res$par;
+		toolo<-which(Params<LowerTheta) #fix, in case boundaries are violated by L-BFGS-B
+		Params[toolo]<-LowerTheta[toolo]
+		toohi<-which( Params>UpperTheta)
+		Params[toohi]<-UpperTheta[toohi]
 	}
 	else{stop("Invalid choice of spotConfig$seq.forrester$algtheta. Please check the help of spotPredictForrester for possible values.")}
 	fit$dmodeltheta=10^Params[1:k];
@@ -146,10 +170,11 @@ spotDetermineTheta <- function(X, y, fit=list()){
 	# extract model parameters:
 	fit$Theta = Params[1:k];
 	fit$Lambda = Params[length(Params)];
-	res=spotRegLikelihood(c(fit$Theta, fit$Lambda),fit$X,fit$y);
+	res=spotRegLikelihood(c(fit$Theta, fit$Lambda),A,fit$y);
 	fit$ssq=res$ssq
 	fit$mu=res$mu
 	fit$Psi=res$Psi
+	fit$Psinv=res$Psinv
 	return(fit)
 }
 
@@ -241,12 +266,13 @@ spotReverseNormalizeMatrix <- function(y,xmin,xmax,ymin,ymax){
 #' Used to determine theta/lambda values for the Kriging model in \code{\link{spotDetermineTheta}}.
 #'
 #' @param x vector, containing log(theta) and lambda
-#' @param AX design matrix (sample locations)
-#' @param Ay vector of observations
+#' @param AX 3 dimensional array, constructed by spotDetermineTheta from the sample locations
+#' @param Ay vector of observations at sample locations
 #'
 #' @return list with elements\cr
 #' \code{NegLnLike}  concentrated log-likelihood *-1 for minimising \cr
 #' \code{Psi} correlation matrix\cr
+#' \code{Psinv} inverse of correlation matrix (to save computation time in spotRegPredictor)\cr
 #FIXMZ: \code{U} U matrix of the LU decomposition of correlation matrix \cr
 #' \code{mu} \cr
 #' \code{ssq}
@@ -256,18 +282,55 @@ spotReverseNormalizeMatrix <- function(y,xmin,xmax,ymin,ymax){
 ###################################################################################
 spotRegLikelihood <- function(x,AX,Ay){
 	theta=10^x[1:(length(x)-1)];
-	p=2;
 	lambda=10^x[length(x)];
-	n=dim(AX)[1]
-	one=rep(1,n);
-	Psi=matrix(0,n,n); # initialise to zeros
-	for (i in 1:n){		
-		for (j in (i+1):n){ #TODO can this be vectorised?
-			if(i<n)Psi[i,j]=exp(-sum(theta*abs(AX[i,]-AX[j,])^p));# % build top right corner
-		}
+	if( any(c(theta,lambda)==0) ||  any(c(theta,lambda)==Inf)){ #unfortunately L-BFGS-B might violate bounds
+		return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,ssq=NA))
 	}
-	# add upper and lower halves and diagonal of ones plus lambda
-	Psi=Psi+t(Psi)+diag(1,n)*(lambda+1); 
+	n=dim(Ay)[1]
+	one=rep(1,n);
+	#benchmarking original gegen vektorisierte schnellere varianten:
+	#a<-function(){Psi=matrix(0,n,n);for (i in 1:(n-1)){for (j in (i+1):n){Psi[i,j]=exp(-sum(theta*abs(AX[i,]-AX[j,])^p));}};Psi=Psi+t(Psi)+diag(1,n)*(lambda+1);}
+	#browser()
+	#b<-function(){Psi=matrix(0,n,n);for (i in 1:n){ Psi[,i]=exp(-colSums(theta*t((matrix(AX[i,],ncol=ncol(AX),nrow=nrow(AX),byrow=TRUE)-AX)^p)));};Psi=Psi+diag(1,n)*lambda;}
+	#cc<-function(){Psi=matrix(0,n,n);for (i in 1:n){ Psi[,i]=exp(-colSums(theta*((-t(AX)+AX[i,])^p)));};Psi=Psi+diag(1,n)*lambda;}
+	#dd<-function(){Psi=matrix(0,n,n);for (i in 1:(n-1)){ Psi[(i+1):n,i]=exp(-colSums(theta*((-t(AX[(i+1):n,])+AX[i,])^p)));};Psi=Psi+t(Psi)+diag(1,n)*(lambda+1);}
+	#ee<-function(){Psi=matrix(0,n,n);for (i in 1:(n-1)){ Psi[(i+1):n,i]=exp(-colSums(theta*t((matrix(AX[i,],ncol=ncol(AX),nrow=nrow(AX)-i,byrow=TRUE)-AX[(i+1):n,])^p)));};Psi=Psi+t(Psi)+diag(1,n)*(lambda+1);}
+	#e<-function(){Psi1=matrix(0,n,n);Psi1=apply(AX,1,function(xx){exp(-colSums(theta*t((matrix(xx,ncol=ncol(AX),nrow=nrow(AX),byrow=TRUE)-AX)^p)))});}
+	#f<-function(){Psi=matrix(0,n,n);for (i in 1:n){ Psi[,i]=exp(-rowSums(((matrix(AX[i,],ncol=ncol(AX),nrow=nrow(AX),byrow=TRUE)-AX)^p)%*%diag(theta)));};Psi=Psi+diag(1,n)*lambda;}
+	#ff<-function(){Psi=matrix(0,n,n);for (i in 1:n){ Psi[,i]=-colSums(theta*((-t(AX)+AX[i,])^p));};Psi=exp(Psi)+diag(1,n)*lambda;}
+	#res1<-b()
+	#res2<-e()
+	#require(microbenchmark)
+	#print(microbenchmark(a()))
+	#print(microbenchmark(b()))
+	#print(microbenchmark(cc()))
+	#print(microbenchmark(dd()))
+	#print(microbenchmark(ee()))
+	#print(microbenchmark(e()))
+	#print(microbenchmark(ff()))
+	#ff is best	
+
+	####original
+	#	Psi=matrix(0,n,n);
+	#	for (i in 1:n){
+	#		for (j in (i+1):n){ 
+	#			if(i<n)Psi[i,j]=exp(-sum(theta*abs(AX[i,]-AX[j,])^p));
+	#	}}
+	#	Psi=Psi+t(Psi)+diag(1,n)*(lambda+1); # add upper and lower halves and diagonal of ones plus lambda
+	
+	####schneller (ausser bei sehr wenigen observations, dann ists aber ohnehin recht flott)
+	#Psi=matrix(0,n,n)
+	#for (i in 1:n){ 
+	#	Psi[,i]=-colSums(theta*((AX[i,]-t(AX))^p))
+	#}
+	#Psi=exp(Psi)+diag(1,n)*lambda
+	###noch schneller, weil matrix AX[i,]-t(AX) schon vorher in spotDeterminetheta berechnet wird_
+	Psi=matrix(0,n,n)
+	for (i in 1:n){ 
+		Psi[,i]=-colSums(theta*AX[,,i])
+	}
+	Psi=exp(Psi)+diag(1,n)*lambda
+	
 	# concentrated log-likelihood calculation
 	LnDetPsi=as.numeric(determinant(Psi)$modulus) 
 	
@@ -282,10 +345,10 @@ spotRegLikelihood <- function(x,AX,Ay){
 		Psinv=ginv(Psi)
 	}
 	mu=sum(Psinv%*%Ay)/sum(Psinv%*%one)# note: matrix%*%onevector is signif. faster than rowSums(matrix)
-	yonemu=Ay-one*mu
+	yonemu=Ay-mu  #%yonemu=Ay-one*mu
 	SigmaSqr=(t(yonemu)%*%Psinv%*%yonemu)/n;
 	NegLnLike=0.5*(n*log(SigmaSqr) + LnDetPsi);
-	return(list(NegLnLike=NegLnLike,Psi=Psi,mu=mu,ssq=SigmaSqr))
+	return(list(NegLnLike=NegLnLike,Psi=Psi,Psinv=Psinv,mu=mu,ssq=SigmaSqr))
 }
 
 
@@ -305,16 +368,13 @@ spotRegLikelihood <- function(x,AX,Ay){
 #' @keywords internal
 ###################################################################################
 spotRegPredictor <- function(x,ModelInfo){
-	AX=ModelInfo$X;
-	Ay=ModelInfo$y;
-	theta=10^ModelInfo$Theta;	
-	p=2; 
-	Psinv= try(solve(ModelInfo$Psi), TRUE)
-	if(class(Psinv) == "try-error"){
-		Psinv=ginv(ModelInfo$Psi)
-	}
-	n=dim(AX)[1];
-	one=rep(1,n);
+	AX=ModelInfo$X
+	Ay=ModelInfo$y
+	theta=10^ModelInfo$Theta
+	p=2
+	Psinv=ModelInfo$Psinv #fixed: does not need to be computed, is already done in likelihood function
+	n=dim(AX)[1]
+	one=rep(1,n)
 	mu=ModelInfo$mu
 	SigmaSqr=ModelInfo$ssq
 	#mu=sum(Psinv%*%Ay)/sum(Psinv%*%one)
@@ -324,8 +384,9 @@ spotRegPredictor <- function(x,ModelInfo){
 	#browser()
 	####fn1<-function(xx){exp(-sum(theta*abs(AX[i,]-xx)^p))}#applied
 	for (i in 1:n){
-		####psi[,i]=apply(x,1,fn1); #applied
-		psi[,i]=exp(-colSums(theta*t((matrix(AX[i,],ncol=ncol(x),nrow=nrow(x),byrow=TRUE)-x)^p)))#vectorised
+		####psi[,i]=apply(x,1,fn1); #applied	
+		####psi[,i]=exp(-colSums(theta*t((matrix(AX[i,],ncol=ncol(x),nrow=nrow(x),byrow=TRUE)-x)^p)))#vectorised
+		psi[,i]=exp(-colSums(theta*((AX[i,]-t(x))^p)))#vectorised, faster
 	}
 	###fn2<-function(ppsi){mu+ppsi%*%solve(U,solve(t(U),(Ay-one*mu)))}#applied
 	###f=apply(psi,1,fn2)#applied

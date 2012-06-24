@@ -49,7 +49,8 @@ spotPlotBst <- function(spotConfig){
 		b<-spotReadBstFile(spotConfig)	
 	}else{
 		b<-spotConfig$alg.currentBest
-	}		
+	}
+	b<-unique(b)#fix to avoid multiple bests from 1 step. requirement is that steps are included in best file	
 	Y = b[,spotConfig$alg.resultColumn]
 	n <- max(spotConfig$alg.currentResult$STEP)+1
 	step<-1:n

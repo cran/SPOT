@@ -185,7 +185,7 @@ spotPrepareData <- function(spotConfig){
 	mergedCONFIG <- sapply(split(rawData$CONFIG, rawData$CONFIG),min)
 	mergedSTEP <- sapply(split(rawData$STEP, rawData$CONFIG),min)
 	### added Seed 6.Jan 2011: x
-        mergedSEED <- sapply(split(rawData$SEED, rawData$CONFIG),min)
+        mergedSEED <- sapply(split(rawData$SEED, rawData$CONFIG),max) #MZBUGFIX: max instead of min. maximum used seed is incremented. minimum creates repeated evaluation of same seed (at least in ocba)
 	#x1 <- as.data.frame(t(sapply(split(rawData[,pNames], rawData$CONFIG),mean)));	# This expression results into errors if just one variable is in the ROI
 	if (length(pNames)==1){ 
 		#x <- as.data.frame(sapply(split(rawData[,pNames], rawData$CONFIG),mean)) #mean on dataframes gives warnings in R-14.x

@@ -27,7 +27,7 @@ spotAlgStartSann <- function(spotConfig){
 	io.resFileName=spotConfig$io.resFileName;	
 	#default Values that can be changed with apd file
 	func<-if(is.null(spotConfig$apd.func)){spotBraninFunction}else{spotConfig$apd.func}
-	x1<-if(is.null(spotConfig$apd.x0)){c(10,10)}else{spotConfig$apd.x0}#either start point for optim, or NA for random startpoint
+  x1<-if(is.null(spotConfig$apd.x0)){c(10,10)}else{spotConfig$apd.x0}#either start point for optim, or NA for random startpoint
 	maxit<-ifelse(is.null(spotConfig$apd.maxit),100,spotConfig$apd.maxit)
 	parscale<-if(is.null(spotConfig$apd.parscale)){c(1,1)}else{spotConfig$apd.parscale}
 	f<-ifelse(is.null(spotConfig$apd.f),"Branin",spotConfig$apd.f)
