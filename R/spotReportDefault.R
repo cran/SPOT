@@ -39,7 +39,9 @@ spotReportDefault <- function(spotConfig) {
 				pdf(spotConfig$io.pdfFileName) #start pdf creation
 				spotPlotBst(spotConfig)
 				par(mfrow=c(1,1))				
-				draw.tree(fit.tree, digits=4)
+				#draw.tree(fit.tree, digits=4)
+				plot(fit.tree)
+				text(fit.tree)
 				#prp(fit.tree,type=4,extra=1,digits=4) #uses rpart.plot package				
 				dev.off() #close pdf device
 			}
@@ -47,7 +49,9 @@ spotReportDefault <- function(spotConfig) {
 			{
 				dev.new()
 				par(mfrow=c(1,1), xpd=NA)
-				draw.tree(fit.tree, digits=4)	
+				#draw.tree(fit.tree, digits=4)	
+				plot(fit.tree)
+				text(fit.tree)
 				## or better without maptree package?:
 				#prp(fit.tree,type=4,extra=1,digits=4) #uses rpart.plot package
 			}

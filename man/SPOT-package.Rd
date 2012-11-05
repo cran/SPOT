@@ -8,7 +8,7 @@
 }
 \details{
   \tabular{ll}{ Package: \tab SPOT\cr Type: \tab Package\cr
-  Version: \tab 1.0.2661\cr Date: \tab 24.06.2012\cr
+  Version: \tab 1.0.2662\cr Date: \tab 05.11.2012\cr
   License: \tab GPL (>= 2)\cr LazyLoad: \tab yes\cr }
 
   SPOT is a package for R, using statistic models to find

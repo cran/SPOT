@@ -1,5 +1,8 @@
 SPOT - Sequential Parameter Optimization Toolbox
 
+Release Notes Version 1.0.2662
+	Removed the dependency on the maptree package, changed the corresponding default report function spotReportDefault
+
 Release Notes Version 1.0.2661
 	1. Significant speedup for spotPredictForrester, by factors of 2 or more (depending on dimensionality and number of observations)
 	2. Fix in spotPredictForrester: Sometimes L-BFGS-B might violate boundaries, this is now checked and controlled by the calling function

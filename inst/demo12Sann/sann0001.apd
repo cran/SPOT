@@ -21,4 +21,4 @@ f = "Branin0.0"
 x0 = c(10,10)
 parscale = c(1,1)
 n = 2
-maxit = 100
+maxit = 1000

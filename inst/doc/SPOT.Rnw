@@ -53,7 +53,7 @@ apply SPOT to a Simulated Annealing (SANN) algorithm.
 Besides reading additional Literature about Simulated Annealing you can
 also check the documentation of the SANN implementation in R by typing:
 
-<<eval=F>>=
+<<>>=
 help(optim)
 @
 
@@ -217,7 +217,7 @@ Any other additional settings for the above mentioned steps, or for other steps,
 default values. If you want to check the default values of all parameters you can see
 them in the help of the spotGetOptions() function.
 
-<<eval=F>>=
+<<>>=
 help(spotGetOptions)
 @
 
@@ -378,7 +378,8 @@ myConfigAndResults=spot(testFile,"rep",spotConfig=myConfigAndResults)
 <<fig=TRUE,include=TRUE,echo=FALSE>>=
 rawB <- spotGetRawDataMatrixB(myConfigAndResults);
 fit.tree <- rpart(y ~ ., data= rawB)	
-draw.tree(fit.tree, digits=4)
+plot(fit.tree)
+text(fit.tree)
 @
 
 
