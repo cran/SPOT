@@ -1,0 +1,24 @@
+\name{spotRepeats}
+\alias{spotRepeats}
+\title{Select repeats of design points, linearly increasing}
+\usage{
+  spotRepeats(spotConfig, mergedData, largeDesignEvaluated)
+}
+\arguments{
+  \item{spotConfig}{List, containing all settings of SPOT}
+
+  \item{mergedData}{merged data from runs of the target
+  function}
+
+  \item{largeDesignEvaluated}{sorted large design in
+  sequential SPOT step}
+}
+\description{
+  Select repeats of design points, linearly increasing
+}
+\seealso{
+  \code{\link{spotGenerateSequentialDesign}}
+  \code{\link{spotOcba}} \code{\link{spotRepeatsOcba}}
+}
+\keyword{internal}
+

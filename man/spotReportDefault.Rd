@@ -12,7 +12,7 @@
   list spotConfig with changed values
 }
 \description{
-  Function to generate a simple report.
+  Function generates a simple report.
 }
 \details{
   This function is used when no report function is
@@ -23,20 +23,19 @@
   file, and placed in the same folder) if
   \code{report.io.screen} is set TRUE the graphic is
   printed to the screen. Both can be FALSE or TRUE at the
-  same time. If the user doesnt specify those values, the
+  same time. If the user does not specify those values, the
   defaults will be used as shown in
   \code{\link{spotGetOptions}}, which means there will be
   only screen output, and no pdf.
 
   In case of multi objective optimization this function
   will report the hyper volume indicator, and write the
-  paret front and the pareto set to spotConfig$mco.val and
+  Pareto front and the Pareto set to spotConfig$mco.val and
   spotConfig$mco.par. spotReportDefault is currently the
   only recommendable report function for multi objective
   SPOT, besides custom functions created by users.
 }
 \seealso{
-  \code{\link{SPOT}} \code{\link{spot}}
-  \code{\link{spotStepReport}}
+  \code{\link{spot}}, \code{\link{spotStepReport}}
 }
 

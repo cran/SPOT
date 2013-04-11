@@ -3,7 +3,7 @@
 #'
 #' Sorts the large design for the purpose of multi objective optimization with SPOT.
 #' First non dominated sorting rank (NDS) is used. If the choice of points for the next
-#' sequential step is not clear by nds rank, the hypervolume contribution of the 
+#' sequential step is not clear by NDS rank, the hypervolume contribution of the 
 #' competing points is recalculated sequentially to remove those with the smallest 
 #' contribution.
 #'
@@ -13,6 +13,7 @@
 #' @return largeDesign \cr 
 #' - The sorted large design
 #' @export
+#' @keywords internal
 ###################################################################################
 spotMcoSort <- function (largeDesign, designY, newsize){
 	lhdY=t(as.matrix(designY))
@@ -33,7 +34,7 @@ spotMcoSort <- function (largeDesign, designY, newsize){
 				frontY<-lhdY[,index]
 				for(jj in 1:removeN){ #repeated selection by hypervolume contribution, selected individuals will be last in order
 					iREM=nds_hv_selection(frontY[,sortVec==0])
-					iREM= which(frontY==frontY[,sortVec==0][,iREM],arr.ind=T)[1,2] #ugly hack to select which column to remove by comparing with original front
+					iREM= which(frontY==frontY[,sortVec==0][,iREM],arr.ind=TRUE)[1,2] #ugly hack to select which column to remove by comparing with original front
 					sortVec[iREM]=1						
 				}
 				set<-set[order(sortVec),]
@@ -42,7 +43,7 @@ spotMcoSort <- function (largeDesign, designY, newsize){
 			}
 		}
 	}
-	return(largeDesign)	
+	largeDesign
 }
 
 
@@ -51,11 +52,11 @@ spotMcoSort <- function (largeDesign, designY, newsize){
 #'
 #' Sorts the large design for the purpose of multi objective optimization with SPOT.
 #' First non dominated sorting (NDS) rank is used. If the choice of points for the next
-#' sequential step is not clear by nds rank, the hypervolume contribution of the 
+#' sequential step is not clear by NDS rank, the hypervolume contribution of the 
 #' competing points is recalculated sequentially to remove those with the smallest 
 #' contribution. 
 #'
-#' In contrast to \code{\link{spotMcoSort}}, this function consideres the known points in \code{mergedX} and \code{mergedY}
+#' In contrast to \code{\link{spotMcoSort}}, this function considers the known points in \code{mergedX} and \code{mergedY}
 #' so that new points will rather be chosen in between known points, thus producing a better Pareto front.
 #' To do so, the known points are added to the set of solutions. To ensure that they are not removed, they receive infinite hypervolume contribution,
 #' and are not counted when determining the number of NDS ranks to be considered.
@@ -68,8 +69,9 @@ spotMcoSort <- function (largeDesign, designY, newsize){
 #' @return largeDesign \cr 
 #' - The sorted large design
 #' @export
+#' @keywords internal
 ###################################################################################
-spotMcoInfill <- function (largeDesign, designY, newsize, mergedX, mergedY){
+spotMcoSelectionHypervol <- function (largeDesign, designY, newsize, mergedX, mergedY,ref=NULL){
 	info<-c(rep(0,nrow(designY)),rep(1,nrow(mergedY))) # create info of point origin (0=largedesign, 1=allready evaluated)
 	colnames(designY)<-colnames(mergedY)
 	designY<-rbind(designY,mergedY)#merge points and known values	
@@ -93,10 +95,14 @@ spotMcoInfill <- function (largeDesign, designY, newsize, mergedX, mergedY){
 				frontY<-lhdY[,index]
 				frontInfo<-info[index]
 				for(jj in 1:removeN){ #repeated selection by hypervolume contribution, selected individuals will be last in order
-					contrib<-hypervolume_contribution(frontY[,sortVec==0]) #todo: check if this algorithm works robustly
+					if(is.null(ref)){
+						contrib<-hypervolume_contribution(frontY[,sortVec==0]) #todo: check if this algorithm works robustly
+					}else{
+						contrib<-hypervolume_contribution(frontY[,sortVec==0],ref)
+					}
 					contrib[frontInfo==1]<-Inf#max(contrib)+1 #make sure known points can not be removed!    
 					iREM=which.min(contrib)    
-					iREM= which(frontY==frontY[,sortVec==0][,iREM],arr.ind=T)[1,2] #ugly hack to select which column to remove by comparing with original front
+					iREM= which(frontY==frontY[,sortVec==0][,iREM],arr.ind=TRUE)[1,2] #ugly hack to select which column to remove by comparing with original front
 					sortVec[iREM]=1						
 				}
 				set<-set[order(sortVec),]
@@ -107,5 +113,86 @@ spotMcoInfill <- function (largeDesign, designY, newsize, mergedX, mergedY){
 		}
 	}	
 	largeDesign<-largeDesign[info==0,]#remove known points from largedesign
-	return(largeDesign)	
+	largeDesign
+}
+
+##################################################################################
+#' Multi criteria sorting by a tournament scheme
+#'
+#' Experimental, do not use
+#'
+#' @param largeDesign the design matrix in the parameter space, to be sorted by the associated y-values for each objective
+#' @param designY objective value matrix. Contains objective values associated to largeDesign
+#' @param tsize tournament size (percentage of large design in values between zero and one)
+#' @param ssize selection size number of points that will be selected in SPOT, lower bound for absolute tsize
+#' @return largeDesign \cr 
+#' - The sorted large design
+#' @keywords internal
+###################################################################################
+spotMcoCrowdTournament <- function (largeDesign, designY, tsize,ssize){				#problem are allready known points
+	##### load rgp (needed for nondeterministicRanking orderByParetoCrowdingDistance)
+	spotInstAndLoadPackages("rgp");
+	#####calculate number of competitors, repair
+	tsize <- tsize*nrow(largeDesign)
+	tsize <- max(2,ssize,tsize)
+	tsize <- min(nrow(largeDesign),tsize)
+	winners<-NULL
+	i<-0
+	while(i<ssize){
+		#####sample competitors
+		selection <- sample(nrow(largeDesign),tsize)
+		competitors <- largeDesign[selection,]
+		#####sort       #todo consider known points??? how?
+		competitors <- competitors[orderByParetoCrowdingDistance(t(as.matrix(designY[selection,]))),]
+		#####shuffled sort
+		#rgp:::nondeterministicRanking(tsize,p=...?)#p=1 always in rgp example, pointless?	
+		winners<-rbind(competitors[1,],winners)
+		winners<-unique(winners)
+		i<-nrow(winners)
+	}
+	winners
+}
+
+##################################################################################
+#' Pareto Tournament
+#'
+#' Experimental, do not use
+#'
+#' @param largeDesign the design matrix in the parameter space, to be sorted by the associated y-values for each objective
+#' @param designY objective value matrix. Contains objective values associated to largeDesign
+#' @param tsize tournament size (percentage of large design in values between zero and one)
+#' @param ssize selection size number of points that will be selected in SPOT, lower bound for absolute tsize
+#' @return largeDesign \cr 
+#' - The sorted large design
+#' @keywords internal
+###################################################################################
+spotMcoTournament <- function (largeDesign, designY, tsize, ssize){
+	spotInstAndLoadPackages("emoa");
+	#####calculate number of competitors, repair
+	tsize <- tsize*nrow(largeDesign)
+	tsize <- max(2,ssize,tsize)
+	tsize <- min(nrow(largeDesign),tsize)
+	#####sample competitors
+	i<-0
+	winners<-NULL
+	while(i<ssize){   #Scheme: all non dominatted points win the tournament. Problem: usually those will be more than ssize...
+						#that means: all that the tournament really does is randomly disregard solutions in one single step. and the
+						#rest is not even sorted in any way
+						
+						#big problem: due to previous smsemoa or nsga2 most solutions in large design ARE non dominated... 
+						#not much to do for tthis type of torunament
+			
+						# smaller problem: new parameter introduced.... tuning necessary.
+		selection <- sample(nrow(largeDesign),tsize)
+		competitors <- largeDesign[selection,]
+		competitorsY <- designY[selection,]
+		winidx<-!is_dominated(t(competitorsY))
+		winner<-competitors[winidx,]
+		winners<-rbind(winner,winners)
+		winners<-unique(winners)
+		i<-nrow(winners)
+	}
+	#####shuffled sort
+	#rgp:::nondeterministicRanking(tsize,p=...?)#p=1 always in rgp example, pointless?	
+	winners[1:ssize,]
 }

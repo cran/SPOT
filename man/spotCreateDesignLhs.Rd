@@ -1,7 +1,6 @@
 \name{spotCreateDesignLhs}
 \alias{spotCreateDesignLhs}
-\title{Create a resolution III design with center point
-based on the number of dimensions and the number of design points}
+\title{spotCreateDesignLhs}
 \usage{
   spotCreateDesignLhs(spotConfig, noDesPoints = NaN,
     repeats = NaN)
@@ -20,14 +19,14 @@ based on the number of dimensions and the number of design points}
   corresponding to the region of interest.
 }
 \description{
-  Uses the function maxminLHS from the lhs to generate a
-  Latin Hypercube Design. This function attempts to
-  optimize the sample by maximizing the minium distance
-  between design points (maximin criteria).
+  Uses the improvedLHS function from the lhs package to
+  create a Latin Hypercube Design. improvedLHS optimizes
+  the euclidean distance between points in the sample.
 }
-\details{
-  The dimension is determined from the number of rows of
-  the .roi - file (each row in the roi file defines a
-  variable).
+\seealso{
+  \code{\link{spotCreateDesignBasicDoe}},
+  \code{\link{spotCreateDesignFrF2}},
+  \code{\link{spotCreateDesignLhd}},
+  \code{\link{spotCreateDesignLhsOpt}}
 }
 

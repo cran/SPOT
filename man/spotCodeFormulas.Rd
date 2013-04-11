@@ -1,0 +1,26 @@
+\name{spotCodeFormulas}
+\alias{spotCodeFormulas}
+\title{Create Formula for Coding}
+\usage{
+  spotCodeFormulas(X, name, type)
+}
+\arguments{
+  \item{X}{sample locations to be coded}
+
+  \item{name}{names of uncoded data columns}
+
+  \item{type}{data type of each data column. Those chosen
+  with "FACTOR" will not be coded.}
+}
+\value{
+  returns a list of formulas. One formula for each column
+  in X which is not a "FACTOR".
+}
+\description{
+  Create the formulas used by spotPredictLm and similar
+  functions to code input data. Uncoded data has column
+  names as chosen in ROI, coded data iterates names "x1",
+  "x2",... .
+}
+\keyword{internal}
+

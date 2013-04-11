@@ -9,18 +9,18 @@
 #' @return number \code{repeats} \cr
 #' - \code{repeats} is the new recommended number of repeats
 #'
-#' @seealso \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotSeqDesignIncreaseMultTwo}} 
+#' @seealso \code{\link{spot}} \code{\link{spotSeqDesignIncreaseMultTwo}} 
 #' @keywords internal
 #' @export
 ####################################################################################
 
 spotSeqDesignIncreasePlusOne <- function (actRepeats){
-	return(actRepeats +1)
+	actRepeats +1
 }
 
 
 ###################################################################################
-#' Increase Sequential Design Repeats Mult Two
+#' Increase Sequential Design Repeats: Double
 #' 
 #' This function increases the repeats done in each sequential design step of SPOT by multiplying by 2.
 #' Increasing repeats ensures that SPOT prediction is getting more precise with growing step size.
@@ -30,10 +30,10 @@ spotSeqDesignIncreasePlusOne <- function (actRepeats){
 #' @return number \code{repeats} \cr
 #' - \code{repeats} is the new recommended number of repeats
 #'
-#' @seealso \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotSeqDesignIncreasePlusOne}} 
+#' @seealso \code{\link{spot}} \code{\link{spotSeqDesignIncreasePlusOne}} 
 #' @keywords internal
 #' @export
 ####################################################################################
 spotSeqDesignIncreaseMultTwo <- function (actRepeats){
-	return(actRepeats *2)
+	actRepeats *2
 }

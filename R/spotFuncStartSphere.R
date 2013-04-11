@@ -17,9 +17,9 @@
 #' @keywords internal
 ###################################################################################################
 spotFuncStartSphere <- function(spotConfig){
-	pdFile=spotConfig$io.apdFileName;
-	resFileName=spotConfig$io.resFileName;	
-	desFileName=spotConfig$io.desFileName;	
+	pdFile=spotConfig$io.apdFileName
+	resFileName=spotConfig$io.resFileName
+	desFileName=spotConfig$io.desFileName
 	if(is.null(spotConfig$spot.noise)){spotConfig$spot.noise=10.0}
 	if(is.null(spotConfig$spot.noise.type)){spotConfig$spot.noise.type="weighted"}
 	if(is.null(spotConfig$spot.noise.minimum.at.value)){spotConfig$spot.noise.minimum.at.value=0.0}
@@ -27,68 +27,67 @@ spotFuncStartSphere <- function(spotConfig){
 	## weighted: y = y + y * noiseValue / 100
 	## constant: y = y + noiseValue
 		
-	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
-		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr());
+	if (spotConfig$spot.fileMode){ 
+		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr())
 		## read doe/dace etc settings:
-		des <- read.table(desFileName, sep=" ", header = TRUE);	
+		des <- read.table(desFileName, sep=" ", header = TRUE)
 	}else{
-		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
+		des <- spotConfig$alg.currentDesign 
 	}	
 	#default Values that can be changed with apd file
-	noise<-spotConfig$spot.noise;
-	noise.type <- spotConfig$spot.noise.type;
-	spot.noise.minimum.at.value <- spotConfig$spot.noise.minimum.at.value;
+	noise<-spotConfig$spot.noise
+	noise.type <- spotConfig$spot.noise.type
+	spot.noise.minimum.at.value <- spotConfig$spot.noise.minimum.at.value
 	f<-"Sphere"
-	n<-3;
+	n<-3
 	## read problem design file
 	if(file.exists(pdFile)){
 		source(pdFile,local=TRUE)
 	}
 	## read doe/dace etc settings:
 	##  VARX1 VARX2 VARX3 REPEATS SEED
-	config<-nrow(des);	
-	attach(des)	
+	config<-nrow(des)
 	for (k in 1:config){
 		for (i in 1:des$REPEATS[k]){
 			##
-			if (exists("VARX1")){
+			if (!is.null(des$VARX1)){
 				x1 <- des$VARX1[k]
 			} else {
-        x1 <- NA;
+				x1 <- NA;
 			}
-			if (exists("VARX2")){
+			if (!is.null(des$VARX2)){
 				x2 <- des$VARX2[k]
 			} else {
 			  x2 <- NA;
 			}
-			if (exists("VARX3")){
+			if (!is.null(des$VARX3)){
 				x3 <- des$VARX3[k]
 			} else {
 			  x3 <- NA;
 			}
 			conf <- k
-			if (exists("CONFIG")){
+			if (!is.null(des$CONFIG)){
 				conf <- des$CONFIG[k]
 			}
-			if (exists("STEP")){
+			if (!is.null(des$STEP)){
 				step <- des$STEP[k]
 			}
 			seed <- des$SEED[k]+i-1			
 			spotPrint(spotConfig$io.verbosity,1,c("Config:",k ," Repeat:",i))
       
-      if (exists("VARX2")){
-        if (exists("VARX3")){
-          values <- c(x1,x2,x3);          
+      if (!is.null(des$VARX2)){ #TODO ???
+        if (!is.null(des$VARX3)){
+          values <- c(x1,x2,x3)       
         } else {
-          values <- c(x1,x2);
+          values <- c(x1,x2)
         }        
       } else{
-        values <- c(x1);
+        values <- c(x1)
       }
       
 			y <- spotSphereFunction(values)
 			## add noise
-      y <- y + spotCalcNoise(y, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value);
+      y <- y + spotCalcNoise(y, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value)
 			
 			spotPrint(spotConfig$io.verbosity,1,y)
 			res <- NULL
@@ -100,8 +99,7 @@ spotFuncStartSphere <- function(spotConfig){
 					DIM=n,
 					STEP=step,
 					SEED=seed,
-					CONFIG=conf
-			)
+					CONFIG=conf)
 			res <-data.frame(res)			
 			if (spotConfig$spot.fileMode){ ##Log the result in the .res file, only if user didnt set fileMode==FALSE
 				colNames = TRUE
@@ -115,14 +113,12 @@ spotFuncStartSphere <- function(spotConfig){
 						, col.names = colNames
 						, sep = " "              
 						, append = !colNames
-						, quote = FALSE
-				);		
+						, quote = FALSE)	
 			}
-			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res);					
+			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res)					
 		}			
 	}	
-	detach(des)
-	return(spotConfig)
+	spotConfig
 }
 
 

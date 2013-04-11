@@ -1,0 +1,43 @@
+\name{forrCoLikelihood}
+\alias{forrCoLikelihood}
+\title{Calculate neg. log. lik. for Co-Kriging}
+\usage{
+  forrCoLikelihood(x, AX, Ay, Ayc, opt.p = FALSE)
+}
+\arguments{
+  \item{x}{vector, containing log(theta) and lambda}
+
+  \item{AX}{3 dimensional array, constructed by
+  forrCoBuilder from the sample locations}
+
+  \item{Ay}{vector of observations at expensive sample
+  locations}
+
+  \item{Ayc}{vector of observations at cheap sample
+  locations}
+}
+\value{
+  list with elements\cr \code{NegLnLike} concentrated
+  log-likelihood *-1 for minimising \cr \code{Psi}
+  correlation matrix\cr \code{Psinv} inverse of correlation
+  matrix (to save computation time in forrRegPredictor)\cr
+  \code{mu} \cr \code{ssq}
+}
+\description{
+  Used to determine theta/lambda values for the Co-Kriging
+  model in \code{\link{forrCoBuilder}}.
+}
+\references{
+  FORRESTER, A.I.J, SOBESTER A. & KEAN, A.J. (2007),
+  Multi-Fidelity optimization via surrogate modelling.
+  \emph{Proc. R. Soc. A} 463, 3251-3269. \cr Forrester,
+  Alexander I.J.; Sobester, Andras; Keane, Andy J. (2008).
+  Engineering Design via Surrogate Modelling - A Practical
+  Guide. John Wiley & Sons.
+}
+\seealso{
+  \code{\link{spotPredictCoForrester}}
+  \code{\link{forrCoBuilder}}
+}
+\keyword{internal}
+

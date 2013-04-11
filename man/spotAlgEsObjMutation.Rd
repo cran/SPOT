@@ -5,12 +5,12 @@
   spotAlgEsObjMutation(obj, strat)
 }
 \arguments{
-  \item{obj}{Object}
+  \item{obj}{Object to be mutated}
 
-  \item{strat}{Strat}
+  \item{strat}{Strategy parameter sigma to mutate with}
 }
 \description{
-  Mutation function for the ES
+  Mutation function for the ES individual parameters
 }
 \keyword{internal}
 

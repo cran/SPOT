@@ -12,6 +12,7 @@
 #'
 #' @seealso \code{\link{spotAlgStartRgp}}
 #' @export
+#' @keywords internal
 ###################################################################################################
 spotRgpTargetFunction <- function(populationSize = 100, tournamentSize = 10, time=120) {
   data1 <- {
@@ -54,14 +55,17 @@ spotRgpTargetFunction <- function(populationSize = 100, tournamentSize = 10, tim
 #' @export
 ###################################################################################################
 spotAlgStartRgp <- function(spotConfig){
-	SAVESEED<-.Random.seed
+	if(exists(as.character(substitute(.Random.seed))))
+		SAVESEED<-.Random.seed
+	else
+		SAVESEED=NULL
 	spotInstAndLoadPackages("rgp") #installs and requires() rgp
-	io.apdFileName=spotConfig$io.apdFileName;
-	io.desFileName=spotConfig$io.desFileName;
-	io.resFileName=spotConfig$io.resFileName;	
+	io.apdFileName=spotConfig$io.apdFileName
+	io.desFileName=spotConfig$io.desFileName
+	io.resFileName=spotConfig$io.resFileName	
 	#default Values that can be changed with apd file
-	populationSize <- 100;
-	tournamentSize <- 10;
+	populationSize <- 100
+	tournamentSize <- 10
 	time<-120
 	f <- "sincos2d"; ## TODO set name of test function here!
 	## read problem design file
@@ -71,15 +75,15 @@ spotAlgStartRgp <- function(spotConfig){
 	else{
 		spotWriteLines(spotConfig$io.verbosity,1,"apd File not found, defaults used");
 	}
-	if (spotConfig$spot.fileMode) { ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
-		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  io.desFileName), con=stderr());
+	if (spotConfig$spot.fileMode){ 
+		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  io.desFileName), con=stderr())
 		## read doe/dace etc settings:
-		des <- read.table( io.desFileName, sep=" ", header = TRUE);	
+		des <- read.table( io.desFileName, sep=" ", header = TRUE)
 	}else{
-		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
-	}			
-	pNames <- names(des);	
-	config<-nrow(des);	
+		des <- spotConfig$alg.currentDesign
+	}		
+	pNames <- names(des)
+	config<-nrow(des)
 	for (k in 1:config){
 		for (i in 1:des$REPEATS[k]){
 			if (is.element("POPULATIONSIZE", pNames)){
@@ -119,12 +123,13 @@ spotAlgStartRgp <- function(spotConfig){
 					colNames = FALSE
 				}				
 				write.table(res, file = io.resFileName, row.names = FALSE, 
-					col.names = colNames, sep = " ", append = !colNames, quote = FALSE);
+					col.names = colNames, sep = " ", append = !colNames, quote = FALSE)
 				colNames = FALSE					
 			}
-			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res);#always log the results in spotConfig			
+			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res)#always log the results in spotConfig			
 		}
 	}	
-	assign(".Random.seed", SAVESEED, envir=globalenv()); 
-	return(spotConfig)
+	if(!is.null(SAVESEED))
+		assign(".Random.seed", SAVESEED, envir=globalenv())
+	spotConfig
 }

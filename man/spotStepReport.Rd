@@ -6,7 +6,7 @@
 }
 \arguments{
   \item{spotConfig}{the list of all parameters is given, it
-  is forwarded to the call of the reportfunction}
+  is forwarded to the call of the report-function}
 }
 \description{
   Forth and last step for SPOT, that is by default a call

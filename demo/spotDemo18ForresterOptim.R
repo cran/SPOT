@@ -10,7 +10,7 @@ config=list(
 	alg.func=spotRastriginFunction, #select the target function to be optimized
 	alg.roi=spotROI(lower,upper), #build region of interest
 	seq.predictionModel.func="spotPredictForrester", #select the used surrogate model, here a kriging model
-	seq.predictionOpt.func="spotPredictOptMulti", #select a function to optimize on the surrogate model
+	seq.predictionOpt.func="spotModelOptim", #select a function to optimize on the surrogate model
 	seq.predictionOpt.method="cmaes",	#select an optimization algorithm for the above function
 	io.verbosity=3, #verbosity is set high, all output is given to user
 	seq.design.oldBest.size=0,#no noise, so old design points will not be reevaluatied
@@ -27,7 +27,7 @@ res1<-spot(spotConfig=config)
 
 ## or use the optim-like interface (resembles the optim() function)
 config2=list(
-	seq.predictionOpt.func="spotPredictOptMulti", #select a function to optimize on the surrogate model
+	seq.predictionOpt.func="spotModelOptim", #select a function to optimize on the surrogate model
 	seq.predictionOpt.method="cmaes",	#select an optimization algorithm for the above function
 	io.verbosity=3, #verbosity is set high, all output is given to user
 	seq.design.oldBest.size=0,#no noise, so old design points will not be reevaluatied

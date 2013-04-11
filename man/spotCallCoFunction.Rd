@@ -1,0 +1,33 @@
+\name{spotCallCoFunction}
+\alias{spotCallCoFunction}
+\title{Call Correlated Function}
+\usage{
+  spotCallCoFunction(spotConfig, result, design, dfunc)
+}
+\arguments{
+  \item{spotConfig}{set of parameters, containing
+  \code{spotConfig$seq.forr.co.fn}, which is the correlated
+  (cheap) function.}
+
+  \item{result}{data frame of observations and related
+  information}
+
+  \item{design}{design matrix to be evaluated on the
+  correlated function.}
+
+  \item{dfunc}{co function to be evaluated}
+}
+\value{
+  normalized design matrix
+}
+\description{
+  This function is used to evaluate a cheap function
+  (cheaper as the real target). The purpose is to enhance a
+  Kriging model with Co-Kriging.
+}
+\seealso{
+  \code{\link{spotPredictCoForrester}}
+  \code{\link{forrBuilder}} \code{\link{forrCoBuilder}}
+}
+\keyword{internal}
+

@@ -1,18 +1,18 @@
 \name{spotCreateDesignFrF2}
 \alias{spotCreateDesignFrF2}
-\title{Create a resolution III design with center point
-based on the number of dimensions and the number of design points}
+\title{spotCreateDesignFrF2}
 \usage{
   spotCreateDesignFrF2(spotConfig, noDesPoints = NaN,
     repeats = NaN)
 }
 \arguments{
-  \item{spotConfig}{list of spotConfiguration}
+  \item{spotConfig}{list of spot settings}
 
-  \item{noDesPoints}{number of design points, default is
-  NaN}
+  \item{noDesPoints}{is obsolete for this type of design,
+  it has no influence. The number of points is fixed.}
 
-  \item{repeats}{number of repeats, default is NaN}
+  \item{repeats}{is obsolete for this type of design, it
+  has no influence.}
 }
 \value{
   matrix \code{M} \cr - \code{M} has \code{dimension}
@@ -20,11 +20,16 @@ based on the number of dimensions and the number of design points}
 }
 \description{
   Uses the function FrF2 from the FrF2-package to generate
-  a (fractional) factorial design
+  a (fractional) factorial design. The factorial design is
+  augmented with the augment.ccd function from DoE.wrapper
+  package. The dimension is determined from the number of
+  rows of the .roi - file (each row in the roi file defines
+  a variable).
 }
-\details{
-  The dimension is determined from the number of rows of
-  the .roi - file (each row in the roi file defines a
-  variable).
+\seealso{
+  \code{\link{spotCreateDesignBasicDoe}},
+  \code{\link{spotCreateDesignLhd}},
+  \code{\link{spotCreateDesignLhs}},
+  \code{\link{spotCreateDesignLhsOpt}}
 }
 

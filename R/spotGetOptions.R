@@ -31,15 +31,16 @@
 #' in user written plugins. All plugins will get the whole list of options with the parameter 
 #' "spotConfig". As a result a variable given in the .conf file as \cr 
 #' \code{my.var=37} \cr
-#' may be refered to by spotConfig$my.var and can be used in all functions - especially in the functions 
+#' may be referred to by spotConfig$my.var and can be used in all functions - especially in the functions 
 #' that are designed to be open to adaptions where ever necessary. 
 #' 
 #' @param srcPath the absolute path to the SPOT sources
-#' @param configFileName users config file (.conf) the absolute path including filespecifier of the user config File
+#' @param configFileName users config file (.conf) the absolute path including file-specifier of the user config File
 #' @return spotGetOptions returns the list of all SPOT options  created by this function:
 #' 			\item{auto.loop.steps}{[\code{Inf}] number of iterations the loop over all SPOT-steps should be repeated}
 #' 			\item{auto.loop.nevals}{[\code{200}] budget  of algorithm/simulator runs
 #' 			 - most important parameter for run-time of the algorithm in case the spot-function is called with the "auto"-task }
+#' 			\item{spot.continue}{[\code{FALSE}] boolean, SPOT will try to continue based on existing results in spotConfig or .res file if this value is TRUE}
 #' 			\item{spot.fileMode}{[\code{TRUE}] boolean, that defines if files are used to read and write results (which is the "classic" spot procedure) or if SPOT will only use the workspace to store variables.}
 #' 			\item{spot.seed}{[\code{123}] global seed setting for all random generator dependent calls within SPOT. same seed shall repeat same results, \cr
 #' 						BUT: please note: this is NOT the seed for the algorithm! see alg.seed}
@@ -59,18 +60,18 @@
 #' 			\item{alg.currentDesign}{[usually not changed by user] data frame of the design that will be evaluated by the next call to \link{spotStepRunAlg}} 
 #' 			\item{alg.currentResult}{[usually not changed by user] data frame that contains the results of the target algorithm runs} 
 #' 			\item{alg.currentBest}{[usually not changed by user] data frame that contains the best results of each step conducted by spot} 
-#' 			\item{io.columnSep}{[\code{""}] column seperator for the input/output files, default means: arbitrary whitespace sequence, 
+#' 			\item{io.columnSep}{[\code{""}] column separator for the input/output files, default means: arbitrary whitespace sequence, 
 #' 							should be set by the value you want to have between your columns}
-#' 			\item{io.apdFileName}{[depends: \code{<configFileName>.apd}] name of the .apd -file (Algorithm Problem Definition file, holding all specification the user written algorithm needs to perfom a complete optimization)}
+#' 			\item{io.apdFileName}{[depends: \code{<configFileName>.apd}] name of the .apd -file (Algorithm Problem Definition file, holding all specification the user written algorithm needs to perform a complete optimization)}
 #' 			\item{io.roiFileName}{[depends: \code{<configFileName>.roi}] name of the .roi -file (Region Of Interest - File, holding all varying parameters and constraints)}
 #' 			\item{io.desFileName}{[depends: \code{<configFileName>.des}] name of the .des -file (DESign file, the file the user written algorithm uses as input to the parameters it should change)}
 #' 			\item{io.resFileName}{[depends: \code{<configFileName>.res}] name of the .res -file (RESult file) the user written algorithm has to write its results into this file }
 #' 			\item{io.bstFileName}{[depends: \code{<configFileName>.bst}] name of the .bst -file (BeST file) the result-file will be condensed to this file }
 #' 			\item{io.pdfFileName}{[depends: \code{<configFileName>.pdf}] name of the .pdf -file the default report will write its summary of results in this pdf file }
 #' 			\item{io.fbsFileName}{[depends: \code{<configFileName>.bst}] name of the .fbs -file (Final BestSolution file) collects all final best values of all .bst files during a .meta-run }
-#' 			\item{io.verbosity}{[\code{3}] level of verbosity of the programm, 0 should be silent and 3 should produce all output- sometimes just interesting for the developer...}
+#' 			\item{io.verbosity}{[\code{3}] level of verbosity of the program, 0 should be silent and 3 should produce all output- sometimes just interesting for the developer...}
 #' 			\item{init.design.func}{[\code{"spotCreateDesignLhd"}] name of the function to create an initial design. Please also see the notes SPOT - extensions}
-#' 			\item{init.design.size}{[\code{10}] number of initial design points to be created. Required by some space filling desing generators. Will be used in the <init.design.func>.R-file. If \code{=NA} a value is calculated by formula.}
+#' 			\item{init.design.size}{[\code{10}] number of initial design points to be created. Required by some space filling design generators. Will be used in the <init.design.func>.R-file. If \code{=NA} a value is calculated by formula.}
 #' 			\item{init.design.retries}{[\code{100}] number of retries the initial designs should be retried to find randomly a design with maximum distance between the points 
 #' 								This parameter will be ignored if the function is deterministic (like doe)}
 #' 			\item{init.design.repeats}{[\code{2}] number of repeats for each design point to be called with the <alg.func>}
@@ -83,12 +84,12 @@
 #' 			\item{seq.design.maxRepeats}{[\code{NA}] each design point is to be evaluated several times for statistically sound results. The number of "repeats" will increase, but will not exceed this seq.design.maxRepeats - value }
 #' 			\item{seq.design.increase.func}{[\code{"spotSeqDesignIncreasePlusOne"}] functional description of how the repeats are increased (until the seq.design.maxRepeats are reached). Default increases the number of repeats by adding one.}
 #' 			\item{seq.design.func}{[\code{"spotCreateDesignLhd"}] name of the function to create sequential design. Please also see the notes SPOT - extensions}
-#' 			\item{seq.predictionModel.func}{[\code{"spotPredictLm"}] name of the function calling a predictor. Default uses a Linear Model. Please also see the notes SPOT - extensions}
+#' 			\item{seq.mco.selection}{[\code{"hypervol"}] selection scheme for new design candidates in case of multi objective optimization. "hypervol" considers contribution of each point, "tournament2" is a tournament selection. "tournament1" is not yet recommended for use.}
+#' 			\item{seq.predictionModel.func}{[\code{"spotPredictRandomForest"}] name of the function calling a predictor. Default uses a Random Forest.}
 #'			\item{seq.predictionOpt.func}{[\code{NA} If not NA this string will be interpreted as a function name. The function is expected to add a new setting to the sequential design. See \code{\link{spotPredictOptMulti}}}
 #' 			\item{seq.merge.func}{ [\code{mean}] defines the function that merges the results from the different repeat-runs for a design. Default is to calculate the mean value.}
-
-#' 			\item{seq.transformation.func}{[\code{I}] function for transformation of "Y" before new model is created, default: Identitity function}
-#' 			\item{seq.useAdaptiveRoi}{[\code{FALSE}] use region of intereset adaptation}
+#' 			\item{seq.transformation.func}{[\code{I}] function for transformation of "Y" before new model is created, default: Identity function}
+#' 			\item{seq.useAdaptiveRoi}{[\code{FALSE}] use region of interest adaptation}
 #'			\item{report.func}{[\code{"spotReportDefault"}] name of the function providing the report ("spotReportSens","spotReport3d","spotReportContour") }
 #' 			\item{report.io.screen}{[\code{FALSE}] report graphics will be printed to screen (FALSE=no, TRUE=yes)}
 #' 			\item{report.io.pdf}{[\code{TRUE}] report graphics will be printed to pdf (FALSE=no, TRUE=yes)}
@@ -152,10 +153,15 @@ spotGetOptions <- function( srcPath=".",configFileName) {
  	seq.predictionOpt.func<-NA
 	seq.predictionOpt.budget<-100
 	seq.useAdaptiveRoi <- FALSE #todo für weitere prediktoren 
-    seq.ocba.budget <- 3       		
-		## ###################################
-		## ##### For MCO ###
-		## ###################################	
+    seq.ocba.budget <- 3      
+	seq.model.variance <- FALSE #whether model should predict variance (may be needed if seq.model.transform is not NA)
+	seq.infill <- NA #expected improvement function to be used. NA means no EI #for transformations of model information, like EI, SEI, SMS-INFILL, etc
+	## ###################################
+	## ##### For MCO ###
+	## ###################################	
+	## type of pareto optimizaion selection scheme
+	seq.mco.selection <- "hypervol" #"hypervol" sort by hypervolume contribution, considering known points "tournament" tournament selection "r2" NOT IMPLEMENTED YET 
+	
 		#	seq.mco.infill="fill"    
 		# 			\item{seq.mco.infill}{ [\code{"fill"}] string that defines the infill criterion for multi criteria optimization with SPOT. }
 		# 			\item{}{ Either "sort", which sorts design points only by non dominated sorting rank and hypervolume contribution\cr
@@ -166,6 +172,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	## #####################################
 	spot.seed <- 123
 	spot.ocba <- TRUE 
+	spot.continue <- FALSE
 	## How many spot iterations should be performed?
 	auto.loop.steps <- Inf
 	auto.loop.nevals <- 200
@@ -202,7 +209,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	}
 	.dataPath <- dirname(configFileName)
 	if(io.verbosity>0){
-          writeLines(paste("  Data Path (all experiment data are relevant to this location): ", .dataPath,collapse=""),con=stderr())
+        writeLines(paste("  Data Path (all experiment data are relevant to this location): ", .dataPath,collapse=""),con=stderr())
 	}
 	.genericFileNamePrefix <-  unlist(strsplit(basename(configFileName), ".", fixed = TRUE))[1]
 	if(io.verbosity>0){
@@ -247,7 +254,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	spotWriteLines(io.verbosity,1,paste("  pdfFile Name : ", io.pdfFileName, collapse=""),con=stderr())		
 	spotWriteLines(io.verbosity,1,paste("  Load algorithm design (ROI): ", io.roiFileName, collapse=""),con=stderr())
 	## alg.roi is a table that holds the data of the .roi-file for easy and quick use in some functions 
-	if(file.exists(io.roiFileName)){   
+	if(file.exists(io.roiFileName)&&!(userConfFileName=="NULL")){   
 		alg.roi <- spotReadRoi(io.roiFileName,io.columnSep,io.verbosity)
 	}
 	else if (userConfFileName=="NULL"){   #a default roi is used, will be overwritten by any user input
@@ -268,8 +275,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	## now use sapply to generate the list of name/value of all variables. 
 	spotConfig<-sapply(.x, function (.x) { get(.x)}, USE.NAMES=TRUE)
 #	######################################
-#	### Return configuration list
+#	### Returns configuration list
 #	######################################
-	return(spotConfig)
 }
 

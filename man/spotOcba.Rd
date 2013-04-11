@@ -10,7 +10,7 @@
 
   \item{samp.var}{vector of variances, length nd}
 
-  \item{samp.count}{vector of repeats performed alredy,
+  \item{samp.count}{vector of repeats performed already,
   length nd}
 
   \item{budget.add}{additional number of repeats,
@@ -25,6 +25,7 @@
   design points, considering a minimization problem
 }
 \seealso{
-  \code{\link{spotGenerateSequentialDesignOcba}}
+  \code{\link{spotGenerateSequentialDesign}}
+  \code{\link{spotRepeatsOcba}}
 }
 

@@ -22,9 +22,10 @@
   Sorts the large design for the purpose of multi objective
   optimization with SPOT. First non dominated sorting rank
   (NDS) is used. If the choice of points for the next
-  sequential step is not clear by nds rank, the hypervolume
+  sequential step is not clear by NDS rank, the hypervolume
   contribution of the competing points is recalculated
   sequentially to remove those with the smallest
   contribution.
 }
+\keyword{internal}
 

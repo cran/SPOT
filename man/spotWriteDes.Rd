@@ -27,4 +27,5 @@
 \seealso{
   \code{\link{spotStepRunAlg}}
 }
+\keyword{internal}
 

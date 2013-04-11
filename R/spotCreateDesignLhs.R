@@ -1,16 +1,8 @@
 ####################################################################################
-## create a LHD via Latin hypercube sampling:
-####################################################################################
-#' Create a resolution III design with center point 
-#' based on the number of dimensions and the number of design points
+#' spotCreateDesignLhs
 #' 
-#' Uses the function maxminLHS from the lhs to generate a  Latin Hypercube Design. 
-#' This function attempts to optimize the sample  
-#' by maximizing the minium distance between design points (maximin criteria).
-#'
-#' The dimension is determined from the number of rows of the .roi - file 
-#' (each row in the roi file defines a variable).
-#'  
+#' Uses the improvedLHS function from the lhs package to create a Latin Hypercube
+#' Design. improvedLHS optimizes the euclidean distance between points in the sample.
 #'
 #' @param spotConfig list of spotConfiguration
 #' @param noDesPoints number of design points, default is NaN
@@ -20,45 +12,40 @@
 #' - \code{M} has \code{dimension} columns and \code{noDesPoints} rows
 #' with entries corresponding to the region of interest.
 #' @export
+#' @seealso \code{\link{spotCreateDesignBasicDoe}}, \code{\link{spotCreateDesignFrF2}}, 
+#' \code{\link{spotCreateDesignLhd}}, \code{\link{spotCreateDesignLhsOpt}}
 ####################################################################################
 spotCreateDesignLhs <- function(spotConfig, noDesPoints = NaN, repeats=NaN){	
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignLhs.R::spotCreateDesignLhs()");
 	spotInstAndLoadPackages("lhs")	
 	
 	## use roi or aroi:
-	if (spotConfig$seq.useAdaptiveRoi){ 
-		if(spotConfig$spot.fileMode){
+	if(spotConfig$spot.fileMode){
+		if(file.exists(spotConfig$io.aroiFileName))
 			roiConfig <- spotReadRoi(spotConfig$io.aroiFileName,spotConfig$io.columnSep,spotConfig$io.verbosity)
-		}else{
-			roiConfig <- spotConfig$alg.aroi
-		}
+		else
+			roiConfig <- spotReadRoi(spotConfig$io.roiFileName,spotConfig$io.columnSep,spotConfig$io.verbosity)
+	}else{
+		roiConfig <- spotConfig$alg.aroi
+		if(is.null(roiConfig)) roiConfig <- spotConfig$alg.roi
 	}
-	else{
-		roiConfig <- spotConfig$alg.roi
-	}
+	
+	
 	pNames <- row.names(roiConfig);
 	lowerBound <-  roiConfig[ ,"lower"];
 	upperBound <-  roiConfig[ ,"upper"];
 		
-	## old version
-	#pNames <- row.names(spotConfig$alg.roi);
-	#lowerBound <-  spotConfig$alg.roi[ ,"lower"];
-	#upperBound <-  spotConfig$alg.roi[ ,"upper"];
-	
 	A <- t(rbind(t(lowerBound), t(upperBound)))
 			
-        ## modified Jan, 31 2011 TBB:
-        ## M<-as.matrix(maximinLHS(noDesPoints, length(pNames), dup=2))
-        M<-as.matrix(improvedLHS(noDesPoints, length(pNames), dup=2))
-	## M has entries in the range from 0 to 1, so we 
-	## transform these values into the regions of interest:
-	for (i in 1:nrow(M)){
+    M<-as.matrix(improvedLHS(noDesPoints, length(pNames), dup=2))
+	## M has entries in the range from 0 to 1, so we 	
+	for (i in 1:nrow(M)){## transform these values into the regions of interest:
 		for (j in 1: ncol(M)){
 			M[i,j] <- A[j,1] + M[i,j] * (A[j,2] - A[j,1])
 		}
 	}
 	M <- as.data.frame(M)
 	colnames(M) <- pNames	
-	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotCreateDesignLhs.R::spotCreateDesignLhs");
-	return(M);		
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotCreateDesignLhs.R::spotCreateDesignLhs")
+	M
 }

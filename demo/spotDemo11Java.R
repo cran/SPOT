@@ -4,7 +4,7 @@
 ## Load package
 require("SPOT")
 ## get path of test project
-testPath<-.find.package("SPOT")
+testPath<-find.package("SPOT")
 testPath<-file.path(testPath,"demo11Java")
 ## show path
 testPath

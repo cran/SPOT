@@ -24,15 +24,13 @@ spotReadBstFile<-function(spotConfig){
 	bstData <- read.table(spotConfig$io.bstFileName
 			, sep=spotConfig$io.columnSep
 			, header = TRUE	
-			, stringsAsFactors = TRUE
-	);
-	return(bstData)
+			, stringsAsFactors = TRUE);
 }
 
 ###################################################################################
 #' Plot Best Solution Found so far
 #'
-#' Function used to continuosly plot the actually retrieved best value 
+#' Function used to continuously plot the actually retrieved best value 
 #' throughout a SPOT run. The number of variables shown is limited to twelve -
 #' make sure the relevant variables belong to the first lines of your .roi-file.
 #' 
@@ -40,6 +38,7 @@ spotReadBstFile<-function(spotConfig){
 #' 		\code{alg.roi}: the region of interest reduced to a matrix
 #' @seealso \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotReadBstFile}}
 #' @export
+#' @keywords internal
 ####################################################################################
 spotPlotBst <- function(spotConfig){	
 	rawB <- spotGetRawDataMatrixB(spotConfig);

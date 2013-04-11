@@ -1,0 +1,28 @@
+\name{daceLikelihood}
+\alias{daceLikelihood}
+\title{Wrapper for Maximum Likelihood Estimation}
+\usage{
+  daceLikelihood(theta, para, nugget)
+}
+\arguments{
+  \item{theta}{model parameter vector to be evaluated}
+
+  \item{para}{model option list, as created with
+  \code{\link{dacePrepareFit}}}
+
+  \item{nugget}{Value for nugget. Default is -1, which
+  means the nugget was optimized during MLE.}
+}
+\value{
+  the likelihood value as calculated by
+  \code{\link{daceEvalFit}}
+}
+\description{
+  Returns the maximum likelihood for the model parameter
+  optimization.
+}
+\seealso{
+  \code{\link{daceBuilder}} \code{\link{daceEvalFit}}
+}
+\keyword{internal}
+

@@ -1,6 +1,6 @@
 \name{spotReportSensY}
 \alias{spotReportSensY}
-\title{Sensivity Report Helper Function}
+\title{Sensitivity Report Helper Function}
 \usage{
   spotReportSensY(B, fit, roi, nsens)
 }
@@ -16,7 +16,7 @@
   sensitivity}
 }
 \description{
-  Helper function for the sensivity report
+  Helper function for the sensitivity report
 }
 \seealso{
   \code{\link{SPOT}} \code{\link{spot}}

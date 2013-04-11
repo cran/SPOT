@@ -6,22 +6,26 @@
     sigmaInit)
 }
 \arguments{
-  \item{strat}{Strat}
+  \item{strat}{Strategy parameter (sigma), can be a vector
+  or a single number}
 
-  \item{tau0}{Tau0}
+  \item{tau0}{the global/general step size multiplier for
+  self adaption}
 
-  \item{tau}{Tau, learning parameter for self adaption}
+  \item{tau}{the step size multiplier for self adaption in
+  each dimension}
 
-  \item{sigmaRestart}{Sigma on restart}
+  \item{sigmaRestart}{sigma values are reset to initial
+  values when a uniformly distributed random number is
+  smaller than sigmaRestart}
 
-  \item{sigmaInit}{initial sigma value (standard
-  deviation)}
+  \item{sigmaInit}{initial sigma value}
 }
 \value{
   number \code{s} \cr - \code{s} is the new sigma value
 }
 \description{
-  Mutation function for the ES.
+  Mutation function for the ES strategy parameter sigma.
 }
 \keyword{internal}
 

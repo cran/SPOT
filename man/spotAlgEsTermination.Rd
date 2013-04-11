@@ -21,7 +21,7 @@
   \item{term}{string that tells which termination criterion
   matters: \code{"gen"} terminates after given number of
   generations. \code{"iter"} terminates after given number
-  of iterations.  \code{"hps"} terminates at fiven target
+  of iterations.  \code{"hps"} terminates at given target
   value.}
 }
 \value{

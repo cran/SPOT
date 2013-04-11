@@ -1,0 +1,27 @@
+\name{spotEnsembleModelEvaluate}
+\alias{spotEnsembleModelEvaluate}
+\title{spotEnsembleModelEvaluate}
+\usage{
+  spotEnsembleModelEvaluate(spotConfig, design, all)
+}
+\arguments{
+  \item{spotConfig}{global list of all options}
+
+  \item{design}{new design points which should be
+  predicted}
+
+  \item{all}{if false, only the chosen model is evaluated,
+  else all models are evaluated}
+}
+\value{
+  returns a list, containing the element \code{Y} which is
+  a list of results from each mode, and the element
+  \code{fits} which is a list of model fits.
+}
+\description{
+  This function is used in the multi ensembles (e.g.
+  \code{\link{spotEnsembleMultiAlternate}}) to evaluate the
+  models in the ensemble.
+}
+\keyword{internal}
+

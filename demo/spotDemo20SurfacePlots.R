@@ -11,7 +11,7 @@ config=list(
 	alg.roi=spotROI(lower,upper),
 	seq.forrester=list(budgetalgtheta=100),
 	seq.predictionModel.func="spotPredictForrester",
-	seq.predictionOpt.func="spotPredictOptMulti",seq.predictionOpt.method="cmaes",	
+	seq.predictionOpt.func="spotModelOptim",seq.predictionOpt.method="cmaes",	
 	io.verbosity=3,report.interactive=TRUE,
 	seq.design.oldBest.size=0,seq.design.new.size=2,
 	spot.noise=0,spot.ocba=FALSE,seq.design.maxRepeats = 1,init.design.repeats = 1,

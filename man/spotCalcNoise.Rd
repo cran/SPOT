@@ -24,4 +24,5 @@
   on the noise intensity (noise) and the way of calculating
   noise (noise.type)
 }
+\keyword{internal}
 

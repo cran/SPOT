@@ -8,8 +8,8 @@
   \item{spotConfig}{the list of all parameters is given,
   used ones are: \code{spotConfig$io.resFileName:} result
   file where data are read from
-  \code{spotConfig$io.columnSep:} column separator as
-  determined by getConfig parameter to the function call
+  \code{spotConfig$io.columnSep:} column separator
+  parameter to the function call
   \code{\link{spotPrepareData}}}
 }
 \value{
@@ -27,4 +27,5 @@
 \seealso{
   \code{\link{spotPrepareData}}
 }
+\keyword{internal}
 

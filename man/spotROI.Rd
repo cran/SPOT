@@ -6,14 +6,14 @@
     dimROI = NULL)
 }
 \arguments{
-  \item{lower}{vector or a single number, specifiying lower
+  \item{lower}{vector or a single number, specifying lower
   boundary of ROI variables}
 
-  \item{upper}{vector or a single number, specifiying upper
+  \item{upper}{vector or a single number, specifying upper
   boundary of ROI variables}
 
   \item{type}{vector of strings or single string,
-  specifiying the data type of the variables. Can be:
+  specifying the data type of the variables. Can be:
   "FLOAT", "INT", "FACTOR"}
 
   \item{varnames}{vector or NULL, telling the name of each
@@ -24,9 +24,14 @@
   is set (not NULL), the other vectors should have
   length=dimROI, or length=1.}
 }
+\value{
+  returns a data frame containing the ROI ubfirnatuib
+}
 \description{
   This function can be used to construct a region of
-  interest, to be passed on to spot().
+  interest (ROI), to be passed on to spot(). Note, upper ==
+  lower is allowed, but no element in upper should be
+  smaller than the corresponding element in lower.
 }
 \examples{
 ## without varnames or dimROI

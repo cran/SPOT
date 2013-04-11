@@ -16,6 +16,7 @@
 #' @return data.frame \code{design} \cr
 #' - \code{design} contains one or more new design points to be calculated 
 #' @export
+#' @keywords internal
 ############################################################################################
 spotGenerateSequentialDesign <- function(spotConfig) {
 	spotWriteLines(spotConfig$io.verbosity,2,"Entering generateSequentialDesign");	
@@ -70,17 +71,57 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 	if(spotConfig$io.verbosity>2){
 		spotPlotBst(spotConfig)
 	}
+	
+	#####################################################
+	#####################################################
+	#####################################################
+	## (0) First check if ocba or linear budget allocation should be done
+	## check for var of the y-values. Only if y varies (i.e. function is 
+	### noisy and evaluations are repeated) use ocba. else create error msg.
+	if(spotConfig$spot.ocba == TRUE){ # only needs to be checked for ocba=TRUE
+		varies=TRUE;
+		varY <- mergedData$varY
+		for (i in 1:length(varY)){
+			if (is.na(varY[i])||is.nan(varY[i])||is.null(varY[i])||(varY[i]==0)){
+				varies=FALSE;
+			}
+		}
+		if(varies==FALSE){
+			stop("			
+There is no variance for some point(s) in the current design.
+Therefore OCBA cannot be used. Possible reasons are a target 
+function without noise, or the design points are not repeated.
+SPOT with OCBA makes only sense if the target function is noisy.
+If a non noisy function is used, the default settings should 
+be adopted,	as described in the help of spot() or spotOptim().
+That means: either use spot.ocba=FALSE, or set the repeats
+(init.design.repeats) to values larger
+than 1.
+
+The current variance vector for the design points is: 
+",paste(varY," "))
+		}
+	}	
+	
+	#####################################################
+	#####################################################
 	#####################################################
 	## (1) Here it is most important to cover a broad area of 
 	## the search space, so Latin hypercube designs are preferred to factorial designs.
 	## The user can specify what ever he wants...
 	if(!exists(spotConfig$seq.design.func))stop(paste("The design function name", spotConfig$seq.design.func, "is not found in the workspace \n
 		Please make sure to load the design function in the workspace, or specify the correct function in spotConfig$seq.design.func"))
-	largeDesign <- (eval(call(spotConfig$seq.design.func, 
+	if(spotConfig$seq.design.size==0)
+		largeDesign <- NULL
+	else
+		largeDesign <- (eval(call(spotConfig$seq.design.func, 
 								spotConfig, 
 								spotConfig$seq.design.size, 
 								spotConfig$seq.design.retries)));
 	#print(largeDesign)
+			
+	#####################################################
+	#####################################################
 	#####################################################
 	### (2) Fit the prediction model and generate new sample points:
 	### x contains input, y output values
@@ -93,23 +134,39 @@ spotGenerateSequentialDesign <- function(spotConfig) {
                                         , mergedB
                                         , largeDesign
                                          , spotConfig));
-		
-	##################################################
+
+	#####################################################
+	#####################################################	
+	#####################################################
     ## (2b) If desired, optimize fit(s) returned by prediction model(s)
 	if (!is.na(spotConfig$seq.predictionOpt.func)){
 		spotConfig <- eval(call(spotConfig$seq.predictionOpt.func
 											, largeDesign #for start point of optimization	
 											, spotConfig));
-		largeDesign <-  as.data.frame(rbind(spotConfig$optDesign, as.matrix(largeDesign)),row.names=FALSE); 
-		spotConfig$seq.largeDesignY <-  as.data.frame(rbind(spotConfig$optDesignY, as.matrix(spotConfig$seq.largeDesignY)),row.names=FALSE);  #TODO: check where largeDesignY is used, and if it is used correctly!
+		
+		if(is.null(largeDesign)){
+			largeDesign <- as.data.frame(spotConfig$optDesign)
+			spotConfig$seq.largeDesignY	<- as.data.frame(spotConfig$optDesignY)	
+		}else{
+			largeDesign <-  as.data.frame(rbind(spotConfig$optDesign, as.matrix(largeDesign)),row.names=NULL); 
+			spotConfig$seq.largeDesignY <-  as.data.frame(rbind(spotConfig$optDesignY, as.matrix(spotConfig$seq.largeDesignY)),row.names=NULL);  #TODO: check where largeDesignY is used, and if it is used correctly!
+		}
 		spotConfig$optDesignY<-NULL
 		spotConfig$optDesign<-NULL
 	}
 	names(largeDesign)<- row.names(spotConfig$alg.roi);	
 	#names(spotConfig$seq.largeDesignY)<-spotConfig$alg.resultColumn
-	
+
+	mcosort=TRUE
+	if(is.null(ncol(spotConfig$seq.largeDesignY))){
+		mcosort=FALSE
+	}else{
+		mcosort=if(ncol(spotConfig$seq.largeDesignY)==1){FALSE}else{TRUE}	
+	}	
+
 	#now sort the largeDesign, to select only best points for next evaluation
-	if(length(spotConfig$alg.resultColumn)>1){ #in case of multi criteria spot: "sort" large design by hypervolume contribution nds rank
+	if(length(spotConfig$alg.resultColumn)>1 & mcosort){ # only do this if mco (first condition) and model returns multiple objectives (second). Second will not be TRUE if a multi criteria based expected improvement is used, because this merges objectives into one
+	#	in case of multi criteria spot: "sort" large design by hypervolume contribution nds rank
 		#if(spotConfig$seq.mco.infill=="sort"){
 		#	largeDesign <- spotMcoSort(largeDesign,spotConfig$seq.largeDesignY,spotConfig$seq.design.new.size)} #TODO only largedesign not largedesignY is sorted. For future applications might be needed to sort both
 		#if(spotConfig$seq.mco.infill=="fill"){
@@ -118,93 +175,47 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 								, spotConfig
                                 , spotConfig$seq.modelFit 
 								))$seq.largeDesignY
-			largeDesign <- spotMcoInfill(largeDesign,spotConfig$seq.largeDesignY,spotConfig$seq.design.new.size, mergedData$x,mergY)
+								
+			if(spotConfig$seq.mco.selection=="hypervol"){					
+				largeDesign <- spotMcoSelectionHypervol(largeDesign,spotConfig$seq.largeDesignY,spotConfig$seq.design.new.size, mergedData$x,mergY,spotConfig$mco.refPoint)}
+			if(spotConfig$seq.mco.selection=="tournament1"){	
+				warning("Tournament selection with tournament1 is not recommended. Use hypervol or tournament2 for better results.")
+				if(is.null(spotConfig$seq.mco.tournsize)){spotConfig$seq.mco.tournsize=1}				
+				largeDesign <- spotMcoCrowdTournament(largeDesign,spotConfig$seq.largeDesignY,spotConfig$seq.mco.tournsize,spotConfig$seq.design.new.size)
+			}
+			if(spotConfig$seq.mco.selection=="tournament2"){					
+				if(is.null(spotConfig$seq.mco.tournsize)){spotConfig$seq.mco.tournsize=1}				
+				largeDesign <- spotMcoTournament(largeDesign,spotConfig$seq.largeDesignY,spotConfig$seq.mco.tournsize,spotConfig$seq.design.new.size)
+			}		
 		#}
 	}else{ #in case of single criteria spot: sort large design by criteria value
 		largeDesign <-  as.data.frame(largeDesign[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
 		#spotConfig$seq.largeDesignY <-  as.data.frame(spotConfig$seq.largeDesignY[order(spotConfig$seq.largeDesignY,decreasing=FALSE),]);
 	}	
-	
-	largeDesignEvaluated <- as.data.frame(largeDesign[1:spotConfig$seq.design.new.size,]); #limit to set design size
-	spotPrint(spotConfig$io.verbosity,1,largeDesignEvaluated)	
+	maxpoints <- min(nrow(largeDesign),spotConfig$seq.design.new.size)
+	largeDesignEvaluated <- as.data.frame(largeDesign[1:maxpoints,,drop=FALSE]); #limit to set design size, or to maximum available
 
-	##################################################
+    spotPrint(spotConfig$io.verbosity,3,"largeDesignEvaluated:")
+	spotPrint(spotConfig$io.verbosity,3,largeDesignEvaluated)
+
+	#####################################################
+	#####################################################
+	#####################################################
     ## (3) Adaptation of the number of repeats and
     ## (4) Combination of old (which should be re-evaluated)  and new design points 
-	#browser()
-	selection <- order(mergedData$mergedY)[1:spotConfig$seq.design.oldBest.size];
-	selectedData=as.data.frame(mergedData$x[selection,]) #MZ: Bugfix for 1 dimensional optimization
-	names(selectedData)= row.names(spotConfig$alg.roi); #MZ: Bugfix for 1 dimensional optimization
-	oldD <- cbind(selectedData #MZ: Bugfix for 1 dimensional optimization
-			, CONFIG = mergedData$CONFIG[selection]           
-			, repeatsInternal = mergedData$count[selection]
-			, repeatsLastConfig = mergedData$count[max(mergedData$CONFIG)] # holds the number of repeats used for the last configuration of the last step...
-	)
-	## new, increased number of experiments
-	## definable increase function is used - see  seq.design.increase.func in spotGetOptions 
-	if(!exists(spotConfig$seq.design.increase.func))stop(paste("The design increase function name", spotConfig$seq.design.increase.func, "is not found in the workspace \n
-		Please make sure to load the design increase function in the workspace, or specify the correct function in spotConfig$seq.design.increase.func" ))
-	totalWanted<-(eval(call(spotConfig$seq.design.increase.func, 
-								max(oldD$repeatsLastConfig))));
-	
-	## seq.design.maxRepeats is the upper bound, so the increasing repeats are limited to that maximum 
-	totalWanted <- min(totalWanted,
-			spotConfig$seq.design.maxRepeats, 
-			na.rm=TRUE);	
-
-	## now calculate the number of repeats for those configurations, that were 
-	## already evaluated before - but perhaps not with less repeats, so some repeats are 
-	## to be done NOW (but not the same as for the new configurations)
-	oldD$repeatsInternal <- totalWanted - oldD$repeatsInternal; 
-	
-	## The following might cause problems for the aroi configurations, so continue at 
-	## label [BUXFIX1].
-	##
-	## Handling of:
-	## spotConfig$seq.design.new.size > nrow(largeDesignEvaluated)
-	## This problem might occur if
-	## the meta model predicts less candidate points than
-	## spotConfig$seq.design.new.size
-	## additionalConfigNumbers <- min(spotConfig$seq.design.new.size, nrow(largeDesignEvaluated))
-	##
-	## [BUGFIX1]
-    #additionalConfigNumbers <- nrow(largeDesignEvaluated)
-	newCONFIG <- max(mergedData$CONFIG) + 1:nrow(largeDesignEvaluated);
-	newD <- cbind(  largeDesignEvaluated
-			, CONFIG = newCONFIG
-			, repeatsInternal = totalWanted
-			, repeatsLastConfig= totalWanted);
-	## if old design points have to be evaluated:
-	if (sum(oldD$repeatsInternal,na.rm=TRUE) > 0){
-		design <- rbind(oldD,newD);
-	}
-	## otherwise take the new design points only:
-	else{
-		design <- newD
-	}
-	## now replace the internal identifier with the correct one from spotConfig
-	colnames(design)[colnames(design)=="repeatsInternal"] <-"REPEATS";
-	## append column with current step
-	design <- cbind(design,mergedData$step.last + 1);
-	colnames(design)[ncol(design)] <- "STEP";
-	## all configurations start with the same seed, automatically increased for each repeat
-	## the OLD configurations that are to be calculated again, but with only the missing numbers 
-	## of repeats are starting with 
-	## alg.seed + <numberOfRepeatsAlreadyEvaluatedForThisConfiguration>
-	## or as stated below: alg.seed PLUS (totalWanted MINUS missingRepeatsForThisConfiguration)
-	## SEED<-spotConfig$alg.seed+totalWanted-design["REPEATS"]
-	## [BUGFIX2]
-	SEED<-spotConfig$alg.seed+totalWanted-design[,"REPEATS"]
-	design <- cbind(design,SEED);
-	## is the following necessary?
-	colnames(design)[ncol(design)] <- "SEED";
-	#
+	if (spotConfig$spot.ocba == TRUE){
+		design <- spotRepeatsOcba(spotConfig,mergedData,largeDesignEvaluated)
+	}else{		
+		design <- spotRepeats(spotConfig,mergedData,largeDesignEvaluated)
+	}	
+	### finally write some screen output
+	spotPrint(spotConfig$io.verbosity,2,"design:")
+	spotPrint(spotConfig$io.verbosity,2,design)	
 	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving generateSequentialDesign");
 	## write the design to the .des-file	
 	if (spotConfig$spot.fileMode){
 		spotWriteDes(design,spotConfig$io.verbosity,spotConfig$io.columnSep,spotConfig$io.desFileName)	
-	}#else{
+	}
 	spotConfig$alg.currentDesign<-design;		
-	#}
-	return(spotConfig);
+	spotConfig
 }

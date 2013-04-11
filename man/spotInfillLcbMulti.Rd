@@ -1,0 +1,24 @@
+\name{spotInfillLcbMulti}
+\alias{spotInfillLcbMulti}
+\title{Lower Confidence Bound Infill Criterion}
+\usage{
+  spotInfillLcbMulti(resy, resvar, y, ref = NULL)
+}
+\arguments{
+  \item{resy}{predicted objective values}
+
+  \item{resvar}{predicted variance}
+
+  \item{y}{the current Pareto front}
+
+  \item{ref}{unused}
+}
+\value{
+  returns the LCB for each row and column in resy.
+}
+\description{
+  Calculate lower confidence bound for all objectives and
+  all observations. Also used
+  by\code{\link{spotInfillLcbHyperVolume}}.
+}
+

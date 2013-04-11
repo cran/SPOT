@@ -1,11 +1,11 @@
 
 ###################################################################################################
-#' esOptim: optim-like ES interface
+#' spotOptimEs: optim-like ES interface
 #'
 #' This is an interface to the Evolution Strategy used as a target algorithm by some SPOT demos. It is build
 #' like the \code{\link{optim}} interface.
 #' 
-#' @param par is a point in search intervall (defines dimension)
+#' @param par is a point in search interval (defines dimension)
 #' @param fn is the target function
 #' @param gr gradient function, not used by this function
 #' @param ... additional parameters to be passed on to \code{fn}
@@ -46,7 +46,7 @@
 #' @return This function returns a list with:\cr
 #'	\code{par} parameters of the found solution\cr
 #'	\code{value} target function value of the found solution\cr
-#	\code{convergence} inidicates successfull completion when \code{0}\cr
+#	\code{convergence} indicates successful completion when \code{0}\cr
 #	\code{message}\cr
 #	\code{hessian}\cr
 #
@@ -54,7 +54,7 @@
 #'
 #' @export
 ###################################################################################################
-esOptim <- function(par #only for dimension TODO add par to start population
+spotOptimEs <- function(par #only for dimension TODO add par to start population
                       , fn
                       , gr=NULL
 					  , ...
@@ -68,7 +68,7 @@ esOptim <- function(par #only for dimension TODO add par to start population
 		mue = 10,
 		nu = 10,
 		#dimension = 2,
-		mutation = "selfA",
+		mutation = 2,
 		sigmaInit = 1.0,
 		nSigma = 1,
 		tau0 = 0.0,
@@ -92,16 +92,16 @@ esOptim <- function(par #only for dimension TODO add par to start population
 		term="iter",
 		sigmaRestart = 0.1,
 		preScanMult= 1);
-	con[(namc <- names(control))] <- control;
+	con[(namc <- names(control))] <- control
 	control<-con;
 
 	if(is.null(control$maxIter)){
-		control$maxIter<-control$maxit;
+		control$maxIter<-control$maxit
 	}
 	
 	dimension=length(par)
 	if(is.null(control$globalOpt)){
-		control$globalOpt<-rep(0,dimension);
+		control$globalOpt<-rep(0,dimension)
 	}
 
 
@@ -141,5 +141,6 @@ esOptim <- function(par #only for dimension TODO add par to start population
 	result$value <- esResult$Y #TODO Y is real best, what about noisy value in case of noisy functions, or functions where noise is unknown?
 	#result$counts <- #TODO log counts
 	result$convergence <- 0 # 0 indicates successful completion	
-	return(result)
+	result$counts <- esResult$counts #number of function evaluations
+	result
 }

@@ -17,9 +17,9 @@
 #' @keywords internal
 ###################################################################################################
 spotFuncStartSixHump <- function(spotConfig){
-	pdFile=spotConfig$io.apdFileName;
-	resFileName=spotConfig$io.resFileName;	
-	desFileName=spotConfig$io.desFileName;	
+	pdFile=spotConfig$io.apdFileName
+	resFileName=spotConfig$io.resFileName
+	desFileName=spotConfig$io.desFileName
 	if(is.null(spotConfig$spot.noise)){spotConfig$spot.noise=10.0}
 	if(is.null(spotConfig$spot.noise.type)){spotConfig$spot.noise.type="weighted"}
 	if(is.null(spotConfig$spot.noise.minimum.at.value)){spotConfig$spot.noise.minimum.at.value=0.0}
@@ -27,51 +27,50 @@ spotFuncStartSixHump <- function(spotConfig){
 	## weighted: y = y + y * noiseValue / 100
 	## constant: y = y + noiseValue
 		
-	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
-		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr());
+	if (spotConfig$spot.fileMode){ 
+		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr())
 		## read doe/dace etc settings:
-		des <- read.table(desFileName, sep=" ", header = TRUE);	
+		des <- read.table(desFileName, sep=" ", header = TRUE)
 	}else{
-		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
+		des <- spotConfig$alg.currentDesign
 	}
-	spotPrint(spotConfig$io.verbosity,1,summary(des));
-	spotWriteLines(spotConfig$io.verbosity,1,"spotFuncStartSixHump...", con=stderr());
+	spotPrint(spotConfig$io.verbosity,1,summary(des))
+	spotWriteLines(spotConfig$io.verbosity,1,"spotFuncStartSixHump...", con=stderr())
 	spotPrint(spotConfig$io.verbosity,1,pdFile)
 	#default Values that can be changed with apd file
-	noise<-spotConfig$spot.noise;
-	noise.type <- spotConfig$spot.noise.type;
-	spot.noise.minimum.at.value <- spotConfig$spot.noise.minimum.at.value;
+	noise<-spotConfig$spot.noise
+	noise.type <- spotConfig$spot.noise.type
+	spot.noise.minimum.at.value <- spotConfig$spot.noise.minimum.at.value
 	f<-"SixHump"
-	n<-2;
+	n<-2
 	## read problem design file
 	if(file.exists(pdFile)){
 		source(pdFile,local=TRUE)
 	}
 	##  VARX1 VARX2 REPEATS SEED
-	config<-nrow(des);
-	spotPrint(spotConfig$io.verbosity,1,config);
-	attach(des)	
+	config<-nrow(des)
+	spotPrint(spotConfig$io.verbosity,1,config)
 	for (k in 1:config){
 		for (i in 1:des$REPEATS[k]){
 			##
-			if (exists("VARX1")){
+			if (!is.null(des$VARX1)){
 				x1 <- des$VARX1[k]
 			}
-			if (exists("VARX2")){
+			if (!is.null(des$VARX2)){
 				x2 <- des$VARX2[k]
 			}
 			conf <- k
-			if (exists("CONFIG")){
+			if (!is.null(des$CONFIG)){
 				conf <- des$CONFIG[k]
 			}
-			if (exists("STEP")){
+			if (!is.null(des$STEP)){
 				step <- des$STEP[k]
 			}
 			seed <- des$SEED[k]+i-1			
 			spotPrint(spotConfig$io.verbosity,1,c("Config:",k ," Repeat:",i))
 			y <- spotSixHumpFunction(c(x1,x2))
 			## add noise
-			y <- y + spotCalcNoise(y, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value);
+			y <- y + spotCalcNoise(y, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value)
 			spotPrint(spotConfig$io.verbosity,1,y)
 			res <- NULL
 			res <- list(Y=y,					
@@ -81,8 +80,7 @@ spotFuncStartSixHump <- function(spotConfig){
 					DIM=n,
 					STEP=step,
 					SEED=seed,
-					CONFIG=conf
-			)
+					CONFIG=conf)
 			res <-data.frame(res)
 			if (spotConfig$spot.fileMode){ ##Log the result in the .res file, only if user didnt set fileMode==FALSE
 				colNames = TRUE
@@ -96,15 +94,13 @@ spotFuncStartSixHump <- function(spotConfig){
 						, col.names = colNames
 						, sep = " "              
 						, append = !colNames
-						, quote = FALSE
-				);		
+						, quote = FALSE)		
 			}
-			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res);							
+			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res)							
 		}			
 	}	
-	detach(des)
-        spotWriteLines(spotConfig$io.verbosity,1,"Leaving spotFuncStartSixHump...", con=stderr());
-	return(spotConfig)
+    spotWriteLines(spotConfig$io.verbosity,1,"Leaving spotFuncStartSixHump...", con=stderr())
+	spotConfig
 }
 #
 #	

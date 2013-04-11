@@ -2,7 +2,7 @@
 \alias{spotAlgEs}
 \title{Evolution Strategy Implementation}
 \usage{
-  spotAlgEs(mue = 10, nu = 10, dimension = 2, mutation = 1,
+  spotAlgEs(mue = 10, nu = 10, dimension = 2, mutation = 2,
     sigmaInit = 1, nSigma = 1, tau0 = 0, tau = 1,
     rho = "bi", sel = -1, stratReco = 1, objReco = 2,
     maxGen = Inf, maxIter = 100, seed = 1, noise = 0,
@@ -29,10 +29,12 @@
   \item{nSigma}{number of standard deviations, default is
   \code{1}}
 
-  \item{tau0}{number, default is \code{0.0}}
+  \item{tau0}{number, default is \code{0.0}. tau0 is the
+  general multiplier.}
 
   \item{tau}{number, learning parameter for self adaption,
-  default is \code{1.0}}
+  default is \code{1.0}. tau is the local multiplier for
+  step sizes (for each dimension).}
 
   \item{rho}{number of parents involved in the procreation
   of an offspring (mixing number), default is \code{"bi"}}

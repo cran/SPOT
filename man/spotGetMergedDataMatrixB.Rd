@@ -23,10 +23,11 @@
   The merged data that are the result of
   \code{\link{spotPrepareData}}must be the first input
   parameter These data prepared and results in "Matrix B"
-  that consits of the y-vector of the results and the
+  that consists of the y-vector of the results and the
   x-Matrix of inputs that are bound together to a matrix B
 }
 \seealso{
   \code{\link{spotPrepareData}}
 }
+\keyword{internal}
 

@@ -16,7 +16,7 @@
 \description{
   Third SPOT Step to generate a sequential new design, this
   is mainly a call of
-  \code{\link{spotGenerateSequentialDesignOcba}}
+  \code{\link{spotGenerateSequentialDesign}}
 }
 \details{
   Creates a sequential design based on the results derived

@@ -1,0 +1,20 @@
+\name{spotInfillLcbSingle}
+\alias{spotInfillLcbSingle}
+\title{Single objective lower confidence bound}
+\usage{
+  spotInfillLcbSingle(mean, sd, min)
+}
+\arguments{
+  \item{mean}{predicted mean values}
+
+  \item{sd}{predicted st. deviation}
+
+  \item{min}{the currently known optimum value}
+}
+\value{
+  Returns the difference of mean and sd
+}
+\description{
+  LCB=mean-sd
+}
+

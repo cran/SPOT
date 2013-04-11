@@ -1,0 +1,28 @@
+\name{spotMcoTournament}
+\alias{spotMcoTournament}
+\title{Pareto Tournament}
+\usage{
+  spotMcoTournament(largeDesign, designY, tsize, ssize)
+}
+\arguments{
+  \item{largeDesign}{the design matrix in the parameter
+  space, to be sorted by the associated y-values for each
+  objective}
+
+  \item{designY}{objective value matrix. Contains objective
+  values associated to largeDesign}
+
+  \item{tsize}{tournament size (percentage of large design
+  in values between zero and one)}
+
+  \item{ssize}{selection size number of points that will be
+  selected in SPOT, lower bound for absolute tsize}
+}
+\value{
+  largeDesign \cr - The sorted large design
+}
+\description{
+  Experimental, do not use
+}
+\keyword{internal}
+

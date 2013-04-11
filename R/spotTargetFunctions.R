@@ -24,16 +24,16 @@
 #' spotBraninFunction:\cr
 #' Two dimensional Branin function implementation, 3 global optima, see also: \url{http://www.it.lut.fi/ip/evo/functions/node27.html} \cr \cr
 #' spotWildFunction: \cr
-#' Another test functions, y=10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
+#' Another test function, y=10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
 #' 
 #'
 #' @name Testfunctions
 #' @usage spotSphereFunction(x); spotSphere1Function(x); spotSixHumpFunction(x); spotRosenbrockFunction(x); spotRosenbrockGradientFunction(x); spotRastriginFunction(x); spotMexicanHatFunction(x); spotBraninFunction(x); spotWildFunction(x);
 #'			
-#' @param x	vector that will be evauluated by the testfunction
+#' @param x	vector that will be evaluated by the test-function
 #'
 #' @return number \code{y} \cr
-#' - \code{y} is the value of the corresponding \code{x} vector
+#' - \code{y} is the response value of the corresponding \code{x} vector
 #'
 #' @seealso \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}}
 #' @export spotSphereFunction spotSphere1Function  spotSixHumpFunction spotRosenbrockFunction spotRosenbrockGradientFunction spotRastriginFunction spotMexicanHatFunction spotBraninFunction spotWildFunction
@@ -42,24 +42,20 @@
 #'		spotMexicanHatFunction spotBraninFunction spotWildFunction
 ###################################################################################################
 spotSphereFunction <- function (x) {
-	y <- sum(x^2)
-	return(y)
+	sum(x^2)
 }
 spotSixHumpFunction <- function (x) {
 	x1 <- x[1] 
 	x2 <- x[2]	
-	y<-(4-2.1*x1^2+x1^4/3)*x1^2+x1*x2+(-4+4*x2^2)*x2^2	
-	return(y)
+	(4-2.1*x1^2+x1^4/3)*x1^2+x1*x2+(-4+4*x2^2)*x2^2	
 }
 spotRosenbrockFunction <- function (x) {
-  x1 <- x[1]
-  x2 <- x[2]
-  y <- ((1-x1)^2)+(100*((x2-(x1^2))^2))
-  return(y)
+	x1 <- x[1]
+	x2 <- x[2]
+	((1-x1)^2)+(100*((x2-(x1^2))^2))
 }
 spotRastriginFunction <- function (x) {  
-  y<-sum(((x^2) - (cos(x*pi*2)*10))) + 10*length(x)
-  return(y)
+	sum(((x^2) - (cos(x*pi*2)*10))) + 10*length(x)
 }
 spotMexicanHatFunction <- function (x) {	
 	x1 <- x[1] 
@@ -71,22 +67,22 @@ spotMexicanHatFunction <- function (x) {
 	else
 		{y<- sin(distance) / distance}
 		
-	return(y)       
+	y
 }
 spotBraninFunction <- function (x) {	
 	x1 <- x[1] 
 	x2 <- x[2] 
-	y <- (x2 - 5.1/(4 * pi^2) * (x1^2) + 5/pi * x1 - 6)^2 + 10 * (1 - 1/(8 * pi)) * cos(x1) + 10
-    return(y)	
+	(x2 - 5.1/(4 * pi^2) * (x1^2) + 5/pi * x1 - 6)^2 + 10 * (1 - 1/(8 * pi)) * cos(x1) + 10
 }
+
 spotWildFunction <- function (x){
-	res <- 10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80  
+	10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80  
 }
+
 spotRosenbrockGradientFunction <- function(x) {
 	x1 <- x[1]
 	x2 <- x[2]
-	c(-400 * x1 * (x2 - x1 * x1) - 2 * (1 - x1),
-			200 *      (x2 - x1 * x1))
+	c(-400 * x1 * (x2 - x1 * x1) - 2 * (1 - x1), 200 * (x2 - x1 * x1))
 }
 spotSphere1Function <- function(x){
 	sum <- 0

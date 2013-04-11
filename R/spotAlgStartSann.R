@@ -21,10 +21,13 @@
 #' @export
 ###################################################################################################
 spotAlgStartSann <- function(spotConfig){
-	SAVESEED<-.Random.seed
-	io.apdFileName=spotConfig$io.apdFileName;
-	io.desFileName=spotConfig$io.desFileName;
-	io.resFileName=spotConfig$io.resFileName;	
+	if(exists(as.character(substitute(.Random.seed))))
+		SAVESEED<-.Random.seed
+	else
+		SAVESEED=NULL
+	io.apdFileName=spotConfig$io.apdFileName
+	io.desFileName=spotConfig$io.desFileName
+	io.resFileName=spotConfig$io.resFileName
 	#default Values that can be changed with apd file
 	func<-if(is.null(spotConfig$apd.func)){spotBraninFunction}else{spotConfig$apd.func}
   x1<-if(is.null(spotConfig$apd.x0)){c(10,10)}else{spotConfig$apd.x0}#either start point for optim, or NA for random startpoint
@@ -39,17 +42,17 @@ spotAlgStartSann <- function(spotConfig){
 		source(io.apdFileName,local=TRUE)
 	}
 	else{
-		spotWriteLines(spotConfig$io.verbosity,1,"apd File not found, defaults and conf file used");
+		spotWriteLines(spotConfig$io.verbosity,1,"apd File not found, defaults and conf file used")
 	}	
-	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
-		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  io.desFileName), con=stderr());
+	if (spotConfig$spot.fileMode){ 
+		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  io.desFileName), con=stderr())
 		## read doe/dace etc settings:
-		des <- read.table( io.desFileName, sep=" ", header = TRUE);	
+		des <- read.table( io.desFileName, sep=" ", header = TRUE)
 	}else{
-		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
+		des <- spotConfig$alg.currentDesign
 	}		
-	pNames <- names(des);	
-	config<-nrow(des);	
+	pNames <- names(des)
+	config<-nrow(des)
 	for (k in 1:config){
 		for (i in 1:des$REPEATS[k]){
 			if (is.element("TEMP", pNames)){
@@ -83,14 +86,15 @@ spotAlgStartSann <- function(spotConfig){
 					colNames = FALSE
 				}				
 				write.table(res, file = io.resFileName, row.names = FALSE, 
-					col.names = colNames, sep = " ", append = !colNames, quote = FALSE);
+					col.names = colNames, sep = " ", append = !colNames, quote = FALSE)
 				colNames = FALSE					
 			}
-			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res);#always log the results in spotConfig			
+			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res)#always log the results in spotConfig			
 		}
 	}	
-	assign(".Random.seed", SAVESEED, envir=globalenv()); 
-	return(spotConfig)
+	if(!is.null(SAVESEED))
+		assign(".Random.seed", SAVESEED, envir=globalenv())
+	spotConfig
 }
 
 ###################################################################################################
@@ -102,7 +106,7 @@ spotAlgStartSann <- function(spotConfig){
 #' This function is needed as an interface, to ensure the right information
 #' are passed from SPOT to the target algorithm(e.g. the SANN) and vice versa.
 #' In contrast to \code{\link{spotAlgStartSann}} it is an interface for Pareto optimization, to optimize both the
-#' performance as well as the variance of the SANN algorithm, to proposedly reach more robust results.
+#' performance as well as the variance of the SANN algorithm, to reach more robust results.
 #'
 #' @param spotConfig Contains the list of spot configurations, results of the algorithm can be passed to this list instead of the .res file.
 #'		  spotConfig defaults to "NA", and will only be passed to the Algorithm if spotConfig$spot.fileMode=FALSE. See also: \code{\link{spotGetOptions}}
@@ -118,11 +122,14 @@ spotAlgStartSann <- function(spotConfig){
 #' @export
 ###################################################################################################
 spotAlgStartSannVar <- function(spotConfig){
-	SAVESEED<-.Random.seed
+	if(exists(as.character(substitute(.Random.seed))))
+		SAVESEED<-.Random.seed
+	else
+		SAVESEED=NULL
 	spotConfig$alg.resultColumn=c("Y", "Ysd")
-	io.apdFileName=spotConfig$io.apdFileName;
-	io.desFileName=spotConfig$io.desFileName;
-	io.resFileName=spotConfig$io.resFileName;	
+	io.apdFileName=spotConfig$io.apdFileName
+	io.desFileName=spotConfig$io.desFileName
+	io.resFileName=spotConfig$io.resFileName
 	#default Values that can be changed with apd file
 	func<-if(is.null(spotConfig$apd.func)){spotBraninFunction}else{spotConfig$apd.func}
 	x1<-if(is.null(spotConfig$apd.x0)){c(10,10)}else{spotConfig$apd.x0}
@@ -137,17 +144,17 @@ spotAlgStartSannVar <- function(spotConfig){
 		source(io.apdFileName,local=TRUE)
 	}
 	else{
-		spotWriteLines(spotConfig$io.verbosity,1,"apd File not found, defaults used");
+		spotWriteLines(spotConfig$io.verbosity,1,"apd File not found, defaults used")
 	}
-	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
-		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  io.desFileName), con=stderr());
+	if (spotConfig$spot.fileMode){ 
+		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  io.desFileName), con=stderr())
 		## read doe/dace etc settings:
-		des <- read.table( io.desFileName, sep=" ", header = TRUE);	
+		des <- read.table( io.desFileName, sep=" ", header = TRUE)
 	}else{
-		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
+		des <- spotConfig$alg.currentDesign
 	}			
-	pNames <- names(des);	
-	config<-nrow(des);
+	pNames <- names(des)
+	config<-nrow(des)
 	for (k in 1:config){
 		for (i in 1:des$REPEATS[k]){
 			if (is.element("TEMP", pNames)){
@@ -187,11 +194,10 @@ spotAlgStartSannVar <- function(spotConfig){
 		}				
 		write.table(spotConfig$alg.currentResult[which(spotConfig$alg.currentResult$STEP==spotStep),],
 					file = io.resFileName, row.names = FALSE, 
-					col.names = colNames, sep = " ", append = !colNames, quote = FALSE);
+					col.names = colNames, sep = " ", append = !colNames, quote = FALSE)
 		colNames = FALSE					
 	}
-	#browser()
-	#.Random.seed<-SAVESEED
-	assign(".Random.seed", SAVESEED, envir=globalenv()); 
-	return(spotConfig)
+	if(!is.null(SAVESEED))
+		assign(".Random.seed", SAVESEED, envir=globalenv())
+	spotConfig
 }

@@ -1,0 +1,25 @@
+\name{spotReportMAMP}
+\alias{spotReportMAMP}
+\title{MAMP Model Report}
+\usage{
+  spotReportMAMP(spotConfig)
+}
+\arguments{
+  \item{spotConfig}{the configuration list of all spot
+  parameters}
+}
+\value{
+  list spotConfig with changed values
+}
+\description{
+  This function does a random effects model analysis of a
+  SPOT run, using the lme4 package. It is supposed to be
+  used for the case of Multiple Algorithms Multiple
+  Problems. The SPOT demo 22 provides a simple example for
+  mixed model analysis. Call for the demo is:
+  \code{demo(spotDemo22MixedModelMAMP,ask=F)}.
+}
+\seealso{
+  \code{\link{spotReportSAMP}} \code{\link{spotStepReport}}
+}
+

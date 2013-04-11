@@ -18,12 +18,12 @@
     spotBraninFunction(x); spotWildFunction(x);
 }
 \arguments{
-  \item{x}{vector that will be evauluated by the
-  testfunction}
+  \item{x}{vector that will be evaluated by the
+  test-function}
 }
 \value{
-  number \code{y} \cr - \code{y} is the value of the
-  corresponding \code{x} vector
+  number \code{y} \cr - \code{y} is the response value of
+  the corresponding \code{x} vector
 }
 \description{
   The following target functions are available:\cr \cr
@@ -50,7 +50,7 @@
   spotBraninFunction:\cr Two dimensional Branin function
   implementation, 3 global optima, see also:
   \url{http://www.it.lut.fi/ip/evo/functions/node27.html}
-  \cr \cr spotWildFunction: \cr Another test functions,
+  \cr \cr spotWildFunction: \cr Another test function,
   y=10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
 }
 \seealso{

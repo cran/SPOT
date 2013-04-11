@@ -1,0 +1,16 @@
+citHeader("To cite SPOT in publications use:")
+
+citEntry(entry="Techreport",
+         title = "A Gentle Introduction to Sequential Parameter Optimization",
+         author = personList(person(family="Bartz-Beielstein", given="Thomas"),
+	                     person(family="Zaefferer", given="Martin")),
+		 journal = "CIplus",
+		 number = "2",
+		 institution = "Bibliothek der Fachhochschule Koeln",
+         year         = "2012",
+         url          = "http://opus.bsz-bw.de/fhk/volltexte/2012/19",
+         textVersion = paste("T. Bartz-Beielstein and M. Zaefferer (2012). ", 
+               "A Gentle Introduction to Sequential Parameter Optimization. ",
+               "CIplus 2/2012. Bibliothek der Fachhochschule Koeln. ",
+               sep=""))
+

@@ -7,39 +7,56 @@ LazyLoad: yes
 Author: T. Bartz-Beielstein with contributions from: J. Ziegenhirt, W.
         Konen, O. Flasch, M. Friese, P. Koch, M. Zaefferer, B. Naujoks
 Description: R-Package for Sequential Parameter Optimization Toolbox
-Version: 1.0.2662
+Version: 1.0.4045
 URL:
         http://www.gm.fh-koeln.de/campus/personen/lehrende/thomas.bartz-beielstein/00489/
-Date: 05.11.2012
+Date: 11.04.2013
 Depends: R (>= 2.14.0), rpart, emoa
-Suggests: rsm, earth, DiceKriging, kernlab, penalizedSVM, qrnn, mlegp,
-        tgp, randomForest, fields, FrF2, DoE.wrapper, AlgDesign, lhs,
-        cmaes, pso, rgenoud, DEoptim, subplex, minqa, rgl, rgp,
-        twiddler, mco, MASS, gtools
-Collate: 'sms_emoa.r' 'spot.R' 'spotAlgStartEs.R' 'spotAlgStartRgp.R'
-        'spotAlgStartSann.R' 'spotCreateDesignBasicDoe.R'
-        'spotCreateDesignDoeR3.R' 'spotCreateDesignFrF2.R'
-        'spotCreateDesignLhd.R' 'spotCreateDesignLhs.R'
-        'spotFuncStartBranin.R' 'spotFuncStartMexicanHat.R'
-        'spotFuncStartRastrigin.R' 'spotFuncStartRosenbrock.R'
-        'spotFuncStartSixHump.R' 'spotFuncStartSphere.R'
-        'spotFuncTools.R' 'spotGenerateSequentialDesign.R'
-        'spotGenerateSequentialDesignOcba.R' 'spotGetOptions.R'
-        'spotMeta.R' 'spotOcba.R' 'spotOptim.R' 'spotPlot.R'
+Suggests: AlgDesign, BB, cmaes, DEoptim, dfoptim, DiceKriging,
+        DoE.wrapper, earth, fields, FrF2, GenSA, ggplot2, gtools,
+        lattice, lhs, lme4, MASS, mco, minqa, mlegp, monmlp, nloptr,
+        kernlab, penalizedSVM, pso, qrnn, randomForest, rgenoud, rgl,
+        rgp, rsm, tgp, twiddler
+Collate: 'sms_emoa.r' 'spot.R' 'spotCreateDesignBasicDoe.R'
+        'spotCreateDesignFrF2.R' 'spotCreateDesignLhd.R'
+        'spotCreateDesignLhs.R' 'spotCreateDesignLhsOpt.R'
+        'spotGenerateSequentialDesign.R' 'spotGetOptions.R'
+        'spotMcoSort.R' 'spotMeta.R' 'spotOcba.R' 'spotOptim.R'
+        'spotPrepareData.R' 'spotRepeats.R' 'esOptim.R'
+        'spotAlgStartEs.R' 'spotAlgStartRgp.R' 'spotAlgStartSann.R'
+        'spotComparison.R' 'spotEnsembleSingleBLAbern.R'
+        'spotEnsembleSingleBLAnorm.R' 'spotEnsembleSingleEpsGreedy.R'
+        'spotEnsembleSinglePOKER.R' 'spotEnsembleSingleRoundSearch.R'
+        'spotEnsembleSingleSoftMax.R' 'spotEnsembleSingleUCB1.R'
+        'spotExplainInterfaces.R' 'spotFuncStartBranin.R'
+        'spotFuncStartMexicanHat.R' 'spotFuncStartRastrigin.R'
+        'spotFuncStartRosenbrock.R' 'spotFuncStartSixHump.R'
+        'spotFuncStartSphere.R' 'spotFuncTools.R' 'spotGui.R'
+        'spotHelpFunctions.R' 'spotOptimizationFunctions.R'
+        'spotPredictCoForrester.R' 'spotPredictDace.R'
         'spotPredictDice.R' 'spotPredictEarth.R'
+        'spotPredictEnsembleMultiAlternate.R'
+        'spotPredictEnsembleMultiAverage.R'
+        'spotPredictEnsembleMultiChoose.R'
+        'spotPredictEnsembleMultiRank.R'
+        'spotPredictEnsembleMultiRankWeighted.R' 'spotPredictEsvm.R'
         'spotPredictForrester.R' 'spotPredictGausspr.R'
         'spotPredictKrig.R' 'spotPredictKsvm.R' 'spotPredictLm.R'
-        'spotPredictLmOptim.R' 'spotPredictMlegp.R'
-        'spotPredictOptMulti.R' 'spotPredictPsvm.R' 'spotPredictQrnn.R'
-        'spotPredictRandomForest.R' 'spotPredictTest.R'
-        'spotPredictTgp.R' 'spotPredictTree.R' 'spotPrepareData.R'
-        'spotReport3d.R' 'spotReportDefault.R'
-        'spotReportMetaDefault.R' 'spotReportSens.R'
-        'spotTargetFunctions.R' 'spotMcoSort.R' 'spotParetoOptMulti.R'
-        'spotReportContour.R' 'spotComparison.R'
-        'spotExplainInterfaces.R' 'spotGui.R' 'spotHelpFunctions.R'
+        'spotPredictLmFactor.R' 'spotPredictMlegp.R' 'spotPredictMLP.R'
+        'spotPredictQrnn.R' 'spotPredictRandomForest.R'
+        'spotPredictTgp.R' 'spotPredictTree.R'
         'spotSeqDesignIncreaseFunctions.R' 'spotStatistics.R'
-        'esOptim.R' 'spotPredictRandomForestMlegp.R'
-Packaged: 2012-11-05 09:04:49 UTC; Martin
+        'spotTargetFunctions.R' 'spotPlot.R' 'spotReport3d.R'
+        'spotReportContour.R' 'spotReportDefault.R' 'spotReportEarth.R'
+        'spotReportMetaDefault.R' 'spotReportSens.R' 'spotSurf.R'
+        'spotEnsembleFunctions.R' 'spotExpectedImprovement.R'
+        'spotModelSelection.R' 'spotPredictHelpFunctions.R'
+        'spotPredictRandomForestMlegp.R' 'spotPredictTest.R'
+        'spotPredictMCO.R' 'spotReportMAMP.R' 'spotReportSAMP.R'
+        'spotAlgStartEsGlg.R' 'spotModelParetoOptim.R'
+        'spotModelOptim.R' 'spotCreateDesignFactors.R'
+        'spotGaussianLandscapeGenerator.R'
+Packaged: 2013-04-11 11:36:09 UTC; Martin
+NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2012-11-05 10:35:33
+Date/Publication: 2013-04-11 14:00:18

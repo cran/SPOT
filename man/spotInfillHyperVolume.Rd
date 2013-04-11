@@ -1,0 +1,27 @@
+\name{spotInfillHyperVolume}
+\alias{spotInfillHyperVolume}
+\title{MCO Infill Criterion}
+\usage{
+  spotInfillHyperVolume(resy, resvar, y, ref = NULL)
+}
+\arguments{
+  \item{resy}{predicted objective values}
+
+  \item{resvar}{not used}
+
+  \item{y}{the current Pareto front}
+
+  \item{ref}{reference point, if not given will be chosen
+  as maximum of observed values plus one}
+}
+\value{
+  returns the contribution (or penalty) for each row in
+  resy
+}
+\description{
+  Same as \code{\link{spotInfillLcbHyperVolume}}, but
+  without using lower confidence bound. Simply aggregates
+  contributed hypervolumes based on predicted means,
+  penalizing dominated points.
+}
+

@@ -29,8 +29,6 @@ spotMetaFlattenFbsRow<-function(fbsRow) {
   }
   fbsColumnWithoutVectors <- Map(replaceVectorsInFbsColumn, fbsRow, names(fbsRow))
   flatFbsColumn <- Reduce(c, init = list(), fbsColumnWithoutVectors)
-  flatFbsColumnAsCharacter <- Map(as.character, flatFbsColumn)
-  
-  return(flatFbsColumnAsCharacter)
+  Map(as.character, flatFbsColumn)
 }
 

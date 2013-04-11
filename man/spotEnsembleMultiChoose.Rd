@@ -1,0 +1,75 @@
+\name{spotEnsembleMultiChoose}
+\alias{spotEnsembleMultiChoose}
+\title{spotEnsembleMultiChoose}
+\usage{
+  spotEnsembleMultiChoose(rawB, mergedB, design,
+    spotConfig, fit = NULL)
+}
+\arguments{
+  \item{rawB}{unmerged data}
+
+  \item{mergedB}{merged data}
+
+  \item{design}{new design points which should be
+  predicted}
+
+  \item{spotConfig}{global list of all options, needed to
+  provide data for calling functions}
+
+  \item{fit}{if an existing model ensemble fit is supplied,
+  the models will not be build based on data, but only
+  evaluated with the existing fits (on the design data). To
+  build the model, this parameter has to be NULL. If it is
+  not NULL the parameters mergedB and rawB will not be used
+  at all in the function.}
+}
+\value{
+  returns the list \code{spotConfig}
+}
+\description{
+  Choose a model based on feedback\cr This "multi ensemble"
+  (see details) evaluates each models feedback (e.g.
+  error), and the best one is chosen to be used for the
+  determination of new optimal candidate points. In order
+  to allow for randomization, the epsilon parameter can be
+  set to values between 0 and 1, where 1 means completely
+  random (feedback is ignored) and 0 means completely
+  deterministic (choice only dependent on feedback, not
+  random). \cr Relevant configuration parameters of this
+  ensemble are: \cr The function to calculate feedback
+  (e.g. the error) of the models, default is
+  \code{spotConfig$seq.ensemble.feed.func<-spotFeedback.error.full}
+  \cr The function average model predictions, default is
+  \code{spotConfig$seq.ensemble.average.func<-mean} \cr The
+  number of designs created for validation, which should be
+  zero, i.e. \code{spotConfig$seq.ensemble.cut.num <- 0}
+  The epsilon parameter, default is
+  \code{spotConfig$seq.ensemble.epsilon <- 0}
+}
+\details{
+  This is a "multi ensemble", meaning that in every
+  sequential step all models in the ensemble are trained
+  and evaluated. The target is to actively combine all
+  models responses, to get the best estimate on which
+  candidate points are optimal.\cr The models used are
+  specified in the \code{spotConfig} list, for instance:\cr
+  \code{spotConfig$seq.ensemble.predictors =
+  c(spotPredictRandomForest, spotPredictEarth,
+  spotPredictForrester, spotPredictDace)}\cr To specify the
+  settings of each individual model, set:\cr
+  \code{seq.ensemble.settings =
+  list(list(setting=1),list(setting=2),list(setting=3),list(setting=4))}\cr
+  Any parameters set in each of the corresponding lists
+  (here: 4 individual lists) will overwrite settings in the
+  main \code{spotConfig} list, when the concerned model
+  function is called.
+}
+\references{
+  - M. Friese, M. Zaefferer, T. Bartz-Beielstein, O.
+  Flasch, P. Koch, W. Konen, and B. Naujoks. Ensemble based
+  optimization and tuning algorithms. In F. Hoffmann and E.
+  Huellermeier, editors, Proceedings 21. Workshop
+  Computational Intelligence, p. 119-134.
+  Universitaetsverlag Karlsruhe, 2011.
+}
+

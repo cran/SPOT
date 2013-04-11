@@ -8,7 +8,7 @@
   \item{srcPath}{the absolute path to the SPOT sources}
 
   \item{configFile}{the absolute path including
-  filespecifier}
+  file-specifier}
 
   \item{spotConfigUser}{a list of parameters used to
   configure spot, usually spotConfigUser=NA will be passed

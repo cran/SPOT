@@ -18,7 +18,7 @@
   (usually named like your .conf file, and placed in the
   same folder) if \code{report.io.screen} is set TRUE the
   graphic is printed to the screen. Both can be FALSE or
-  TRUE at the same time. If the user doesnt specify those
+  TRUE at the same time. If the user does not specify those
   values, the defaults will be used as shown in
   \code{\link{spotGetOptions}}, which means there will be
   only screen output, and no pdf.

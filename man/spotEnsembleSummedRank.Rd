@@ -1,0 +1,21 @@
+\name{spotEnsembleSummedRank}
+\alias{spotEnsembleSummedRank}
+\title{spotEnsembleSummedRank}
+\usage{
+  spotEnsembleSummedRank(x, size)
+}
+\arguments{
+  \item{x}{result structure: a list with element \code{Y}
+  for predicted values and \code{fits} for model fit list}
+
+  \item{size}{size of design to be modeled}
+}
+\value{
+  the summed voted order
+}
+\description{
+  Get the voting result for each point. Summed over all
+  models.
+}
+\keyword{internal}
+

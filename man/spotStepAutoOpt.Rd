@@ -6,10 +6,10 @@
 }
 \arguments{
   \item{spotConfig}{the list of all parameters is given, it
-  is forwarded to the call of the reportfunction the used
+  is forwarded to the call of the report-function the used
   parameters of spotConfig are just
   spotConfig$auto.loop.steps specifying the number of meta
-  modells that should be calculated}
+  models that should be calculated}
 
   \item{...}{additional parameters to be passed on to
   target function which is called inside alg.func}

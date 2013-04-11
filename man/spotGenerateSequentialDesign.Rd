@@ -28,4 +28,5 @@
   sequential design to be written to the file <xxx>.des
   (will be determined from calling function)
 }
+\keyword{internal}
 

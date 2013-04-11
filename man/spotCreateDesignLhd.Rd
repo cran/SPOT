@@ -1,9 +1,9 @@
 \name{spotCreateDesignLhd}
 \alias{spotCreateDesignLhd}
-\title{Create a design based on the number of dimensions and the number of design points}
+\title{spotCreateDesignLhd}
 \usage{
   spotCreateDesignLhd(spotConfig, noDesPoints = NaN,
-    retries = NaN)
+    retries = 1)
 }
 \arguments{
   \item{spotConfig}{list of spotConfiguration}
@@ -13,7 +13,7 @@
 
   \item{retries}{number of retries, which is the number of
   trials to find a design with the lowest distance, default
-  is NaN}
+  is 1}
 }
 \value{
   matrix \code{design} \cr - \code{design} has
@@ -21,9 +21,19 @@
   entries corresponding to the region of interest.
 }
 \description{
-  The dimension is driven from the number of rows of the
-  .roi - file (each row in the roi file defines a variable,
-  In case of a missing number of design points a value is
-  calcuated from the dimension
+  Create a design based on the number of dimensions and the
+  number of design points The dimension is driven from the
+  number of rows of the .roi - file (each row in the roi
+  file defines a variable, In case of a missing number of
+  design points a value is calcuated from the dimension
+}
+\author{
+  Christian Lasarczyk
+}
+\seealso{
+  \code{\link{spotCreateDesignBasicDoe}},
+  \code{\link{spotCreateDesignFrF2}},
+  \code{\link{spotCreateDesignLhs}},
+  \code{\link{spotCreateDesignLhsOpt}}
 }
 

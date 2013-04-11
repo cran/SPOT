@@ -1,6 +1,6 @@
 \name{spotNormDesign}
 \alias{spotNormDesign}
-\title{spotNormDesign()}
+\title{spotNormDesign}
 \usage{
   spotNormDesign(dim, size, calcMinDistance = FALSE)
 }
@@ -12,10 +12,7 @@
   (will be no. of rows of the result matrix)}
 
   \item{calcMinDistance}{Boolean to indicate whether a
-  minimal distance should be calculated
-
-  this function is only the basis with a normalized design,
-  that is used as a basis function to spotDesignLhd()}
+  minimal distance should be calculated}
 }
 \value{
   list \code{L} \cr - \code{L} consists of a matrix and nd
@@ -23,7 +20,15 @@
 }
 \description{
   Produces a normalized design and calculates the minimal
-  distance if required A design is a matrix with \code{dim}
-  columns and \code{size} rows
+  distance if required. A design is a matrix with
+  \code{dim} columns and \code{size} rows.
 }
+\author{
+  Christian Lasarczyk
+}
+\seealso{
+  This function is used as a basis for
+  \code{\link{spotCreateDesignLhd}}.
+}
+\keyword{internal}
 

@@ -1,8 +1,31 @@
 SPOT - Sequential Parameter Optimization Toolbox
 
+Release Notes Version 1.0.4045
+	1. Contour plot can now show all observations as crosses, when spotConfig$report.observations.all is set.
+	2. The models spotPredictEarth and spotPredictRandomForest will now turn variables marked as "FACTOR" in the ROI into real factors with as.factor()
+	3. There is now a new report function, for runs with spotPredictEarth only: spotReportEarth
+	4. spotPredictForrester Models do not have to be rebuild if evaluated with different options
+	5. Several infill criteria like Expected Improvement added, see spotInfill...
+	6. Code cleanup and speed fixes
+	7. Bugfix for multi criteria optimization: A crash has been fixed, that occured when using sms-emoa for optimizing the surrogate model in certain situations.
+	8. A R-port of the DACE-Kriging Toolbox was added to SPOT. See: daceBuilder and spotPredictDace
+	10. SPOT runs with no file output that crashed or were interrupted by the user can now be continued, if spotConfig$spot.catch.error is set to TRUE. 
+		Otherwise, only interrupted runs can be continued properly.
+	11. Contour and 3d surface plots were adapted for multi objective optimization.
+	13. Several examples of Model-Ensembles were added, e.g., spotPredictEnsemble***
+	14. If cmaes is used as an optimizer on the model, it will use the vectorize option where possible.
+	16. spotPredictLmOptim was removed, see the demo spotDemo14LmOptimSann for replacement functionality
+	17. Added the Gaussian Landscape Generator to the package for the purpose of test function generation, see spotGlgCreate
+	18. New easy to use interfaces to train surrogate models, or predict with them: spotModel.train, spotModel.predict and spotModel.func.
+	19. Plotting tools for surfaces: spotSurf3d and spotSurfContour.
+	20. By using the spotPredictMCO function one can use different models for each optimized objective, rather than model all objectives with the same model.
+		For instance, for an optimization problem with three objectives, one can select Co-Kriging for the first objective, Kriging for the second and
+		Random Forest for the third.
+	21. Report functions for performing a Mixed Model analysis have been added, which are spotReportMAMP and spotReportSAMP. Examples are provided in demos 21 and 22.
+	
 Release Notes Version 1.0.2662
-	Removed the dependency on the maptree package, changed the corresponding default report function spotReportDefault
-
+	Removed the dependency on the maptree package and changed the corresponding default report function spotReportDefault
+	
 Release Notes Version 1.0.2661
 	1. Significant speedup for spotPredictForrester, by factors of 2 or more (depending on dimensionality and number of observations)
 	2. Fix in spotPredictForrester: Sometimes L-BFGS-B might violate boundaries, this is now checked and controlled by the calling function

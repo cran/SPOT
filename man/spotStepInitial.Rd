@@ -12,11 +12,11 @@
   initial design. \cr \code{spotConfig$init.design.size}
   number of points that should be created for the initial
   design \cr \code{spotConfig$init.design.retries} gives
-  the number of trials to find a design with the greates
-  minimal distance, (default is 1)\cr
+  the number of trials to find a design with the greatest
+  distance between points, (default is 1)\cr
   \code{spotConfig$init.design.repeats} number of repeats
   for one initial design-point\cr
-  \code{spotConfig$alg.seed} seed value for reproducable
+  \code{spotConfig$alg.seed} seed value for reproducible
   runs\cr \code{spotConfig$srcPath} source path as given
   when spot() is called (or uses default)\cr
   \code{spotConfig$io.verbosity} verbosity for command

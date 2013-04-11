@@ -7,7 +7,7 @@
 #' 
 #' @param spotConfig the list of all parameters is given, used ones are: 
 #' 		\code{spotConfig$io.resFileName:} result file where data are read from
-#' 		\code{spotConfig$io.columnSep:} column separator as determined by getConfig
+#' 		\code{spotConfig$io.columnSep:} column separator
 #' parameter to the function call \code{\link{spotPrepareData}} 
 #' 
 #'
@@ -16,34 +16,34 @@
 #'
 #' @seealso \code{\link{spotPrepareData}} 
 #' @export
+#' @keywords internal
 ####################################################################################
 spotGetRawResData<- function(spotConfig){
-	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotGetRawResData");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotGetRawResData")
 	## Load .res-file data, the result of the alg run
 	spotWriteLines(spotConfig$io.verbosity
 					, 2
 					, paste("Loading result data from::", spotConfig$io.resFileName)
-					, con=stderr());	
+					, con=stderr())	
 	rawResData <- read.table(spotConfig$io.resFileName
 			, sep=spotConfig$io.columnSep
 			, header = TRUE	
-			, stringsAsFactors = TRUE
-			);		
+			, stringsAsFactors = TRUE)
 	if (length(spotConfig$alg.resultColumn)==1){ #If result column setting is one dimensional, check if more columns starting with that name exist, like Y.1, Y.2, etc.
-		tmp<-length(grep(paste(spotConfig$alg.resultColumn,".",sep=""),names(rawResData)));
+		tmp<-length(grep(paste(spotConfig$alg.resultColumn,".",sep=""),names(rawResData)))
 		if(tmp>1){
 			spotConfig$alg.resultColumn<- names(rawResData)[grep(paste(spotConfig$alg.resultColumn,".",sep=""),names(rawResData))]
 		}
 	}		
-	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotGetRawResData");
-	return(list(conf=spotConfig,rawD=rawResData))
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotGetRawResData")
+	list(conf=spotConfig,rawD=rawResData)
 }
 
 ###################################################################################
 #' Get Raw Data Matrix B  
 #'
-#' The result (.res) file is read and the data are prepared for further procesing
-#' results in "Matrix B" that consits of the y-vector of the results and the x-Matrix
+#' The result (.res) file is read and the data are prepared for further processing
+#' results in "Matrix B" that consists of the y-vector of the results and the x-Matrix
 #' of inputs that are bound together to a matrix B
 #' 
 #' @param spotConfig the list of all parameters is given, also used as input
@@ -58,6 +58,7 @@ spotGetRawResData<- function(spotConfig){
 #'
 #' @seealso \code{\link{spotPrepareData}} 
 #' @export
+#' @keywords internal
 ####################################################################################
 spotGetRawDataMatrixB <- function(spotConfig){
 	## read data frame from res file
@@ -67,24 +68,24 @@ spotGetRawDataMatrixB <- function(spotConfig){
 		rawData<-res$rawD
 		res<-NULL
 	}else{
-		rawData=spotConfig$alg.currentResult; 
+		rawData=spotConfig$alg.currentResult 
 	}   # WK: if-else needed if a call 'spot(confFileName,"rep")' shall succeed (!)
 	## extract parameter names
-	pNames <- row.names(spotConfig$alg.roi);
+	pNames <- row.names(spotConfig$alg.roi)
 	y <- rawData[,spotConfig$alg.resultColumn]
 	## data frame of parameter values
-	x <- as.matrix(rawData[pNames]); #MZ: Bugfix for 1 dimensional optimization
+	x <- as.matrix(rawData[pNames]) #MZ: Bugfix for 1 dimensional optimization
 	A <- cbind(y,x) 
-	if(!is.null(dim(y))){B <- data.frame(A[order(y[,1],y[,2],decreasing=FALSE),]);}
-	else{B <- data.frame(A[order(y,decreasing=FALSE),]);}
-	return(B)
+	if(!is.null(dim(y))){B <- data.frame(A[order(y[,1],y[,2],decreasing=FALSE),])}
+	else{B <- data.frame(A[order(y,decreasing=FALSE),])}
+	B
 }
 
 ###################################################################################
 #' Get Merged Data Matrix B
 #'
 #' The merged data that are the result of \code{\link{spotPrepareData}}must be the first input parameter
-#' These data prepared and results in "Matrix B" that consits of the y-vector 
+#' These data prepared and results in "Matrix B" that consists of the y-vector 
 #' of the results and the x-Matrix of inputs that are bound together to a matrix B
 #' 
 #' @param mergedData the Data prepared as done with \code{\link{spotPrepareData}}
@@ -98,20 +99,21 @@ spotGetRawDataMatrixB <- function(spotConfig){
 #'
 #' @seealso \code{\link{spotPrepareData}} 
 #' @export
+#' @keywords internal
 ####################################################################################
 spotGetMergedDataMatrixB <- function(mergedData, spotConfig){
 	## Note: requires pre-processing via spotPrepareData()
 	##       does not work on raw data	
 	## extract parameter names
-	pNames <- row.names(spotConfig$alg.roi);
+	pNames <- row.names(spotConfig$alg.roi)
 	y <- mergedData$mergedY
 	## data frame of parameter values	
-	x <- as.matrix(mergedData$x);
+	x <- as.matrix(mergedData$x)
 	A <- cbind(y,x)        
-	if(!is.null(dim(y))){B <- data.frame(A[order(y[,1],y[,2],decreasing=FALSE),]);}
-	else{B <- data.frame(A[order(y,decreasing=FALSE),]);}
-	#B <-  data.frame(A[order(y,decreasing=FALSE),]);
-	return(B)
+	if(!is.null(dim(y))){B <- data.frame(A[order(y[,1],y[,2],decreasing=FALSE),,drop=FALSE])}
+	else{B <- data.frame(A[order(y,decreasing=FALSE),,drop=FALSE])}
+	#B <-  data.frame(A[order(y,decreasing=FALSE),])
+	B
 }
 
 ###################################################################################
@@ -142,9 +144,10 @@ spotGetMergedDataMatrixB <- function(mergedData, spotConfig){
 #'
 #' @seealso \code{\link{SPOT}} \code{\link{spot}}
 #' @export
+#' @keywords internal
 ####################################################################################
 spotPrepareData <- function(spotConfig){
-	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotPrepareData");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotPrepareData")
 	if(spotConfig$spot.fileMode){
 		res<- spotGetRawResData(spotConfig)
 		spotConfig<-res$conf
@@ -166,7 +169,7 @@ spotPrepareData <- function(spotConfig){
 		step.last=0
 		rawData$STEP<-rep(0, length(rawData$CONFIG)) 
 	}
-	z <- split(rawData[,spotConfig$alg.resultColumn], rawData$CONFIG); 
+	z <- split(rawData[,spotConfig$alg.resultColumn], rawData$CONFIG)
 	
 	if(length(spotConfig$alg.resultColumn)==1)
 	{
@@ -178,7 +181,7 @@ spotPrepareData <- function(spotConfig){
 	else{
 		fs <- function(xs) { spotConfig$seq.transformation.func(apply(xs,2,spotConfig$seq.merge.func))}
 		fnvar<-function(x){apply(x,2,var)}
-		varY <- sapply(z,fnvar);#sapply(as.data.frame(z),var);
+		varY <- sapply(z,fnvar)#sapply(as.data.frame(z),var);
 		mergedY <- t(sapply(z,fs))
 		count <- sapply(z,dim)[1,]
 	}
@@ -190,7 +193,7 @@ spotPrepareData <- function(spotConfig){
 	if (length(pNames)==1){ 
 		#x <- as.data.frame(sapply(split(rawData[,pNames], rawData$CONFIG),mean)) #mean on dataframes gives warnings in R-14.x
 		x<- as.data.frame(unique(cbind(rawData[,pNames], rawData$CONFIG))[,1])
-		names(x)<-pNames;
+		names(x)<-pNames
 	}
 	else{
 		#browser()
@@ -207,16 +210,16 @@ spotPrepareData <- function(spotConfig){
          , STEP = mergedSTEP
          , SEED = mergedSEED
          )
-	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotPrepareData");
-	return(resultList)
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotPrepareData")
+	resultList
 }
 
 
 ###################################################################################
 #' Prepare Data As Matrix C
 #'
-#' The result (.res) file is read and the data are prepared for further procesing
-#' results in "Matrix C" that consits of the y-vector of the results and the x-Matrix
+#' The result (.res) file is read and the data are prepared for further processing
+#' results in "Matrix C" that consists of the y-vector of the results and the x-Matrix
 #' of inputs plus the columns "count", "sdev" and "CONFIG", that are bound together 
 #' to a matrix C
 #' 
@@ -224,7 +227,7 @@ spotPrepareData <- function(spotConfig){
 #' parameter to the function call of \code{\link{spotPrepareData}}  
 #'
 #' @return Matrix \code{C} \cr
-#' - \code{C} holdsg a column "y" with the results
+#' - \code{C} holds a column "y" with the results
 #' and all columns with column-names derived from .roi file (should be the parameters
 #' of the algorithm) plus the columns "count", "sdev" and "CONFIG"
 #
@@ -233,9 +236,8 @@ spotPrepareData <- function(spotConfig){
 ####################################################################################
 spotPrepareDataAsMatrixC <- function(spotConfig){ #TODO this function is used NOWHERE ?
 	algResults<-spotPrepareData(spotConfig)
-	x <- as.matrix(algResults$x);
-	y <- algResults$Y;
+	x <- as.matrix(algResults$x)
+	y <- algResults$Y
 	A <- cbind(y,x,count=algResults$count,CONFIG=algResults$CONFIG)       
-	C <-  data.frame(A[order(y,decreasing=FALSE),]);	
-	return(C)
+	data.frame(A[order(y,decreasing=FALSE),])	
 }

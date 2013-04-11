@@ -6,45 +6,104 @@
 #'
 #' @param rawB unmerged data
 #' @param mergedB merged data
-#' @param largeDesign new design points which should be predicted
+#' @param design new design points which should be predicted
 #' @param spotConfig global list of all options, needed to provide data for calling functions
-#' @param externalFit if an existing model fit is supplied, the model will not be build based on 
-#'				data, but only evaluated with the model fit (on the largeDesign data). To build the model, 
-#'				this parameter has to be NULL. If it is not NULL the paramters mergedB and rawB will not be 
+#' @param fit if an existing model fit is supplied, the model will not be build based on 
+#'				data, but only evaluated with the model fit (on the design data). To build the model, 
+#'				this parameter has to be NULL. If it is not NULL the parameters mergedB and rawB will not be 
 #'				used at all in the function.
 #'
 #' @return returns the list \code{spotConfig} with two new entries:\cr
 #' 	spotConfig$seq.modelFit fit of the model used with predict() \cr
-#'	spotConfig$seq.largeDesignY the y values of the large design, evaluated with the fit
+#'	spotConfig$seq.largeDesignY the y values of the design, evaluated with the fit
 #' @export
 ###################################################################################
-spotPredictKsvm <- function(rawB,mergedB,largeDesign,spotConfig,externalFit=NULL){	
-	spotWriteLines(spotConfig$io.verbosity,1,"spotPredictKsvm started");
-	spotInstAndLoadPackages("kernlab")	
-	if(is.null(externalFit)){
-		xNames <- setdiff(names(rawB),"y")
-		x <- rawB[xNames]
-		y <- rawB$y
-		fit<-try( ksvm(y~.,data=data.frame(x,y)) ,silent=T)
-		if(class(fit) == "try-error"){
-			fit<-ksvm(y~.,data=data.frame(x,y),kernel="anovadot")			
+spotPredictKsvm <- function(rawB,mergedB,design,spotConfig,fit=NULL){	
+	design <- spotInitializePredictor(design,"data.frame",spotConfig$alg.roi,"kernlab","spotPredictKsvm",spotConfig$io.verbosity)	
+	########################################################
+	# BUILD
+	########################################################
+	if(is.null(fit)){		
+		xNames <- row.names(spotConfig$alg.roi)
+		yNames <- setdiff(names(rawB),xNames)
+		x <- rawB[xNames]		
+		nx <- nrow(spotConfig$alg.roi)
+		nn <- nrow(x)
+		if(length(yNames)==1){
+			y<-rawB[[yNames]]
+			dat <- data.frame(x,y)		
+			fitness<-function(xx){	
+				err<-try(attributes(ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),cross=10))$cross,silent=TRUE)
+				if(class(err) == "try-error"){err<-10^4}
+				err
+			}
+			spotInstAndLoadPackages("nloptr")	
+			opts=list(algorithm="NLOPT_LN_NELDERMEAD",maxeval=100, ftol_rel=1e-4, xtol_rel=-Inf)	
+			res <- nloptr(c(0,1,-1),fitness,lb =c(-4,0,-4),ub = c(2,6,0), opts = opts)
+			fit<-try( fit<-ksvm(y~.,data=dat,epsilon=(10^res$solution[3]),C=(10^res$solution[2]),kpar=list(sigma=(10^res$solution[1])/nx)) ,silent=TRUE)		
+			if(class(fit) == "try-error"){
+				fitness<-function(xx){	
+					attributes(ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),kernel="anovadot",cross=10))$cross
+				}
+				spotInstAndLoadPackages("nloptr")	
+				opts=list(algorithm="NLOPT_LN_NELDERMEAD",maxeval=100, ftol_rel=1e-4, xtol_rel=-Inf)	
+				res <- nloptr(c(0,1,-1),fitness,lb =c(-4,0,-4),ub = c(2,6,0), opts = opts)
+				fit<-ksvm(y~.,data=dat,epsilon=(10^res$solution[3]),C=(10^res$solution[2]),kpar=list(sigma=(10^res$solution[1])/nx),kernel="anovadot")			
+			}	
 		}
-		res <- predict(fit,largeDesign)
+		else{#Distinction for multi criteria spot 			
+			fit=list()
+			yy<- rawB[yNames]
+			spotConfig$seq.modelFit.y<-mergedB[yNames]
+			for (i in 1:length(yNames)){
+				y<-yy[,i]
+				dat <- data.frame(x,y)		
+				fitness<-function(xx){	
+					err<-try(attributes(ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),cross=10))$cross,silent=TRUE)
+					if(class(err) == "try-error"){err<-10^4}
+					err
+				}
+				spotInstAndLoadPackages("nloptr")	
+				opts=list(algorithm="NLOPT_LN_NELDERMEAD",maxeval=100, ftol_rel=1e-4, xtol_rel=-Inf)	
+				res <- nloptr(c(0,1,-1),fitness,lb =c(-4,0,-4),ub = c(2,6,0), opts = opts)
+				fit[[i]]<-try( fit[[i]]<-ksvm(y~.,data=dat,epsilon=(10^res$solution[3]),C=(10^res$solution[2]),kpar=list(sigma=(10^res$solution[1])/nx)) ,silent=TRUE)		
+				if(class(fit[[i]]) == "try-error"){
+					fitness<-function(xx){	
+						attributes(ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),kernel="anovadot",cross=10))$cross
+					}
+					spotInstAndLoadPackages("nloptr")	
+					opts=list(algorithm="NLOPT_LN_NELDERMEAD",maxeval=100, ftol_rel=1e-4, xtol_rel=-Inf)	
+					res <- nloptr(c(0,1,-1),fitness,lb =c(-4,0,-4),ub = c(2,6,0), opts = opts)
+					fit[[i]]<-ksvm(y~.,data=dat,epsilon=(10^res$solution[3]),C=(10^res$solution[2]),kpar=list(sigma=(10^res$solution[1])/nx),kernel="anovadot")			
+				}	
+			}			
+		}		
 	}else{
-		fit<-externalFit
-		pNames <- row.names(spotConfig$alg.roi);
-		if(ncol(largeDesign)<nrow(spotConfig$alg.roi)){ #ugly, but necessary because R is strange about converting one dimensional vectors to dataframes (confusing rows/columns)
-			largeDesign<-t(data.frame(largeDesign))			
-		}
-		else{
-			largeDesign<-data.frame(largeDesign)
-		}
-		colnames(largeDesign)<-pNames
-		res <- predict(fit,largeDesign)	
-	}	
-	res[which(is.na(res)==TRUE)] = median(spotConfig$alg.currentResult[,spotConfig$alg.resultColumn],na.rm = T) #replaces NA values with median of y..?
-	spotWriteLines(spotConfig$io.verbosity,1,"spotPredictKsvm finished");
-	spotConfig$seq.modelFit<-fit;
-	spotConfig$seq.largeDesignY<-as.data.frame(res);
-	return(spotConfig);
+		fit<-fit
+	}
+	########################################################
+	# PREDICT
+	########################################################
+	if(!is.null(design)){ 		
+		nmodel <- length(spotConfig$alg.resultColumn)
+		if(nmodel>1){ #do multi criteria prediction
+			res=matrix(0,nrow(design),nmodel)
+			y=list()
+			for (i in 1:length(fit)){ #predict		
+				rres = predict(fit[[i]],design)
+				rres[which(is.na(rres)==TRUE)] = median(spotConfig$alg.currentResult[,spotConfig$alg.resultColumn[i]],na.rm = TRUE)
+				res[,i]= rres
+			}
+		}else{ #do single criteria prediction
+			res <- predict(fit,design)	
+			res[which(is.na(res)==TRUE)] = median(spotConfig$alg.currentResult[,spotConfig$alg.resultColumn],na.rm = TRUE) 			
+		}	
+	}else{res <- NULL}	
+	########################################################
+	# OUTPUT
+	########################################################	
+	spotWriteLines(spotConfig$io.verbosity,3,"spotPredictKsvm finished")
+	spotConfig$seq.modelFit<-fit
+	spotConfig$seq.largeDesignY<-as.data.frame(res)
+	spotConfig
 }

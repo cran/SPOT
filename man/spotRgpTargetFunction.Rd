@@ -29,4 +29,5 @@
 \seealso{
   \code{\link{spotAlgStartRgp}}
 }
+\keyword{internal}
 

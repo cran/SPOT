@@ -11,14 +11,18 @@
   if not contained in the list.  That means, by default the
   user will be asked to specify which parameters will be
   varied when the report is started. This is done in a
-  small twiddler gui.  If the user wants to specify which
+  small twiddler GUI.  If the user wants to specify which
   parameters should be plotted against each other, before
   starting the report, he can set the parameter
   spotConfig$report.aIndex and spotConfig$report.bIndex.
   They should be two different integer numbers. They will
   only be used if spotConfig$report.interactive is FALSE.
   By default they will be set to 1 and 2, so the first two
-  parameters in the ROI will be plotted.}
+  parameters in the ROI will be plotted.  In case of a
+  multi objective problem, spotConfig$report.cIndex will
+  determine which point from the Pareto front will be used
+  to determine values of parameters not on the axis of the
+  plot.}
 }
 \description{
   Function to generate a contour plot of the predicted meta
@@ -35,5 +39,8 @@
   the parameters should be varied in the plot. Values not
   varied in the graph are fixed to their "best" value
   according to the current Results.
+}
+\seealso{
+  \code{\link{spotSurfContour}}
 }
 

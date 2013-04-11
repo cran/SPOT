@@ -18,13 +18,18 @@
   extended with the current best:
   \code{alg.currentBest}\cr}
 }
+\value{
+  returns the \code{spotConfig} list with a new row in
+  \code{spotConfig$alg.currentBest}
+}
 \description{
   Helper function that simply writes data to the .bst-file
-  (appending or creating - depends on the existance of the
+  (appending or creating - depends on the existence of the
   .bst-file)
 }
 \details{
   Result/Effects: adds one row to the best file and the
   alg.currentBest data frame.
 }
+\keyword{internal}
 

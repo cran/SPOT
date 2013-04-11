@@ -1,42 +1,16 @@
 \name{spotParetoOptMulti}
 \alias{spotParetoOptMulti}
-\title{Multi criteria optimization of predicted surrogate models}
+\title{DEPRECATED}
 \usage{
   spotParetoOptMulti(startPoint, spotConfig)
 }
 \arguments{
-  \item{startPoint}{initial information, not yet used}
+  \item{startPoint}{see \code{\link{spotModelParetoOptim}}}
 
-  \item{spotConfig}{list of all options, needed to provide
-  data for calling functions.
-
-  This function uses the parameter
-  \code{spotConfig$seq.modelFit}. This is supposed to be a
-  list of fits (i.e. one fit for each objective), that can
-  be evaluated by calling the original model interface with
-  that fit list. The parameter
-  \code{spotConfig$seq.predictionOpt.method} will be used
-  to choose the optimization method to be used to find the
-  minimum of the fitted model:\cr "nsga2" \cr
-  "sms-emoa"\cr}
-}
-\value{
-  returns the list \code{spotConfig} with two new
-  entries:\cr spotConfig$optDesign are the parameters of
-  the new pareto optimal design points \cr
-  spotConfig$optDesignY are the associated values of the
-  objective functions (e.g. meta model values)
+  \item{spotConfig}{see \code{\link{spotModelParetoOptim}}}
 }
 \description{
-  Uses by default the number of design points expected as
-  population size for multi criteria optimization of the
-  models build in the current sequential step. Executed
-  after building the prediction models.
+  see \code{\link{spotModelParetoOptim}}
 }
-\seealso{
-  \code{\link{spotPredictOptMulti}} solves the same task
-  for single objective optimization (i.e. just one
-  surrogate model)\cr See \code{\link{spotSmsEmoa}} for the
-  used SMS-EMOA implementation
-}
+\keyword{internal}
 

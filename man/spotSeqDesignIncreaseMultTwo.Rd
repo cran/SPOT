@@ -1,6 +1,6 @@
 \name{spotSeqDesignIncreaseMultTwo}
 \alias{spotSeqDesignIncreaseMultTwo}
-\title{Increase Sequential Design Repeats Mult Two}
+\title{Increase Sequential Design Repeats: Double}
 \usage{
   spotSeqDesignIncreaseMultTwo(actRepeats)
 }
@@ -19,7 +19,7 @@
   getting more precise with growing step size.
 }
 \seealso{
-  \code{\link{SPOT}} \code{\link{spot}}
+  \code{\link{spot}}
   \code{\link{spotSeqDesignIncreasePlusOne}}
 }
 \keyword{internal}

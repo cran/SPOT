@@ -5,7 +5,8 @@
   spotNormalizeMatrix2(x, ymin, ymax, xmin, xmax)
 }
 \arguments{
-  \item{x}{design matrix in input space}
+  \item{x}{design matrix in input space (n rows for each
+  point, k columns for each parameter)}
 
   \item{ymin}{minimum vector of normalized space}
 
@@ -24,7 +25,7 @@
 }
 \seealso{
   \code{\link{spotPredictForrester}}
-  \code{\link{spotDetermineTheta}}
+  \code{\link{forrBuilder}}
   \code{\link{spotNormalizeMatrix}}
   \code{\link{spotReverseNormalizeMatrix}}
 }

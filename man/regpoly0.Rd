@@ -1,0 +1,33 @@
+\name{regpoly0}
+\alias{regpoly0}
+\title{Regression: Regpoly0}
+\usage{
+  regpoly0(S, grad = FALSE)
+}
+\arguments{
+  \item{S}{m*n matrix with \code{m} design points of
+  dimension \code{n}}
+
+  \item{grad}{define if function returns gradient, default
+  is \code{FALSE}}
+}
+\value{
+  returns a list with two elements: \item{\code{f}}{vector
+  of ones, with length \code{m}} \item{\code{df}}{Jacobian
+  at the first point (first row in S) }
+}
+\description{
+  Zero order polynomial regression function.
+}
+\author{
+  The authors of the original DACE Matlab code
+  \url{http://www2.imm.dtu.dk/~hbni/dace/} are Hans Bruun
+  Nielsen \email{hbn@imm.dtu.dk}, Soren Nymand Lophaven and
+  Jacob Sondergaard. \cr Ported to R by Martin Zaefferer
+  \email{martin.zaefferer@fh-koeln.de}.
+}
+\seealso{
+  \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
+}
+\keyword{internal}
+

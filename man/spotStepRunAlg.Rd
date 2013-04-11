@@ -31,14 +31,8 @@
 \details{
   The algorithm is the heart of what the user must provide,
   but SPOT should be able to handle them in the most
-  flexible manner. So this is the interface providing
-  several possibilities to include an algorithm as
-  (unix)-shell or as R-function (the latter could also
-  provide a system call, so it should be able to integrate
-  user written algorithms as flexible as possible.
-  Result/Effects: external, user written function is called
-  and expected to write the results into the file:
-  spotConfig$io.resFileName
+  flexible manner. This function is an interface to the
+  algorithm, given as a R-function.
 }
 \seealso{
   \code{\link{SPOT}} \code{\link{spot}}

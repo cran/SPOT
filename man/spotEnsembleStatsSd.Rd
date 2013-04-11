@@ -1,0 +1,19 @@
+\name{spotEnsembleStatsSd}
+\alias{spotEnsembleStatsSd}
+\title{spotEnsembleStatsSd}
+\usage{
+  spotEnsembleStatsSd(x)
+}
+\arguments{
+  \item{x}{result structure: a list with element \code{Y}
+  for predicted values and \code{fits} for model fit list}
+}
+\value{
+  returns a matrix of results, with one column for each fit
+  and one row for each pont
+}
+\description{
+  Get standard deviation for each point.
+}
+\keyword{internal}
+

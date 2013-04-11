@@ -2,7 +2,8 @@
 \alias{spotNormalizeMatrix}
 \title{Normalize design}
 \usage{
-  spotNormalizeMatrix(x, ymin, ymax)
+  spotNormalizeMatrix(x, ymin, ymax, xmin = NULL,
+    xmax = NULL)
 }
 \arguments{
   \item{x}{design matrix in input space}
@@ -20,7 +21,7 @@
 }
 \seealso{
   \code{\link{spotPredictForrester}}
-  \code{\link{spotDetermineTheta}}
+  \code{\link{forrBuilder}}
   \code{\link{spotNormalizeMatrix2}}
   \code{\link{spotReverseNormalizeMatrix}}
 }

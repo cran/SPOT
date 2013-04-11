@@ -12,6 +12,7 @@
 #' @return numeric \cr
 #' holding the noise Value
 #' @export
+#' @keywords internal
 ####################################################################################
 spotCalcNoise <- function(y, noise=0.0, noise.type="weighted", spot.noise.minimum.at.value=0.0){
 	
@@ -24,7 +25,7 @@ spotCalcNoise <- function(y, noise=0.0, noise.type="weighted", spot.noise.minimu
 		noiseValue <- noise*rnorm(1)
 	}
 	
-	return(noiseValue)
+	noiseValue
 }
 
 ###################################################################################################
@@ -53,38 +54,34 @@ spotCalcNoise <- function(y, noise=0.0, noise.type="weighted", spot.noise.minimu
 ###################################################################################################
 #TODO: Frage: Wie sollen initial defaults gehandelt werden. Voorallem: Noise, OCBA, init/seq Repeats.
 spotOptimInterface <- function(spotConfig,...){
-	SAVESEED<-.Random.seed
-	#if(is.null(spotConfig$spot.noise)){spotConfig$spot.noise=0.0}
-	#if(is.null(spotConfig$spot.noise.type)){spotConfig$spot.noise.type="weighted"}
-	#if(is.null(spotConfig$spot.noise.minimum.at.value)){spotConfig$spot.noise.minimum.at.value=0.0}
-	## spot.noise.type in {"weighted", "constant"}
-	## weighted: y = y + y * noiseValue / 100
-	## constant: y = y + noiseValue
+	if(exists(as.character(substitute(.Random.seed))))
+		SAVESEED<-.Random.seed
+	else
+		SAVESEED=NULL
 	
-	pdFile=spotConfig$io.apdFileName;
-	desFileName=spotConfig$io.desFileName;		
-	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
-		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr());
+	pdFile=spotConfig$io.apdFileName
+	desFileName=spotConfig$io.desFileName		
+	if (spotConfig$spot.fileMode){ 
+		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr())
 		## read doe/dace etc settings:
-		des <- read.table(desFileName, sep=" ", header = TRUE);	
+		des <- read.table(desFileName, sep=" ", header = TRUE)
 	}else{
-		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
+		des <- spotConfig$alg.currentDesign; 
 	}
-	spotPrint(spotConfig$io.verbosity,1,summary(des));
-	spotWriteLines(spotConfig$io.verbosity,1,"spotOptimInterface...", con=stderr());
+	spotPrint(spotConfig$io.verbosity,1,summary(des))
+	spotWriteLines(spotConfig$io.verbosity,1,"spotOptimInterface...", con=stderr())
 	f<-"UserSuppliedFunction"
 	## read problem design file
 	if(file.exists(pdFile)){
 		source(pdFile,local=TRUE)
 	}
-	config<-nrow(des);
-	spotPrint(spotConfig$io.verbosity,1,config);
-	attach(des)	
+	config<-nrow(des)
+	spotPrint(spotConfig$io.verbosity,1,config)
 	for (k in 1:config){
 		for (i in 1:des$REPEATS[k]){
 			dimcounter <- 1
 			x <- NULL			
-			while (exists(paste("VARX", dimcounter, sep=""))){
+			while (!is.null(des[[paste("VARX", dimcounter, sep="")]])){
 				name <- paste("VARX", dimcounter, sep="")
 				varHelper  <- des[name]
 				x <- cbind(x,varHelper[k,1])
@@ -94,17 +91,17 @@ spotOptimInterface <- function(spotConfig,...){
 			x <- t(x)
 			n <- dimcounter - 1
 			conf <- k
-			if (exists("CONFIG")){
+			if (!is.null(des$CONFIG)){
 				conf <- des$CONFIG[k]
 			}
-			if (exists("STEP")){
+			if (!is.null(des$STEP)){
 				step <- des$STEP[k]
 			}
 			if(!is.na(spotConfig$alg.seed)){ #only use seed if seed is desired (not for deterministic target functions)
 				seed <- des$SEED[k]+i-1	
 				set.seed(seed)	
 			}
-			else{seed="NA"}
+			else{seed=NA}
 			spotPrint(spotConfig$io.verbosity,1,c("Config:",k ," Repeat:",i))
 			if(!is.function(spotConfig$alg.tar.func)){stop("spotConfig$alg.tar.func is not a function. \n Please specify a function for this variable if you use spotOptimInterface.\n Else use your own custom interface")}
 			y <-  spotConfig$alg.tar.func(x,...)#spotConfig$alg.func.tar(x)#, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value)
@@ -139,13 +136,12 @@ spotOptimInterface <- function(spotConfig,...){
 						, col.names = colNames
 						, sep = " "    
 						, append = !colNames
-						, quote = FALSE
-				);		
+						, quote = FALSE)	
 			}
-			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res);							
+			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res)						
 		}			
 	}	
-	detach(des)
-	assign(".Random.seed", SAVESEED, envir=globalenv()); 
-	return(spotConfig)
+	if(!is.null(SAVESEED))
+		assign(".Random.seed", SAVESEED, envir=globalenv())
+	spotConfig
 }

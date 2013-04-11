@@ -5,7 +5,7 @@
   spotCompare(configFile, repeats = 2, NoNoiseFun = NULL)
 }
 \arguments{
-  \item{configFile}{vector of filenames to be evaulated}
+  \item{configFile}{vector of filenames to be evaluated}
 
   \item{repeats}{number of repeats for each file (with
   different spot.seed)}
@@ -13,7 +13,7 @@
   \item{NoNoiseFun}{function to compute the result without
   noise. If NULL or left to default this will have no
   effect. If a function name is passed as a string, the
-  according function will be called with a noice variable
+  according function will be called with a noise variable
   set to zero. This way the result can be evaluated without
   noise}
 }

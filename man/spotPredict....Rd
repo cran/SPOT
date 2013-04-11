@@ -10,18 +10,15 @@
   the user may provide and include his own predictors. To
   solve this task the user must follow these instructions
   carefully:\cr 1) The function the user wants to include
-  must be an R-function provided in a separated file where
-  the function name MUST be the same as the filename (just
-  without the file extension .R)\cr 2) use the function
-  \code{\link{spotInstAndLoadPackages}} to add the packages
-  that are required for your function, just make it the
-  first line in your function.\cr 3) adapt the
-  configuration file, two parameters are to be
+  must be an R-function provided in the R workspace\cr 2)
+  use the function \code{\link{spotInstAndLoadPackages}} to
+  add the packages that are required for your function,
+  just make it the first line in your function.\cr 3) adapt
+  the configuration file, two parameters are to be
   included/changed:\cr
   \code{seq.predictionModel.func="myPredictLm"} \cr this
-  example assumes the existence of a file "myPredictLm.R"
-  in the directory "/home/theUser/mySpotExtensions/"
-  holding a function "myPredictLm"
+  example assumes the existence of a function with name
+  "myPredictLm" in the workspace
 }
 \seealso{
   Predictors that are shipped with SPOT are:

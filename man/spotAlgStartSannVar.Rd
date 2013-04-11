@@ -34,8 +34,8 @@
   algorithm(e.g. the SANN) and vice versa. In contrast to
   \code{\link{spotAlgStartSann}} it is an interface for
   Pareto optimization, to optimize both the performance as
-  well as the variance of the SANN algorithm, to proposedly
-  reach more robust results.
+  well as the variance of the SANN algorithm, to reach more
+  robust results.
 }
 \seealso{
   \code{\link{SPOT}} \code{\link{spot}} \code{\link{demo}}

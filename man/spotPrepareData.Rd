@@ -36,4 +36,5 @@
 \seealso{
   \code{\link{SPOT}} \code{\link{spot}}
 }
+\keyword{internal}
 

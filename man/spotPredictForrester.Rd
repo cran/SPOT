@@ -1,49 +1,73 @@
 \name{spotPredictForrester}
 \alias{spotPredictForrester}
-\title{Meta Model Interface: Forresters Kriging}
+\title{Meta Model Interface: Forrester's Kriging}
 \usage{
-  spotPredictForrester(rawB, mergedB, largeDesign,
-    spotConfig, externalFit = NULL)
+  spotPredictForrester(rawB, mergedB, design, spotConfig,
+    fit = NULL)
 }
 \arguments{
   \item{rawB}{unmerged data}
 
   \item{mergedB}{merged data}
 
-  \item{largeDesign}{new design points which should be
+  \item{design}{new design points which should be
   predicted}
 
   \item{spotConfig}{global list of all options, needed to
-  provide data for calling functions. This also contains a
-  list, with settings for forrester:\cr
-  \code{spotConfig$seq.forrester$Option} What to predict,
-  can be: "Pred"(default), "NegLogExpImp", "NegProbImp",
-  "RMSE"\cr \code{spotConfig$seq.forrester$loval} Lower
-  boundary for theta, default is 1e-3\cr
-  \code{spotConfig$seq.forrester$upval} Upper boundary for
-  theta, default is 100\cr
-  \code{spotConfig$seq.forrester$algtheta} algorithm used
-  to find theta, default is "cmaes"\cr
-  \code{spotConfig$seq.forrester$budgetalgtheta} Budget for
-  the above mentioend algorithm, default is 1000}
+  provide data for calling functions. The model specific
+  settings in this list are\cr
+  \code{spotConfig$seq.forr.loval} lower boundary for
+  theta, default is \code{1e-3}\cr
+  \code{spotConfig$seq.forr.upval} upper boundary for
+  theta, default is \code{100}\cr
+  \code{spotConfig$seq.forr.opt.p} boolean that specifies
+  whether the exponents (\code{p}) should be optimized.
+  Else they will be set to two. Default value is
+  \code{FALSE}. Default is highly recommended as the
+  implementation of this feature is not yet well tested and
+  might be faulty.\cr \code{spotConfig$seq.forr.algtheta}
+  algorithm used to find theta, default is
+  \code{"NLOPT_LN_NELDERMEAD"} which is a bounded simplex
+  method from the package nloptr. Else, any from the list
+  of possible \code{method} values in
+  \code{\link{spotOptimizationInterface}} can be chosen.\cr
+  \code{spotConfig$seq.forr.budgetalgtheta} budget for the
+  above mentioned algorithm, default is \code{100}. The
+  value will be multiplied with the length of the model
+  parameter vector to be optimized.
+  \code{spotConfig$seq.forr.reinterpolate} boolean that
+  specifies whether re-interpolation should be used during
+  the prediction process. Default value is \code{FALSE}.
+  Setting this to \code{TRUE} is recommended, when an error
+  estimate of nearly zero is desired at sample locations,
+  regardless of chosen regularization constant (nugget).
+  Please note that prediction with interpolation will take
+  longer than without.\cr
+  \code{spotConfig$seq.forr.savetheta} boolean that
+  specifies whether the exponents (\code{p}) should be
+  optimized. Else they will be set to two. Default value is
+  \code{FALSE}. Default is recommended since this feature
+  not yet well tested, and might lead to a preference of
+  local optima.\cr}
 
-  \item{externalFit}{if an existing model fit is supplied,
-  the model will not be build based on data, but only
-  evaluated with the model fit (on the largeDesign data).
-  To build the model, this parameter has to be NULL. If it
-  is not NULL the paramters mergedB and rawB will not be
-  used at all in the function.}
+  \item{fit}{if an existing model fit is supplied, the
+  model will not be build based on data, but only evaluated
+  with the model fit (on the design data). To build the
+  model, this parameter has to be NULL. If it is not NULL
+  the parameters mergedB and rawB will not be used at all
+  in the function.}
 }
 \value{
   returns the list \code{spotConfig} with two new
   entries:\cr spotConfig$seq.modelFit fit of the model used
-  with predict() \cr spotConfig$seq.largeDesignY the y
-  values of the large design, evaluated with the fit
+  with the predictor functions \cr
+  spotConfig$seq.largeDesignY the y values of the design,
+  evaluated with the fit
 }
 \description{
-  Kriging predictor based on matlab code by Forrester
-  et.al. Can be used both for single and multi objective
-  SPOT.
+  Interface to the Kriging model based on Matlab code by
+  Forrester et al. 2008. Can be used both for single and
+  multi objective SPOT.
 }
 \references{
   Forrester, Alexander I.J.; Sobester, Andras; Keane, Andy
@@ -51,11 +75,7 @@
   Practical Guide. John Wiley & Sons.
 }
 \seealso{
-  \code{\link{spotDetermineTheta}}
-  \code{\link{spotNormalizeMatrix2}}
-  \code{\link{spotNormalizeMatrix}}
-  \code{\link{spotReverseNormalizeMatrix}}
-  \code{\link{spotRegPredictor}}
-  \code{\link{spotRegLikelihood}}
+  \code{\link{forrBuilder}} \code{\link{forrRegPredictor}}
+  \code{\link{forrReintPredictor}}
 }
 

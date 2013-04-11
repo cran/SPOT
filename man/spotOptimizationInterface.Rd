@@ -1,0 +1,105 @@
+\name{spotOptimizationInterface}
+\alias{spotOptimizationInterface}
+\title{spotOptimizationInterface}
+\usage{
+  spotOptimizationInterface(par, fn, gr = NULL, lower,
+    upper, method, control, ...)
+}
+\arguments{
+  \item{par}{is a point (vector) in the decision space of
+  \code{fn}}
+
+  \item{fn}{is the target function of type \code{y = f(x,
+  ...)}}
+
+  \item{gr}{gradient function, not implemented yet}
+
+  \item{lower}{is a vector that defines the lower boundary
+  of search space}
+
+  \item{upper}{is a vector that defines the upper boundary
+  of search space}
+
+  \item{method}{is a string that describes which method is
+  to be used, as implemented in this function. Else it can
+  be a function, which is a custom optimization function
+  created by the user. See details.}
+
+  \item{control}{is a list of additional settings. See
+  details.}
+
+  \item{...}{additional parameters to be passed on to
+  \code{fn}}
+}
+\value{
+  This function returns a list with:\cr \code{par}
+  parameters of the found solution\cr \code{value} target
+  function value of the found solution\cr \code{counts}
+  number of evaluations of \code{fn}
+}
+\description{
+  This function is an interface fashioned like the
+  \code{\link{optim}} function. It is used in SPOT to
+  access several different optimization methods.
+}
+\details{
+  The control list contains:\cr \code{fevals} stopping
+  criterion, number of evaluations allowed for \code{fn}
+  (defaults to 100) \cr \code{reltol} stopping criterion,
+  relative tolerance (defaults to 1e-6) \cr \code{abstol}
+  stopping criterion, absolute tolerance (defaults to 1e-6)
+  \cr \code{popsize} population size or number of particles
+  (default depends on method) \cr \code{restarts} whether
+  or not to do restarts, default is FALSE \cr
+  \code{vectorized} whether or not \code{fn} can evaluate
+  multiple points at once, defaults to FALSE(only relevant
+  for cmaes and pso methods) \cr Please note that all
+  settings will have to be passed to the actual
+  optimization method. Not all of those make use of the
+  items listed above\cr\cr Also note that the parameter
+  \code{method} will be used to choose the optimization
+  method from the following list:\cr "lhs" - Latin
+  Hypercube Sampling\cr "optim-L-BFGS-B" - BFGS
+  quasi-Newton: \code{stats} Package\cr "pso" - Particle
+  Swarm Optimization: \code{pso} Package \cr "cmaes" -
+  Covariance Matrix Adaptation Evolution Strategy:
+  \code{cmaes} Package\cr "genoud" - Combines evolutionary
+  search algorithms with derivative-based (Newton or
+  quasi-Newton) methods: \code{rgenoud} Package\cr
+  "DEoptim" - Differential Evolution implementation:
+  \code{DEoptim} Package\cr "bobyqa" - Trust region method
+  that forms quadratic models by interpolation:
+  \code{minqa} Package\cr "BBoptim" - Strategy using
+  different Barzilai-Borwein step-lengths: \code{BB}
+  Package\cr "GenSA" - Generalized simulated annealing
+  which for global minimization of a very complex
+  non-linear objective function with a very large number of
+  optima: \code{GenSA} Package\cr "hjkb" - Bounded
+  Hooke-Jeeves algorithm for derivative-free optimization:
+  \code{dfoptim} Package\cr\cr Additionally to the above
+  methods, several methods from the package \code{nloptr}
+  can be chosen. For instance:\cr "NLOPT_LN_NELDERMEAD" -
+  Nelder-Mead Simplex\cr "NLOPT_LN_SBPLX" - Nelder-Mead
+  Simplex on sequence of subspaces\cr "NLOPT_GN_DIRECT" -
+  Direct Search \cr "NLOPT_GN_DIRECT_L" - Direct Search,
+  locally biased\cr\cr The complete list of suitable nlopt
+  methods (non-gradient, bound constraints) is: \cr
+  "NLOPT_GN_DIRECT","NLOPT_GN_DIRECT_L","NLOPT_GN_DIRECT_L_RAND",
+  "NLOPT_GN_DIRECT_NOSCAL","NLOPT_GN_DIRECT_L_NOSCAL","NLOPT_GN_DIRECT_L_RAND_NOSCAL",
+  "NLOPT_GN_ORIG_DIRECT","NLOPT_GN_ORIG_DIRECT_L","NLOPT_LN_PRAXIS",
+  "NLOPT_GN_CRS2_LM","NLOPT_LN_COBYLA","NLOPT_LN_NEWUOA_BOUND",
+  "NLOPT_LN_NELDERMEAD","NLOPT_LN_SBPLX","NLOPT_LN_BOBYQA","NLOPT_GN_ISRES"\cr\cr
+  All of the above methods use bound constraints. For
+  references and details on the specific methods, please
+  check the documentation of the packages that provide
+  them.\cr\cr Furthermore, the user can choose to use a
+  function instead of a string for the \code{method}. The
+  used function should have the same parameters and
+  arguments as documented for this very function, i.e.
+  \code{spotOptimizationInterface}.
+}
+\seealso{
+  \code{\link{spotOptim}}
+  \code{\link{spotOptimizationInterfaceMco}}
+}
+

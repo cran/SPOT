@@ -14,7 +14,7 @@ config=list(
 	seq.predictionModel.func="spotPredictEarth", #multivariate adaptive regression splines, surrogate model
 	io.verbosity=3,
 	seq.design.oldBest.size=0,seq.design.new.size=10, 
-	seq.predictionOpt.func="spotParetoOptMulti", #use pareto optimization function to optimize build surrogate models
+	seq.predictionOpt.func="spotModelParetoOptim", #use pareto optimization function to optimize build surrogate models
 	seq.predictionOpt.method="sms-emoa",  #use sms emoa for the above mentioned pareto optimization
 	seq.predictionOpt.budget=2000, #the budget for sms emoa
 	seq.predictionOpt.psize=20, #population size for sms emoa

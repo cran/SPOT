@@ -1,0 +1,34 @@
+\name{regpoly2}
+\alias{regpoly2}
+\title{Regression: Regpoly2}
+\usage{
+  regpoly2(S, grad = FALSE)
+}
+\arguments{
+  \item{S}{m*n matrix with \code{m} design points of
+  dimension \code{n}}
+
+  \item{grad}{define if function returns gradient, default
+  is \code{FALSE}}
+}
+\value{
+  returns a list with two elements: \item{\code{f}}{matrix:
+  \cr ( 1 S S[,1]*S S[,2]S[,2:n] ... S[,n]^2 )}
+  \item{\code{df}}{Jacobian at the first point (first row
+  in S) }
+}
+\description{
+  Second order polynomial regression function.
+}
+\author{
+  The authors of the original DACE Matlab code
+  \url{http://www2.imm.dtu.dk/~hbni/dace/} are Hans Bruun
+  Nielsen \email{hbn@imm.dtu.dk}, Soren Nymand Lophaven and
+  Jacob Sondergaard. \cr Ported to R by Martin Zaefferer
+  \email{martin.zaefferer@fh-koeln.de}.
+}
+\seealso{
+  \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
+}
+\keyword{internal}
+

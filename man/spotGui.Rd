@@ -12,9 +12,6 @@
 }
 \details{
   Java runtime environment needs to be installed to use the
-  gui.
-}
-\seealso{
-  \code{\link{SPOT}}
+  GUI.
 }
 

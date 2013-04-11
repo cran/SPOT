@@ -7,7 +7,7 @@
 }
 \arguments{
   \item{configFile}{the absolute path including
-  filespecifier, there is no default, this value should
+  file-specifier, there is no default, this value should
   always be given}
 
   \item{spotTask}{[init|seq|run|auto|rep] the switch for

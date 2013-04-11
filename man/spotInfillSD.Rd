@@ -1,0 +1,22 @@
+\name{spotInfillSD}
+\alias{spotInfillSD}
+\title{Neg. SD Infill Criterion}
+\usage{
+  spotInfillSD(mean, sd, min)
+}
+\arguments{
+  \item{mean}{predicted mean values}
+
+  \item{sd}{predicted st. deviation}
+
+  \item{min}{the currently known optimum value}
+}
+\value{
+  Returns the of \code{sd}.
+}
+\description{
+  Infill criterion: negative standard deviation only. This
+  type of infill criterion is useful when pure exploration
+  is desired.
+}
+

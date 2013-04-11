@@ -13,7 +13,7 @@
 
   \item{n}{vector length}
 
-  \item{sigma}{standart deviation}
+  \item{sigma}{standard deviation}
 }
 \value{
   description of return value

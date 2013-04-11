@@ -1,0 +1,25 @@
+\name{spotRepeatsOcba}
+\alias{spotRepeatsOcba}
+\title{Select repeats of design points based on OCBA}
+\usage{
+  spotRepeatsOcba(spotConfig, mergedData,
+    largeDesignEvaluated)
+}
+\arguments{
+  \item{spotConfig}{List, containing all settings of SPOT}
+
+  \item{mergedData}{merged data from runs of the target
+  function}
+
+  \item{largeDesignEvaluated}{sorted large design in
+  sequential SPOT step}
+}
+\description{
+  Select repeats of design points based on OCBA
+}
+\seealso{
+  \code{\link{spotGenerateSequentialDesign}}
+  \code{\link{spotOcba}} \code{\link{spotRepeats}}
+}
+\keyword{internal}
+

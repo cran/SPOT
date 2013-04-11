@@ -1,0 +1,40 @@
+\name{corrnoisykriging}
+\alias{corrnoisykriging}
+\title{Correlation: Noisy Kriging}
+\usage{
+  corrnoisykriging(theta, d, ret = "all")
+}
+\arguments{
+  \item{theta}{parameters in the correlation function}
+
+  \item{d}{m*n matrix with differences between given data
+  points}
+
+  \item{ret}{A string. If set to \code{"all"} or
+  \code{"dr"}, the derivative of \code{r} (\code{dr}) will
+  be returned, else \code{dr} is \code{NA}.}
+}
+\value{
+  returns a list with two elements:
+  \item{\code{r}}{correlation} \item{\code{dr}}{m*n matrix
+  with the Jacobian of \code{r} at \code{x}. It is assumed
+  that \code{x} is given implicitly by \code{d[i,] = x -
+  S[i,]}, where \code{S[i,]} is the \code{i}'th design
+  site.}
+}
+\description{
+  Noisy Kriging correlation function using nuggets
+}
+\author{
+  The authors of the original DACE Matlab code
+  \url{http://www2.imm.dtu.dk/~hbni/dace/} are Hans Bruun
+  Nielsen \email{hbn@imm.dtu.dk}, Soren Nymand Lophaven and
+  Jacob Sondergaard. \cr Extension of the Matlab code by
+  Tobias Wagner \email{wagner@isf.de}. \cr Ported to R by
+  Martin Zaefferer \email{martin.zaefferer@fh-koeln.de}.
+}
+\seealso{
+  \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
+}
+\keyword{internal}
+

@@ -35,7 +35,7 @@
 spotAlgEsGetSuccessRate <- function(gen,pop){
 	succ <- length(subset(pop, pop$generation==gen)[,1])
 	len <- length(pop[,1])
-	return(succ/len)
+	succ/len
 }  
 
 ### Initialization ########################################################
@@ -118,7 +118,7 @@ spotAlgEsInitParentPop <- function(sigmaInit, dimension, nSigma, noise, fName, g
 						high=high,
 						des = ld[i,],...))
 	}                                        
-	return(parentPop)
+	parentPop
 }
 
 ### Recombination ######################################################
@@ -137,7 +137,7 @@ spotAlgEsInitParentPop <- function(sigmaInit, dimension, nSigma, noise, fName, g
 #' @keywords internal
 ###################################################################################################
 spotAlgEsMarriageWithReplace <- function(pop,rhoVal){
-	return(pop[sample(nrow(pop), rhoVal, replace=TRUE),])
+	pop[sample(nrow(pop), rhoVal, replace=TRUE),]
 }
 
 ###################################################################################################
@@ -155,7 +155,7 @@ spotAlgEsMarriageWithReplace <- function(pop,rhoVal){
 #' @keywords internal
 ###################################################################################################
 spotAlgEsMarriage <- function(pop,rhoVal){
-	return(pop[sample(nrow(pop), rhoVal, replace=FALSE),])
+	pop[sample(nrow(pop), rhoVal, replace=FALSE),]
 }
 
 ###################################################################################################
@@ -179,7 +179,7 @@ spotAlgEsInterRecoBeSw02 <- function(parents, dimension, nSigma, objType="obj"){
 	else{
 		for(i in 1:nSigma)  rObject <- c(rObject, mean(parents[,I(dimension+i)]))
 	}
-	return(rObject)
+	rObject
 }
 
 ###################################################################################################
@@ -212,7 +212,7 @@ spotAlgEsInterReco <- function(parents, rhoVal, dimension, nSigma, objType="obj"
 			rObject <- c(rObject, mean(parents[select2,I(dimension+i)]))
 		}
 	}
-	return(rObject)
+	rObject
 }
 
 ###################################################################################################
@@ -239,7 +239,7 @@ spotAlgEsDominantReco <- function(parents, rhoVal, dimension, nSigma, objType="o
 		for (i in (1:nSigma))
 			rObject <- c(rObject, parents[sample(rhoVal,1),I(dimension+i)])
 	}
-	return(rObject)
+	rObject
 }
 
 
@@ -248,13 +248,13 @@ spotAlgEsDominantReco <- function(parents, rhoVal, dimension, nSigma, objType="o
 ###################################################################################################
 #' spotAlgEsStratMutation
 #'
-#' Mutation function for the ES. 
+#' Mutation function for the ES strategy parameter sigma. 
 #'
-#' @param strat Strat
-#' @param tau0 Tau0
-#' @param tau Tau, learning parameter for self adaption
-#' @param sigmaRestart Sigma on restart
-#' @param sigmaInit initial sigma value (standard deviation)
+#' @param strat Strategy parameter (sigma), can be a vector or a single number
+#' @param tau0 the global/general step size multiplier for self adaption
+#' @param tau the step size multiplier for self adaption in each dimension
+#' @param sigmaRestart sigma values are reset to initial values when a uniformly distributed random number is smaller than sigmaRestart
+#' @param sigmaInit initial sigma value
 #'
 #' @return number \code{s} \cr
 #' - \code{s} is the new sigma value
@@ -267,19 +267,19 @@ spotAlgEsStratMutation <- function(strat, tau0, tau, sigmaRestart, sigmaInit){
 	else{
 		s <- exp(tau0*rnorm(1,0,1))*strat*exp(tau*rnorm(length(strat),0,1))
 	}
-	return(s)
+	s
 }
 ###################################################################################################
 #' spotAlgEsObjMutation
 #'
-#' Mutation function for the ES 
+#' Mutation function for the ES individual parameters
 #'
-#' @param obj Object
-#' @param strat Strat
+#' @param obj Object to be mutated
+#' @param strat Strategy parameter sigma to mutate with
 #' @keywords internal
 ###################################################################################################
 spotAlgEsObjMutation <- function(obj, strat){
-	return(obj + strat*rnorm(length(obj),0,1))
+	obj + strat*rnorm(length(obj),0,1)
 }
 
 ### Selection ##################################################################
@@ -318,7 +318,7 @@ spotAlgEsSelection <- function(parentPop, offspringPop, sel, gen, iter, maxIter)
 	}
 	parentPop <- parentPop[order(parentPop$fitness),]
 	row.names(parentPop) <- 1:nrow(parentPop)
-	return(parentPop[1:mue,])
+	parentPop[1:mue,]
 }
 
 ### Termination #################################################################
@@ -338,7 +338,7 @@ spotAlgEsSelection <- function(parentPop, offspringPop, sel, gen, iter, maxIter)
 spotAlgEsHps <- function(xk, xOpt){
 	n <- length(xk)
 	tfVec <- 10*sqrt(n)*(xk-xOpt)<=1
-	return(is.element(FALSE, tfVec))
+	is.element(FALSE, tfVec)
 }
 
 ###################################################################################################
@@ -353,7 +353,7 @@ spotAlgEsHps <- function(xk, xOpt){
 #' @param xk current best value of the optimization run
 #' @param xOpt target value of the optimization run
 #' @param term string that tells which termination criterion matters: \code{"gen"} terminates after given number of generations.
-#' \code{"iter"} terminates after given number of iterations.  \code{"hps"} terminates at fiven target value.
+#' \code{"iter"} terminates after given number of iterations.  \code{"hps"} terminates at given target value.
 #'
 #' @return \code{boolean} \cr
 #' - TRUE as long as the current value has not yet reached its limit. Once the
@@ -385,8 +385,8 @@ spotAlgEsTermination <- function(it, maxIt, ge, maxGe, xk, xOpt, term){
 #' @param mutation mutation type, either \code{1} or \code{2}, default is \code{1}
 #' @param sigmaInit initial sigma value (standard deviation), default is \code{1.0}
 #' @param nSigma number of standard deviations, default is \code{1}
-#' @param tau0 number, default is \code{0.0}
-#' @param tau number, learning parameter for self adaption, default is \code{1.0}
+#' @param tau0 number, default is \code{0.0}. tau0 is the general multiplier.
+#' @param tau number, learning parameter for self adaption, default is \code{1.0}. tau is the local multiplier for step sizes (for each dimension).
 #' @param rho number of parents involved in the procreation of an offspring (mixing number), default is \code{"bi"}
 #' @param sel number of selected individuals, default is \code{1}
 #' @param stratReco value, Recombination operator for strategy variables, default is \code{1}
@@ -417,7 +417,7 @@ spotAlgEsTermination <- function(it, maxIt, ge, maxGe, xk, xOpt, term){
 spotAlgEs <- function(mue = 10,
 		nu = 10,
 		dimension = 2,
-		mutation = 1,
+		mutation = 2,
 		sigmaInit = 1.0,
 		nSigma = 1,
 		tau0 = 0.0,
@@ -451,17 +451,11 @@ spotAlgEs <- function(mue = 10,
 	nSigma <- round(nSigma)
 	### Currently, there are 4 recombination operators:
 	stratReco <- max(round(stratReco) %% 5,1) 
-	objReco <- max(round(objReco) %% 5,1) 
-	
-	if(identical(fName,spotRosenbrockFunction)){
-		dimension <- 2
-		nSigma <- min(nSigma,2)
+	objReco <- max(round(objReco) %% 5,1) 	
+	if(nSigma>dimension){
+		nSigma <- dimension # correction: if nSigma > dimension
+		warning("In Evolution Strategy (spotAlgEs): nSigma should not be larger than dimension.")
 	}
-	if(identical(fName,spotWildFunction)){
-		dimension <- 1
-		nSigma <- 1
-	}
-	nSigma <- min(nSigma,dimension) # correction: if nSigma > dimension
 	lambda <- max(mue,lambda) # correction: if lambda < mue
 	if(plotResult==TRUE){
 		logPlotResult=FALSE
@@ -500,14 +494,14 @@ spotAlgEs <- function(mue = 10,
 	## Perform pre-scan:
 	## the initial population size is multiplied by preScanMult, say 10. Then the mue best ind are
 	## selected from 10*mue individuals
-	if (gen == 0)
+	#if (gen == 0)
 		###
-		parentPop <- spotAlgEsInitParentPop(sigmaInit, dimension, nSigma, noise, fName, gen, lowerLimit, upperLimit, round(mue*preScanMult))
+	parentPop <- spotAlgEsInitParentPop(sigmaInit, dimension, nSigma, noise, fName, gen, lowerLimit, upperLimit, round(mue*preScanMult))
+	iter <- nrow(parentPop) #number of initial function evaluations
 	parentPop <- data.frame(parentPop)
 	parentPop <- parentPop[order(parentPop$fitness),]
 	###
-	if(verbosity==2) print(parentPop)
-	
+	if(verbosity==2) print(parentPop)	
 	bestInd <- parentPop[1,]
 	bestFitness <- parentPop$fitness[[1]]
 	allTimeBest <- bestFitness
@@ -515,7 +509,7 @@ spotAlgEs <- function(mue = 10,
 	parentPop<-parentPop[1:mue,]
 	### End pre-scan
 	
-	iter <-  0
+	#browser()
 	##while(iter < maxIter && gen < maxGen ){
 	while(alg.currentBest < Inf & spotAlgEsTermination(it=iter, maxIt=maxIter, ge=gen, maxGe=maxGen, xk=bestInd[1:dimension], xOpt=globalOpt, term=term )){
 		gen <- gen +1
@@ -565,7 +559,7 @@ spotAlgEs <- function(mue = 10,
 			result <- fName(xNew,...)
 			realFitness <- result
 			fitness <- result
-			
+
 			iter <- iter +1
 			offspring <- NULL
 			offspring <- c(x=x <- xNew,
@@ -576,14 +570,15 @@ spotAlgEs <- function(mue = 10,
 			#####
 			if(verbosity==2)   print(offspring)
 			offspringPop <- rbind(offspringPop, offspring)
+			if(!spotAlgEsTermination(it=iter, maxIt=maxIter, ge=gen, maxGe=maxGen, xk=bestInd[1:dimension], xOpt=globalOpt, term=term )) break;
 		}
 		row.names(offspringPop) <- 1:nrow(offspringPop)
 		offspringPop <- data.frame(offspringPop)
 		###
 		if(verbosity==2)   print("OffspringPop")
 		if(verbosity==2)   print(offspringPop)
-		
 		parentPop <- spotAlgEsSelection(parentPop,offspringPop, sel, gen, iter, maxIter)
+
 		###
 		if(verbosity==2)   print("parentPop")
 		if(verbosity==2)   print(parentPop)
@@ -697,14 +692,14 @@ spotAlgEs <- function(mue = 10,
 	}else{
 		X=realBestPar
 	}	
-	res <- list(Y=realBest[[length(realBest)]], # last value     #TODO: should be alltime best?
+	#return:
+	list(Y=realBest[[length(realBest)]], # last value     #TODO: should be alltime best?
 				X=X,
 			NoisyFitness=bestFitness[[length(bestFitness)]],
 			AllTimeBest=allTimeBest[[length(allTimeBest)]],
 			Generation=bestInd$generation,
-			Percentage=bestInd$generation/gen*100			
-	)
-	return(res)
+			Percentage=bestInd$generation/gen*100,
+			counts=iter)
 }
 
 
@@ -729,7 +724,10 @@ spotAlgEs <- function(mue = 10,
 #' @export
 ###################################################################################################
 spotAlgStartEs <- function(spotConfig){
-	SAVESEED<-.Random.seed
+	if(exists(as.character(substitute(.Random.seed))))
+		SAVESEED<-.Random.seed
+	else
+		SAVESEED=NULL
 	io.apdFileName=spotConfig$io.apdFileName;
 	io.desFileName=spotConfig$io.desFileName;
 	io.resFileName=spotConfig$io.resFileName;	
@@ -751,7 +749,7 @@ spotAlgStartEs <- function(spotConfig){
 	nu = 10;
 	sigmaRestart=0;
 	prescanmult = 1; 	
-	mutation<-1;
+	mutation<-2;
 	rho<-"bi";
 	maxGen<-Inf;
 	noise<-0.0;
@@ -761,65 +759,64 @@ spotAlgStartEs <- function(spotConfig){
 	if(file.exists(io.apdFileName)){
 		source(io.apdFileName,local=TRUE)
 	}
-	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
+	if (spotConfig$spot.fileMode){ 
 		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  io.desFileName), con=stderr());
 		## read doe/dace etc settings:
 		des <- read.table( io.desFileName, sep=" ", header = TRUE);	
 	}else{
-		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
+		des <- spotConfig$alg.currentDesign; 
 	}
 	## read doe/dace etc settings:
 	##  NPARENTS NU TAU NSIGMA REPEATS SEED
 	config<-nrow(des);
 	spotPrint(spotConfig$io.verbosity,1,config);
-	attach(des)
-	if (!exists("CONFIG"))
+	if (is.null(des$CONFIG))
 		stop("Design is missing the required column CONFIG!")
 	for (k in 1:config){		
 		for (i in 1:des$REPEATS[k]){
 			##
-			if (exists("NPARENTS")){
+			if (!is.null(des$NPARENTS)){
 				mue <- des$NPARENTS[k]
 			}
-			if (exists("NU")){
+			if (!is.null(des$NU)){
 				nu <- des$NU[k]
 			}
-			if (exists("NSIGMA")){
+			if (!is.null(des$NSIGMA)){
 				nSigma <- des$NSIGMA[k]
 			}
-			if (exists("TAU0")){
+			if (!is.null(des$TAU0)){
 				tau0 <- des$TAU0[k]
 			}
-			if (exists("TAU")){
+			if (!is.null(des$TAU)){
 				tau <- des$TAU[k]
 			}
-			if (exists("KAPPA")){
+			if (!is.null(des$KAPPA)){
 				kappa <- des$KAPPA[k]
 			}
-			if (exists("SIGMARESTART")){
+			if (!is.null(des$SIGMARESTART)){
 				sigmaRestart <- des$SIGMARESTART[k]
 			}
-			if (exists("SIGMAINIT")){
+			if (!is.null(des$SIGMAINIT)){
 				sigmaInit <- des$SIGMAINIT[k]
 			}
 			prescanmult <- 1
-			if (exists("PRESCANMULT")){
+			if (!is.null(des$PRESCANMULT)){
 				prescanmult <- des$PRESCANMULT[k]
 			}				
 			## special treatment for factors
 			##recoType <- c("no", "disc","inter","interRecoBeSw02")
-			if (exists("OBJRECO")){
+			if (!is.null(des$OBJRECO)){
 				objReco <- des$OBJRECO[k]
 			}
-			if (exists("STRATRECO")){
+			if (!is.null(des$STRATRECO)){
 				stratReco <- des$STRATRECO[k]
 			}	  
 			conf <- k
-			if (exists("CONFIG")){
+			if (!is.null(des$CONFIG)){
 				conf <- des$CONFIG[k]
 			}
 			spotStep<-NA
-			if (exists("STEP")){
+			if (!is.null(des$STEP)){
 				spotStep <- des$STEP[k]
 			}				
 			seed <- des$SEED[k]+i-1				
@@ -876,7 +873,7 @@ spotAlgStartEs <- function(spotConfig){
 			)
 			res <-data.frame(res)						
 			spotPrint(spotConfig$io.verbosity,1,res$Y)			
-			if (exists("STEP")){
+			if (!is.null(des$STEP)){
 				res=c(res,STEP=spotStep)
 			} 
 			res <-data.frame(res)
@@ -899,9 +896,9 @@ spotAlgStartEs <- function(spotConfig){
 			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res);			
 		}
 	}	
-	detach(des)
-	assign(".Random.seed", SAVESEED, envir=globalenv()); 
-	return(spotConfig)
+	if(!is.null(SAVESEED))
+		assign(".Random.seed", SAVESEED, envir=globalenv()); 
+	spotConfig
 }
 
 ###################################################################################################
@@ -912,7 +909,7 @@ spotAlgStartEs <- function(spotConfig){
 #' This function is needed as an interface, to ensure the right information
 #' are passed from SPOT to the target algorithm (e.g. the ES) and vice versa.
 #' In contrast to \code{\link{spotAlgStartEs}} it is an interface for Pareto optimization, to optimize both the
-#' performance as well as the variance of the ES algorithm, to proposedly reach more robust results.
+#' performance as well as the variance of the ES algorithm, to reach more robust results.
 #'
 #' @param spotConfig Contains the list of spot configurations, results of the algorithm can be passed to this list instead of the .res file.
 #'		  spotConfig defaults to "NA", and will only be passed to the Algorithm if spotConfig$spot.fileMode=FALSE. See also: \code{\link{spotGetOptions}}
@@ -927,7 +924,10 @@ spotAlgStartEs <- function(spotConfig){
 #' @export
 ###################################################################################################
 spotAlgStartEsVar <- function(spotConfig){
-	SAVESEED<-.Random.seed
+	if(exists(as.character(substitute(.Random.seed))))
+		SAVESEED<-.Random.seed
+	else
+		SAVESEED=NULL
 	spotConfig$alg.resultColumn=c("Y", "Ysd")
 	io.apdFileName=spotConfig$io.apdFileName;
 	io.desFileName=spotConfig$io.desFileName;
@@ -950,7 +950,7 @@ spotAlgStartEsVar <- function(spotConfig){
 	nu = 10;
 	sigmaRestart=0;
 	prescanmult = 1; 	
-	mutation<- 1;
+	mutation<- 2;
 	rho<-"bi";
 	maxGen<-Inf;
 	noise<-0.0;
@@ -960,12 +960,12 @@ spotAlgStartEsVar <- function(spotConfig){
 	if(file.exists(io.apdFileName)){
 		source(io.apdFileName,local=TRUE)
 	}
-	if (spotConfig$spot.fileMode){ ##Check if spotConfig was passed to the algorithm, if yes the spot.fileMode is chosen with False wich means results have to be passed to spotConfig and not to res file.
+	if (spotConfig$spot.fileMode){ 
 		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  io.desFileName), con=stderr());
 		## read doe/dace etc settings:
 		des <- read.table( io.desFileName, sep=" ", header = TRUE);	
 	}else{
-		des <- spotConfig$alg.currentDesign; ##The if/else should not be necessary anymore, since des will always be written into the spotConfig
+		des <- spotConfig$alg.currentDesign; 
 	}
 	## read doe/dace etc settings:
 	#print( io.desFileName)
@@ -973,54 +973,53 @@ spotAlgStartEsVar <- function(spotConfig){
 	##  NPARENTS NU TAU NSIGMA REPEATS SEED
 	config<-nrow(des);
 	spotPrint(spotConfig$io.verbosity,1,config);
-	attach(des)
 	if (is.null(des$CONFIG))
 		stop("Design is missing the required column CONFIG!")
 	for (k in 1:config){		
 		for (i in 1:des$REPEATS[k]){
 			##
-			if (exists("NPARENTS")){
+			if (!is.null(des$NPARENTS)){
 				mue <- des$NPARENTS[k]
 			}
-			if (exists("NU")){
+			if (!is.null(des$NU)){
 				nu <- des$NU[k]
 			}
-			if (exists("NSIGMA")){
+			if (!is.null(des$NSIGMA)){
 				nSigma <- des$NSIGMA[k]
 			}
-			if (exists("TAU0")){
+			if (!is.null(des$TAU0)){
 				tau0 <- des$TAU0[k]
 			}
-			if (exists("TAU")){
+			if (!is.null(des$TAU)){
 				tau <- des$TAU[k]
 			}
-			if (exists("KAPPA")){
+			if (!is.null(des$KAPPA)){
 				kappa <- des$KAPPA[k]
 			}
-			if (exists("SIGMARESTART")){
+			if (!is.null(des$SIGMARESTART)){
 				sigmaRestart <- des$SIGMARESTART[k]
 			}
-			if (exists("SIGMAINIT")){
+			if (!is.null(des$SIGMAINIT)){
 				sigmaInit <- des$SIGMAINIT[k]
 			}
 			prescanmult <- 1
-			if (exists("PRESCANMULT")){
+			if (!is.null(des$PRESCANMULT)){
 				prescanmult <- des$PRESCANMULT[k]
 			}				
 			## special treatment for factors
 			##recoType <- c("no", "disc","inter","interRecoBeSw02")
-			if (exists("OBJRECO")){
+			if (!is.null(des$OBJRECO)){
 				objReco <- des$OBJRECO[k]
 			}
-			if (exists("STRATRECO")){
+			if (!is.null(des$STRATRECO)){
 				stratReco <- des$STRATRECO[k]
 			}	  
 			conf <- k
-			if (exists("CONFIG")){
+			if (!is.null(des$CONFIG)){
 				conf <- des$CONFIG[k]
 			}
 			spotStep<-NA
-			if (exists("STEP")){
+			if (!is.null(des$STEP)){
 				spotStep <- des$STEP[k]
 			}				
 			seed <- des$SEED[k]+i-1				
@@ -1077,11 +1076,11 @@ spotAlgStartEsVar <- function(spotConfig){
 			)
 			res <-data.frame(res)		     
 			spotPrint(spotConfig$io.verbosity,1,res$Y)			
-			if (exists("STEP")){
+			if (!is.null(des$STEP)){
 				res=c(res,STEP=spotStep,Ysd=NA)
 			} 
 			res <-data.frame(res)
-			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res);			
+			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res)	
 		}
 		ysd<-sd(spotConfig$alg.currentResult[which(spotConfig$alg.currentResult$CONFIG==des$CONFIG[k]),]$Y)
 		spotConfig$alg.currentResult[which(spotConfig$alg.currentResult$CONFIG==des$CONFIG[k]),]$Ysd=ysd
@@ -1097,9 +1096,9 @@ spotAlgStartEsVar <- function(spotConfig){
 			, file =  io.resFileName, row.names = FALSE, col.names = colNames, sep = " "              
 			, append = !colNames, quote = FALSE);		
 	}
-	detach(des)
-	assign(".Random.seed", SAVESEED, envir=globalenv()); 
-	return(spotConfig)
+	if(!is.null(SAVESEED))
+		assign(".Random.seed", SAVESEED, envir=globalenv())
+	spotConfig
 }
 
 

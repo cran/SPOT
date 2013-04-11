@@ -10,7 +10,7 @@
   to a matrix}
 }
 \description{
-  Function used to continuosly plot the actually retrieved
+  Function used to continuously plot the actually retrieved
   best value throughout a SPOT run. The number of variables
   shown is limited to twelve - make sure the relevant
   variables belong to the first lines of your .roi-file.
@@ -19,4 +19,5 @@
   \code{\link{SPOT}} \code{\link{spot}}
   \code{\link{spotReadBstFile}}
 }
+\keyword{internal}
 

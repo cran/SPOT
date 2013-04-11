@@ -34,7 +34,7 @@ spotGetRepeats <- function(configNumber, configList){
 	listElements <- unique(configList)
 	splitList <- (split(configList,factor(configList)))
 	repList <- data.frame(cbind(listElements,reps=sapply(splitList, length)))
-	return(repList[configNumber==listElements,2])
+	repList[configNumber==listElements,2]
 }
 
 
@@ -54,7 +54,7 @@ spotGetAllRepeats <- function(configList){
 	for (i in 1:length(configList)){
 		all<-c(all,spotGetRepeats(configList[i],configList))
 	}
-	return(all)
+	all
 }
 
 ###################################################################################################

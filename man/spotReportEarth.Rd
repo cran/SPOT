@@ -1,0 +1,23 @@
+\name{spotReportEarth}
+\alias{spotReportEarth}
+\title{Earth Report}
+\usage{
+  spotReportEarth(spotConfig)
+}
+\arguments{
+  \item{spotConfig}{the configuration list of all spot
+  parameters}
+}
+\value{
+  list spotConfig with changed values
+}
+\description{
+  Generates a report for results of a SPOT run with
+  spotPredictEarth
+}
+\seealso{
+  \code{\link{SPOT}} \code{\link{spot}}
+  \code{\link{spotStepReport}}
+  \code{\link{spotPredictEarth}}
+}
+

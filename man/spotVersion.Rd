@@ -9,7 +9,7 @@
 }
 \description{
   Help function that returns the version of SPOT provided
-  for convinience
+  for convenience
 }
 \keyword{internal}
 

@@ -1,0 +1,26 @@
+\name{daceEvalFit}
+\alias{daceEvalFit}
+\title{Evaluate DACE fit}
+\usage{
+  daceEvalFit(theta, para)
+}
+\arguments{
+  \item{theta}{model parameters to be evaluated}
+
+  \item{para}{model option list, as created with
+  \code{\link{dacePrepareFit}}}
+}
+\value{
+  performance vector, first elements are theta, last
+  element is likelihood.
+}
+\description{
+  Evaluate the fit of a certain set of model parameters
+  (\code{theta}).
+}
+\seealso{
+  \code{\link{daceBuilder}} \code{\link{daceLikelihood}}
+  \code{\link{daceGetFit}}
+}
+\keyword{internal}
+

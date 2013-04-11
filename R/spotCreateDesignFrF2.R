@@ -1,39 +1,38 @@
 ####################################################################################
-## create a factorial design : chosen if the switch in spot::stepInitial is set to doe
-## spotConfig$design.type="spotDesignFrF2"
-####################################################################################
-#' Create a resolution III design with center point 
-#' based on the number of dimensions and the number of design points
+#' spotCreateDesignFrF2
 #' 
-#' Uses the function FrF2 from the FrF2-package to generate a (fractional) factorial design
-#'
+#' Uses the function FrF2 from the FrF2-package to generate a (fractional) factorial design.
+#' The factorial design is augmented with the augment.ccd function from DoE.wrapper package.
 #' The dimension is determined from the number of rows of the .roi - file 
-#' (each row in the roi file defines a variable).
-#'  
+#' (each row in the roi file defines a variable). 
 #'
-#' @param spotConfig list of spotConfiguration
-#' @param noDesPoints number of design points, default is NaN
-#' @param repeats number of repeats, default is NaN
+#' @param spotConfig list of spot settings
+#' @param noDesPoints  is obsolete for this type of design, it has no influence. The number of points is fixed.
+#' @param repeats is obsolete for this type of design, it has no influence.
 #'
 #' @return matrix \code{M} \cr
 #' - \code{M} has \code{dimension} columns and \code{noDesPoints} rows
 #' @export
+#' @seealso \code{\link{spotCreateDesignBasicDoe}}, \code{\link{spotCreateDesignLhd}}, 
+#' \code{\link{spotCreateDesignLhs}}, \code{\link{spotCreateDesignLhsOpt}}
 ####################################################################################
 spotCreateDesignFrF2 <- function(spotConfig, noDesPoints = NaN, repeats=NaN){	
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignFrF2.R::spotCreateDesignFrF2()");
 	spotInstAndLoadPackages(c('FrF2',  'DoE.wrapper'))
 	#require(DoE.wrapper)#allready required in spotInstAndLoadPackages function
 	
-	if (spotConfig$seq.useAdaptiveRoi){ 
-		if(spotConfig$spot.fileMode){ 
+	## use roi or aroi:
+	if(spotConfig$spot.fileMode){
+		if(file.exists(spotConfig$io.aroiFileName))
 			roiConfig <- spotReadRoi(spotConfig$io.aroiFileName,spotConfig$io.columnSep,spotConfig$io.verbosity)
-		}else{
-			roiConfig <- spotConfig$alg.aroi
-		}
-	}	
-	else{
-		roiConfig <- spotConfig$alg.roi
-	}	
+		else
+			roiConfig <- spotReadRoi(spotConfig$io.roiFileName,spotConfig$io.columnSep,spotConfig$io.verbosity)
+	}else{
+		roiConfig <- spotConfig$alg.aroi
+		if(is.null(roiConfig)) roiConfig <- spotConfig$alg.roi
+	}
+	
+
 	pNames <- row.names(roiConfig);
 	lowerBound <-  roiConfig[ ,"lower"];
 	upperBound <-  roiConfig[ ,"upper"];
@@ -46,8 +45,7 @@ spotCreateDesignFrF2 <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 	## add center point:
 	## M<-add.center(M, ncenter =1)
 	## or add center point plus stars:	
-	M <- ccd.augment(M, ncenter = 1, columns="all",
-			alpha = sqrt(2)/2, randomize=TRUE)
+	M <- ccd.augment(M, ncenter = 1, columns="all",	alpha = sqrt(2)/2, randomize=TRUE)
     ## remove block information
 	M <- M[,-1]
     ##delete replicates
@@ -61,7 +59,9 @@ spotCreateDesignFrF2 <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 			M[i,j] <- A[j,1] + (M[i,j] +1)/2 * (A[j,2] - A[j,1])
 		}
 	}		
-	colnames(M) <- pNames			
-	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotCreateDesignFrF2.R::spotCreateDesignFrF2");
-	return(M);		
+	colnames(M) <- pNames	
+	rownames(M) <- NULL
+	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotCreateDesignFrF2.R::spotCreateDesignFrF2")
+	M <- as.data.frame(M)
+	M		
 }

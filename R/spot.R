@@ -19,21 +19,21 @@
 # Package Description for Roxygen:
 #' Sequential Parameter Optimization Toolbox in R
 #'
-#' \tabular{ll}{
-#' Package: \tab SPOT\cr
-#' Type: \tab Package\cr
-#' Version: \tab 1.0.2662\cr
-#' Date: \tab 05.11.2012\cr
-#' License: \tab GPL (>= 2)\cr
-#' LazyLoad: \tab yes\cr
-#' }
-#'
 #' SPOT is a package for R, using statistic models to find
 #' optimal parameters for optimization algorithms. SPOT is a very flexible and 
 #' user oriented tool box for parameter optimization. The flexibility has its 
 #' price: to fully use all the possibilities of flexibility the user is requested 
 #' to look at a large number of spot-parameters to change. The good news is, that 
 #' some defaults are given that already work perfectly well for 90 percent of the users.
+#'
+#' \tabular{ll}{
+#' Package: \tab SPOT\cr
+#' Type: \tab Package\cr
+#' Version: \tab 1.0.4045\cr
+#' Date: \tab 11.04.2013\cr
+#' License: \tab GPL (>= 2)\cr
+#' LazyLoad: \tab yes\cr
+#' }
 #'
 #' @name SPOT-package
 #' @aliases SPOT
@@ -45,8 +45,8 @@
 #' \url{http://www.gm.fh-koeln.de/campus/personen/lehrende/thomas.bartz-beielstein/00489/} \cr
 #' \url{http://www.springer.com/3-540-32026-1}
 #' @keywords package
-#' @seealso Main interface functions are \code{\link{spot}} and \code{\link{spotOptim}}, 
-#' also a graphical interface can be used with \code{\link{spotGui}}
+#' @seealso Main interface functions are \code{\link{spot}} and \code{\link{spotOptim}}.
+#' Also, a graphical interface can be used with \code{\link{spotGui}}
 #End of Package Description
 NA #NULL, ends description without hiding first function
 ###################################################################################
@@ -92,18 +92,14 @@ NA #NULL, ends description without hiding first function
 spotPrepareSystem <- function(){
 	### check whether necessary packages are installed and install missing packages
 	# see also: depends and suggests in DESCRIPTION file.
-	necessaryPackages = c('rpart', 'maptree','emoa' ); 
+	necessaryPackages = c('rpart', 'emoa' ); 
 	spotInstAndLoadPackages(necessaryPackages)	
 	###### default packages with various use 
 	# 'emoa' - used in various functions for multi objective optimization purpose, but mainly in spotGenerateSequentialDesign
 	###### default packages that are specified to be used in:  
 	# spotPreditTree AND spotPlotBst: 'rpart'
-	# spotPlotBst AND spotReportDefault: 'maptree'
 	###### deleted because use was not found:  
-	# 'gtools' Various R programming tools
 	# 'colorspace',Color Space Manipulation 
-	# 'lattice', 'graphics','fields' standard packages 
-	# 'MASS' -  Main Package of Venables and Ripley's MASS -used in ???
 	# 'vcd' Visualizing Categorical Data - used in ???
 	# 'stats' -  R statistical functions used in ??? 
 	# 'DoE.base' used in ???
@@ -132,7 +128,7 @@ spotPrepareSystem <- function(){
 #' in the packaged version this is already done when package is installed.
 #'
 #' @param srcPath 			the absolute path to the SPOT sources
-#' @param configFile 		the absolute path including filespecifier
+#' @param configFile 		the absolute path including file-specifier
 #' @param spotConfigUser	a list of parameters used to configure spot, usually  spotConfigUser=NA will be passed to this function, which means the configuration will only be read from the \code{configFile}, not given by manual user input. 		
 #'							Notice that parameters given in spotConfigUser will overwrite both default values assigned by SPOT, AND values defined in the config file
 #'							However, values not passed by spotConfigUser will still be used as defaults. If you want to see those defaults, look at \code{\link{spotGetOptions}}  
@@ -151,18 +147,18 @@ spotPrepare <- function(srcPath,configFile,spotConfigUser){
 	######################################	
 	## Add path to files
 	createSourcePath <- function(sourceFileName){
-		normalizePath(paste(srcPath,sourceFileName, sep="/"));
+		normalizePath(paste(srcPath,sourceFileName, sep="/"))
 	}	
 	## everything happens relative to users configuration file
 	if(file.exists(configFile)){
-		setwd(dirname(configFile));	
+		setwd(dirname(configFile))
 	}
 	## Call configuration program that extracts infos from userconf	
-	spotConfig <- spotGetOptions(srcPath=srcPath,configFile);
+	spotConfig <- spotGetOptions(srcPath=srcPath,configFile)
 	## MZ 04.09.2010: New feature implemented, so user can set options in commandline when calling  spot()
 	if(is.list(spotConfigUser)){
-		spotConfig <- append(spotConfigUser,spotConfig); 
-		spotConfig <- spotConfig[!duplicated(names(spotConfig))];#Commandline Input from user will overwrite configfile/default parameters here !!
+		spotConfig <- append(spotConfigUser,spotConfig)
+		spotConfig <- spotConfig[!duplicated(names(spotConfig))]#Commandline Input from user will overwrite configfile/default parameters here !!
 		if(file.exists(spotConfig$io.roiFileName)){ #Read in the roi, just in case that spotConfigUser contained a new roi file name
 			spotConfig$alg.roi <- spotReadRoi(spotConfig$io.roiFileName,spotConfig$io.columnSep,spotConfig$io.verbosity)
 			spotConfig$alg.aroi <- spotConfig$alg.roi
@@ -171,12 +167,19 @@ spotPrepare <- function(srcPath,configFile,spotConfigUser){
 		colnames(spotConfig$alg.aroi) <- c("lower","upper","type")
 	}
 	if(is.function(spotConfig$alg.func)){
-		spotConfig$alg.tar.func<-spotConfig$alg.func;
+		spotConfig$alg.tar.func<-spotConfig$alg.func
 		spotConfig$alg.func<-"spotOptimInterface"		
 	}
 	else if(!is.character(spotConfig$alg.func)){
 		stop("The optimization target function is neither a character string, nor a function handle")
 	}	
+	## MZ 30.08.2012: Continue stopped or broken SPOT runs (broken runs only continued if file mode enabled)
+	if(spotConfig$spot.continue){
+		if(spotConfig$spot.fileMode && file.exists(spotConfig$io.resFileName)) {
+			spotConfig$alg.currentResult <- spotGetRawResData(spotConfig)$rawD
+		}	
+	}
+	
 #	if (spotConfig$spot.ocba == TRUE){#Bugfix: If ocba is chosen, makes sure that max repeats, and initial repeats are more than 1. However this will still crash with noise=0
 #		if (!is.na(spotConfig$init.design.repeats)){
 #			if (spotConfig$init.design.repeats <= 1){
@@ -189,8 +192,8 @@ spotPrepare <- function(srcPath,configFile,spotConfigUser){
 #			}
 #		}
 #	}
-	class(spotConfig)<-"spotConfig"
-	return(spotConfig)		
+	class(spotConfig)<-"spotConfig" #TODO class might yield slow-down!
+	spotConfig
 } # end spotPrepare()
 
 ###################################################################################
@@ -213,9 +216,9 @@ spotPrepare <- function(srcPath,configFile,spotConfigUser){
 #'   \code{spotConfig$init.design.func} holds the spotCreateDesign<XXX> function to be used 
 #'			for building an initial design. \cr 
 #'   \code{spotConfig$init.design.size} number of points that should be created for the initial design \cr
-#'   \code{spotConfig$init.design.retries} gives the number of trials to find a design with the greates minimal distance, (default is 1)\cr 
+#'   \code{spotConfig$init.design.retries} gives the number of trials to find a design with the greatest distance between points, (default is 1)\cr 
 #'   \code{spotConfig$init.design.repeats} number of repeats for one initial design-point\cr
-#'   \code{spotConfig$alg.seed} seed value for reproducable runs\cr
+#'   \code{spotConfig$alg.seed} seed value for reproducible runs\cr
 #'   \code{spotConfig$srcPath} source path as given when spot() is called (or uses default)\cr
 #'   \code{spotConfig$io.verbosity} verbosity for command window output, which is passed to the output function
 #' @export
@@ -224,8 +227,8 @@ spotStepInitial <- function(spotConfig) {
   	## Sets the seed for all random number generators in SPOT
 	set.seed(spotConfig$spot.seed) 
 	#clear old  data 
-	spotConfig$alg.currentResult<-NULL;
-	spotConfig$alg.currentBest<-NULL;
+	spotConfig$alg.currentResult<-NULL
+	spotConfig$alg.currentBest<-NULL
 	
 	spotWriteLines(spotConfig$io.verbosity,2,"Create Inital Design", con=stderr());
 	if(!exists(spotConfig$init.design.func))stop(paste("The design function name", spotConfig$init.design.func, "is not found in the workspace \n
@@ -241,7 +244,7 @@ spotStepInitial <- function(spotConfig) {
 	if(spotConfig$spot.fileMode){
 		spotWriteAroi(A,spotConfig$io.verbosity,spotConfig$io.columnSep,spotConfig$io.aroiFileName)	
 	}
-	spotConfig$alg.aroi<-spotConfig$alg.roi;	
+	spotConfig$alg.aroi<-spotConfig$alg.roi
 	initDes<-eval(call(spotConfig$init.design.func, 
 					spotConfig,
 					spotConfig$init.design.size,
@@ -250,8 +253,8 @@ spotStepInitial <- function(spotConfig) {
 	## FIRST COLUMN ADDED: Named "CONFIG" - holding a count variable: 
 	## number of the configuration provided
 	configNumber<-1:nrow(initDes)
-	initDes <- cbind(initDes,configNumber);
-	colnames(initDes)[ncol(initDes)] <- "CONFIG";
+	initDes <- cbind(initDes,configNumber)
+	colnames(initDes)[ncol(initDes)] <- "CONFIG"
 	
 	## SECOND COLUMN ADDED: 
 	## number of repeats for the initial design points as "repeats" 
@@ -259,17 +262,17 @@ spotStepInitial <- function(spotConfig) {
 	colnames(initDes)[ncol(initDes)] <- "REPEATS"
 	## THIRD COLUMN ADDED: column documenting the number of configurations so far (steps-column)
 	## initially the number of steps is 0 (refers to auto.loop.steps)
-	initDes <- cbind(initDes,0);
-	colnames(initDes)[ncol(initDes)] <- "STEP";
+	initDes <- cbind(initDes,0)
+	colnames(initDes)[ncol(initDes)] <- "STEP"
 
 	## FORTH COLUMN ADDED: 
 	## Named "SEED" - holding the number of the seed for the randomgenerator
 	## used (same seed provides reproducable runs)
-	seed <- spotConfig$alg.seed; 
+	seed <- spotConfig$alg.seed
 	## could be considering the last used seed according to the last res, 
 	## but not yet considered here	
-	initDes <- cbind(initDes,seed);
-	colnames(initDes)[ncol(initDes)] <- "SEED";	
+	initDes <- cbind(initDes,seed)
+	colnames(initDes)[ncol(initDes)] <- "SEED"	
 	if (spotConfig$spot.fileMode){
 		if (file.exists(spotConfig$io.desFileName)){
 			file.remove(spotConfig$io.desFileName)
@@ -283,10 +286,9 @@ spotStepInitial <- function(spotConfig) {
 		if (spotConfig$init.delete.previous.files & file.exists(spotConfig$io.resFileName)){
 			file.remove(spotConfig$io.resFileName)
 		}
-	}#else{
-	spotConfig$alg.currentDesign<-initDes;		
-	#}	
-	return(spotConfig)
+	}
+	spotConfig$alg.currentDesign<-initDes		
+	spotConfig
 }
 
 ###################################################################################
@@ -298,12 +300,8 @@ spotStepInitial <- function(spotConfig) {
 #' after each step "sequential", and is a call frame for the algorithm-call.
 #'
 #' The algorithm is the heart of what the user must provide, but SPOT should be 
-#' able to handle them in the most flexible manner. So this is the interface 
-#' providing several possibilities to include an algorithm as (unix)-shell or as 
-#' R-function (the latter could also provide a system call, so it should be able
-#' to integrate user written algorithms as flexible as possible. 
-#' Result/Effects: external, user written function is called and expected to
-#' write the results into the file: spotConfig$io.resFileName 
+#' able to handle them in the most flexible manner. This function is an interface to the algorithm,
+#' given as a R-function.
 #' 
 #' @param spotConfig the list of all configuration parameters, but most important ones are:\cr 
 #'   \code{spotConfig$alg.func} the name of the R target function \cr
@@ -327,7 +325,6 @@ spotStepRunAlg <- function(spotConfig,...){
 	#browser()
 	#spotConfig<-eval(call(spotConfig$alg.func, spotConfig,...)) 
 	spotConfig<-do.call(spotConfig$alg.func, args=list(spotConfig,...)) #this allows further arguments dot-dot-dot
-	return(spotConfig)
 }
 
 ###################################################################################
@@ -335,7 +332,7 @@ spotStepRunAlg <- function(spotConfig,...){
 #' SPOT Step Sequential
 #'
 #' Third SPOT Step to generate a sequential new design, this
-#' is mainly a call of \code{\link{spotGenerateSequentialDesignOcba}}
+#' is mainly a call of \code{\link{spotGenerateSequentialDesign}}
 #' 
 #' Creates a sequential design based on the results derived so far. Therefor it is
 #' essential to have another design evaluated before and have a .res file to use.
@@ -349,7 +346,7 @@ spotStepRunAlg <- function(spotConfig,...){
 #' @export
 ###################################################################################
 spotStepSequential <- function(spotConfig) {
-	spotWriteLines(spotConfig$io.verbosity,2,"Create Sequential Design", con=stderr());
+	spotWriteLines(spotConfig$io.verbosity,2,"Create Sequential Design", con=stderr())
 	if(spotConfig$spot.fileMode){
 		if (!file.exists(spotConfig$io.resFileName)){
 			stop("Error in spot.R::spotStepSequential:
@@ -361,51 +358,53 @@ spotStepSequential <- function(spotConfig) {
 			result data not found, spotStepAlgRun() has to be executed before.")		
 		}
 	}
-	# MZ: Now first check for var of the y-values. Only if y varies (i.e. function is noisy and evaluations are repeated) use ocba
-	varies=TRUE;
-	if(spotConfig$spot.ocba == TRUE){ # only needs to be checked for ocba=TRUE
-		if(spotConfig$spot.fileMode){
-			res<-spotGetRawResData(spotConfig)
-			spotConfig<-res$conf
-			rawData<-res$rawD
-			res<-NULL
-		}else{
-		  rawData=spotConfig$alg.currentResult;
-		} 
-		z <- split(rawData[,spotConfig$alg.resultColumn], rawData$CONFIG);
-		#varY <- sapply(as.data.frame(z),var);
-		varY <- sapply(z,var);
-		for (i in 1:length(varY)){
-			if (is.na(varY[i])||is.nan(varY[i])||is.null(varY[i])||(varY[i]==0)){
-				varies=FALSE;
-			}
-		}
-	}
-	# Now call sequential design function
-	if ((spotConfig$spot.ocba == TRUE)&(varies == TRUE)){
-		spotConfig <- spotGenerateSequentialDesignOcba(spotConfig);	
-    }
-    else if (spotConfig$spot.ocba == FALSE) {
-		spotConfig <- spotGenerateSequentialDesign(spotConfig);
-    }
-	else{
-		stop("
+	
+	##NOTE: the following code was moved to spotGenerateSequentialDesign, when merging with ocba
+	########MZ: Now first check for var of the y-values. Only if y varies (i.e. function is noisy and evaluations are repeated) use ocba
+	# varies=TRUE;
+	# if(spotConfig$spot.ocba == TRUE){ # only needs to be checked for ocba=TRUE
+		# if(spotConfig$spot.fileMode){
+			# res<-spotGetRawResData(spotConfig)
+			# spotConfig<-res$conf
+			# rawData<-res$rawD
+			# res<-NULL
+		# }else{
+		  # rawData=spotConfig$alg.currentResult;
+		# } 
+		# z <- split(rawData[,spotConfig$alg.resultColumn], rawData$CONFIG);
+		#########varY <- sapply(as.data.frame(z),var);
+		# varY <- sapply(z,var);
+		# for (i in 1:length(varY)){
+			# if (is.na(varY[i])||is.nan(varY[i])||is.null(varY[i])||(varY[i]==0)){
+				# varies=FALSE;
+			# }
+		# }
+	# }
+	############Now call sequential design function
+	# if ((spotConfig$spot.ocba == TRUE)&(varies == TRUE)){
+		# spotConfig <- spotGenerateSequentialDesignOcba(spotConfig);	
+    # }
+    # else if (spotConfig$spot.ocba == FALSE) {
+		# spotConfig <- spotGenerateSequentialDesign(spotConfig);
+    # }
+	# else{
+		# stop("
 		
-		There is no variance for some point(s) in the current design.
+		# There is no variance for some point(s) in the current design.
 		
-		Therefore OCBA cannot be used. Possible reasons are a target 
-		function without noise, or the design points are not repeated.
-		SPOT with OCBA makes only sense if the target function is noisy.
-		If a non noisy function is used, the default settings should 
-		be adopted,	as described in the help of spot() or spotOptim().
-		That means: either use spot.ocba=FALSE, or set the repeats
-		(init.design.repeats) to values larger
-		than 1.
+		# Therefore OCBA cannot be used. Possible reasons are a target 
+		# function without noise, or the design points are not repeated.
+		# SPOT with OCBA makes only sense if the target function is noisy.
+		# If a non noisy function is used, the default settings should 
+		# be adopted,	as described in the help of spot() or spotOptim().
+		# That means: either use spot.ocba=FALSE, or set the repeats
+		# (init.design.repeats) to values larger
+		# than 1.
 		
-		The current variance vector is for the used design points is: 
-		",paste(varY," "))
-	}
-    return(spotConfig)
+		# The current variance vector is for the used design points is: 
+		# ",paste(varY," "))
+	# }
+	spotConfig <- spotGenerateSequentialDesign(spotConfig)
 }
 
 ###################################################################################
@@ -421,7 +420,7 @@ spotStepSequential <- function(spotConfig) {
 #' value {report.func} in the configuration file according to the specification rules
 #' given. If nothing is set, the default report is used.
 #' 
-#' @param spotConfig the list of all parameters is given, it is forwarded to the call of the reportfunction
+#' @param spotConfig the list of all parameters is given, it is forwarded to the call of the report-function
 #' @seealso \code{\link{SPOT}} \code{\link{spot}} \link{spotReportDefault} \code{\link{spotGetOptions}} 
 #' 
 #' @export
@@ -429,6 +428,7 @@ spotStepSequential <- function(spotConfig) {
 spotStepReport <- function(spotConfig) {
 	if(!exists(spotConfig$report.func))stop(paste("The report function name", spotConfig$report.func, "is not found in the workspace \n
 		Please make sure to load the report function in the workspace, or specify the correct function in spotConfig$report.func" ))	
+	if(is.null(spotConfig$alg.currentResult))spotConfig$alg.currentResult<- spotGetRawResData(spotConfig)$rawD;	
 	spotConfig<-eval(call(spotConfig$report.func, spotConfig))
 }
 
@@ -444,9 +444,9 @@ spotStepReport <- function(spotConfig) {
 #' finalising the function with a call of the report function. Instead of \code{auto.loop.steps}
 #' also \code{auto.loop.nevals} can be used as a stopping criterion.
 #' 
-#' @param spotConfig the list of all parameters is given, it is forwarded to the call of the reportfunction
+#' @param spotConfig the list of all parameters is given, it is forwarded to the call of the report-function
 #' the used parameters of spotConfig are just spotConfig$auto.loop.steps
-#' specifying the number of meta modells that should be calculated
+#' specifying the number of meta models that should be calculated
 #' @param ... additional parameters to be passed on to target function which is called inside alg.func
 #' 
 #' @seealso \code{\link{SPOT}} \code{\link{spot}} \code{\link{spotStepInitial}}
@@ -454,26 +454,56 @@ spotStepReport <- function(spotConfig) {
 #' \code{\link{spotGetOptions}} 
 #' @export
 ###################################################################################
-spotStepAutoOpt <- function(spotConfig,...){
-	spotConfig=spotStepInitial(spotConfig);
-	spotConfig=spotStepRunAlg(spotConfig,...)
-	j <-1;
-	k <- nrow(spotGetRawDataMatrixB(spotConfig));	
-	while (j <= spotConfig$auto.loop.steps && k < spotConfig$auto.loop.nevals)
-	{		
-		spotWriteLines(spotConfig$io.verbosity,2,paste("SPOT Step:", j), con=stderr());
-		spotConfig=spotStepSequential(spotConfig);		
+spotStepAutoOpt <- function(spotConfig,...){ 
+	if(!spotConfig$spot.continue || is.null(spotConfig$alg.currentResult)){
+		spotConfig=spotStepInitial(spotConfig);
 		spotConfig=spotStepRunAlg(spotConfig,...)
-		k <- nrow(spotGetRawDataMatrixB(spotConfig));	
-		j <- j+1;
+	}
+	j <- max(spotConfig$alg.currentResult$STEP)
+	k <- nrow(spotGetRawDataMatrixB(spotConfig));
+	if(!is.null(spotConfig$spot.catch.error)){
+		res<-tryCatch({ #This function will catch crashes and interrupts, but still return the last valid spotConfig list, to recover any available results and settings.
+		while (j <= spotConfig$auto.loop.steps && k < spotConfig$auto.loop.nevals){	
+			spotWriteLines(spotConfig$io.verbosity,2,paste("SPOT Step:", j), con=stderr());
+			spotConfig=spotStepSequential(spotConfig);		
+			spotConfig=spotStepRunAlg(spotConfig,...);
+			k <- nrow(spotGetRawDataMatrixB(spotConfig));	
+			j <- j+1;}
+			}, interrupt = function(ex) {			
+				cat("An interrupt was detected in spotStepAutoOpt.\n");
+				print(ex);
+			}, 	error = function(ex) {
+				cat("An error was detected in spotStepAutoOpt.\n");
+				print(ex);				
+			}, finally = {}
+		) #tryCatch end.	
+	}else{	
+		res<-tryCatch(
+			{ #This function will catch crashes and interrupts, but still return the last valid spotConfig list, to recover any available results and settings.
+				while (j <= spotConfig$auto.loop.steps && k < spotConfig$auto.loop.nevals){	
+					spotWriteLines(spotConfig$io.verbosity,2,paste("SPOT Step:", j), con=stderr())
+					spotConfig=spotStepSequential(spotConfig)
+					spotConfig=spotStepRunAlg(spotConfig,...)
+					k <- nrow(spotGetRawDataMatrixB(spotConfig))
+					j <- j+1
+				}
+			}, interrupt = function(ex) {			
+				cat("An interrupt was detected in spotStepAutoOpt.\n")
+				print(ex)
+			}, finally = {}
+		) #tryCatch end.
+	}	
+	if(!is.null(res)){#&&  any(class(res)=="interrupt")){
+		cat("A crash or interrupt ocurred, most recent spotConfig list is returned, to allow recovery of results.\n")
+		return(spotConfig)
 	}
 	if(spotConfig$io.verbosity>2){  
 		mergedData <- spotPrepareData(spotConfig)
-		spotConfig=spotWriteBest(mergedData, spotConfig);	
+		spotConfig=spotWriteBest(mergedData, spotConfig)
 		spotPlotBst(spotConfig)   
 	} 
-	spotConfig=spotStepReport(spotConfig); 
-	return(spotConfig)
+	spotConfig=spotStepReport(spotConfig)
+	spotConfig
 }
 ###################################################################################
 ## Step Meta
@@ -567,7 +597,7 @@ spotStepMetaOpt <- function(spotConfig) {
 ############# end function definitions ############################################################
 
 ###################################################################################################
-## PART THREE: SPOT: The Programm
+## PART THREE: SPOT: The Program
 ###################################################################################################
 #' Main function for the use of SPOT
 #' 
@@ -589,7 +619,7 @@ spotStepMetaOpt <- function(spotConfig) {
 #' \code{spotConfig$seq.design.maxRepeats <- 1}\cr
 #' \code{spotConfig$init.design.repeats <- 1}\cr
 #'
-#' @param configFile	the absolute path including filespecifier, there is no default, this value should always be given
+#' @param configFile	the absolute path including file-specifier, there is no default, this value should always be given
 #' @param spotTask		[init|seq|run|auto|rep] the switch for the tool used, default is "auto" 
 #' @param srcPath		the absolute path to user written sources that extend SPOT, the default(NA) will search for sources in the path <.libPath()>/SPOT/R  
 #' @param spotConfig	a list of parameters used to configure spot, default is spotConfig=NA, which means the configuration will only be read from the \code{configFile}, not given by manual user input. 		
@@ -650,7 +680,7 @@ spot <- function(configFile="NULL",spotTask="auto",srcPath=NA,spotConfig=NA,...)
 	}
 	# go back to -  well where ever you came from
 	setwd(callingDirectory)
-	return(resSwitch);
+	resSwitch
 }
 
 ###################################################################################################

@@ -1,7 +1,7 @@
 ###################################################################################################
-#'  Sensivity Report Helper Function
+#'  Sensitivity Report Helper Function
 #' 
-#' Helper function for the sensivity report
+#' Helper function for the sensitivity report
 #'
 #' @param B best solution column
 #' @param fit random forest fit
@@ -12,14 +12,14 @@
 #' @keywords internal
 ################################################################################################### 
 spotReportSensY <- function(B,fit,roi,nsens) {	
-  	Y <- NULL;
+  	Y <- NULL
   	for (k in 1:length(B)) {
-    	BV <- B;
-    	BV[,k] <- seq(roi[k,"lower"],roi[k,"upper"],length.out=nsens)
-      Y <- data.frame(cbind(Y,predict(fit,BV)))
-      names(Y)[length(Y)] <- names(B)[k];
+		BV <- B;
+		BV[,k] <- seq(roi[k,"lower"],roi[k,"upper"],length.out=nsens)
+		Y <- data.frame(cbind(Y,predict(fit,BV)))
+		names(Y)[length(Y)] <- names(B)[k]
     }	
-    Y;
+    Y
 }
 
 ###################################################################################################
@@ -37,21 +37,21 @@ spotReportSensY <- function(B,fit,roi,nsens) {
 #' @export
 ################################################################################################### 
 spotReportSens <- function(spotConfig) {		
-	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotReportSens");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotReportSens")
 	spotInstAndLoadPackages("randomForest")	
-	rawB <- spotGetRawDataMatrixB(spotConfig);
-	spotPrint(spotConfig$io.verbosity,1,summary(rawB));
+	rawB <- spotGetRawDataMatrixB(spotConfig)
+	spotPrint(spotConfig$io.verbosity,1,summary(rawB))
 	mergedData <- spotPrepareData(spotConfig)
-	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);	
+	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig)
 	#rawD<-spotGetRawResData(spotConfig);  # raw data with CONFIG, needed for sd(BestSolution)      MZ: replaced with if/else for fileMode
 	if(spotConfig$spot.fileMode) {
 		rawD <- spotGetRawResData(spotConfig)$rawD
 	}else{
-		rawD=spotConfig$alg.currentResult; 
+		rawD=spotConfig$alg.currentResult
 	}	
 	spotConfig=spotWriteBest(mergedData, spotConfig);
 	C1=spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),]       # WK: added ","
-	xNames <- setdiff(names(rawB),c(spotConfig$alg.resultColumn,"y"))
+	xNames <- row.names(spotConfig$alg.roi)
 	B <- NULL 
 	nsens=20             # number of points along the normalized ROI range
 	for (i in 1:nsens) {
@@ -61,32 +61,32 @@ spotReportSens <- function(spotConfig) {
 	names(B)=xNames; 	#MZ: Bugfix for 1 dimensional optimization	
 	fit <- randomForest(rawB[xNames], rawB$y, ntree=100)		#MZ: Bugfix for 1 dimensional optimization	
 	#fit <- rpart(y ~ ., data= rawB)
-	rwb <- cbind(spotConfig$alg.roi,t(B[1,]));      # rwb: roi with 'BEST' column
-	names(rwb)[length(rwb)] <- "BEST";
-	Y <- spotReportSensY(B,fit,spotConfig$alg.roi,nsens);
+	rwb <- cbind(spotConfig$alg.roi,t(B[1,]))     # rwb: roi with 'BEST' column
+	names(rwb)[length(rwb)] <- "BEST"
+	Y <- spotReportSensY(B,fit,spotConfig$alg.roi,nsens)
 	# scale each ROI to the normalized ROI range [-1,+1]:
 	X=seq(-1,1,length.out=nsens)	
 	# XP is the location of the SPOT best point for each parameter in the normalized ROI range
-	XP = (rwb$BEST-rwb$lower)/(rwb$upper-rwb$lower)*2-1; 
+	XP = (rwb$BEST-rwb$lower)/(rwb$upper-rwb$lower)*2-1
 	XP=rbind(XP,XP);   # matpoints needs at least two rows to plot each column in a different color
-	YP = min(Y);  YP=rbind(YP,YP);	
+	YP = min(Y);  YP=rbind(YP,YP)
 #palette("default")
-	spotWriteLines(spotConfig$io.verbosity,1," ");
-	spotWriteLines(spotConfig$io.verbosity,1,"Sensitivity plot for this ROI:");
-	spotPrint(spotConfig$io.verbosity,1,rwb);
-	spotWriteLines(spotConfig$io.verbosity,1," ");
-	spotWriteLines(spotConfig$io.verbosity,1,paste("Best solution found with ",nrow(rawB)," evaluations:",sep=""));
-	spotPrint(spotConfig$io.verbosity,1,C1[1,]);
-	spotWriteLines(spotConfig$io.verbosity,1," ");
-	spotWriteLines(spotConfig$io.verbosity,1,"Standard deviation of best solution:");
-	y<-rawD[rawD$CONFIG==C1[1,"CONFIG"],spotConfig$alg.resultColumn];
-	spotWriteLines(spotConfig$io.verbosity,1,paste(mean(y),"+-",sd(y)));
+	spotWriteLines(spotConfig$io.verbosity,1," ")
+	spotWriteLines(spotConfig$io.verbosity,1,"Sensitivity plot for this ROI:")
+	spotPrint(spotConfig$io.verbosity,1,rwb)
+	spotWriteLines(spotConfig$io.verbosity,1," ")
+	spotWriteLines(spotConfig$io.verbosity,1,paste("Best solution found with ",nrow(rawB)," evaluations:",sep=""))
+	spotPrint(spotConfig$io.verbosity,1,C1[1,])
+	spotWriteLines(spotConfig$io.verbosity,1," ")
+	spotWriteLines(spotConfig$io.verbosity,1,"Standard deviation of best solution:")
+	y<-rawD[rawD$CONFIG==C1[1,"CONFIG"],spotConfig$alg.resultColumn]
+	spotWriteLines(spotConfig$io.verbosity,1,paste(mean(y),"+-",sd(y)))
 	#finally the plot commands, both for screen and pdf file
   	if(spotConfig$report.io.pdf==TRUE){ #if pdf should be created
 		pdf(spotConfig$io.pdfFileName) #start pdf creation
 		matplot(X,Y,type="l",lwd=rep(3,ncol(Y)),cex.axis=1.5,cex.lab=1.5,col=1:ncol(Y),xlab="normalized ROI",main=spotConfig$userConfFileName) 
 		matpoints(XP,YP,pch=rep(21,ncol(Y)),bg=1:ncol(Y),cex=2)	
-		legend("topleft",legend=names(Y),lwd=rep(2,ncol(Y)),lty=1:ncol(Y),col=1:ncol(Y),text.col=1:ncol(Y));		
+		legend("topleft",legend=names(Y),lwd=rep(2,ncol(Y)),lty=1:ncol(Y),col=1:ncol(Y),text.col=1:ncol(Y))	
 		dev.off() #close pdf device
 	}
 	if(spotConfig$report.io.screen==TRUE && spotConfig$io.verbosity>0) #if graphic should be on screen
@@ -94,10 +94,10 @@ spotReportSens <- function(spotConfig) {
 		dev.new()
 		matplot(X,Y,type="l",lwd=rep(3,ncol(Y)),cex.axis=1.5,cex.lab=1.5,col=1:ncol(Y),xlab="normalized ROI",main=spotConfig$userConfFileName) 
 		matpoints(XP,YP,pch=rep(21,ncol(Y)),bg=1:ncol(Y),cex=2)	
-		legend("topleft",legend=names(Y),lwd=rep(2,ncol(Y)),lty=1:ncol(Y),col=1:ncol(Y),text.col=1:ncol(Y));
+		legend("topleft",legend=names(Y),lwd=rep(2,ncol(Y)),lty=1:ncol(Y),col=1:ncol(Y),text.col=1:ncol(Y))
 	}
-	spotWriteLines(spotConfig$io.verbosity,2,"\n Leaving spotReportSens");
-	return(spotConfig)	
+	spotWriteLines(spotConfig$io.verbosity,2,"\n Leaving spotReportSens")
+	spotConfig
 }
 
 

@@ -1,7 +1,3 @@
-### Bitte in Spot implementieren:
-### spotPower(), spotPlotPower(), spotSeverity(), spotPlotSeverity()
-###
-
 ### a clean start:
 #rm(list=ls());
 ###
@@ -24,7 +20,7 @@
 #' @param mu0		description of mu0
 #' @param mu1		description of mu1
 #' @param n			vector length
-#' @param sigma		standart deviation
+#' @param sigma		standard deviation
 #'
 #' @return 		description of return value
 #'
@@ -322,10 +318,10 @@ spotPlotSeverity <- function(y0, y1, add=FALSE, n=NA, alpha, rightLimit=1){
 #' Simple Function to compare performance of different spot configurations.
 #' Example: perf=spotCompare(c("test.conf","test2.conf","test3.conf"),10)
 #'
-#' @param configFile vector of filenames to be evaulated
+#' @param configFile vector of filenames to be evaluated
 #' @param repeats number of repeats for each file (with different spot.seed)
 #' @param NoNoiseFun function to compute the result without noise. If NULL or left to default this will
-#'						have no effect. If a function name is passed as a string, the according function will be called with a noice variable
+#'						have no effect. If a function name is passed as a string, the according function will be called with a noise variable
 #'						set to zero. This way the result can be evaluated without noise
 #' @return performance, a matrix of y-Values for each single run. One Column for each file.
 #' @export

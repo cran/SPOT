@@ -7,10 +7,6 @@
   Sequential Parameter Optimization Toolbox in R
 }
 \details{
-  \tabular{ll}{ Package: \tab SPOT\cr Type: \tab Package\cr
-  Version: \tab 1.0.2662\cr Date: \tab 05.11.2012\cr
-  License: \tab GPL (>= 2)\cr LazyLoad: \tab yes\cr }
-
   SPOT is a package for R, using statistic models to find
   optimal parameters for optimization algorithms. SPOT is a
   very flexible and user oriented tool box for parameter
@@ -20,6 +16,10 @@
   change. The good news is, that some defaults are given
   that already work perfectly well for 90 percent of the
   users.
+
+  \tabular{ll}{ Package: \tab SPOT\cr Type: \tab Package\cr
+  Version: \tab 1.0.4045\cr Date: \tab 11.04.2013\cr
+  License: \tab GPL (>= 2)\cr LazyLoad: \tab yes\cr }
 }
 \author{
   Thomas Bartz-Beielstein
@@ -33,7 +33,7 @@
 }
 \seealso{
   Main interface functions are \code{\link{spot}} and
-  \code{\link{spotOptim}}, also a graphical interface can
+  \code{\link{spotOptim}}. Also, a graphical interface can
   be used with \code{\link{spotGui}}
 }
 \keyword{package}

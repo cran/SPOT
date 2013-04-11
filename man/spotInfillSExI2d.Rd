@@ -1,0 +1,40 @@
+\name{spotInfillSExI2d}
+\alias{spotInfillSExI2d}
+\title{S-metric Expected Improvement SExI Infill Criterion}
+\usage{
+  spotInfillSExI2d(resy, resvar, y, ref = NULL)
+}
+\arguments{
+  \item{resy}{predicted objective values}
+
+  \item{resvar}{predicted variance}
+
+  \item{y}{the current Pareto front}
+
+  \item{ref}{reference point, if not given will be chosen
+  as maximum of observed values plus one}
+}
+\value{
+  returns the EI for each row in resy
+}
+\description{
+  This two-objective infill criterion is the Expected
+  Improvement of the S-metric. That is, it aggregates the
+  predicted objective values by an exact calculation of the
+  Expected Improvement EI in hypervolume. As this gets more
+  complex and time-consuming for higher dimensional
+  objective spaces, this is only implemented for the
+  two-objective case. An approximation approach for higher
+  dimensional problems exists, but is not yet implemented
+  in SPOT.
+}
+\references{
+  M. Emmerich, A.H. Deutz, J.W. Klinkenberg: The
+  computation of the expected improvement in dominated
+  hypervolume of Pareto front approximations , LIACS
+  TR-4-2008, Leiden University, The Netherlands
+}
+\seealso{
+  \code{\link{spotSExI2d}}
+}
+

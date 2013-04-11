@@ -21,11 +21,12 @@
 }
 \description{
   The result (.res) file is read and the data are prepared
-  for further procesing results in "Matrix B" that consits
-  of the y-vector of the results and the x-Matrix of inputs
-  that are bound together to a matrix B
+  for further processing results in "Matrix B" that
+  consists of the y-vector of the results and the x-Matrix
+  of inputs that are bound together to a matrix B
 }
 \seealso{
   \code{\link{spotPrepareData}}
 }
+\keyword{internal}
 

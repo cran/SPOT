@@ -3,7 +3,7 @@
 \title{Meta Model Interface: Test}
 \usage{
   spotPredictTest(rawB, mergedB, largeDesign, spotConfig,
-    externalFit = NULL)
+    fit = NULL)
 }
 \arguments{
   \item{rawB}{unmerged data}
@@ -16,12 +16,12 @@
   \item{spotConfig}{global list of all options, needed to
   provide data for calling functions}
 
-  \item{externalFit}{if an existing model fit is supplied,
-  the model will not be build based on data, but only
-  evaluated with the model fit (on the largeDesign data).
-  To build the model, this parameter has to be NULL. If it
-  is not NULL the paramters mergedB and rawB will not be
-  used at all in the function.}
+  \item{fit}{if an existing model fit is supplied, the
+  model will not be build based on data, but only evaluated
+  with the model fit (on the largeDesign data). To build
+  the model, this parameter has to be NULL. If it is not
+  NULL the parameters mergedB and rawB will not be used at
+  all in the function.}
 }
 \value{
   returns the list \code{spotConfig} with two new
@@ -32,7 +32,7 @@
 \description{
   This model does prediction by sampling on the real target
   function. Supposed to be used for testing purpose only.
-  Do not use.
+  Do not use as surrogate model.
 }
 \keyword{internal}
 

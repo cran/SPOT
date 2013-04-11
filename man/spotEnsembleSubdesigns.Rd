@@ -1,0 +1,32 @@
+\name{spotEnsembleSubdesigns}
+\alias{spotEnsembleSubdesigns}
+\title{spotEnsembleSubdesigns}
+\usage{
+  spotEnsembleSubdesigns(res, xnames, ynames,
+    cut.size = 10, cut.type = "perc", cut.num = 1, merge,
+    transform)
+}
+\arguments{
+  \item{res}{result data}
+
+  \item{xnames}{parameter names}
+
+  \item{ynames}{objective names}
+
+  \item{cut.size}{size of the sub designs}
+
+  \item{cut.type}{type of cut-off, "perc" is percentage,
+  otherwise cut.size is an absolute number of points cut
+  off}
+
+  \item{cut.num}{number of subdesigns created}
+}
+\value{
+  returns a list, containing the element \code{rawB} with
+  raw design and \code{mergB} with merged design
+}
+\description{
+  Cut off smaller subdesigns for ensembles
+}
+\keyword{internal}
+

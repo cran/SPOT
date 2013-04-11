@@ -1,0 +1,55 @@
+\name{spotSExI2d}
+\alias{spotSExI2d}
+\title{S-metric Expected Improvement SExI Infill Criterion}
+\usage{
+  spotSExI2d(P, r, mu, s)
+}
+\arguments{
+  \item{P}{Approximation set: provide f1,f2 coordinates of
+  current Pareto front approximation}
+
+  \item{r}{Reference point: used for computing the
+  hypervolume}
+
+  \item{mu}{Mean vector: mean value of predictive
+  distribution (e.g. from Gaussian process), f1, f2}
+
+  \item{s}{Standard deviations of predictive distribution}
+}
+\value{
+  returns the EI for each row in resy
+}
+\description{
+  This two-objective infill criterion is the Expected
+  Improvement of the S-metric. That is, it aggregates the
+  predicted objective values by an exact calculation of the
+  Expected Improvement EI in hypervolume. As this gets more
+  complex and time-consuming for higher dimensional
+  objective spaces, this is only implemented for the
+  two-objective case. An approximation approach for higher
+  dimensional problems exists, but is not yet implemented
+  in SPOT.
+}
+\examples{
+print(spotSExI2d(data.frame(x1=c(0,1,2),x2=c(2,1,0)),c(3,3),c(0,0),c(0.1,0.1)))
+##should be approx. 3.08
+print(spotSExI2d(data.frame(x1=c(1,2),x2=c(2,1)),c(11,11),c(10,10),c(4,4)))
+##should be approx. 0.0726
+}
+\author{
+  (c) Michael Emmerich and Andre Deutz, LIACS, Leiden
+  University, 2010 \cr \email{emmerich@liacs.nl},
+  \email{deutz@liacs.nl} \cr R port by Patrick Koch,
+  Cologne University of Applied Sciences \cr
+  \email{patrick.koch@fh-koeln.de}
+}
+\references{
+  M. Emmerich, A.H. Deutz, J.W. Klinkenberg: The
+  computation of the expected improvement in dominated
+  hypervolume of Pareto front approximations , LIACS
+  TR-4-2008, Leiden University, The Netherlands
+}
+\seealso{
+  \code{\link{spotInfillSExI2d}}
+}
+

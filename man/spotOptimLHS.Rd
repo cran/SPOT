@@ -1,0 +1,55 @@
+\name{spotOptimLHS}
+\alias{spotOptimLHS}
+\title{spotOptimLHS}
+\usage{
+  spotOptimLHS(par, fn, gr = NULL, lower, upper, control,
+    ...)
+}
+\arguments{
+  \item{par}{is a point (vector) in the decision space of
+  \code{fn}. Points in par will be added to the design
+  created by LHS.}
+
+  \item{fn}{is the target function of type \code{y = f(x,
+  ...)}}
+
+  \item{gr}{gradient function, gr is not used (yet)}
+
+  \item{lower}{is a vector that defines the lower boundary
+  of search space}
+
+  \item{upper}{is a vector that defines the upper boundary
+  of search space}
+
+  \item{control}{is a list of additional settings. See
+  details.}
+
+  \item{...}{additional parameters to be passed on to
+  \code{fn}}
+}
+\value{
+  This function returns a list with:\cr \code{par}
+  parameters of the found solutions, e.g. the Pareto set\cr
+  \code{value} target function values of the found
+  solutions, e.g. the Pareto front\cr \code{counts} number
+  of evaluations of \code{fn}
+}
+\description{
+  This function is an interface to Latin Hypercube Sampling
+  (LHS) fashioned like the \code{\link{optim}} function.
+  That means, LHS is performed to optimize a target
+  function, i.e. returning the sample with the lowest
+  function value.
+}
+\details{
+  The control list contains:\cr \code{fevals} number of
+  design points created \cr \code{retries} number of
+  designs created during creation of a well spread
+  design\cr \code{vectorized} whether or not \code{fn} can
+  evaluate multiple points at once , defaults to FALSE
+}
+\seealso{
+  \code{\link{spotOptimizationInterface}}
+  \code{\link{spotOptim}}
+}
+

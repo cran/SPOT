@@ -7,7 +7,7 @@
 \arguments{
   \item{set.io.verbosity}{\code{spotConfig$io.verbosity}
   should be passed here. Global flag to drive the
-  \code{io.verbosity} of the programm}
+  \code{io.verbosity} of the program}
 
   \item{io.verbosity}{\code{io.verbosity} for this
   specified output string}
