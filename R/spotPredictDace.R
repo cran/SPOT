@@ -53,7 +53,7 @@ spotPredictDace <- function(rawB,mergedB,design,spotConfig,fit=NULL){	#TODO: Imp
 		if(is.null(spotConfig$seq.dace.regr))spotConfig$seq.dace.regr=regpoly0; #regression function
 		if(is.null(spotConfig$seq.dace.nugget))spotConfig$seq.dace.nugget=-1; #-1 means nugget is optimized, else it should be in inteval between 0 and 1
 		if(is.null(spotConfig$seq.dace.corr))spotConfig$seq.dace.corr=corrnoisykriging; #-1 means nugget is optimized, else it should be in inteval between 0 and 1
-		if(is.null(spotConfig$seq.dace.algtheta))spotConfig$seq.dace.algtheta="NLOPT_LN_NELDERMEAD"; #optimization algorithm to be used
+		if(is.null(spotConfig$seq.dace.algtheta))spotConfig$seq.dace.algtheta="optim-L-BFGS-B"; #optimization algorithm to be used
 		
 		xNames <- row.names(spotConfig$alg.roi);
 		yNames <- setdiff(names(rawB),xNames)
@@ -350,7 +350,7 @@ print.dace <- function(x,...){
 #' @param regr Regression function to be used: \code{\link{regpoly0}} (default), \code{\link{regpoly1}}, \code{\link{regpoly2}}. Can be a custom user function.
 #' @param corr Correlation function to be used: \code{\link{corrnoisykriging}} (default), \code{\link{corrkriging}}, \code{\link{corrnoisygauss}}, \code{\link{corrgauss}}, \code{\link{correxp}}, \code{\link{correxpg}}, \code{\link{corrlin}}, \code{\link{corrcubic}},\code{\link{corrspherical}},\code{\link{corrspline}}. Can also be user supplied (if in the right form).
 #' @param nugget Value for nugget. Default is -1, which means the nugget will be optimized during MLE. Else it can be fixed in a range between 0 and 1.
-#' @param algtheta algorithm used to find theta, default is \code{"NLOPT_LN_NELDERMEAD"} which is a bounded simplex method from the package nloptr. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.
+#' @param algtheta algorithm used to find theta, default is \code{"optim-L-BFGS-B"}. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.
 #'
 #' @return returns a list with the following elements:
 #' 			\item{\code{model}}{ Again a list, containing model parameters}
@@ -388,7 +388,7 @@ print.dace <- function(x,...){
 #'
 #' @export
 ###################################################################################
-daceBuilder <- function(parameters, objectives, startTheta, tol=1e-6, budget=100 ,regr=regpoly0, corr= corrnoisykriging ,nugget = -1, algtheta="NLOPT_LN_NELDERMEAD"){ #nugget -1 means that the nugget will be optimized in lme
+daceBuilder <- function(parameters, objectives, startTheta, tol=1e-6, budget=100 ,regr=regpoly0, corr= corrnoisykriging ,nugget = -1, algtheta="optim-L-BFGS-B"){ #nugget -1 means that the nugget will be optimized in lme
 	size= dim(parameters);
 	n= size[1]
 	m= size[2]

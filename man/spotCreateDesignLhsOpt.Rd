@@ -1,6 +1,6 @@
 \name{spotCreateDesignLhsOpt}
 \alias{spotCreateDesignLhsOpt}
-\title{spotCreateDesignLhs}
+\title{spotCreateDesignLhsOpt}
 \usage{
   spotCreateDesignLhsOpt(spotConfig, noDesPoints = NaN,
     repeats = NaN)

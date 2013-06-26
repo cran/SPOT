@@ -5,7 +5,7 @@
   daceBuilder(parameters, objectives, startTheta,
     tol = 1e-06, budget = 100, regr = regpoly0,
     corr = corrnoisykriging, nugget = -1,
-    algtheta = "NLOPT_LN_NELDERMEAD")
+    algtheta = "optim-L-BFGS-B")
 }
 \arguments{
   \item{parameters}{known design points. That is, a matrix
@@ -45,9 +45,8 @@
   can be fixed in a range between 0 and 1.}
 
   \item{algtheta}{algorithm used to find theta, default is
-  \code{"NLOPT_LN_NELDERMEAD"} which is a bounded simplex
-  method from the package nloptr. Else, any from the list
-  of possible \code{method} values in
+  \code{"optim-L-BFGS-B"}. Else, any from the list of
+  possible \code{method} values in
   \code{\link{spotOptimizationInterface}} can be chosen.}
 }
 \value{

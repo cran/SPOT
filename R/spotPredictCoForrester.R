@@ -15,7 +15,7 @@
 #'	\code{spotConfig$seq.forr.loval} lower boundary for theta, default is \code{1e-3}\cr
 #'	\code{spotConfig$seq.forr.upval} upper boundary for theta, default is \code{100}\cr
 #'	\code{spotConfig$seq.forr.opt.p} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default value is \code{FALSE}. Default is highly recommended as the implementation of this feature is not yet well tested and might be faulty.\cr
-#'	\code{spotConfig$seq.forr.algtheta} algorithm used to find theta, default is \code{"NLOPT_LN_NELDERMEAD"} which is a bounded simplex method from the package nloptr. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.\cr
+#'	\code{spotConfig$seq.forr.algtheta} algorithm used to find theta, default is \code{"optim-L-BFGS-B"}. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.\cr
 #'	\code{spotConfig$seq.forr.budgetalgtheta} budget for the above mentioned algorithm, default is \code{100}. The value will be multiplied with the length of the model parameter vector to be optimized.
 #'	\code{spotConfig$seq.forr.reinterpolate} boolean that specifies whether re-interpolation should be used during the prediction process. Default value is \code{FALSE}. Setting this to \code{TRUE} is recommended, when an error estimate of nearly zero is desired at sample locations, regardless of chosen regularization constant (nugget). Please note that prediction with interpolation will take longer than without.\cr
 #'	\code{spotConfig$seq.forr.savetheta} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default value is \code{FALSE}. Default is recommended since this feature not yet well tested, and might lead to a preference of local optima.\cr
@@ -39,60 +39,44 @@ spotPredictCoForrester <- function(rawB,mergedB,design,spotConfig,fit=NULL) {
 	# BUILD
 	########################################################	
 	if(is.null(fit)){
-		xNames <- row.names(spotConfig$alg.roi); 
+		xNames <- row.names(spotConfig$alg.roi)
 		yNames <- spotConfig$alg.resultColumn
-		if(is.null(spotConfig$seq.forr.savetheta))spotConfig$seq.forr.savetheta=FALSE;	
-		if(is.null(spotConfig$seq.forr.loval))spotConfig$seq.forr.loval=1e-3;
-		if(is.null(spotConfig$seq.forr.upval))spotConfig$seq.forr.upval=100;
-		if(is.null(spotConfig$seq.forr.opt.p))spotConfig$seq.forr.opt.p=FALSE; #TODO, not working properly in case of TRUE
-		if(is.null(spotConfig$seq.forr.algtheta))spotConfig$seq.forr.algtheta="NLOPT_LN_NELDERMEAD";
-		if(is.null(spotConfig$seq.forr.budgetalgtheta))spotConfig$seq.forr.budgetalgtheta=100;
-		if(is.null(spotConfig$seq.forr.reinterpolate))spotConfig$seq.forr.reinterpolate=FALSE;
-		#if(is.null(spotConfig$seq.forr.co.fn))spotConfig$seq.forr.co.func=NA; #_has_ to be set, no default value reasonable
-		if(is.null(spotConfig$seq.co.design.size))spotConfig$seq.co.design.size=10; #multiply this with number of evaluations on expensive function to determine number of cheap evaluations
-		if(is.null(spotConfig$seq.co.design.func))spotConfig$seq.co.design.func="spotCreateDesignLhd"; #multiply this with number of evaluations on expensive function to determine number of cheap evaluations
-		if(is.null(spotConfig$seq.co.design.retries))spotConfig$seq.co.design.retries=100; #multiply this with number of evaluations on expensive function to determine number of cheap evaluations
-		if(is.null(spotConfig$seq.co.design.repeats))spotConfig$seq.co.design.repeats=1; #multiply this with number of evaluations on expensive function to determine number of cheap evaluations
-		if(is.null(spotConfig$seq.co.infill))spotConfig$seq.co.infill=5; #number of points created by infill criterion for co function
-		if(is.null(spotConfig$seq.forr.lambda.loval))spotConfig$seq.forr.lambda.loval=-6;
-		if(is.null(spotConfig$seq.forr.lambda.upval))spotConfig$seq.forr.lambda.upval=0;
-		if(is.null(spotConfig$seq.forr.rho.loval))spotConfig$seq.forr.rho.loval=-6;
-		if(is.null(spotConfig$seq.forr.rho.upval))spotConfig$seq.forr.rho.upval=0;
-		if(is.null(spotConfig$seq.co.recalculate))spotConfig$seq.forr.co.recalculate=FALSE;
+		if(is.null(spotConfig$seq.forr.savetheta))spotConfig$seq.forr.savetheta=FALSE
+		if(is.null(spotConfig$seq.forr.loval))spotConfig$seq.forr.loval=1e-3
+		if(is.null(spotConfig$seq.forr.upval))spotConfig$seq.forr.upval=100
+		if(is.null(spotConfig$seq.forr.opt.p))spotConfig$seq.forr.opt.p=FALSE #TODO, not working properly in case of TRUE
+		if(is.null(spotConfig$seq.forr.algtheta))spotConfig$seq.forr.algtheta="optim-L-BFGS-B"
+		if(is.null(spotConfig$seq.forr.budgetalgtheta))spotConfig$seq.forr.budgetalgtheta=100
+		if(is.null(spotConfig$seq.forr.reinterpolate))spotConfig$seq.forr.reinterpolate=FALSE
+		if(is.null(spotConfig$seq.forr.lambda.loval))spotConfig$seq.forr.lambda.loval=-6
+		if(is.null(spotConfig$seq.forr.lambda.upval))spotConfig$seq.forr.lambda.upval=0
+		if(is.null(spotConfig$seq.forr.rho.loval))spotConfig$seq.forr.rho.loval=-6
+		if(is.null(spotConfig$seq.forr.rho.upval))spotConfig$seq.forr.rho.upval=0
 		# Create an initial large cheap design if not done yet
-		if(is.null(spotConfig$seq.co.res)){    #this should be superfluous when called in recursive cokriging, because the design is created in the lower fidelity level
-			dsize= spotConfig$seq.co.design.size
-			#cheap design:
-			xc1  <- (eval(call(spotConfig$seq.co.design.func, 
-												spotConfig, 
-												dsize, 
-												spotConfig$seq.co.design.retries)));
-												
-			#design should have columns: xNames, REPEATS, CONFIG, STEP, (SEED)
-			xc1$STEP=rep(0,dsize)
-			xc1$CONFIG=1:dsize
-			xc1$REPEATS=rep(spotConfig$seq.co.design.repeats,dsize)
-			spotConfig$seq.co.res <- spotCallCoFunction(spotConfig,NULL,xc1,spotConfig$seq.co.func)		
-		}	
+		
 	#TODO: augment xc with exploration based strategy, to produce accurate model of cheap function
 		# Add cheap values of expensive sample locations to the co.design:
-		maxstep <- max(spotConfig$alg.currentResult$STEP)
-		xc2 <- unique(spotConfig$alg.currentResult[which(spotConfig$alg.currentResult$STEP==maxstep),][xNames])
-		dsize2<-nrow(xc2)
-		xc2$STEP=rep(maxstep,dsize2)
-		dsize=max(spotConfig$seq.co.res$CONFIG)
-		xc2$CONFIG=(dsize+1):(dsize+dsize2)
-		xc2$REPEATS=rep(spotConfig$seq.co.design.repeats,dsize2)
-		spotConfig$seq.co.res <- spotCallCoFunction(spotConfig,spotConfig$seq.co.res,xc2,spotConfig$seq.co.func)
-		if(length(yNames)==1){	#TODO:maybe move this if upwards	
-			# expensive sample locations:
+		# maxstep <- max(spotConfig$alg.currentResult$STEP)
+		# xc2 <- unique(spotConfig$alg.currentResult[which(spotConfig$alg.currentResult$STEP==maxstep),][xNames])
+		# dsize2<-nrow(xc2)
+		# xc2$STEP=rep(maxstep,dsize2)
+		# dsize=max(spotConfig$seq.co.res$CONFIG)
+		# xc2$CONFIG=(dsize+1):(dsize+dsize2)
+		# xc2$REPEATS=rep(spotConfig$seq.co.design.repeats,dsize2)
+		# spotConfig$seq.co.res <- spotCallCoFunction(spotConfig,spotConfig$seq.co.res,xc2,spotConfig$seq.co.func)
+		if(length(yNames)==1){	#TODO: fine function is single objective
+			#  sample locations:
 			xe <- as.matrix(spotConfig$alg.currentResult[xNames])	 #rawB not used here, because it is sorted by response value	
-			# expensive observations:
-			ye <- as.matrix(spotConfig$alg.currentResult[[yNames]])
+			#  observations:
+			ye <- as.matrix(spotConfig$alg.currentResult[yNames])
 			# cheap sample locations
-			xc <- as.matrix(spotConfig$seq.co.res[xNames])
+			xc <- as.matrix(spotConfig$alg.currentCoResult[xNames])
+			indf <- spotConfig$alg.currentCoResult$indf
+			xc <- rbind(xc[!indf,],xc[indf,])
 			# cheap observations: 
-			yc <- as.matrix(spotConfig$seq.co.res[[yNames]])
+			yc <- as.matrix(spotConfig$alg.currentCoResult[yNames])
+			yc <- rbind(yc[!indf,,drop=FALSE],yc[indf,,drop=FALSE])
+			#
 			fitC <- forrBuilder(xc, yc, spotConfig$seq.forr.loval, spotConfig$seq.forr.upval, 
 							spotConfig$seq.forr.algtheta, spotConfig$seq.forr.budgetalgtheta,
 								spotConfig$alg.roi$lower, spotConfig$alg.roi$upper, 
@@ -157,18 +141,18 @@ spotPredictCoForrester <- function(rawB,mergedB,design,spotConfig,fit=NULL) {
 #' @seealso \code{\link{spotPredictCoForrester}} \code{\link{forrBuilder}} \code{\link{forrCoBuilder}}
 #' @keywords internal
 ###################################################################################
-spotCallCoFunction <- function(spotConfig,result,design,dfunc){
+spotCallCoFunction <- function(spotConfig,result,design,dfunc){ #TODO remove, replace ... ?
 	spotConfig$spot.fileMode <- FALSE
 	spotConfig$alg.tar.func <- dfunc
 	spotConfig$alg.func <- "spotOptimInterface"
-	#spotConfig$alg.resultColumn  ?
+	#####spotConfig$alg.resultColumn  ?
 	spotConfig$io.apdFileName <- "noapdfile.apd"
 	spotConfig$io.resFileName <- "noresfile.apd"
 	spotConfig$alg.currentResult <- result
 	spotConfig$alg.currentDesign <- design
 	spotConfig$io.verbosity <- 0
 	spotConfig$alg.seed <- NA #todo: should be setable?
-	#calculate predictions of the correlated function
+	#####calculate predictions of the correlated function
 	spotConfig<-do.call(spotConfig$alg.func, args=list(spotConfig))
 	spotConfig$alg.currentResult
 }
@@ -199,7 +183,7 @@ forrIF <- function(x,i){
 #' @param fitC object of class \code{forr}, containing a Kriging model build through the cheap observations
 #' @param loval lower boundary for theta, default is \code{1e-3}
 #' @param upval upper boundary for theta, default is \code{100}
-#' @param algtheta algorithm used to find theta, default is \code{"NLOPT_LN_NELDERMEAD"} which is a bounded simplex method from the package nloptr. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.
+#' @param algtheta algorithm used to find theta, default is \code{"optim-L-BFGS-B"}. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.
 #' @param budgetalgtheta budget for the above mentioned algorithm, default is \code{100}. The value will be multiplied with the length of the model parameter vector to be optimized.
 #' @param lb lower boundary of the design space. Will be extracted from the matrix \code{Xe} if not given.
 #' @param ub upper boundary of the design space. Will be extracted from the matrix \code{Xe} if not given.
@@ -231,10 +215,10 @@ forrIF <- function(x,i){
 #'	yc <- rbind(covar(xc))
 #' 	## build the Co-Kriging model, with cheap and expensive observations
 #'	set.seed(2)
-#'  fitC <- forrBuilder(xc, yc, 1e-3, 1e2, "NLOPT_LN_NELDERMEAD", 100,0,1,FALSE);
-#'	fit <- forrCoBuilder(xe, ye, xc, yc, fitC, 1e-3, 1e2, "NLOPT_LN_NELDERMEAD", 100,0,1,FALSE)
+#'  fitC <- forrBuilder(xc, yc, 1e-3, 1e2, "optim-L-BFGS-B", 100,0,1,FALSE);
+#'	fit <- forrCoBuilder(xe, ye, xc, yc, fitC, 1e-3, 1e2, "optim-L-BFGS-B", 100,0,1,FALSE)
 #' 	## build the ordinary Kriging model with expensive observations only
-#'	fit1 <- forrBuilder(xe, ye, 1e-3, 1e2, "NLOPT_LN_NELDERMEAD", 100,0,1,FALSE)	 
+#'	fit1 <- forrBuilder(xe, ye, 1e-3, 1e2, "optim-L-BFGS-B", 100,0,1,FALSE)	 
 #'  ## Predict and plot over whole design space
 #'	x=seq(from=0,to=1,by=0.01)
 #'	yco <- forrCoRegPredictor(as.matrix(x),fit,FALSE)$f
@@ -249,20 +233,27 @@ forrIF <- function(x,i){
 #'	lines(x,ypc,col="red",lty=4,lwd=3) 	#cheap model
 #'	lines(x,yy,col="blue",lty=3,lwd=3)#uncorrected model
 #'	lines(x,yco,col="darkgreen",lty=5,lwd=3) #comodel
-#'	legend("top",lwd=c(3,3,1,1,3,3,3,3),col=c("black","black","black","black","blue","red","blue","darkgreen"),legend=c("Expensive Function", "Cheap Function", "Expensive Observations", "Cheap Observations", "Uncorrected Model", "Cheap Model","Difference Model","Co-Kriging Model"),lty=c(1,1,0,0,3,4,1,5),pch=c(NA,NA,19,1,NA,NA,NA,NA))
+#'	legend("top",lwd=c(3,3,1,1,3,3,3,3),
+#'		col=c("black","black","black","black","blue","red","blue","darkgreen"),
+#'		legend=	c("Expensive Function", "Cheap Function", 
+#'				"Expensive Observations", "Cheap Observations",
+#'				"Uncorrected Model", "Cheap Model","Difference Model",
+#'				"Co-Kriging Model"),
+#'		lty=c(1,1,0,0,3,4,1,5),pch=c(NA,NA,19,1,NA,NA,NA,NA))
 #'	sum((yco-ovar(x))^2)/length(x) #mse
 #'
 #' @references FORRESTER, A.I.J, SOBESTER A. & KEAN, A.J. (2007), Multi-Fidelity optimization via surrogate modelling. \emph{Proc. R. Soc. A} 463, 3251-3269. \cr
 #' Forrester, Alexander I.J.; Sobester, Andras; Keane, Andy J. (2008). Engineering Design via Surrogate Modelling - A Practical Guide. John Wiley & Sons.
 ###################################################################################
 forrCoBuilder <- function(Xe,ye, Xc, yc, fitC, loval=1e-3, upval=100, 
-						algtheta= "NLOPT_LN_NELDERMEAD", budgetalgtheta=100, 
+						algtheta= "optim-L-BFGS-B", budgetalgtheta=100, 
 						lb=NULL, ub=NULL, opt.p= FALSE, 
 						lambda.loval = -6, lambda.upval = 0, 
 						rho.loval=-5,	rho.upval=5){
 	#########################################
 	#first build a standard model for the cheap observations
 	#########################################
+	require(MASS)
 	fitE= list(loval=loval, upval=upval, opt.p=opt.p, algtheta=algtheta, budgetalgtheta=budgetalgtheta)
 	k = ncol(Xe);
 	fitE$X = Xe; 
@@ -553,6 +544,6 @@ forrCoRegPredictor <- function(x,fit,pred.all=FALSE){
 		#TODO "diag(psi%*%...)" is excessive, since diag wastes alot of values computed by %*%
 		s=sqrt(abs(SSqr));
 	}
-	result=if(!pred.all){list(f=f)}else{data.frame(f=f,s=s)}
+	result=if(!pred.all){list(f=f)}else{data.frame(f=f,s=as.numeric(s))}
 	result
 }

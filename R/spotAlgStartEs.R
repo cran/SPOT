@@ -442,7 +442,7 @@ spotAlgEs <- function(mue = 10,
 		sigmaRestart = 0.1,
 		preScanMult= 1,
 		globalOpt=rep(0,dimension),
-		...){                 
+		...){  
 	# load packages needed for this 
 	spotInstAndLoadPackages("lhs")
 	### Parameter corrections
@@ -470,13 +470,8 @@ spotAlgEs <- function(mue = 10,
 	#  tau0 <- tau/sqrt(2*dimension)
 	#  tau <- tau/sqrt(2*sqrt(dimension))
 	#}
-	###
-	if(rho=="bi"){
-		rhoVal=min(2,mue) # necessary for (1,+\mue)
-	}
-	else{
-		rhoVal=mue
-	}  
+	###  necessary for (1,+\mue):
+	if(rho=="bi") rhoVal=min(2,mue) else rhoVal=mue   
 	set.seed(seed)
 	parentPop <- NULL
 	gen <- 0
@@ -633,10 +628,7 @@ spotAlgEs <- function(mue = 10,
 		}
 		
 		#### Plotting ##################################
-		if(sel==-1){
-			stratName="Plus"}
-		else{
-			stratName="Kappa"}
+		if(sel==-1){stratName="Plus"} else{	stratName="Kappa"}
 		
 		if(verbosity>=1 && plotResult==TRUE){
 			par(mfrow=c(2,1))
@@ -688,7 +680,7 @@ spotAlgEs <- function(mue = 10,
 	#OBJRECO = toString((1:length(recoType))[recoType==objReco])
 	#STRATRECO = toString((1:length(recoType))[recoType==stratReco])
 	if(is.matrix(realBestPar)){
-		X=realBestPar[length(realBestPar),]
+		X=realBestPar[nrow(realBestPar),]
 	}else{
 		X=realBestPar
 	}	
@@ -1115,34 +1107,36 @@ spotAlgStartEsVar <- function(spotConfig){
 #' @keywords internal
 #' @export
 ###################################################################################################
-spotAlgEsQuickTest <- function(mue=2, nu=2,tau=1){
-	## Problem design:
-	dimension = 2;
-	mutation = 1;
-	sigmaInit=0.1;
-	nSigma=2;
-	tau0=1.5;
-	#tau=1;
-	rho="bi";
-	stratReco=1;
-	objReco=1;
-	kappa=-1; # 10
-	maxGen=Inf;
-	maxIter=200;
-	seed=123;
-	noise=0.0;
-	#fName=spotRastriginFunction;
-	fName=spotBraninFunction;
-	lowerLimit=-1;
-	upperLimit=1;
-	#mue = 2;
-	#nu = 2;
-	plotResult=TRUE;
-	logPlotResult=FALSE;
-	verbosity=1;
-	sigmaRestart = 0.2;
-	#resFileName="esQuickTest.res"; only needed in spotAlgStartEs, not used in spotAlgEs
-	prescanmult=1;
+
+### resFileName="esQuickTest.res" deleted from the following argument list to
+### spotAlgEsQuickTest(), because it is only needed in spotAlgStartEs, not used in spotAlgEs
+
+spotAlgEsQuickTest <- function(
+	dimension = 2,
+	mutation = 2,
+	sigmaInit=1.0,
+	nSigma=1,
+	tau0=1.5,
+	tau=1,
+	rho="bi",
+	stratReco=1,
+	objReco=1,
+	kappa=-1,
+	maxGen=Inf,
+	maxIter=200,
+	seed=123,
+	noise=0.0,
+	fName=spotBraninFunction,
+	lowerLimit=-1,
+	upperLimit=1,
+	mue = 2,
+	nu = 2,
+	plotResult=TRUE,
+	logPlotResult=FALSE,
+	verbosity=1,
+	sigmaRestart = 0.2,
+	prescanmult=1)
+	{
 	##
 	esRun <- spotAlgEs(mue=mue,
 			nu=nu,

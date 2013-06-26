@@ -27,7 +27,8 @@ spotPredictEsvm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 		xNames <- row.names(spotConfig$alg.roi)
 		yNames <- setdiff(names(rawB),xNames)
 		x <- rawB[xNames]
-		nx <- nrow(spotConfig$alg.roi)		
+		nx <- nrow(spotConfig$alg.roi)	
+		opts=list(fevals=100, reltol=1e-4)	#for optimization algorithm		
 		if(length(yNames)==1){
 			y<-rawB[[yNames]]
 			dat <- data.frame(x,y)		
@@ -37,11 +38,9 @@ spotPredictEsvm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 			#fit<-tune.svm(y~.,data=dat,gamma = gammaR, cost = costR)		
 			fitness<-function(xx){	
 				tune.svm(y~.,data=dat,gamma = (10^xx[1])/nx, cost = (10^xx[2]))$best.performance
-			}
-			spotInstAndLoadPackages("nloptr")	
-			opts=list(algorithm="NLOPT_LN_NELDERMEAD",maxeval=100, ftol_rel=1e-4, xtol_rel=-Inf)	
-			res <- nloptr(c(0,1),fitness,lb =c(-4,0),ub = c(2,6), opts = opts)
-			fit<-svm(y~.,data=dat,gamma =(10^res$solution[1])/nx, cost = (10^res$solution[2]))			
+			}			
+			res <- spotOptimizationInterface(par=c(0,1),fn=fitness,lower=c(-4,0),upper = c(2,6), method="optim-L-BFGS-B", control = opts)
+			fit<-svm(y~.,data=dat,gamma =(10^res$par[1])/nx, cost = (10^res$par[2]))			
 		}
 		else{#Distinction for multi criteria spot 			
 			fit=list()
@@ -52,11 +51,9 @@ spotPredictEsvm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 				dat <- data.frame(x,y)		
 				fitness<-function(xx){	
 					tune.svm(y~.,data=dat,gamma = (10^xx[1])/nx, cost = (10^xx[2]))$best.performance
-				}
-				spotInstAndLoadPackages("nloptr")	
-				opts=list(algorithm="NLOPT_LN_NELDERMEAD",maxeval=100, ftol_rel=1e-4, xtol_rel=-Inf)	
-				res <- nloptr(c(0,1),fitness,lb =c(-4,0),ub = c(2,6), opts = opts)
-				fit[[i]]<-svm(y~.,data=dat,gamma =(10^res$solution[1])/nx, cost = (10^res$solution[2]))
+				}				
+				res <- spotOptimizationInterface(par=c(0,1),fn=fitness,lower=c(-4,0),upper = c(2,6), method="optim-L-BFGS-B", control = opts)
+				fit[[i]]<-svm(y~.,data=dat,gamma =(10^res$par[1])/nx, cost = (10^res$par[2]))
 			}			
 		}		
 	}else{

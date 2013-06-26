@@ -3,7 +3,7 @@
 \title{Build Forrester Co-Kriging}
 \usage{
   forrCoBuilder(Xe, ye, Xc, yc, fitC, loval = 0.001,
-    upval = 100, algtheta = "NLOPT_LN_NELDERMEAD",
+    upval = 100, algtheta = "optim-L-BFGS-B",
     budgetalgtheta = 100, lb = NULL, ub = NULL,
     opt.p = FALSE, lambda.loval = -6, lambda.upval = 0,
     rho.loval = -5, rho.upval = 5)
@@ -28,9 +28,8 @@
   \code{100}}
 
   \item{algtheta}{algorithm used to find theta, default is
-  \code{"NLOPT_LN_NELDERMEAD"} which is a bounded simplex
-  method from the package nloptr. Else, any from the list
-  of possible \code{method} values in
+  \code{"optim-L-BFGS-B"}. Else, any from the list of
+  possible \code{method} values in
   \code{\link{spotOptimizationInterface}} can be chosen.}
 
   \item{budgetalgtheta}{budget for the above mentioned
@@ -97,10 +96,10 @@
 	yc <- rbind(covar(xc))
 	## build the Co-Kriging model, with cheap and expensive observations
 	set.seed(2)
- fitC <- forrBuilder(xc, yc, 1e-3, 1e2, "NLOPT_LN_NELDERMEAD", 100,0,1,FALSE);
-	fit <- forrCoBuilder(xe, ye, xc, yc, fitC, 1e-3, 1e2, "NLOPT_LN_NELDERMEAD", 100,0,1,FALSE)
+ fitC <- forrBuilder(xc, yc, 1e-3, 1e2, "optim-L-BFGS-B", 100,0,1,FALSE);
+	fit <- forrCoBuilder(xe, ye, xc, yc, fitC, 1e-3, 1e2, "optim-L-BFGS-B", 100,0,1,FALSE)
 	## build the ordinary Kriging model with expensive observations only
-	fit1 <- forrBuilder(xe, ye, 1e-3, 1e2, "NLOPT_LN_NELDERMEAD", 100,0,1,FALSE)
+	fit1 <- forrBuilder(xe, ye, 1e-3, 1e2, "optim-L-BFGS-B", 100,0,1,FALSE)
  ## Predict and plot over whole design space
 	x=seq(from=0,to=1,by=0.01)
 	yco <- forrCoRegPredictor(as.matrix(x),fit,FALSE)$f
@@ -115,7 +114,13 @@
 	lines(x,ypc,col="red",lty=4,lwd=3) 	#cheap model
 	lines(x,yy,col="blue",lty=3,lwd=3)#uncorrected model
 	lines(x,yco,col="darkgreen",lty=5,lwd=3) #comodel
-	legend("top",lwd=c(3,3,1,1,3,3,3,3),col=c("black","black","black","black","blue","red","blue","darkgreen"),legend=c("Expensive Function", "Cheap Function", "Expensive Observations", "Cheap Observations", "Uncorrected Model", "Cheap Model","Difference Model","Co-Kriging Model"),lty=c(1,1,0,0,3,4,1,5),pch=c(NA,NA,19,1,NA,NA,NA,NA))
+	legend("top",lwd=c(3,3,1,1,3,3,3,3),
+		col=c("black","black","black","black","blue","red","blue","darkgreen"),
+		legend=	c("Expensive Function", "Cheap Function",
+				"Expensive Observations", "Cheap Observations",
+				"Uncorrected Model", "Cheap Model","Difference Model",
+				"Co-Kriging Model"),
+		lty=c(1,1,0,0,3,4,1,5),pch=c(NA,NA,19,1,NA,NA,NA,NA))
 	sum((yco-ovar(x))^2)/length(x) #mse
 }
 \references{

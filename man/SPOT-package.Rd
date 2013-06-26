@@ -18,7 +18,7 @@
   users.
 
   \tabular{ll}{ Package: \tab SPOT\cr Type: \tab Package\cr
-  Version: \tab 1.0.4045\cr Date: \tab 11.04.2013\cr
+  Version: \tab 1.0.4184\cr Date: \tab 26.06.2013\cr
   License: \tab GPL (>= 2)\cr LazyLoad: \tab yes\cr }
 }
 \author{

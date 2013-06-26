@@ -31,16 +31,13 @@ spotReportSAMP <- function(spotConfig) {
 	###
 	#paramString <- paste(pNames,collapse=",") 
     ###
-	samp.df <- data.frame(cbind(y=rawB$Y, yLog=log(rawB$Y), algSeed = rawB$SEED, fSeed=rawB$PINST))
+	if(any(rawB$Y < 0))	
+		yLog= log(rawB$Y-min(rawB$Y)+1)
+	else
+		yLog= log(rawB$Y)
+	samp.df <- data.frame(cbind(y=rawB$Y, yLog=yLog, algSeed = rawB$SEED, fSeed=rawB$PINST))
 	samp.df$algSeed <- factor(samp.df$algSeed)
 	samp.df$fSeed <- factor(samp.df$fSeed)
-	#pdf(file="qq1.pdf")
-	par(mfrow=c(2,1))
-	qqnorm(samp.df$y,main="(a)")
-	qqline(samp.df$y)
-	qqnorm(samp.df$yLog,main="(b) log. transformed")
-	qqline(samp.df$yLog)
-	#dev.off()
 	# 	samp.aov <- aov(yLog ~ fSeed, data=samp.df)
 	# 	(M1 <- anova(samp.aov))
 	# 	(MSA <- M1[1,3])
@@ -56,10 +53,64 @@ spotReportSAMP <- function(spotConfig) {
 	# 	1-pf(MSA/MSE,q-1,q*(r-1))
 	# 	MSA.anova <- MSA
 	###	
-	samp.lmer <- lmer(yLog~ 1 +(1|fSeed),data=samp.df)
+	samp.lmer <- lmer(y~ 1 +(1|fSeed),data=samp.df)
 	spotPrint(spotConfig$io.verbosity,1,paste("Summary of the mixed model: ",sep=""));
 	spotPrint(spotConfig$io.verbosity,1,samp.lmer)
+	
+  ### NEW: Check Model Adequacy:
+	# checking that e_i all have the same variance:
+	#pdf(file="qq1.pdf")
+	dev.new()
+	plot(resid(samp.lmer) ~ fitted(samp.lmer),main="residual plot")
+	abline(h=0)
+	#dev.off()
+  
+	dev.new()
+	# checking the normality of residuals e_ij:
+	qqnorm(resid(samp.lmer), main="Q-Q plot for residuals")
+	qqline(resid(samp.lmer))
+	
+  ### 
+  ### Since the raw data model is are not adequate, we perform a log transformation: 	
+	samp.lmer.log <- lmer(yLog~ 1 +(1|fSeed),data=samp.df)
+	spotPrint(spotConfig$io.verbosity,1,paste("Summary of the mixed model (logY): ",sep=""));
+	spotPrint(spotConfig$io.verbosity,1,samp.lmer.log)
+	
+	# checking that e_ij all have the same variance:
+	#pdf(file="qq1Log.pdf")
+	dev.new()
+	plot(resid(samp.lmer.log) ~ fitted(samp.lmer.log),main="residual plot (log.)")
+	abline(h=0)
+	#dev.off()
+	dev.new()
+	# checking the normality of residuals e_ij:
+	qqnorm(resid(samp.lmer.log), main="Q-Q plot for residuals (log.)")
+	qqline(resid(samp.lmer.log))
+	
+  ### :WEN
 	####
+	VC <- VarCorr(samp.lmer.log)
+	sigma.tau <- as.numeric(attr(VC$fSeed,"stddev"))
+	sigma <- as.numeric(attr(VC,"sc"))
+	q <- nlevels(samp.df$fSeed)
+	r <- length(unique(samp.df$algSeed))
+	MSA <- sigma^2+r*sigma.tau^2
+	MSE <- sigma^2
+	### diesen wert als p-wert ausgeben:
+	pvalue=1-pf(MSA/MSE,q-1,q*(r-1))
+	spotPrint(spotConfig$io.verbosity,1,paste("P-value log.: ",pvalue,sep=""));
+	###	
+	s <- sqrt(MSA/(q*r))
+	Ydotdot <- mean(samp.df$yLog)
+	#qsr <- qt(1-0.025,r)
+	qsr <- qt(1-0.025,q*(r-1)) #Fix TBB, 30.04.2013
+	### conf intervall ausgeben:
+	#if(any(rawB$Y < 0))	
+	#	confInt=c( exp(Ydotdot - qsr * s)+(min(rawB$Y)-1), exp(Ydotdot + qsr * s)+(min(rawB$Y)-1))
+	#else
+		confInt.log=c( (Ydotdot - qsr * s), (Ydotdot + qsr * s))
+	
+	##############################
 	VC <- VarCorr(samp.lmer)
 	sigma.tau <- as.numeric(attr(VC$fSeed,"stddev"))
 	sigma <- as.numeric(attr(VC,"sc"))
@@ -72,10 +123,20 @@ spotReportSAMP <- function(spotConfig) {
 	spotPrint(spotConfig$io.verbosity,1,paste("P-value: ",pvalue,sep=""));
 	###	
 	s <- sqrt(MSA/(q*r))
-	Ydotdot <- mean(samp.df$yLog)
-	qsr <- qt(1-0.025,r)
-	### conf intervall ausgeben:
-	confInt=c( exp(Ydotdot - qsr * s), exp(Ydotdot + qsr * s))
+	Ydotdot <- mean(samp.df$y)
+	#qsr <- qt(1-0.025,r)
+	qsr <- qt(1-0.025,q*(r-1)) #Fix TBB, 30.04.2013
+		### conf intervall ausgeben:
+	#if(any(rawB$Y < 0))	
+	#	confInt=c( exp(Ydotdot - qsr * s)+(min(rawB$Y)-1), exp(Ydotdot + qsr * s)+(min(rawB$Y)-1))
+	#else
+		confInt=c( (Ydotdot - qsr * s), (Ydotdot + qsr * s))
+	##############################
+	
+	
+	
+
+	spotPrint(spotConfig$io.verbosity,1,paste("Confidence Interval log.: ",confInt.log[1]," to ", confInt.log[2], sep=""));
 	spotPrint(spotConfig$io.verbosity,1,paste("Confidence Interval: ",confInt[1]," to ", confInt[2], sep=""));
 	### same analysis based on anova
 	# 	s <- sqrt(MSA.anova/(q*r))
@@ -94,4 +155,5 @@ spotReportSAMP <- function(spotConfig) {
 	plt2 <- ggplot(samp.df, aes_string(x = "y", y = "fSeed")) + geom_point() + ggtitle("Performance")
 	print(plt2)
 	#dev.off()
+	spotConfig
 }

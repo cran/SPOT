@@ -179,7 +179,7 @@ spot.seed = 125
 Now there will follow some settings which regard the different steps of SPOT. \\[12pt]
 \parbox{\textwidth}{The auto step:  \\
 \fbox{\parbox{\textwidth}{
-auto.loop.steps = 5; \\
+auto.loop.steps = 5 \\
 }}
 ---partial Listing: sann0001.conf---} \\
 
@@ -189,8 +189,8 @@ example however we will actually go step by step, so this setting will be ignore
 spot. \\[12pt]
 \parbox{\textwidth}{The initial step:  \\
 \fbox{\parbox{\textwidth}{
-init.design.func = "spotCreateDesignLhd";  \\
-init.design.size = 5;  \\
+init.design.func = "spotCreateDesignLhd"  \\
+init.design.size = 5  \\
 }}
 ---partial Listing: sann0001.conf---} \\
 
@@ -200,7 +200,7 @@ cube Design) is used for sampling this initial design. There will be 5 parameter
 settings created. \\[12pt]
 \parbox{\textwidth}{The sequential step:  \\
 \fbox{\parbox{\textwidth}{
-seq.design.maxRepeats = 4; \\
+seq.design.maxRepeats = 4 \\
 seq.design.size = 100 \\
 seq.predictionModel.func = "spotPredictTree"\\ 
 }}
@@ -376,8 +376,9 @@ myConfigAndResults=spot(testFile,"rep",spotConfig=myConfigAndResults)
 @
 
 <<fig=TRUE,include=TRUE,echo=FALSE>>=
-rawB <- spotGetRawDataMatrixB(myConfigAndResults);
-fit.tree <- rpart(y ~ ., data= rawB)	
+setwd(demoPath)
+rawB <- spotGetRawDataMatrixB(myConfigAndResults)
+fit.tree <- rpart(y ~ ., data= rawB)
 plot(fit.tree)
 text(fit.tree)
 @

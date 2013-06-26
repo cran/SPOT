@@ -1,8 +1,8 @@
-\name{spotGlgEval}
-\alias{spotGlgEval}
-\title{Gaussian Landscape Evaluation}
+\name{spotGlgEvalRot}
+\alias{spotGlgEvalRot}
+\title{Gaussian Landscape Evaluation (rotated)}
 \usage{
-  spotGlgEval(x, glg)
+  spotGlgEvalRot(x, glg)
 }
 \arguments{
   \item{x}{matrix of sample sites, containing one point in
@@ -13,24 +13,15 @@
 }
 \value{
   returns a list, with the following items:\cr \code{value}
-  value of the combined landscape \code{components} value
-  of each component
+  vector of 2 values, first belongs to non-rotated
+  landscape. \code{components} value of each component
+  (will be NA)
 }
 \description{
   This function is based on the Gaussian Landscape
   Generator by Bo Yuan and Marcus Gallagher. It randomly
-  evaluates one or several points in a Gaussian Landscape
-  created by \code{spotGlgInit}.
-}
-\examples{
-## Create a landscape with default settings:
-	landscape <- spotGlgInit()
-	## Create a landscape with larger boundaries and more Gaussian components
-	value <-  spotGlgEval(c(0.5,0.5),landscape)
-}
-\author{
-  Original Matlab code by Bo Yuan, ported to R by Martin
-  Zaefferer
+  evaluates one or several points in a combination of two
+  landscapes, where the second is a rotation of the first.
 }
 \references{
   B. Yuan and M. Gallagher (2003) "On Building a Principled
@@ -40,7 +31,8 @@
   Computation, IEEE, pp. 451-458, Canberra, Australia.
 }
 \seealso{
-  \code{\link{spotGlgCreate}}, \code{\link{spotGlgInit}},
-  \code{\link{spotGlgEvalRot}}, \code{\link{spotGlgEvalN}}
+  \code{\link{spotGlgCreateRot}},
+  \code{\link{spotGlgInit}}, \code{\link{spotGlgEval}},
+  \code{\link{spotGlgEvalN}}
 }
 

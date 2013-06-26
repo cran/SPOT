@@ -4,7 +4,8 @@
 \usage{
   spotSurfContour(f = function(x) {     sum(x^2) },
     lo = c(0, 0), up = c(1, 1), s = 100, xlab = "x1",
-    ylab = "x2", title = " ", points1, points2, ...)
+    ylab = "x2", title = " ", levels = NULL, points1,
+    points2, ...)
 }
 \arguments{
   \item{f}{function to be plotted. The function should
@@ -26,6 +27,9 @@
   \item{ylab}{lable of second axis}
 
   \item{title}{title of the plot}
+
+  \item{levels}{number of levels for the plotted function
+  value. Will be set automatically with default NULL.}
 
   \item{points1}{can be omitted, but if given the points in
   this matrix are added to the plot in form of dots}

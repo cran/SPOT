@@ -1,5 +1,5 @@
 ####################################################################################
-#' spotCreateDesignLhs
+#' spotCreateDesignLhsOpt
 #' 
 #' Uses the optimumLHS function from the lhs package to create a Latin Hypercube
 #' Design. optimumLHS uses the S optimality criterion.
@@ -16,7 +16,7 @@
 #' \code{\link{spotCreateDesignLhd}}, \code{\link{spotCreateDesignLhsOpt}}
 ####################################################################################
 spotCreateDesignLhsOpt <- function(spotConfig, noDesPoints = NaN, repeats=NaN){	
-	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignLhsOpt.R::spotCreateDesignLhs()");
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignLhsOpt.R::spotCreateDesignLhsOpt()");
 	spotInstAndLoadPackages("lhs")	
 	
 	## use roi or aroi:

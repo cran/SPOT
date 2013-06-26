@@ -56,6 +56,7 @@ spotSurf3d <- function(f=function(x){sum(x^2)}, lo=c(0,0) , up=c(1,1) , s=100,cl
 #' @param xlab lable of first axis
 #' @param ylab lable of second axis
 #' @param title title of the plot 
+#' @param levels number of levels for the plotted function value. Will be set automatically with default NULL.
 #' @param points1 can be omitted, but if given the points in this matrix are added to the plot in form of dots
 #' @param points2 can be omitted, but if given the points in this matrix are added to the plot in form of crosses
 #' @param ... additional parameters passed to \code{f}
@@ -66,7 +67,7 @@ spotSurf3d <- function(f=function(x){sum(x^2)}, lo=c(0,0) , up=c(1,1) , s=100,cl
 #' @seealso \code{\link{spotSurf3d}} 
 #' @export
 ###################################################################################################
-spotSurfContour <- function(f=function(x){sum(x^2)}, lo=c(0,0) , up=c(1,1) , s=100, xlab="x1",ylab="x2", title=" ", points1, points2, ...){
+spotSurfContour <- function(f=function(x){sum(x^2)}, lo=c(0,0) , up=c(1,1) , s=100, xlab="x1",ylab="x2", title=" ", levels=NULL,points1, points2, ...){
 	x <- seq(lo[1], up[1], length = s)
 	y <- seq(lo[2], up[2], length = s) 
 	if(exists("..."))
@@ -79,25 +80,29 @@ spotSurfContour <- function(f=function(x){sum(x^2)}, lo=c(0,0) , up=c(1,1) , s=1
 	}else if(length(formals(f))-n_dot_args==2){
 		z <- outer(x, y, f, ...)	
 	}		
+	
+	if(is.null(levels))
+		levels=pretty(range(z),20)
+	
 	if(missing(points1)&missing(points2)){
-		filled.contour(x, y, z, color.palette=terrain.colors,
+		filled.contour(x, y, z, color.palette=terrain.colors, levels=levels,
 				plot.title=title(title,
 				xlab=xlab,
 				ylab=ylab))
 	}else if(missing(points1)&!missing(points2)){
-			filled.contour(x, y, z, color.palette=terrain.colors, 
+			filled.contour(x, y, z, color.palette=terrain.colors, levels=levels,
 				plot.title=title(title,
 				xlab=xlab,
 				ylab=ylab),
 				plot.axes = { points(points2,pch=4); axis(1); axis(2);	})
 	}else if(!missing(points1)&missing(points2)){
-			filled.contour(x, y, z, color.palette=terrain.colors, 
+			filled.contour(x, y, z, color.palette=terrain.colors, levels=levels,
 				plot.title=title(title,
 				xlab=xlab,
 				ylab=ylab),
 				plot.axes = { points(points1,pch=19); axis(1); axis(2);	 })
 	}else{
-			filled.contour(x, y, z, color.palette=terrain.colors, 
+			filled.contour(x, y, z, color.palette=terrain.colors, levels=levels,
 				plot.title=title(title,
 				xlab=xlab,
 				ylab=ylab),

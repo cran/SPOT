@@ -3,7 +3,7 @@
 \title{Build Forrester Kriging}
 \usage{
   forrBuilder(X, y, loval = 0.001, upval = 100,
-    algtheta = "NLOPT_LN_NELDERMEAD", budgetalgtheta = 100,
+    algtheta = "optim-L-BFGS-B", budgetalgtheta = 100,
     lb = NULL, ub = NULL, opt.p = FALSE, lambda.loval = -6,
     lambda.upval = 0)
 }
@@ -19,9 +19,8 @@
   \code{100}}
 
   \item{algtheta}{algorithm used to find theta, default is
-  \code{"NLOPT_LN_NELDERMEAD"} which is a bounded simplex
-  method from the package nloptr. Else, any from the list
-  of possible \code{method} values in
+  \code{"optim-L-BFGS-B"}. Else, any from the list of
+  possible \code{method} values in
   \code{\link{spotOptimizationInterface}} can be chosen.}
 
   \item{budgetalgtheta}{budget for the above mentioned

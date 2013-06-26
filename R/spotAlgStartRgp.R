@@ -25,7 +25,8 @@ spotRgpTargetFunction <- function(populationSize = 100, tournamentSize = 10, tim
   mdl <- symbolicRegression(y ~ x1 + x2,
                             data = data1,
                             populationSize = populationSize,
-                            selectionFunction = makeTournamentSelection(tournamentSize = tournamentSize),
+                            #selectionFunction = makeTournamentSelection(tournamentSize = tournamentSize), #deprecated
+							searchHeuristic = makeArchiveBasedParetoTournamentSearchHeuristic(popTournamentSize = tournamentSize),
                             functionSet = arithmeticFunctionSet,
                             stopCondition = makeTimeStopCondition(time))
 

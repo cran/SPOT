@@ -29,6 +29,7 @@ spotPredictKsvm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 		x <- rawB[xNames]		
 		nx <- nrow(spotConfig$alg.roi)
 		nn <- nrow(x)
+		opts=list(fevals=100, reltol=1e-4)	 #optim algorithm options
 		if(length(yNames)==1){
 			y<-rawB[[yNames]]
 			dat <- data.frame(x,y)		
@@ -36,19 +37,15 @@ spotPredictKsvm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 				err<-try(attributes(ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),cross=10))$cross,silent=TRUE)
 				if(class(err) == "try-error"){err<-10^4}
 				err
-			}
-			spotInstAndLoadPackages("nloptr")	
-			opts=list(algorithm="NLOPT_LN_NELDERMEAD",maxeval=100, ftol_rel=1e-4, xtol_rel=-Inf)	
-			res <- nloptr(c(0,1,-1),fitness,lb =c(-4,0,-4),ub = c(2,6,0), opts = opts)
-			fit<-try( fit<-ksvm(y~.,data=dat,epsilon=(10^res$solution[3]),C=(10^res$solution[2]),kpar=list(sigma=(10^res$solution[1])/nx)) ,silent=TRUE)		
+			}			
+			res <- spotOptimizationInterface(par=c(0,1,-1),fn=fitness,lower=c(-4,0,-4),upper = c(2,6,0), method="optim-L-BFGS-B", control = opts)
+			fit<-try( fit<-ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx)) ,silent=TRUE)		
 			if(class(fit) == "try-error"){
 				fitness<-function(xx){	
 					attributes(ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),kernel="anovadot",cross=10))$cross
 				}
-				spotInstAndLoadPackages("nloptr")	
-				opts=list(algorithm="NLOPT_LN_NELDERMEAD",maxeval=100, ftol_rel=1e-4, xtol_rel=-Inf)	
-				res <- nloptr(c(0,1,-1),fitness,lb =c(-4,0,-4),ub = c(2,6,0), opts = opts)
-				fit<-ksvm(y~.,data=dat,epsilon=(10^res$solution[3]),C=(10^res$solution[2]),kpar=list(sigma=(10^res$solution[1])/nx),kernel="anovadot")			
+				res <- spotOptimizationInterface(par=c(0,1,-1),fn=fitness,lower=c(-4,0,-4),upper = c(2,6,0), method="optim-L-BFGS-B", control = opts)
+				fit<-ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx),kernel="anovadot")			
 			}	
 		}
 		else{#Distinction for multi criteria spot 			
@@ -63,18 +60,14 @@ spotPredictKsvm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 					if(class(err) == "try-error"){err<-10^4}
 					err
 				}
-				spotInstAndLoadPackages("nloptr")	
-				opts=list(algorithm="NLOPT_LN_NELDERMEAD",maxeval=100, ftol_rel=1e-4, xtol_rel=-Inf)	
-				res <- nloptr(c(0,1,-1),fitness,lb =c(-4,0,-4),ub = c(2,6,0), opts = opts)
-				fit[[i]]<-try( fit[[i]]<-ksvm(y~.,data=dat,epsilon=(10^res$solution[3]),C=(10^res$solution[2]),kpar=list(sigma=(10^res$solution[1])/nx)) ,silent=TRUE)		
+				res <- spotOptimizationInterface(par=c(0,1,-1),fn=fitness,lower=c(-4,0,-4),upper = c(2,6,0), method="optim-L-BFGS-B", control = opts)
+				fit[[i]]<-try( fit[[i]]<-ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx)) ,silent=TRUE)		
 				if(class(fit[[i]]) == "try-error"){
 					fitness<-function(xx){	
 						attributes(ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),kernel="anovadot",cross=10))$cross
 					}
-					spotInstAndLoadPackages("nloptr")	
-					opts=list(algorithm="NLOPT_LN_NELDERMEAD",maxeval=100, ftol_rel=1e-4, xtol_rel=-Inf)	
-					res <- nloptr(c(0,1,-1),fitness,lb =c(-4,0,-4),ub = c(2,6,0), opts = opts)
-					fit[[i]]<-ksvm(y~.,data=dat,epsilon=(10^res$solution[3]),C=(10^res$solution[2]),kpar=list(sigma=(10^res$solution[1])/nx),kernel="anovadot")			
+					res <- spotOptimizationInterface(par=c(0,1,-1),fn=fitness,lower=c(-4,0,-4),upper = c(2,6,0), method="optim-L-BFGS-B", control = opts)
+					fit[[i]]<-ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx),kernel="anovadot")			
 				}	
 			}			
 		}		

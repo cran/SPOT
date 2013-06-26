@@ -1,14 +1,17 @@
-\name{spotGlgCreate}
-\alias{spotGlgCreate}
-\title{Create Gaussian Landscape}
+\name{spotGlgCreateRot}
+\alias{spotGlgCreateRot}
+\title{Create Gaussian Landscape (rotated)}
 \usage{
-  spotGlgCreate(dimension = 2, nGaussian = 10,
-    lower = rep(0, dimension), upper = rep(1, dimension),
-    globalvalue = 1, ratio = 0.8, seed = 1)
+  spotGlgCreateRot(iDimension = 2, alpha = pi/2,
+    nGaussian = 10, lower = rep(0, iDimension),
+    upper = rep(1, iDimension), globalvalue = 1,
+    ratio = 0.8, seed = 1)
 }
 \arguments{
-  \item{dimension}{dimensionality of the landscapes input
+  \item{iDimension}{dimensionality of the landscapes input
   space. Default is 2.}
+
+  \item{alpha}{rotation angle. Default is pi/2.}
 
   \item{nGaussian}{number of Gaussian components in the
   landscape. Default is 10.}
@@ -35,23 +38,17 @@
 \value{
   returns a function. The function takes a point (vector)
   as input, with as many values as specified in
-  \code{dimension}. The function returns a single scalar
-  value, which is the Landscape value at the current point.
-  The function has several attributes which reflect the
-  items returned by \code{\link{spotGlgInit}}. reflect the
-  values returned by
+  \code{dimension}. The function returns a vector value,
+  representing the output from the two landscapes
+  landscape.
 }
 \description{
   This function is based on the Gaussian Landscape
-  Generator by Bo Yuan and Marcus Gallagher. It creates a
-  new Gaussian Landscape every time it is called. This
-  Landscape can be evaluated like a function.
-}
-\examples{
-## Create a landscape function with default settings:
-	landscapeFun <- spotGlgCreate()
-	## Plot the landscape (uncomment before running this example)
-	#spotSurf3d(landscapeFun)
+  Generator by Bo Yuan and Marcus Gallagher. The difference
+  to \code{\link{spotGlgCreate}} is, that this function
+  creates one landscape and a second one is created by
+  rotating the first. This can be used as a simple
+  two-objective test function.
 }
 \references{
   B. Yuan and M. Gallagher (2003) "On Building a Principled
@@ -61,8 +58,7 @@
   Computation, IEEE, pp. 451-458, Canberra, Australia.
 }
 \seealso{
-  \code{\link{spotGlgCreateRot}}
-  \code{\link{spotGlgCreateN}}
+  \code{\link{spotGlgCreate}} \code{\link{spotGlgCreateN}}
   \code{\link{spotGlgCreateRotSearched}}
 }
 

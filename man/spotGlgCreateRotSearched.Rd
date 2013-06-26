@@ -1,0 +1,64 @@
+\name{spotGlgCreateRotSearched}
+\alias{spotGlgCreateRotSearched}
+\title{Create Gaussian Landscape (rotated) with random search}
+\usage{
+  spotGlgCreateRotSearched(iDimension = 2, alpha = pi/2,
+    nGaussian = 10, lower = rep(0, iDimension),
+    upper = rep(1, iDimension), globalvalue = 1,
+    ratio = 0.8, seed = 1, repeats = 100, evals = 1000)
+}
+\arguments{
+  \item{iDimension}{dimensionality of the landscapes input
+  space. Default is 2.}
+
+  \item{alpha}{rotation angle. Default is pi/2.}
+
+  \item{nGaussian}{number of Gaussian components in the
+  landscape. Default is 10.}
+
+  \item{lower}{lower boundary of the landscape, defaults to
+  \code{rep(0,dimension)}.}
+
+  \item{upper}{upper boundary of the landscape, defaults to
+  \code{rep(1,dimension)}.}
+
+  \item{globalvalue}{the global maximum value, i.e. the
+  maximum of the Gaussian component with the largest value.
+  Default is 1.}
+
+  \item{ratio}{maximum ratio of the local maxima, local
+  optima are randomly generated within
+  \code{[0,globalvalue*ratio]}. Has to be larger than 0 and
+  smaller than 1. Defaults to 0.8.}
+
+  \item{seed}{seed for the random number generator used
+  before creation of the landscape. Generator status will
+  be saved and reset afterwards.}
+
+  \item{repeats}{number of random-search runs performed on
+  the landscape.}
+
+  \item{evals}{evaluations of the landscapes in each run of
+  the random-search.}
+}
+\value{
+  returns a function. The function takes a point (vector)
+  as input, with as many values as specified in
+  \code{dimension}. The function returns a vector value,
+  representing the output from the two landscapes
+  landscape. The mean hypervolume is the "meanhvol"
+  attribute of said function.
+}
+\description{
+  This function is very similar to
+  \code{\link{spotGlgCreateRot}}. However, to allow for
+  meaningfull results when comparing hypervolumes, this
+  function supports random-searching the created
+  landscapes. The resulting mean hypervolume of the
+  random-search can be used for comparisons.
+}
+\seealso{
+  \code{\link{spotGlgCreate}} \code{\link{spotGlgCreateN}}
+  \code{\link{spotGlgCreateRot}}
+}
+

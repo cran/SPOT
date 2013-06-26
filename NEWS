@@ -1,5 +1,8 @@
 SPOT - Sequential Parameter Optimization Toolbox
 
+Release Notes Version 1.0.4184
+	This Version contains several bugfixes, including compatibility with rgp >= 0.3-4
+
 Release Notes Version 1.0.4045
 	1. Contour plot can now show all observations as crosses, when spotConfig$report.observations.all is set.
 	2. The models spotPredictEarth and spotPredictRandomForest will now turn variables marked as "FACTOR" in the ROI into real factors with as.factor()

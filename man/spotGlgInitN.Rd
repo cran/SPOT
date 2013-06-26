@@ -1,13 +1,18 @@
-\name{spotGlgInit}
-\alias{spotGlgInit}
-\title{Initialize Gaussian Landscape}
+\name{spotGlgInitN}
+\alias{spotGlgInitN}
+\title{Initialize Gaussian Landscape (multiple)}
 \usage{
-  spotGlgInit(dimension = 2, nGaussian = 10,
-    lower = rep(0, dimension), upper = rep(1, dimension),
-    globalvalue = 1, ratio = 0.8, seed = 1)
+  spotGlgInitN(oDimension = 2, iDimension = 2,
+    nGaussian = rep(10, oDimension),
+    lower = rep(0, iDimension), upper = rep(1, iDimension),
+    globalvalue = rep(1, oDimension),
+    ratio = rep(0.8, oDimension), seed = 1)
 }
 \arguments{
-  \item{dimension}{dimensionality of the landscapes input
+  \item{oDimension}{dimensionality of output, i.e. number
+  of landscapes. Default is 2.}
+
+  \item{iDimension}{dimensionality of the landscapes input
   space. Default is 2.}
 
   \item{nGaussian}{number of Gaussian components in the
@@ -33,7 +38,8 @@
   be saved and reset afterwards.}
 }
 \value{
-  returns a list, with the following items:\cr \code{mean}
+  returns a list containing again lists for each landscape,
+  containing with the following items:\cr \code{mean}
   Matrix containing the mean vectors of the Gaussian
   components in the landscape, i.e. the locations of the
   local maxima of the functions. First vector (i.e. first
@@ -46,18 +52,9 @@
 \description{
   This function is based on the Gaussian Landscape
   Generator by Bo Yuan and Marcus Gallagher. It randomly
-  initializes a Gaussian Landscape with the specified
-  parameters.
-}
-\examples{
-## Create a landscape with default settings:
-	landscape <- spotGlgInit()
-	## Create a landscape with larger boundaries and more Gaussian components
-	landscape <- spotGlgInit(2, 100, -5, 5, 10, 0.8)
-}
-\author{
-  Original Matlab code by Bo Yuan, ported to R by Martin
-  Zaefferer
+  initializes multiple Gaussian Landscapes with the
+  specified parameters. Does not have to be called by user,
+  if \code{\link{spotGlgCreateN}} is used.
 }
 \references{
   B. Yuan and M. Gallagher (2003) "On Building a Principled
@@ -67,7 +64,7 @@
   Computation, IEEE, pp. 451-458, Canberra, Australia.
 }
 \seealso{
-  \code{\link{spotGlgCreate}}, \code{\link{spotGlgEval}} ,
-  \code{\link{spotGlgInitN}}
+  \code{\link{spotGlgCreateN}}, \code{\link{spotGlgEvalN}},
+  \code{\link{spotGlgInit}}
 }
 

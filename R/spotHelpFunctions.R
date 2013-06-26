@@ -103,14 +103,13 @@ spotWriteDes<-function(des, verbosity, sep, filename){
 #'
 #' @export
 ###################################################################################
-spotWriteAroi<-function(aroi, verbosity, sep, filename){	
+spotWriteAroi<-function(aroi, verbosity, sep, filename){	#Carefull: Aroi is always constructed manually as a data.frame without rownames, variable names are stored in first column. unlike in the roi file.
 	colnames(aroi) <- c("name", "lower", "upper", "type")	
 	## Empty separator is only required by input, because then it can distinguish all white-spaces, 
 	## but output must be separated with a well defined separator, so the empty separator is changed to a space " "
 	outsep <- sep;
 	if(outsep=="")
 		outsep <- " ";
-	spotWriteLines(verbosity,3,paste(" aroi written to::", filename), con=stderr());
 	write.table(aroi
 			, file = filename
 			, row.names = FALSE
@@ -119,6 +118,7 @@ spotWriteAroi<-function(aroi, verbosity, sep, filename){
 			, append = FALSE
 			, col.names=TRUE
 	);	
+	spotWriteLines(verbosity,3,paste(" aroi written to::", filename), con=stderr());
 }
 
 
@@ -235,15 +235,7 @@ spotWriteRoiFileForRepeats <- function(workingDir, bstFile, roiInFile, roiOutFil
 	rownames(A) <- pNames
 	typeCol <- rep("FLOAT", ncol(best))
 	A <- cbind(A, typeCol)
-	colnames(A) <- c("name", "lower", "upper", "type")	
-	write.table(A
-				, file = roiOutFile
-				, row.names = FALSE
-				, sep = " "
-				, quote = FALSE
-				, append = FALSE
-				, col.names=TRUE
-		)	
+	spotWriteAroi(A, 0, " ",roiOutFile)
 }
 
 

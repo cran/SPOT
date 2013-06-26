@@ -161,7 +161,8 @@ spotOptimizationInterface<-function(par,fn,gr=NULL,lower,upper,method,control,..
 								"NLOPT_GN_ORIG_DIRECT","NLOPT_GN_ORIG_DIRECT_L","NLOPT_LN_PRAXIS",							
 								"NLOPT_GN_CRS2_LM","NLOPT_LN_COBYLA","NLOPT_LN_NEWUOA_BOUND",
 								"NLOPT_LN_NELDERMEAD","NLOPT_LN_SBPLX","NLOPT_LN_BOBYQA","NLOPT_GN_ISRES"))){ 
-			spotInstAndLoadPackages("nloptr")	
+			#spotInstAndLoadPackages("nloptr")	#installing nloptr automatically is a problem. see nloptr CRAN checks
+			require(nloptr)	
 			opts=list(algorithm=method,maxeval=control$fevals, ftol_rel=control$reltol, xtol_rel=-Inf)	
 			res <- nloptr(par,fn,lb = lower,ub = upper,	opts = opts,...)
 			resval <- res$objective

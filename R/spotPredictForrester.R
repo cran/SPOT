@@ -11,7 +11,7 @@
 #'	\code{spotConfig$seq.forr.loval} lower boundary for theta, default is \code{1e-3}\cr
 #'	\code{spotConfig$seq.forr.upval} upper boundary for theta, default is \code{100}\cr
 #'	\code{spotConfig$seq.forr.opt.p} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default value is \code{FALSE}. Default is highly recommended as the implementation of this feature is not yet well tested and might be faulty.\cr
-#'	\code{spotConfig$seq.forr.algtheta} algorithm used to find theta, default is \code{"NLOPT_LN_NELDERMEAD"} which is a bounded simplex method from the package nloptr. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.\cr
+#'	\code{spotConfig$seq.forr.algtheta} algorithm used to find theta, default is \code{"optim-L-BFGS-B"}. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.\cr
 #'	\code{spotConfig$seq.forr.budgetalgtheta} budget for the above mentioned algorithm, default is \code{100}. The value will be multiplied with the length of the model parameter vector to be optimized.
 #'	\code{spotConfig$seq.forr.reinterpolate} boolean that specifies whether re-interpolation should be used during the prediction process. Default value is \code{FALSE}. Setting this to \code{TRUE} is recommended, when an error estimate of nearly zero is desired at sample locations, regardless of chosen regularization constant (nugget). Please note that prediction with interpolation will take longer than without.\cr
 #'	\code{spotConfig$seq.forr.savetheta} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default value is \code{FALSE}. Default is recommended since this feature not yet well tested, and might lead to a preference of local optima.\cr
@@ -41,8 +41,8 @@ spotPredictForrester <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 		if(is.null(spotConfig$seq.forr.savetheta))spotConfig$seq.forr.savetheta=FALSE
 		if(is.null(spotConfig$seq.forr.loval))spotConfig$seq.forr.loval=1e-3
 		if(is.null(spotConfig$seq.forr.upval))spotConfig$seq.forr.upval=100
-		if(is.null(spotConfig$seq.forr.opt.p))spotConfig$seq.forr.opt.p=FALSE; #TODO, not working properly in case of TRUE
-		if(is.null(spotConfig$seq.forr.algtheta))spotConfig$seq.forr.algtheta="NLOPT_LN_NELDERMEAD"
+		if(is.null(spotConfig$seq.forr.opt.p))spotConfig$seq.forr.opt.p=FALSE #TODO, not working properly in case of TRUE
+		if(is.null(spotConfig$seq.forr.algtheta))spotConfig$seq.forr.algtheta="optim-L-BFGS-B"
 		if(is.null(spotConfig$seq.forr.budgetalgtheta))spotConfig$seq.forr.budgetalgtheta=100
 		if(is.null(spotConfig$seq.forr.lambda.loval))spotConfig$seq.forr.lambda.loval=-6
 		if(is.null(spotConfig$seq.forr.lambda.upval))spotConfig$seq.forr.lambda.upval=0
@@ -176,7 +176,7 @@ print.forr <- function(x,...){
 #' @param y vector of observations at X
 #' @param loval lower boundary for theta, default is \code{1e-3}
 #' @param upval upper boundary for theta, default is \code{100}
-#' @param algtheta algorithm used to find theta, default is \code{"NLOPT_LN_NELDERMEAD"} which is a bounded simplex method from the package nloptr. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.
+#' @param algtheta algorithm used to find theta, default is \code{"optim-L-BFGS-B"}. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.
 #' @param budgetalgtheta budget for the above mentioned algorithm, default is \code{100}. The value will be multiplied with the length of the model parameter vector to be optimized.
 #' @param lb lower boundary of the design space. Will be extracted from the matrix \code{X} if not given.
 #' @param ub upper boundary of the design space. Will be extracted from the matrix \code{X} if not given.
@@ -222,7 +222,7 @@ print.forr <- function(x,...){
 #' print(fit)
 #'
 ###################################################################################
-forrBuilder <- function(X, y, loval=1e-3, upval=100, algtheta= "NLOPT_LN_NELDERMEAD", budgetalgtheta=100, lb=NULL, ub=NULL, opt.p= FALSE, lambda.loval = -6, lambda.upval = 0){
+forrBuilder <- function(X, y, loval=1e-3, upval=100, algtheta= "optim-L-BFGS-B", budgetalgtheta=100, lb=NULL, ub=NULL, opt.p= FALSE, lambda.loval = -6, lambda.upval = 0){
 	fit = list(loval=loval, upval=upval, opt.p=opt.p, algtheta=algtheta, budgetalgtheta=budgetalgtheta)
 	k = ncol(X)
 	fit$X = X
@@ -297,7 +297,9 @@ forrBuilder <- function(X, y, loval=1e-3, upval=100, algtheta= "NLOPT_LN_NELDERM
 	#append regression constant lambda (nugget)
 	LowerTheta = c(LowerTheta,lambda.loval)
 	UpperTheta = c(UpperTheta, lambda.upval)
-	
+	#force x0 into bounds
+	x0= pmin(x0,UpperTheta)
+	x0= pmax(x0,LowerTheta)
 	opts=list(fevals=fit$budgetalgtheta*length(x0), reltol=1e-6, restarts=TRUE)	
 	res <- spotOptimizationInterface(par=x0,fn=fitFun,gr=NULL,lower=LowerTheta,upper=UpperTheta,method=fit$algtheta,
 						control=opts,fX=A,fy=fit$y,opt.p=fit$opt.p)	
@@ -596,7 +598,7 @@ forrRegPredictor <- function(x,ModelInfo,pred.all=FALSE){
 		#TODO "diag(psi%*%...)" is excessive, since diag wastes alot of values computed by %*%
 		s=sqrt(abs(SSqr));
 	}
-	result=if(!pred.all){list(f=f)}else{data.frame(f=f,s=s)}
+	result=if(!pred.all){list(f=f)}else{data.frame(f=f,s=as.numeric(s))}
 }
 
 ###################################################################################
@@ -677,6 +679,6 @@ forrReintPredictor <- function(x,ModelInfo,pred.all=FALSE){
 		#TODO "diag(psi%*%...)" is excessive, since diag wastes alot of values computed by %*%
 		s=sqrt(abs(SSqr));
 	}
-	result=if(!pred.all){list(f=f)}else{data.frame(f=f,s=s)}
+	result=if(!pred.all){list(f=f)}else{data.frame(f=f,s=as.numeric(s))}
 }
 

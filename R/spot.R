@@ -29,8 +29,8 @@
 #' \tabular{ll}{
 #' Package: \tab SPOT\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.0.4045\cr
-#' Date: \tab 11.04.2013\cr
+#' Version: \tab 1.0.4184\cr
+#' Date: \tab 26.06.2013\cr
 #' License: \tab GPL (>= 2)\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -237,9 +237,7 @@ spotStepInitial <- function(spotConfig) {
 	## write actual region of interest file (same data as roi file)	
 	## TODO: Add type information to aroi file
 	A <- spotConfig$alg.roi	
-	B <- A	
-	A <-matrix(as.matrix(A), nrow =length(row.names(A)))
-	A <- cbind(row.names(B), A)  
+	A <- cbind(row.names(A), A)  
 	colnames(A) <- c("name", "lower", "upper", "type")	
 	if(spotConfig$spot.fileMode){
 		spotWriteAroi(A,spotConfig$io.verbosity,spotConfig$io.columnSep,spotConfig$io.aroiFileName)	
