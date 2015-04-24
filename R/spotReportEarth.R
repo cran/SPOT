@@ -19,13 +19,13 @@ spotReportEarth <- function(spotConfig) {
 	spotWriteLines(spotConfig$io.verbosity,2,"  ........................")
 	if(class(spotConfig$seq.modelFit)=="earth"){
 		spotWriteLines(spotConfig$io.verbosity,2,"Variable Importance Estimation Matrix:")
-		spotPrint(spotConfig$io.verbosity,1,evimp(spotConfig$seq.modelFit))
+		spotPrint(spotConfig$io.verbosity,1,earth::evimp(spotConfig$seq.modelFit))
 		spotWriteLines(spotConfig$io.verbosity,2,"  ........................")	
 	}
 	dev.new()
 	plot(spotConfig$seq.modelFit)
 	dev.new()
-	plotmo(spotConfig$seq.modelFit,all1=TRUE,all2=TRUE)
+	plotmo::plotmo(spotConfig$seq.modelFit,all1=TRUE,all2=TRUE)
 	spotWriteLines(spotConfig$io.verbosity,2,"  Leaving spotReportEarth")
 	spotConfig		
 }

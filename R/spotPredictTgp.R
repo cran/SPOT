@@ -26,9 +26,10 @@ spotPredictTgp <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	########################################################	
 	if(is.null(fit)){ # no fit given, build model
 		xNames <- row.names(spotConfig$alg.roi)
-		x <- rawB[xNames]
-		y <- rawB$y
-		fit <- btgpllm(X=x,Z=y,XX=design,verb=spotConfig$io.verbosity,improv=c(1,spotConfig$seq.design.size))
+		yNames <- spotConfig$alg.resultColumn
+		x <- rawB[xNames] 
+		y <- rawB[yNames] 
+		fit <- tgp::btgpllm(X=x,Z=y,XX=design,verb=spotConfig$io.verbosity,improv=c(1,spotConfig$seq.design.size))
 		res=predict(fit,design)$ZZ.mean
 		#res=fit$improv$rank;# TODO this must be tested, else use predict as above 	
 	}

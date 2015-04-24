@@ -28,6 +28,61 @@ spotCalcNoise <- function(y, noise=0.0, noise.type="weighted", spot.noise.minimu
 	noiseValue
 }
 
+###################################################################################
+#' Write Result File
+#'
+#' Writes a new row to the result file and adds it to the existing data.frame
+#'
+#' @param res result to write
+#' @param file name of result file
+#' @param mode only write to file if mode is TRUE
+#' @param cres res will be appended to this existing data frame
+#' 
+#' @return numeric \cr
+#' holding the noise Value
+#' @export
+#' @keywords internal
+####################################################################################
+spotWriteRes <- function(res, file, mode, cres){
+	if (mode){ ##Log the result in the .res file, only if user did not set fileMode==FALSE
+		colNames = TRUE
+		if (file.exists(file)){
+			colNames = FALSE
+		}				
+		## quote = false is required for JAVA
+		write.table(res
+				, file = file
+				, row.names = FALSE
+				, col.names = colNames
+				, sep = " "    
+				, append = !colNames
+				, quote = FALSE)	
+	}
+	rbind(cres,res)	
+}
+
+###################################################################################
+#' Write Result File
+#'
+#' Writes a new row to the result file and adds it to the existing data.frame
+#'
+#' @param y result value passed from target function
+#' @param colNames column names of the results in the target data frame
+#' @param res target data frame
+#' 
+#' @return list \cr
+#' containing the extended res data frame and the corrected colNames
+#' @export
+#' @keywords internal
+####################################################################################
+spotPrepareResult <- function (y,colNames,res){
+	if(length(y)>1 && length(colNames)==1){
+		colNames <-  paste(colNames,".", 1:length(y), sep="")
+	}
+	res[colNames] <- unname(y)
+	list(res=res,colNames=colNames)
+}	
+
 ###################################################################################################
 #' Interface for Target Functions
 #'
@@ -59,43 +114,30 @@ spotOptimInterface <- function(spotConfig,...){
 	else
 		SAVESEED=NULL
 	
-	pdFile=spotConfig$io.apdFileName
-	desFileName=spotConfig$io.desFileName		
 	if (spotConfig$spot.fileMode){ 
-		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr())
+		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  spotConfig$io.desFileName), con=stderr())
 		## read doe/dace etc settings:
-		des <- read.table(desFileName, sep=" ", header = TRUE)
+		des <- read.table(spotConfig$io.desFileName, sep=" ", header = TRUE)
 	}else{
 		des <- spotConfig$alg.currentDesign; 
 	}
+	if(is.null(spotConfig$seq.co.included))spotConfig$seq.co.included=FALSE
 	spotPrint(spotConfig$io.verbosity,1,summary(des))
 	spotWriteLines(spotConfig$io.verbosity,1,"spotOptimInterface...", con=stderr())
-	f<-"UserSuppliedFunction"
-	## read problem design file
-	if(file.exists(pdFile)){
-		source(pdFile,local=TRUE)
-	}
+	## read problem design file   #TODO: this has no effect. values from apd are not used.
+	#if(file.exists(spotConfig$io.apdFileName)){
+	#	source(spotConfig$io.apdFileName,local=TRUE)
+	#}
 	config<-nrow(des)
+	pNames <- rownames(spotConfig$alg.roi)
+	ndim <- nrow(spotConfig$alg.roi)
 	spotPrint(spotConfig$io.verbosity,1,config)
 	for (k in 1:config){
-		for (i in 1:des$REPEATS[k]){
-			dimcounter <- 1
-			x <- NULL			
-			while (!is.null(des[[paste("VARX", dimcounter, sep="")]])){
-				name <- paste("VARX", dimcounter, sep="")
-				varHelper  <- des[name]
-				x <- cbind(x,varHelper[k,1])
-				dimcounter <- dimcounter+1
-			}
-			
-			x <- t(x)
-			n <- dimcounter - 1
+		for (i in 1:des$REPEATS[k]){			
+			x <- as.matrix(des[k,,drop=FALSE][pNames])
 			conf <- k
 			if (!is.null(des$CONFIG)){
 				conf <- des$CONFIG[k]
-			}
-			if (!is.null(des$STEP)){
-				step <- des$STEP[k]
 			}
 			if(!is.na(spotConfig$alg.seed)){ #only use seed if seed is desired (not for deterministic target functions)
 				seed <- des$SEED[k]+i-1	
@@ -104,42 +146,86 @@ spotOptimInterface <- function(spotConfig,...){
 			else{seed=NA}
 			spotPrint(spotConfig$io.verbosity,1,c("Config:",k ," Repeat:",i))
 			if(!is.function(spotConfig$alg.tar.func)){stop("spotConfig$alg.tar.func is not a function. \n Please specify a function for this variable if you use spotOptimInterface.\n Else use your own custom interface")}
-			y <-  spotConfig$alg.tar.func(x,...)#spotConfig$alg.func.tar(x)#, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value)
-			#No external noise is used, the user has to take care of that himself	
+			res <-  spotConfig$alg.tar.func(x,...)#spotConfig$alg.func.tar(x)#, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value)
+			if(spotConfig$seq.co.included){ #  if expensive evaluations include the evaluation of the cheap design
+				y=res$y
+				yco=res$yco
+			}else{
+				y=res
+			}			
 			spotPrint(spotConfig$io.verbosity,1,y)
-			res <- NULL
-			#browser()
-			res <- data.frame(Function=f,XDIM=n,YDIM=length(y),STEP=step,SEED=seed,CONFIG=conf)
-			for (counter in 1:(dimcounter-1)){
-				res[paste("VARX", counter, sep="")] <- x[counter]
-			}	
-			if(length(y)>1){
-				for (counter in 1:length(y)){
-					if(length(spotConfig$alg.resultColumn)>1){
-						res[spotConfig$alg.resultColumn[counter]] <- y[counter]
-					}
-					else{res[paste(spotConfig$alg.resultColumn,".", counter, sep="")] <- y[counter]}
-				}	#TODO: Wenn mehr als 9 result columns: 01, 02, 03
-				#now reset result columns for later reading.
-				spotConfig$alg.resultColumn <- setdiff(names(res),c(c("Function","XDIM","YDIM","STEP","SEED","CONFIG"),paste("VARX", 1:n, sep="")))
-			}
-			else{res[spotConfig$alg.resultColumn]<-y}
-			if (spotConfig$spot.fileMode){ ##Log the result in the .res file, only if user didnt set fileMode==FALSE
-				colNames = TRUE
-				if (file.exists(spotConfig$io.resFileName)){
-					colNames = FALSE
-				}				
-				## quote = false is required for JAVA
-				write.table(res
-						, file = spotConfig$io.resFileName
-						, row.names = FALSE
-						, col.names = colNames
-						, sep = " "    
-						, append = !colNames
-						, quote = FALSE)	
-			}
-			spotConfig$alg.currentResult=rbind(spotConfig$alg.currentResult,res)						
+			res <- data.frame(XDIM=ndim,YDIM=length(y),STEP=des$STEP[k],SEED=seed,CONFIG=conf,TIME=gsub("\\s","_",Sys.time()))
+			res[pNames]=x
+			tmp <- spotPrepareResult(y,spotConfig$alg.resultColumn,res)
+			res <- tmp$res
+			spotConfig$alg.resultColumn <- tmp$colNames
+			spotConfig$alg.currentResult <- spotWriteRes(res,spotConfig$io.resFileName,spotConfig$spot.fileMode,spotConfig$alg.currentResult)
+					
+			#co-results at evaluated positions
+			if(is.function(spotConfig$seq.co.func)){
+				if(spotConfig$seq.co.included){ #  if expensive evaluations include the evaluation of the cheap design
+					y <- yco
+				}else{				
+					y <-  spotConfig$seq.co.func(x,...)#spotConfig$alg.func.tar(x)#, noise=noise, noise.type=noise.type, spot.noise.minimum.at.value=spot.noise.minimum.at.value)
+				}
+				res$indf=T #indf: indicate that this point in the co-result is also available as fine function evaluation
+				tmp <- spotPrepareResult(y,spotConfig$alg.resultColumn,res)
+				res <- tmp$res
+				spotConfig$alg.resultColumn <- tmp$colNames			
+				spotConfig$alg.currentCoResult <- spotWriteRes(res,spotConfig$io.coResFileName,spotConfig$spot.fileMode,spotConfig$alg.currentCoResult)					
+			}					
 		}			
+	}	
+	if(is.function(spotConfig$seq.co.func)){ #evaluation of a co-design-function. #TODO: have a set of nested co design functions
+		if(is.null(spotConfig$seq.co.design.size))spotConfig$seq.co.design.size=100
+		if(nrow(spotConfig$alg.currentResult)==nrow(spotConfig$alg.currentCoResult) & spotConfig$seq.co.design.size > 0){ #only if not available already			
+			if(is.null(spotConfig$seq.co.design.func))spotConfig$seq.co.design.func="spotCreateDesignLhd"
+			if(is.null(spotConfig$seq.co.design.retries))spotConfig$seq.co.design.retries=100
+			if(is.null(spotConfig$seq.co.design.repeats))spotConfig$seq.co.design.repeats=1
+			if(is.null(spotConfig$seq.co.infill))spotConfig$seq.co.infill=5; #number of points created by infill criterion for co function #todo
+			if(is.null(spotConfig$seq.co.recalculate))spotConfig$seq.forr.co.recalculate=FALSE
+			
+			#cheap design:
+			tmpConfig <- spotConfig
+			#tempdes<-des
+			tmpConfig$nested.design <- as.matrix(des[pNames])
+			des  <- (eval(call(spotConfig$seq.co.design.func, 
+												tmpConfig, 
+												spotConfig$seq.co.design.size, 
+												spotConfig$seq.co.design.retries)));
+												
+			#design should have columns: xNames, REPEATS, CONFIG, STEP, (SEED)
+			des$STEP=rep(0,spotConfig$seq.co.design.size)
+			des$CONFIG=1:spotConfig$seq.co.design.size
+			des$REPEATS=rep(spotConfig$seq.co.design.repeats,spotConfig$seq.co.design.size)
+			config<-nrow(des)
+			#spotConfig$seq.cres <- spotCallCoFunction(spotConfig,NULL,xc1,spotConfig$seq.co.func)		
+			#
+			################################
+			#now the additional evaluations on low fidelty (BMP) function only
+			#
+			for (k in 1:config){
+				for (i in 1:des$REPEATS[k]){
+					x <- as.matrix(des[k,,drop=FALSE][pNames])
+					conf <- k
+					if (!is.null(des$CONFIG)){
+						conf <- des$CONFIG[k]
+					}
+					if(!is.na(spotConfig$alg.seed)){ #only use seed if seed is desired (not for deterministic target functions)
+						seed <- spotConfig$alg.seed+i-1	
+						set.seed(seed)	
+					}
+					else{seed=NA}
+					y <-  spotConfig$seq.co.func(x,...)
+					res <- data.frame(XDIM=ndim,YDIM=length(y),STEP=des$STEP[k],SEED=seed,CONFIG=conf,TIME=gsub("\\s","_",Sys.time()),indf=F) #indf: indicate that this point in the co-result is not available as fine function evaluation
+					res[pNames]=x
+					tmp <- spotPrepareResult(y,spotConfig$alg.resultColumn,res)
+					res <- tmp$res
+					spotConfig$alg.resultColumn <- tmp$colNames					
+					spotConfig$alg.currentCoResult <- spotWriteRes(res,spotConfig$io.coResFileName,spotConfig$spot.fileMode,spotConfig$alg.currentCoResult)	
+				}		
+			}			
+		}	
 	}	
 	if(!is.null(SAVESEED))
 		assign(".Random.seed", SAVESEED, envir=globalenv())

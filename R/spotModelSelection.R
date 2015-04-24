@@ -11,7 +11,17 @@
 #' scaled: this refers to an approach that scales the data before error calculation, see Keijzer (2004).
 #'
 #' @name spotSelectionCriteria
-#' @usage spotSelectionRsq(yi,fi); spotSelectionAdjustedRsq(yi,fi,p); spotSelectionAic(yi,fi,p); spotSelectionSse(yi,fi); spotSelectionSae(yi,fi); spotSelectionMse(yi,fi); spotSelectionMae(yi,fi); spotSelectionRmse(yi,fi); spotSelectionScaledSse(yi,fi); spotSelectionScaledMse(yi,fi); spotSelectionScaledRmse(yi,fi); 
+#' @usage spotSelectionRsq(yi,fi)
+#' spotSelectionAdjustedRsq(yi,fi,p)
+#' spotSelectionAic(yi,fi,p)
+#' spotSelectionSse(yi,fi)
+#' spotSelectionSae(yi,fi)
+#' spotSelectionMse(yi,fi)
+#' spotSelectionMae(yi,fi)
+#' spotSelectionRmse(yi,fi)
+#' spotSelectionScaledSse(yi,fi)
+#' spotSelectionScaledMse(yi,fi)
+#' spotSelectionScaledRmse(yi,fi); 
 #'
 #' @param yi sampled values vector
 #' @param fi predicted values vector

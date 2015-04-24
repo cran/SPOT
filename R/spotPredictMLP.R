@@ -24,39 +24,25 @@ spotPredictMLP<- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	########################################################	
 	if(is.null(fit)){
 		xNames <- row.names(spotConfig$alg.roi)	
-		yNames <- setdiff(names(rawB),xNames)
-		which(names(rawB)==yNames)
+		yNames <- spotConfig$alg.resultColumn
 		x <- rawB[xNames]		
 		y <- rawB[yNames]
-		#fit <- earth(x=x,y=y,degree=10, trace=1 , nk=100)
 		if(is.null(spotConfig$seq.mlp.n.ensemble)){spotConfig$seq.mlp.n.ensemble=20}	
 		if(is.null(spotConfig$seq.mlp.hidden1)){spotConfig$seq.mlp.hidden1=2}
 		if(is.null(spotConfig$seq.mlp.iter.max)){spotConfig$seq.mlp.iter.max=5000}
 		if(is.null(spotConfig$seq.mlp.bag)){spotConfig$seq.mlp.bag=TRUE}
-		#if(is.null(spotConfig$seq.mlp.iter.stopped)){spotConfig$seq.mlp.iter.stopped=100}
 		if(is.null(spotConfig$seq.mlp.n.trials)){spotConfig$seq.mlp.n.trials=3}		
 		if(is.null(spotConfig$seq.mlp.hidden2)){spotConfig$seq.mlp.hidden2=1}
-		# fit <- monmlp.fit(x=as.matrix(x),y=as.matrix(y),
-			# hidden1=spotConfig$seq.mlp.hidden1, 
-			# hidden2=spotConfig$seq.mlp.hidden2, 
-			# iter.max=spotConfig$seq.mlp.iter.max,
-			# n.trials=spotConfig$seq.mlp.n.trials,
-			# n.ensemble=spotConfig$seq.mlp.n.ensemble,
-			# bag=spotConfig$seq.mlp.bag,
-			####iter.stopped=spotConfig$seq.mlp.iter.stopped,
-			# silent=TRUE)
-		# res <- monmlp.predict(x=design,weights=fit)
-		
+
 		if(length(yNames)==1){
 			y <- rawB[[yNames]]
-			fit <- monmlp.fit(x=as.matrix(x),y=as.matrix(y),
+			fit <- monmlp::monmlp.fit(x=as.matrix(x),y=as.matrix(y),
 					hidden1=spotConfig$seq.mlp.hidden1, 
 					hidden2=spotConfig$seq.mlp.hidden2, 
 					iter.max=spotConfig$seq.mlp.iter.max,
 					n.trials=spotConfig$seq.mlp.n.trials,
 					n.ensemble=spotConfig$seq.mlp.n.ensemble,
 					bag=spotConfig$seq.mlp.bag,
-					#iter.stopped=spotConfig$seq.mlp.iter.stopped,
 					silent=TRUE)	
 		}
 		else{#Distinction for multi criteria spot 
@@ -64,7 +50,7 @@ spotPredictMLP<- function(rawB,mergedB,design,spotConfig,fit=NULL){
 			fit=list()
 			res=list()
 			for (i in 1:length(yNames)){
-				fit[[i]] <- monmlp.fit(x=as.matrix(x),y=as.matrix(y[,i]),
+				fit[[i]] <- monmlp::monmlp.fit(x=as.matrix(x),y=as.matrix(y[,i]),
 						hidden1=spotConfig$seq.mlp.hidden1, 
 						hidden2=spotConfig$seq.mlp.hidden2, 
 						iter.max=spotConfig$seq.mlp.iter.max,
@@ -85,9 +71,9 @@ spotPredictMLP<- function(rawB,mergedB,design,spotConfig,fit=NULL){
 		if(length(spotConfig$alg.resultColumn)>1){
 			res=list()
 			for (i in 1:length(fit)){
-				res[[i]] <- monmlp.predict(x=design,weights=fit[[i]])
+				res[[i]] <- monmlp::monmlp.predict(x=design,weights=fit[[i]])
 			}	
-		}else{res <- monmlp.predict(x=design,weights=fit)}	
+		}else{res <- monmlp::monmlp.predict(x=design,weights=fit)}	
 	}else{res <- NULL}	
 	########################################################
 	# OUTPUT

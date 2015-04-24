@@ -101,12 +101,13 @@ spotForceFactorDesign<- function (design,type,xNames,lvls){
 #'
 #' @keywords internal
 ###################################################################################
-spotCodeFormulas <- function (X,name,type){
+spotCodeFormulas <- function (X,name,roi){
+	type <- roi$type
 	fmla = NULL
 	for (i in 1:length(type)){
 		if(type[i]!="FACTOR"){ #only non-factors should be coded. factors can not be coded, as they have no order.
-			a <- min(X[,i]) 
-			b <- max(X[,i])
+			a <- roi$lower[i]
+			b <- roi$upper[i]
 			v1 <- mean(c(a,b))
 			v2 <- (b-a)/2	
 			fmla <- c(fmla,as.formula(paste(paste("x",i,sep=""),"~ (", name[i], " - ", v1, ")/", v2)))		
@@ -147,21 +148,22 @@ spotCodeFormulas <- function (X,name,type){
 ###################################################################################
 spotModel.train <- function(X,y,method="spotPredictTree",settings=NULL) {
 	X <- data.frame(X)
+	xNames<-colnames(X)
 	y <- data.frame(y)
+	yNames <- paste("y.",colnames(y),sep="")
+	colnames(y)<-yNames
 	rawB <- cbind(X,y)	
 	spotConfig <- list(
 		io.verbosity=0
 		,seq.predictionModel.func = method
-		,alg.roi = spotROI(apply(X,2,min),apply(X,2,max),varnames=names(X))
-		,alg.resultColumn = "y"
+		,alg.roi = spotROI(apply(X,2,min),apply(X,2,max),varnames=xNames)
+		,alg.resultColumn = yNames
 		,spot.fileMode = FALSE
 		,seq.model.variance = FALSE
 		)
 	spotConfig <- append(settings,spotConfig); 
 	spotConfig <- spotConfig[!duplicated(names(spotConfig))]	
-	spotConfig <- eval(call(method,
-		rawB, NULL, NULL, spotConfig))
-	spotConfig
+	eval(call(method, rawB, NULL, NULL, spotConfig))
 }
 
 ###################################################################################
@@ -194,7 +196,7 @@ spotModel.train <- function(X,y,method="spotPredictTree",settings=NULL) {
 spotModel.predict <- function(X,fit) {
 	X <- data.frame(X)
 	spotConfig <- eval(call(fit$seq.predictionModel.func, NULL, NULL, X, fit,fit$seq.modelFit))
-	y <- as.numeric(unlist(spotConfig$seq.largeDesignY)) # single point prediction
+	spotConfig$seq.largeDesignY # single point prediction
 }
 
 ###################################################################################
@@ -226,7 +228,7 @@ spotModel.predict <- function(X,fit) {
 #' ## evaluate model at a new sample location
 #' newy <- model(c(0.5,0.5))
 #' ## plot model (based on 10*10 point matrix)
-#' spotSurf3d(model,s=10)
+#' #spotSurf3d(model,s=10) #uncomment for testing
 ###################################################################################
 spotModel.func <- function(X,y,method="spotPredictTree",settings=NULL) {
   fit <- spotModel.train(X,y,method=method,settings=settings)

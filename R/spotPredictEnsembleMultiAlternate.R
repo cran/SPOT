@@ -56,9 +56,6 @@ spotEnsembleMultiAlternate <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 
 	}else{ #Else do only prediction on preexisting information
 		stop("Plotting or optimization of existing model ensembles of this type is not implemented.") 
-		#warning("evaluating single points or small designs with this ensemble approach is not implemented reasonably, yet") #prob 
-		#err <- spotConfig$seq.modelFit$err
-		#res <- spotEnsembleModelEvaluate(spotConfig,design,all=TRUE)	
 	}
 
 	#Check error

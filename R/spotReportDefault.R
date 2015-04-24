@@ -25,15 +25,13 @@ spotReportDefault <- function(spotConfig) {
 	spotPrint(spotConfig$io.verbosity,1,summary(rawB))
 	mergedData <- spotPrepareData(spotConfig)	
 	if(length(spotConfig$alg.resultColumn)==1){	
-
-		mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig)
 		spotConfig=spotWriteBest(mergedData, spotConfig)
 		C1=spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),]
 		#cat(sprintf("\n Best solution found with %d evaluations:\n",nrow(rawB)));
 		spotWriteLines(spotConfig$io.verbosity,1," ")
 		spotPrint(spotConfig$io.verbosity,1,paste("Best solution found with ",nrow(rawB)," evaluations:",sep=""))
 		spotPrint(spotConfig$io.verbosity,1,C1)		
-		fit.tree <- rpart(y ~ ., data= rawB)
+		fit.tree <- rpart( paste(spotConfig$alg.resultColumn,"~",row.names(spotConfig$alg.roi)), data= rawB)
 		if (!is.null(fit.tree$splits)){
 			if(spotConfig$report.io.pdf==TRUE){ #if pdf should be created
 				pdf(spotConfig$io.pdfFileName) #start pdf creation

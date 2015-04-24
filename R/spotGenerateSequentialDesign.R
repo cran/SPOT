@@ -24,49 +24,9 @@ spotGenerateSequentialDesign <- function(spotConfig) {
 	mergedData <- spotPrepareData(spotConfig)
 	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);
 	
-	#bugfix, for continuing runs without saving results in spotConfig:
+	#for continuing runs without saving results in spotConfig:
 	if(is.null(spotConfig$alg.currentResult))spotConfig$alg.currentResult<- spotGetRawResData(spotConfig)$rawD;
-	
-# browser()
-# Example data: 
-#	"rawB:"
-#	          y VARX1 VARX2
-#	1  10.96089  10.0   0.0
-#	2  17.50830  -5.0  15.0
-#	3  24.12996   2.5   7.5
-#	4 145.87219  10.0  15.0
-#	5 308.12910  -5.0   0.0
-#	
-#	"mergedData:"
-#	$x
-#	VARX1 VARX2
-#	1  10.0  15.0
-#	2  -5.0   0.0
-#	3  -5.0  15.0
-#	4  10.0   0.0
-#	5   2.5   7.5
-#	$mergedY
-#	1         2         3         4         5 
-#	145.87219 308.12910  17.50830  10.96089  24.12996 
-#	$count
-#	1 2 3 4 5 
-#	1 1 1 1 1 
-#	$CONFIG
-#	1 2 3 4 5 
-#	1 2 3 4 5 
-#	$pNames
-#	[1] "VARX1" "VARX2"
-#		$step.last
-#	[1] 0
-#	
-#	"mergedB:"
-#	y VARX1 VARX2
-#	4  10.96089  10.0   0.0
-#	3  17.50830  -5.0  15.0
-#	5  24.12996   2.5   7.5
-#	1 145.87219  10.0  15.0
-#	2 308.12910  -5.0   0.0	
-#	
+
 	spotConfig=spotWriteBest(mergedData, spotConfig);
 	if(spotConfig$io.verbosity>2){
 		spotPlotBst(spotConfig)
@@ -103,6 +63,7 @@ The current variance vector for the design points is:
 		}
 	}	
 	
+
 	#####################################################
 	#####################################################
 	#####################################################

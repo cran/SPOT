@@ -30,8 +30,7 @@ spotCreateDesignFrF2 <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 	}else{
 		roiConfig <- spotConfig$alg.aroi
 		if(is.null(roiConfig)) roiConfig <- spotConfig$alg.roi
-	}
-	
+	}	
 
 	pNames <- row.names(roiConfig);
 	lowerBound <-  roiConfig[ ,"lower"];
@@ -40,15 +39,12 @@ spotCreateDesignFrF2 <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 	A <- t(rbind(t(lowerBound), t(upperBound)))
 	
 	# design: range from -1 to +1
-	M<-FrF2(nfactors=length(pNames), resolution=3)
+	M<-FrF2::FrF2(nfactors=length(pNames), resolution=3)
 	
-	## add center point:
-	## M<-add.center(M, ncenter =1)
-	## or add center point plus stars:	
-	M <- ccd.augment(M, ncenter = 1, columns="all",	alpha = sqrt(2)/2, randomize=TRUE)
-    ## remove block information
+	M <- DoE.wrapper::ccd.augment(M, ncenter = 1, columns="all",	alpha = sqrt(2)/2, randomize=TRUE)
+	## remove block information
 	M <- M[,-1]
-    ##delete replicates
+	##delete replicates
 	M <- unique(M)
 	###############
 	

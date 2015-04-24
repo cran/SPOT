@@ -316,7 +316,7 @@ spotROI<-function(lower,upper,type="FLOAT",varnames=NULL,dimROI=NULL){
 	if( any(duplicated(varnames))){
 		stop(paste("Not all variables in the region of interest have unique names.\n Check the variable names column vector.\n Duplicated variable names are: ", paste(varnames[duplicated(varnames)],collapse=" ")))
 	}	
-	alg.roi=data.frame(lower=lower,upper=upper,type=type,row.names=varnames)
+	data.frame(lower=lower,upper=upper,type=type,row.names=varnames)
 }
 
 
@@ -347,5 +347,5 @@ spotReadRoi<-function(roiFile,sep,verbosity=0){
 	if(colnames(alg.roi)[2]!="high" && colnames(alg.roi)[2]!="upper") stop("Third Column in the .roi file should be named 'upper' ('high' works, too, but is deprecated). Check if the header is wrong or missing in this file.")
 	if(colnames(alg.roi)[3]!="type") stop("Fourth column in the .roi file should be named 'type'. Check if the header is wrong or missing in this file.")
 	#use the roi constructor to check for validity and convert to correct column names
-	alg.roi <- spotROI(alg.roi[,1],alg.roi[,2],alg.roi[,3],rownames(alg.roi))
+	spotROI(alg.roi[,1],alg.roi[,2],alg.roi[,3],rownames(alg.roi))
 }

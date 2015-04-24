@@ -43,7 +43,7 @@ spotReport3d <- function(spotConfig) {
 	mergedData <- spotPrepareData(spotConfig)
 	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);	
 	xNames <- row.names(spotConfig$alg.roi)
-	yNames <- setdiff(names(rawB),xNames)
+	yNames <- spotConfig$alg.resultColumn
 	spotConfig=spotWriteBest(mergedData, spotConfig);
 	C1=spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),]
 	spotWriteLines(spotConfig$io.verbosity,1," ");
@@ -62,13 +62,13 @@ spotReport3d <- function(spotConfig) {
 			x<-t(x)
 			x[,aIndex]=a
 			x[,bIndex]=b
-			colnames(x) <- row.names(spotConfig$alg.aroi);	
+			colnames(x) <- row.names(spotConfig$alg.aroi)
 			if(is.null(spotConfig$seq.modelFit)){
 				spotConfig1 <- eval(call(spotConfig$seq.predictionModel.func
                                         , rawB
                                         , mergedB
                                         , as.data.frame(x)
-                                         ,spotConfig));
+                                         ,spotConfig))
 			}else{
 				spotConfig1 <- eval(call(spotConfig$seq.predictionModel.func
                                 , NULL 
@@ -76,9 +76,9 @@ spotReport3d <- function(spotConfig) {
 								, as.data.frame(x)
 								, spotConfig
                                 , spotConfig$seq.modelFit #external fit is used, model is only evaluated not build
-								));
+								))
 			}
-			ldY <-  spotConfig1$seq.largeDesignY[[1]];
+			spotConfig1$seq.largeDesignY[[1]];
 		}
 		clip = spotConfig$report.3d.clipZ
 		if(!any(is.na(clip)) && length(clip)==1){
@@ -97,7 +97,7 @@ spotReport3d <- function(spotConfig) {
 	else{
 		if(is.null(spotConfig$report.aIndex)){spotConfig$report.aIndex=1}
 		if(is.null(spotConfig$report.bIndex)){spotConfig$report.bIndex=2}
-		plotFn(spotConfig$report.aIndex,spotConfig$report.bIndex);
+		plotFn(spotConfig$report.aIndex,spotConfig$report.bIndex)
 	}	
 	spotConfig
 }
@@ -131,8 +131,7 @@ spotReport3dMulti <- function(spotConfig) {
 	spotPrint(spotConfig$io.verbosity,1,summary(rawB))
 	mergedData <- spotPrepareData(spotConfig)
 	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);	
-	xNames <- row.names(spotConfig$alg.roi)
-	yNames <- setdiff(names(rawB),xNames)
+	yNames <- spotConfig$alg.resultColumn
 	## calculate pareto front and set and hvolume
 	allPoints<-t(mergedData$mergedY)
 	frontPoints<-nondominated_points(allPoints)
@@ -180,7 +179,7 @@ spotReport3dMulti <- function(spotConfig) {
                                 , spotConfig$seq.modelFit #external fit is used, model is only evaluated not build
 								));
 			}
-			ldY <-  spotConfig1$seq.largeDesignY[[ii]]
+			spotConfig1$seq.largeDesignY[[ii]]
 		}
 		for(i in 1:length(spotConfig$alg.resultColumn)){
 			clip = spotConfig$report.3d.clipZ

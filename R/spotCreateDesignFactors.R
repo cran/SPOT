@@ -16,7 +16,7 @@
 ####################################################################################
 spotCreateDesignFactors <- function(spotConfig, noDesPoints = NaN, repeats=NaN){	
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignFrF2");
-	spotInstAndLoadPackages("AlgDesign") #for gen.factorial
+	#spotInstAndLoadPackages("AlgDesign") #for gen.factorial
 
 	## use roi or aroi:
 	if(spotConfig$spot.fileMode){
@@ -29,7 +29,6 @@ spotCreateDesignFactors <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 		if(is.null(roiConfig)) roiConfig <- spotConfig$alg.roi
 	}
 	
-
 	pNames <- row.names(roiConfig);
 	loLvl <-  roiConfig[ ,"lower"];
 	upLvl <-  roiConfig[ ,"upper"];
@@ -37,10 +36,10 @@ spotCreateDesignFactors <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 	nfactors <- length(pNames)
 	nlevels <- upLvl-loLvl + 1	
 	#create design
-	M<-gen.factorial(nlevels,nfactors,center=FALSE,varNames=pNames)	
-	#fix level
+	M<- gen.factorial(nlevels,nfactors,center=FALSE,varNames=pNames)	
+	## fix level
 	for(i in 1:nfactors){
-		M[,i]+loLvl[i] -1
+		M[,i]<-M[,i]+loLvl[i] -1
 	}	
 	#
 	rownames(M) <- NULL

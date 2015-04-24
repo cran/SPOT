@@ -33,20 +33,18 @@ spotPredictMlegp <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	# BUILD
 	########################################################	
 	if(is.null(fit)){
-		if(is.null(spotConfig$seq.mlegp.constantMean)) spotConfig$seq.mlegp.constantMean = 1 #default handling for user options  
-		if(is.null(spotConfig$seq.mlegp.min.nugget)) spotConfig$seq.mlegp.min.nugget = 0.0       	
-		xNames <- row.names(spotConfig$alg.roi);
-		yNames <- setdiff(names(mergedB),xNames)		
-		x <- unname(as.matrix(mergedB[xNames]))
-		y <- unname(as.matrix(mergedB[yNames]))
-		#x <- unname(as.matrix(rawB[xNames]))
-		#y <- unname(as.matrix(rawB[yNames]))
+		if(is.null(spotConfig$seq.mlegp.constantMean)) spotConfig$seq.mlegp.constantMean <- 1 #default handling for user options  
+		if(is.null(spotConfig$seq.mlegp.min.nugget)) spotConfig$seq.mlegp.min.nugget <- 0.0       	
+		xNames <- row.names(spotConfig$alg.roi)
+		yNames <- spotConfig$alg.resultColumn		
+		x <- unname(as.matrix(rawB[xNames]))
+		y <- unname(as.matrix(rawB[yNames]))
 #####################################################################
 		constantMean <- spotConfig$seq.mlegp.constantMean
 		if (constantMean != 1) {
-			ones = rep(1, dim(x)[1])
-			dx = cbind(ones, x)
-			t = try(solve(t(dx) %*% dx), TRUE)
+			ones <- rep(1, dim(x)[1])
+			dx <- cbind(ones, x)
+			t <- try(solve(t(dx) %*% dx), TRUE)
 			if (class(t) == "try-error") {
 				constantMean <-1
 			}		
@@ -54,12 +52,12 @@ spotPredictMlegp <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 #######################################################################################################		
 #		START ERROR Handling and Model Building	
 #######################################################################################################		
-		fit<-mlegp(X=x,Z=y, verbose = spotConfig$io.verbosity
+		fit<-mlegp::mlegp(X=x,Z=y, verbose = spotConfig$io.verbosity
                       , constantMean = constantMean
                       , min.nugget = spotConfig$seq.mlegp.min.nugget)
 		if(is.null(fit) || any(sapply(fit,is.null))){ #mlegp will create a NULL fit sometimes, seems to be fixable by using non zero min.nugget
 			#browser()
-			fit<-mlegp(X=x,Z=y, verbose = spotConfig$io.verbosity
+			fit<-mlegp::mlegp(X=x,Z=y, verbose = spotConfig$io.verbosity
                       , constantMean = constantMean
                       , min.nugget = 1)
 		}

@@ -23,10 +23,7 @@ spotFuncStartSixHump <- function(spotConfig){
 	if(is.null(spotConfig$spot.noise)){spotConfig$spot.noise=10.0}
 	if(is.null(spotConfig$spot.noise.type)){spotConfig$spot.noise.type="weighted"}
 	if(is.null(spotConfig$spot.noise.minimum.at.value)){spotConfig$spot.noise.minimum.at.value=0.0}
-	## spot.noise.type in {"weighted", "constant"}
-	## weighted: y = y + y * noiseValue / 100
-	## constant: y = y + noiseValue
-		
+
 	if (spotConfig$spot.fileMode){ 
 		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr())
 		## read doe/dace etc settings:
@@ -102,49 +99,3 @@ spotFuncStartSixHump <- function(spotConfig){
     spotWriteLines(spotConfig$io.verbosity,1,"Leaving spotFuncStartSixHump...", con=stderr())
 	spotConfig
 }
-#
-#	
-#	
-#	
-#	
-#	config<-nrow(des);
-#	print(config);
-#	if (is.null(des$CONFIG))
-#	   stop("Design file is missing the required column CONFIG!")	   
-#	for (k in 1:config){	 
-#		for (i in 1:des$REPEATS[k]){
-#			x1=des$x1[k]
-#			x2=des$x2[k]			
-#  		conf <- des$CONFIG[k]
-#			seed <- des$SEED[k]+i			
-#			cat(sprintf("Config: %5d,   Repeat: %5d\n",conf,i))		
-#			browser()
-#			y <- spotSixHumpFunction(x1,x2,noise)
-#			print(y)
-#			res <- NULL
-#			res <- list(Y=y
-#					     ,x1=x1
-#					     ,x2=x2
-#					     ,SEED=seed
-#					     ,CONFIG=conf                  
-#					     ,REP=i
-#			)
-#			res <-data.frame(res)
-#			colNames = TRUE
-#			if (file.exists(resFileName)){
-#				colNames = FALSE
-#			}		
-#			
-#			write.table(res
-#					, file = resFileName
-#					, row.names = FALSE
-#					, col.names = colNames
-#					, sep = " "              
-#					, append = !colNames               
-#					, quote = FALSE
-#			);			
-#		}	# for (i)	 
-#	}	# for (k)	
-#}
-#
-#

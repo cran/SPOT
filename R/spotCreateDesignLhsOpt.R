@@ -37,7 +37,7 @@ spotCreateDesignLhsOpt <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 		
 	A <- t(rbind(t(lowerBound), t(upperBound)))
 			
-    M<-as.matrix(optimumLHS(noDesPoints, length(pNames), repeats))
+	M<-as.matrix(lhs::optimumLHS(noDesPoints, length(pNames), repeats))
 
 	for (i in 1:nrow(M)){
 		for (j in 1: ncol(M)){

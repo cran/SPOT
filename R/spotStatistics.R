@@ -87,5 +87,3 @@ spotHlpF.norm <- function(x){
 spotHlpF.norminv <- function(x,z){
 	x/2 * ( max(z) - min(z) ) +  mean(z) 
 }
-
-#Test implemented in runit

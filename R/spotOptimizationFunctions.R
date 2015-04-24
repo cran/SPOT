@@ -5,6 +5,7 @@
 #'
 #' The control list contains:\cr
 #' \code{fevals} stopping criterion, number of evaluations allowed for \code{fn}  (defaults to 100) \cr
+#' \code{ineq_constr} defaults to NULL, else can be a function for an inequality constraint that is passed to nloptr\cr
 #' \code{reltol} stopping criterion, relative tolerance  (defaults to 1e-6) \cr
 #' \code{abstol} stopping criterion, absolute tolerance  (defaults to 1e-6) \cr
 #' \code{popsize} population size or number of particles  (default depends on method) \cr
@@ -66,6 +67,7 @@ spotOptimizationInterface<-function(par,fn,gr=NULL,lower,upper,method,control,..
             ,abstol=1e-12
 			,reltol=1e-12
 			,popsize=20
+			,ineq_constr=NULL
 			,verbosity=0
 			,restarts=FALSE
 			,vectorized=FALSE)
@@ -78,11 +80,16 @@ spotOptimizationInterface<-function(par,fn,gr=NULL,lower,upper,method,control,..
 	ymin <- Inf
 	run=TRUE
 	
-	if(length(par)==0) par <- runif(length(lower))*(upper-lower)+lower
+	if(!is.null(control$ineq_constr) &  !(method=="NLOPT_GN_ORIG_DIRECT" | method=="NLOPT_LN_COBYLA" ))
+		warning("Constraint function passed to spotOptimizationInterface. This is not supported with the chosen method.")
+	
+	# TODO infeasible par (start point)?
+	
+	if(length(par)==0) par <- runif(length(lower))*(upper-lower)+lower #TODO: in case of ineq constraint, only generate feasible startpoint
 	
 	#LOOP OVER RESTARTS
 	while(run){
-		if(is.function(method)){ #TODO untested
+		if(is.function(method)){ #TODO test
 			res <- method(par=par, fn=fn, gr=gr, lower=lower,upper=upper,control=control,...)
 			resval <- res$value
 			respar <- res$par
@@ -101,13 +108,13 @@ spotOptimizationInterface<-function(par,fn,gr=NULL,lower,upper,method,control,..
 			resevals <- res$counts[[1]] +res$counts[[1]] * 2 * dim
 		}else if (method=="BBoptim"){ 
 			spotInstAndLoadPackages("BB")
-			res <- BBoptim(par=par, fn=fn,lower=lower,upper=upper,control=list(maxit=control$fevals,trace=FALSE),quiet=TRUE,...)
+			res <- BB::BBoptim(par=par, fn=fn,lower=lower,upper=upper,control=list(maxit=control$fevals,trace=FALSE),quiet=TRUE,...)
 			resval <- res$value
 			respar<- res$par
 			resevals <- res$feval
 		}else if (method=="pso"){ #TODO note: pso would be able to do restarts internally, integrate?
 			spotInstAndLoadPackages("pso")
-			res <- psoptim(par=par, fn=fn,lower=lower,upper=upper,control=list(vectorize=control$vectorized, maxf=control$fevals,reltol=control$reltol),...)
+			res <- pso::psoptim(par=par, fn=fn,lower=lower,upper=upper,control=list(vectorize=control$vectorized, maxf=control$fevals,reltol=control$reltol),...)
 			resval <- res$value
 			respar <- res$par
 			resevals <- res$counts[[1]]	
@@ -115,7 +122,7 @@ spotOptimizationInterface<-function(par,fn,gr=NULL,lower,upper,method,control,..
 			spotInstAndLoadPackages("cmaes");
 			if(control$vectorized)fun=function(x)fn(t(x))   #cmaes has columns for observations, rows for parameters
 			else fun <- fn
-			res <- cma_es(par, fun,lower=lower,upper=upper,control=list(vectorized=control$vectorized,maxit=ceiling(control$fevals / (4 + floor(3 * log(dim))))),...) 
+			res <- cmaes::cma_es(par, fun,lower=lower,upper=upper,control=list(vectorized=control$vectorized,maxit=ceiling(control$fevals / (4 + floor(3 * log(dim))))),...) 
 			if(is.null(res$par)){#error handling, see bug example in start.runit.test at end of file, reason unclear
 				resval <- fn(par,...)
 				respar <- par
@@ -128,31 +135,31 @@ spotOptimizationInterface<-function(par,fn,gr=NULL,lower,upper,method,control,..
 			}			
 		}else if (method=="genoud"){ 
 			spotInstAndLoadPackages("rgenoud")
-			res <- genoud(nvars=dim,starting.values=par,fn<-fn,boundary.enforcement=1,Domains=cbind(lower,upper),print.level=0,pop.size=control$popsize,max.generations=floor(control$fevals/control$popsize),wait.generations=floor(control$fevals/control$popsize),...)
+			res <- rgenoud::genoud(nvars=dim,starting.values=par,fn<-fn,boundary.enforcement=1,Domains=cbind(lower,upper),print.level=0,pop.size=control$popsize,max.generations=floor(control$fevals/control$popsize),wait.generations=floor(control$fevals/control$popsize),...)
 			resval <- res$value
 			respar <- res$par
 			resevals <- res$generations * control$popsize		
 		}else if (method=="DEoptim"){
 			spotInstAndLoadPackages("DEoptim")
-			res <- DEoptim(fn=fn ,lower=lower,upper=upper,control=DEoptim.control(NP=control$popsize,itermax=floor(control$fevals/control$popsize),reltol=control$reltol,trace=FALSE),...)
+			res <- DEoptim::DEoptim(fn=fn ,lower=lower,upper=upper,control=DEoptim::DEoptim.control(NP=control$popsize,itermax=floor((control$fevals-control$popsize)/control$popsize),reltol=control$reltol,trace=FALSE),...)
 			resval <- res$optim$bestval
 			respar <- res$optim$bestmem
-			resevals <- res$optim$nfeval
+			resevals <- control$fevals
 		}else if (method=="bobyqa"){ 
 			spotInstAndLoadPackages("minqa")
-			res <- bobyqa(par,lower=lower,upper=upper,fn ,control=list(maxfun=control$fevals,iprint=FALSE),...)
+			res <- minqa::bobyqa(par,lower=lower,upper=upper,fn ,control=list(maxfun=control$fevals,iprint=FALSE),...)
 			resval <- res$fval
 			respar <- res$par
 			resevals <- res$feval
 		}else if (method=="hjkb"){ 
 			spotInstAndLoadPackages("dfoptim")
-			res <- hjkb(par=par,fn=fn, lower=lower, upper=upper ,control=list(maxfeval=control$fevals),...)
+			res <- dfoptim::hjkb(par=par,fn=fn, lower=lower, upper=upper ,control=list(maxfeval=control$fevals),...)
 			resval <- res$value
 			respar <- res$par
 			resevals <- res$feval	
 		}else if (method=="GenSA"){ 
 			spotInstAndLoadPackages("GenSA");
-			res <- GenSA(par=,fn=fn, lower=lower, upper=upper ,control=list(max.call=control$fevals),...)
+			res <- GenSA::GenSA(par=,fn=fn, lower=lower, upper=upper ,control=list(max.call=control$fevals),...)
 			resval <- res$value
 			respar <- res$par
 			resevals <- res$counts[[1]]
@@ -161,13 +168,12 @@ spotOptimizationInterface<-function(par,fn,gr=NULL,lower,upper,method,control,..
 								"NLOPT_GN_ORIG_DIRECT","NLOPT_GN_ORIG_DIRECT_L","NLOPT_LN_PRAXIS",							
 								"NLOPT_GN_CRS2_LM","NLOPT_LN_COBYLA","NLOPT_LN_NEWUOA_BOUND",
 								"NLOPT_LN_NELDERMEAD","NLOPT_LN_SBPLX","NLOPT_LN_BOBYQA","NLOPT_GN_ISRES"))){ 
-			#spotInstAndLoadPackages("nloptr")	#installing nloptr automatically is a problem. see nloptr CRAN checks
-			require(nloptr)	
 			opts=list(algorithm=method,maxeval=control$fevals, ftol_rel=control$reltol, xtol_rel=-Inf)	
-			res <- nloptr(par,fn,lb = lower,ub = upper,	opts = opts,...)
+			res <- nloptr::nloptr(par,fn,lb = lower,ub = upper, eval_g_ineq=control$ineq_constr,opts = opts,...)
 			resval <- res$objective
 			respar <- res$solution	
 			resevals <- res$iterations
+			# TODO: converges not to feasible solutions ?
 		}else{
 			stop("The chosen optimization method used in spotOptimizationInterface does not exist")
 		}
@@ -247,6 +253,7 @@ spotOptimizationInterfaceMco<-function(par,fn,gr=NULL,lower,upper,method,control
 			,reltol=1e-12
 			,popsize=20
 			,verbosity=0
+			,sbx.n=15, sbx.p=0.7,pm.n=25, pm.p=0.3
 			,restarts=FALSE
 			,vectorized=FALSE)
 	con[(namc <- names(control))] <- control;
@@ -272,8 +279,12 @@ spotOptimizationInterfaceMco<-function(par,fn,gr=NULL,lower,upper,method,control
 			if((psize%%4)!=0)psize=psize+4-(psize%%4) #make sure that psize is multiple of 4 for nsga2
 			r1 <- nsga2(fn, dimi, dimo,
 			   generations=floor(control$fevals/psize), popsize=psize,
-			   lower.bounds=lower,
-			   upper.bounds=upper,...)
+			   lower.bounds=lower, 
+			   upper.bounds=upper, 
+			   cprob=control$sbx.p,
+			   cdist=control$sbx.n,
+			   mprob=control$pm.p,
+			   mdist=control$pm.n,  ...)
 			resval <- r1$value;		
 			respar <- r1$par;
 			resevals <- control$fevals	
@@ -284,7 +295,10 @@ spotOptimizationInterfaceMco<-function(par,fn,gr=NULL,lower,upper,method,control
 			r1 <- spotSmsEmoa(fun,
 			   lower=lower,
 			   upper=upper,
-			   control=list(mu=psize,maxeval=control$fevals),...)
+			   control=list(mu=psize,sbx.n=control$sbx.n,sbx.p=control$sbx.p,pm.n=control$pm.n,pm.p=control$pm.p,maxeval=control$fevals),...)
+			#ndom <- !is_dominated(r1$Y)
+			#resval <- t(r1$Y[,ndom])
+			#respar <- t(r1$X[,ndom])
 			resval <- t(r1$value);		
 			respar <- t(r1$par);
 			resevals <- control$fevals
@@ -357,11 +371,11 @@ spotOptimLHS<-function(par,fn,gr=NULL,lower,upper,control,...){
 		
 	size <- control$fevals - npar
 	dimension <- length(lower)
-	best <- spotNormDesign(dimension,size,calcMinDistance=control$retries>1);
+	best <- spotNormDesign(dimension,size,calcMinDistance=control$retries>1,nested=par);
 	
 	if (control$retries>1) {
 		for (i in 1:(control$retries-1)) {
-			tmpDes <- spotNormDesign(dimension,size,calcMinDistance=TRUE);
+			tmpDes <- spotNormDesign(dimension,size,calcMinDistance=TRUE,nested=par);
 			## maximize minimal distance
 			if (tmpDes$minDistance > best$minDistance)
 				best <- tmpDes;

@@ -34,7 +34,7 @@ spotPredictRandomForest <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	# BUILD
 	########################################################
 	if(is.null(fit)){#IF NO EXTERNAL FIT: BUILD MODEL AND EVALUATE		
-		yNames <- setdiff(names(rawB),xNames)	
+		yNames <- spotConfig$alg.resultColumn
 		x <- rawB[xNames]
 		#force observation-locations into factors 
 		tmp <- spotForceFactorX(x,spotConfig$alg.roi$type,xNames)

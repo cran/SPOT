@@ -32,7 +32,7 @@
 #' All of the above methods use bound constraints, which will be chosen with the limits specified in \code{spotConfig$alg.roi} (or the \code{.roi} file).
 #' For references and details on the specific methods, please check the documentation of the packages that provide them.
 #' 
-#' Note that some methods may require additional parameterization. For this purpose, it would be recommended to use \code{spotPredictOptMulti}
+#' Note that some methods may require additional parametrization. For this purpose, it would be recommended to use \code{spotPredictOptMulti}
 #' as a template to write custom functions. \code{spotPredictOptMulti} itself is limited to calling mostly default settings of a large number of different optimizers available in \code{R}.
 #' 
 #' @return returns the list \code{spotConfig} with two new entries:\cr
@@ -48,42 +48,35 @@ spotModelOptim <- function(startPoint,spotConfig){
 	if(is.null(spotConfig$seq.predictionOpt.budget)) spotConfig$seq.predictionOpt.budget = 200
 	if(is.null(spotConfig$seq.predictionOpt.psize)) spotConfig$seq.predictionOpt.psize = 20
 	if(is.null(spotConfig$seq.predictionOpt.restarts)) spotConfig$seq.predictionOpt.restarts = FALSE
-	pNames <- row.names(spotConfig$alg.roi)
-	nParam <- length(pNames)
 	fit<-spotConfig$seq.modelFit
 	tempVerbose<-spotConfig$io.verbosity
 	#building the local objective function, differences depend on type of model.
-	spotGetFitness <- function(x){			#TODO: for cmaes in vectorized form, invert!
-		
-		#TODO: schneller mit folgendem: testen
-		#spotConfig <- spotConfig
-		#fit <-fit
-		
+	spotGetFitness <- function(x){
 		spotConfig$io.verbosity=0
-		spotConfig1 <- eval(call(spotConfig$seq.predictionModel.func
-                                , NULL 
+		eval(call(spotConfig$seq.predictionModel.func
+								, NULL 
 								, NULL
 								, as.data.frame(x)
 								, spotConfig
-                                , fit #external fit is used, model is only evaluated not build, therefor the NULLS are no prob
+								, fit #external fit is used, model is only evaluated not build, therefore the NULLS are no problem
 								))$seq.largeDesignY[[1]]
-		#return(spotConfig1$seq.largeDesignY[[1]])
 	}
 	lowROI<-as.numeric(spotConfig$alg.aroi[[1]])
 	upROI<-as.numeric(spotConfig$alg.aroi[[2]])
-	
+
 	res <- spotOptimizationInterface(par=startPoint,fn=spotGetFitness,gr=NULL,lower=lowROI,upper=upROI,method=spotConfig$seq.predictionOpt.method,
 						control=list(
 							popsize = spotConfig$seq.predictionOpt.psize
 							,fevals = spotConfig$seq.predictionOpt.budget
+							,ineq_constr = spotConfig$alg.constraint.ineq
 							,vectorize=TRUE
 							,verbosity=spotConfig$io.verbosity
 							,restarts=spotConfig$seq.predictionOpt.restarts))
+							
+
 	newDesignPrediction <- res$value
 	newDesign <- res$par
-	
-    #newDesign <- as.data.frame(rbind(newDesign,  largeDesign[1:spotConfig$seq.design.new.size-1,]));	
-	#names(newDesign)=xNames; 
+
 	spotPrint(spotConfig$io.verbosity,3,newDesign)
 	spotWriteLines(spotConfig$io.verbosity,3,"spotModelOptim finished")
 	
@@ -112,7 +105,7 @@ spotPredictOptMulti <- function(startPoint,spotConfig){
 ###################################################################################
 #' Steepest Descent on RSM (linear model)
 #'  
-#' Optimizes an existing fit of a linear model created by the rsm function. Uses steepest descent method and adaption of ROI alternatingly.
+#' Optimizes an existing fit of a linear model created by the rsm function. Uses steepest descent method and adaptation of ROI alternatingly.
 #' 
 #' @param startPoint not used here
 #' @param spotConfig list of all options, needed to provide data for calling functions.
@@ -126,7 +119,7 @@ spotPredictOptMulti <- function(startPoint,spotConfig){
 spotModelDescentLm <- function(startPoint,spotConfig){
 	#startPoint=as.numeric(startPoint[which.min(spotConfig$seq.largeDesignY[[1]]),])
 	spotWriteLines(spotConfig$io.verbosity,3,"spotModelDescentLM started")
-	pNames <- row.names(spotConfig$alg.roi);
+	pNames <- row.names(spotConfig$alg.roi)
 	nParam <- length(pNames)
 	fit<-spotConfig$seq.modelFit
 	tempVerbose<-spotConfig$io.verbosity
@@ -135,14 +128,14 @@ spotModelDescentLm <- function(startPoint,spotConfig){
 	if(is.null(spotConfig$seq.predictionOpt.psize)) spotConfig$seq.predictionOpt.psize = 20
 	if(is.null(spotConfig$seq.predictionOpt.restarts)) spotConfig$seq.predictionOpt.restarts = FALSE
 	#building the local objective function, differences depend on type of model.
-	spotGetFitness <- function(x){			#TODO: for cmaes in vectorized form, invert!
+	spotGetFitness <- function(x){			
 		spotConfig$io.verbosity=0;
-		spotConfig1 <- eval(call(spotConfig$seq.predictionModel.func
-                                , NULL 
+		eval(call(spotConfig$seq.predictionModel.func
+								, NULL 
 								, NULL
 								, as.data.frame(x)
 								, spotConfig
-                                , fit #external fit is used, model is only evaluated not build, therefor the NULLS are no prob
+								, fit 
 								))$seq.largeDesignY[[1]]
 	}
 	lowROI<-as.numeric(spotConfig$alg.aroi[[1]])
@@ -152,7 +145,7 @@ spotModelDescentLm <- function(startPoint,spotConfig){
 	if(is.null(spotConfig$seq.useGradient)) spotConfig$seq.useGradient <- TRUE
 	if(is.null(spotConfig$seq.useCanonicalPath)) spotConfig$seq.useCanonicalPath <- TRUE
 	
-	if (( max(spotConfig$alg.currentResult$STEP) %% 2) == 0){ #every second step
+	if ((( max(spotConfig$alg.currentResult$STEP) %% 2) == 0) | !spotConfig$seq.useAdaptiveRoi){ #every second step
 		if ( (spotConfig$seq.useGradient == TRUE)){ #analytical gradient descent
 			if (spotConfig$seq.useCanonicalPath == TRUE){ # start at saddle point in both directions (canonical path analysis)
 				steepestDesc <-  as.data.frame(canonical.path(fit, descent=TRUE, dist = seq(-0.2,0.2, by = 0.1))[,2:eval(nParam+1)])
@@ -164,7 +157,8 @@ spotModelDescentLm <- function(startPoint,spotConfig){
 			steepestDesc<- steepestDesc[apply(steepestDesc, 1, function(x) all(x > -1 & x < 1)), ]
 			## use model optimization if steepest descent is empty
 			if (nrow(steepestDesc)==0){
-				tmp <- spotOptimizationInterface(par=startPoint,fn=spotGetFitness,gr=NULL,lower=lowROI,upper=upROI,method=spotConfig$seq.predictionOpt.method,
+				#tmp <- spotOptimizationInterface(par=startPoint,fn=spotGetFitness,gr=NULL,lower=lowROI,upper=upROI,method=spotConfig$seq.predictionOpt.method,
+				tmp <- spotOptimizationInterface(par=lowROI + (upROI - lowROI) / 2,fn=spotGetFitness,gr=NULL,lower=lowROI,upper=upROI,method=spotConfig$seq.predictionOpt.method,
 						control=list(
 							popsize = spotConfig$seq.predictionOpt.psize
 							,fevals = spotConfig$seq.predictionOpt.budget
@@ -180,7 +174,8 @@ spotModelDescentLm <- function(startPoint,spotConfig){
 			}
 		}
 		else{ # numerical optimization of model
-			tmp <- spotOptimizationInterface(par=startPoint,fn=spotGetFitness,gr=NULL,lower=lowROI,upper=upROI,method=spotConfig$seq.predictionOpt.method,
+			#tmp <- spotOptimizationInterface(par=startPoint,fn=spotGetFitness,gr=NULL,lower=lowROI,upper=upROI,method=spotConfig$seq.predictionOpt.method,
+			tmp <- spotOptimizationInterface(par=lowROI + (upROI - lowROI) / 2,fn=spotGetFitness,gr=NULL,lower=lowROI,upper=upROI,method=spotConfig$seq.predictionOpt.method,
 						control=list(
 							popsize = spotConfig$seq.predictionOpt.psize
 							,fevals = spotConfig$seq.predictionOpt.budget
@@ -191,13 +186,15 @@ spotModelDescentLm <- function(startPoint,spotConfig){
 			yM <- tmp$value
 		}
 	}
-	else{
+	else{ #recalibration phase
 		## now we have the evaluated path of the steepeest descent
 		## take the best point as the new center point		
 		nbest <- nrow(spotConfig$alg.currentBest)
 		xB <- spotConfig$alg.currentBest[nbest,c(pNames)]
 		xB <- val2code(xB, fit$coding)
 		ds <- min( rep(1,nParam) - abs(xB))	
+		#browser()	
+		print(ds)
 		if (ds > 0.1){
 			spotPrint(spotConfig$io.verbosity,2,"ds:")
 			spotPrint(spotConfig$io.verbosity,2,ds)

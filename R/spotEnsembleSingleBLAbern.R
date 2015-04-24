@@ -67,7 +67,7 @@ spotEnsembleSingleBLAbern<- function(rawB,mergedB,design,spotConfig,fit=NULL){
 		spotConfig$seq.modelFit<-conf$seq.modelFit#safe the model
 		spotConfig$seq.bla.imax<-imax#safe index, to associate reward with model
 		spotConfig$seq.bla.history<-c(spotConfig$seq.bla.history,imax)
-	}else{ #Else do only prediction on preexisting information
+	}else{ #Else do only prediction on pre-existing information
 		########################################################
 		# PREDICT ONLY
 		########################################################			

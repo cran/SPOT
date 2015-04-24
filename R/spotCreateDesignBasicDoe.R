@@ -22,7 +22,7 @@
 ####################################################################################
 spotCreateDesignBasicDoe <- function(spotConfig, noDesPoints = 100, repeats=1){
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotCreateDesignDoe.R::spotCreateDesignDoe()");
-	spotInstAndLoadPackages("AlgDesign")
+	#spotInstAndLoadPackages("AlgDesign")
 	
 	## use roi or aroi:
 	if(spotConfig$spot.fileMode){
@@ -42,7 +42,7 @@ spotCreateDesignBasicDoe <- function(spotConfig, noDesPoints = 100, repeats=1){
 	
 	A <- t(rbind(t(lowerBound), t(upperBound)))
 	
-	M <- gen.factorial(2, length(pNames))
+	M <-  gen.factorial(2, length(pNames))
 	if (nrow(M)<noDesPoints){# JZ test must be made here, because now lines are added to M
 		stop("Number of initial design points (init.design.size) too large for this design")		
 	}

@@ -25,10 +25,10 @@ spotPredictGausspr <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	if(is.null(fit)){
 		xNames <- row.names(spotConfig$alg.roi);
 		x <- rawB[xNames]
-		y <- rawB[[setdiff(names(rawB),xNames)]]
-		fit<-try( gausspr(y~.,data=data.frame(x,y)) ,silent=TRUE)
+		y <- rawB[[spotConfig$alg.resultColumn]]
+		fit<-try( kernlab::gausspr(y~.,data=data.frame(x,y)) ,silent=TRUE)
 		if(class(fit) == "try-error"){
-			fit<-gausspr(y~.,data=data.frame(x,y),kernel="anovadot")			
+			fit<-kernlab::gausspr(y~.,data=data.frame(x,y),kernel="anovadot")			
 		}
 	}else{
 		fit<-fit

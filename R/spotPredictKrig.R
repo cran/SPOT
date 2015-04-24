@@ -24,9 +24,10 @@ spotPredictKrig <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	########################################################	
 	if(is.null(fit)){
 		xNames <- row.names(spotConfig$alg.roi)
+		yNames <- spotConfig$alg.resultColumn
 		x <- rawB[xNames]
-		y <- rawB$y
-		fit <- Krig(x=x,Y=y)
+		y <- rawB[yNames]
+		fit <- fields::Krig(x=x,Y=y)
 	}else{
 		fit<-fit
 	}

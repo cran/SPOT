@@ -1,7 +1,20 @@
 SPOT - Sequential Parameter Optimization Toolbox
 
+Release Notes Version 1.0.5543
+	1. SPOT may now handle NA values returned by target function (tuned algorithm)
+		 in case a Kriging surrogate model is used.
+		 See help of spotRepairMissingValues
+	2. SPOT can now handle constraints during surrogate-model optimization, by 
+		 using constraint optimization approaches in nloptr package.
+		 Constraint function has to be supplied to spotConfig$alg.constraint.ineq,
+		 and a nloptr algorithm has to be used with spotModelOptim.
+	3. New demo: Tuning RGP with MAMP approach
+	4. Code cleanup and several minor bugfixes
+	5. Added source code for java GUI and java 1+1-ES to package
+	6. Improvements to documentation, fixed links
+	
 Release Notes Version 1.0.4184
-	This Version contains several bugfixes, including compatibility with rgp >= 0.3-4
+	- Several bugfixes, including compatibility with rgp >= 0.3-4
 
 Release Notes Version 1.0.4045
 	1. Contour plot can now show all observations as crosses, when spotConfig$report.observations.all is set.
@@ -10,7 +23,7 @@ Release Notes Version 1.0.4045
 	4. spotPredictForrester Models do not have to be rebuild if evaluated with different options
 	5. Several infill criteria like Expected Improvement added, see spotInfill...
 	6. Code cleanup and speed fixes
-	7. Bugfix for multi criteria optimization: A crash has been fixed, that occured when using sms-emoa for optimizing the surrogate model in certain situations.
+	7. Bugfix for multi criteria optimization: A crash has been fixed, that occurred when using sms-emoa for optimizing the surrogate model in certain situations.
 	8. A R-port of the DACE-Kriging Toolbox was added to SPOT. See: daceBuilder and spotPredictDace
 	10. SPOT runs with no file output that crashed or were interrupted by the user can now be continued, if spotConfig$spot.catch.error is set to TRUE. 
 		Otherwise, only interrupted runs can be continued properly.
@@ -30,13 +43,13 @@ Release Notes Version 1.0.2662
 	Removed the dependency on the maptree package and changed the corresponding default report function spotReportDefault
 	
 Release Notes Version 1.0.2661
-	1. Significant speedup for spotPredictForrester, by factors of 2 or more (depending on dimensionality and number of observations)
+	1. Significant speed-up for spotPredictForrester, by factors of 2 or more (depending on dimensionality and number of observations)
 	2. Fix in spotPredictForrester: Sometimes L-BFGS-B might violate boundaries, this is now checked and controlled by the calling function
 	3. Better coloring in 3d plots (spotReport3d), both surface plot reports (spotReport3d and spotReportContour) use the same color scheme.
 	4. Bugfix when using OCBA: RNG seeds are now determined in the right order
 	5. Multi criteria optimization with SPOT now uses a more appropriate infill criterion: When estimating the hypervolume contribution of points suggested by a model, allready known points will also be considered.
 	6. The Evolutionary Strategy used as a target algorithm for SPOT can now be called with an optim-like interface: esOptim
-	7. For stability reasons, the nugget effect in the kriging model spotPredictDice is now always on.
+	7. For stability reasons, the nugget effect in the Kriging model spotPredictDice is now always on.
 	
 Release Notes Version 1.0.2257
 	Version has changed from 0.1.* to 1.0.*, since now one of the most
@@ -46,13 +59,13 @@ Release Notes Version 1.0.2257
 	1. Fixed auto.loop.nevals stopping criterion (one superfluous step)
 	2. Added several additional examples of surrogate model interfaces: 
 		spotPredictForrester (new, more stable Kriging model,
-			based on forrester code as used with original Matlab-SPOT)
+			based on Forrester's code as used with original Matlab-SPOT)
 		spotPredictEarth (MARS, based on earth package)
 		spotPredictGausspr (based on kernlab package gausspr)
 		spotPredictKsvm (SVM based on kernlab package)
 		spotPredictPsvm (Penalized SVM)
 		spotPredictQrnn (Quantile regression neural network, from qrnn package) 
-	3. Adaptions for R 2.14.X (Namespace and others)
+	3. Adaptation for R 2.14.X (Namespace and others)
 	4. Dependencies changed, removed unused dependencies, moved optional 
 		dependencies to suggests
 	6. MSPOT: Spot can now do multi criteria optimization, see also 
@@ -89,7 +102,7 @@ Release Notes Version 1.0.2257
 Release Notes Version 0.1.1550
 	1. Fixed bugs with regard to problems with handling random number generator seed
 	2. Changes to spotTask "meta" (spotStepMetaOpt): New structure, not fully documented yet.
-	3. Sensitivity report will not use the same graphic window as the online plot anymore
+	3. Sensitivity report will not use the same graphic window as the online plot any-more
 	4. Changed/added suitable error messages
 	3. some other smaller bug fixes
 	
@@ -106,7 +119,7 @@ Release Notes Version 0.1.1375
 		a additional function call in the sequential design step.
 		Therefore a new parameter is introduced: spotConfig$seq.predictionOpt.func
 		See also: spotPredictOptMulti
-	4. Usabillity changes to the spotGui
+	4. Usability changes to the spotGui
 	5. Updated documentation 
 	6. Setting spot.seed or alg.seed to NULL will result into randomly chosen seeds.
 	7. spot() and spotOptim() can be started without file input or output.
@@ -116,7 +129,7 @@ Release Notes Version 0.1.1375
 		spotFuncStartRosenbrock
 	9. Function handles can be passed to spot or spotOptim, instead of strings, for 
 		the used objective function.
-	10. readded to the package spotPredictKrig
+	10. re-added to the package: spotPredictKrig
 	11. several bugfixes to predictors and other functions
 	12. Where possible, verbosity of other packages used by spot is now in line with spot's verbosity
 	
@@ -130,7 +143,7 @@ Release Notes Version 0.1.1065
 			created data is logged in res/des/bst/aroi files
 			If TRUE (default) files will be written, else
 			the results will be written to spotConfig (see
-			the followind parameters)
+			the following parameters)
 		b.	alg.currentResult: Holds the results of the
 			target algorithm or function that is optimized 
 			by spot, as a data frame. (earlier only in .res file)
@@ -142,12 +155,12 @@ Release Notes Version 0.1.1065
 			design to be evaluated by the next \"run\" task.(earlier
 			only in .des files)
 
-	2. Changes to userdefined functions:
+	2. Changes to user-defined functions:
 
 		spotConfig$alg.func:
-		This function now recieves and returns only spotConfig.
+		This function now receives and returns only spotConfig.
 		This means resFileName, apdFileName, and desFileName are no
-		input arguments anymore, they need to be read from 	spotConfig.
+		input arguments any more, they need to be read from 	spotConfig.
 		The function needs to be changed to write the \"result\" data
 		frame to the spotConfig$alg.currentResult.
 		It can also be written to .res file, if wanted by the user.
@@ -162,7 +175,7 @@ Release Notes Version 0.1.1065
 		#################################
 
 		In general some spot functions you might use in your
-		userdefined functions will now return spotConfig.
+		user-defined functions will now return spotConfig.
 
 	3. spot() can now be called with a list of settings, e.g. spotConfig.
 		example: spot(\"example.conf\",\"auto\",spotConfig=list(auto.loop.nevals=150)).

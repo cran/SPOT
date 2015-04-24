@@ -110,7 +110,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	## this may be 
 	## 1) a function in the workspace, specified with a string giving the name of the function
 	## 2) or else alg.func is directly an R object of type function (which takes x and returns y both as vectors or numerics)	
-	alg.func <- "spotFuncStartBranin"	#TODO überlegen string/function langfristig (bei .func)
+	alg.func <- "spotFuncStartBranin"	
 	## Column name containing results
 	alg.resultColumn <- "Y" 
 	alg.seed <- 1234
@@ -121,13 +121,13 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	init.design.func <- "spotCreateDesignLhd"	
 	## Initial number of design points, 
 	## if NA, formula will be used
-	# number of initial design points
+	## number of initial design points
 	init.design.size <- 10
-	# repeats for improving min-max designs (not used by doe)
+	## repeats for improving min-max designs (not used by doe)
 	init.design.retries <- 100
-	# number of repeated runs of each configuration:
+	## number of repeated runs of each configuration:
 	init.design.repeats <- 2
-	# keep or delete existing resultfile and bstfile? (default: TRUE)
+	## keep or delete existing resultfile and bstfile? (default: TRUE)
 	init.delete.previous.files <- TRUE  
 	## #################################
 	## ##### Sequential Step related ###
@@ -152,7 +152,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	seq.predictionModel.func <- "spotPredictRandomForest"	
  	seq.predictionOpt.func<-NA
 	seq.predictionOpt.budget<-100
-	seq.useAdaptiveRoi <- FALSE #todo für weitere prediktoren 
+	seq.useAdaptiveRoi <- FALSE 
     seq.ocba.budget <- 3      
 	seq.model.variance <- FALSE #whether model should predict variance (may be needed if seq.model.transform is not NA)
 	seq.infill <- NA #expected improvement function to be used. NA means no EI #for transformations of model information, like EI, SEI, SMS-INFILL, etc
@@ -160,13 +160,8 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	## ##### For MCO ###
 	## ###################################	
 	## type of pareto optimizaion selection scheme
-	seq.mco.selection <- "hypervol" #"hypervol" sort by hypervolume contribution, considering known points "tournament" tournament selection "r2" NOT IMPLEMENTED YET 
+	seq.mco.selection <- "hypervol" #"hypervol" sort by hypervolume contribution, considering known points; "tournament" tournament selection
 	
-		#	seq.mco.infill="fill"    
-		# 			\item{seq.mco.infill}{ [\code{"fill"}] string that defines the infill criterion for multi criteria optimization with SPOT. }
-		# 			\item{}{ Either "sort", which sorts design points only by non dominated sorting rank and hypervolume contribution\cr
-		#					or "fill" which also consideres known points during the sorting, to avoid clusters of similar points being evaluated\cr
-		# 					Default is "fill".} 
 	## #####################################
 	## ##### Globally needed           #####
 	## #####################################
@@ -183,20 +178,16 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	## ####################################################################################################
 	## ##### IO related (files for input and output, and variables to specify formatting of IO-files  #####
 	## ####################################################################################################
-	#io.colname.repeats <- "REPEATS" #ist jetzt fest verdrahtet
 	## Name of the column, where the actual auto.loop.step will be stored in the res file
-	#io.colname.step <- "STEP"	 #fest
 	## io.verbosity 0 means be quite, 3 means tell me everything
 	io.verbosity<-0	#plot ausgabe nur mit interactive, bzw getrennt von verbosity
-	## Separation of columns, default: arbitrary Whitespacesequenz
+	## Separation of columns
 	io.columnSep <- ""  
-	#the field separator character. Values on each line of the file are separated by this character. If sep = "" (the default for read.table) the separator is ‘white space’, that is one or more spaces, tabs, newlines or carriage returns.
-	#
 	## ###########################
 	## ##### Report related #####
 	## ###########################
 	report.func <- "spotReportDefault"
-    ## Should graphical output be generated in a pdf File? FALSE  = NO
+	## Should graphical output be generated in a pdf File? FALSE  = NO
 	report.io.pdf<-FALSE 
 	## Should graphical output be generated on screen? FALSE  = NO
 	report.io.screen<-TRUE 
@@ -240,7 +231,7 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	### load configuration done!!!!!!!
 	#################################################################
 	.lsAfterSource<-ls()
-	### give some warnings if NEW variables are created by the conf-file
+	## give some warnings if NEW variables are created by the conf-file
 	if (length(.lsDiff<-setdiff(.lsAfterSource,.lsBeforeSource))){
 		spotWriteLines(io.verbosity,1,paste("Note: a new variable defined by conf-file (",userConfFileName,"):",.lsDiff))
 	}else{
@@ -267,15 +258,11 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	}
 	## at startup, the actual roi (alg.aroi) is the same as the initial roi (alg.roi)
 	alg.aroi <- alg.roi
-	#}
 	spotWriteLines(io.verbosity,1,"spotGetOptions finished", con=stderr())
 	## generate a list of ALL the defined variables (default AND user written = sourced by .conf-file!)
 	## ls returns a list of all variables in this environment, that is: all the "local" variables (except the ones with leading dot
 	.x<-ls()
 	## now use sapply to generate the list of name/value of all variables. 
-	spotConfig<-sapply(.x, function (.x) { get(.x)}, USE.NAMES=TRUE)
-#	######################################
-#	### Returns configuration list
-#	######################################
+	sapply(.x, function (.x) { get(.x)}, USE.NAMES=TRUE)
 }
 

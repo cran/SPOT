@@ -1,0 +1,26 @@
+# SPOT settings...
+spotControl$numberOfCpuCores = 4 # number of CPU cores to use for parallel evaluation of SPO repeats
+
+# KTFG settings...
+ktfgControl$testFunction = spotSalutowiczFunction #spotBraninFunction
+ktfgControl$numberOfProblemInstances = 4 # number of random problem instances
+ktfgControl$dimensions = 1 #2, # test function dimension
+ktfgControl$lowerBounds = c(0) #c(-5, 0)
+ktfgControl$upperBounds = c(10) #c(10, 15)
+ktfgControl$deltaThetaSd = 0.5 #0.1
+ktfgControl$trainingSamples = 64
+ktfgControl$trainingSeed = 1
+ktfgControl$runSeed = 1
+	
+# RGP settings...
+rgpControl$numberOfFitnessCases = 64 ^ ktfgControl$dimensions
+rgpControl$functionSetIndex = 4
+rgpControl$populationSizeIndex = 3
+rgpControl$lambdaIndex = 1 
+rgpControl$crossoverProbabilityIndex = 3 
+rgpControl$newIndividualsPerGenerationIndex = 1
+rgpControl$enableComplexityCriterionIndex = 1 
+rgpControl$enableAgeCriterionIndex = 2 
+rgpControl$subSamplingShare = 1.0
+rgpControl$numberOfFitnessEvaluations = 1000 #50000
+

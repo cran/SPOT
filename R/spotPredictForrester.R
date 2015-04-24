@@ -34,45 +34,30 @@ spotPredictForrester <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	# BUILD
 	########################################################	
 	if(is.null(fit)){
-
-		########################################################
-		# DEFAULTS FOR MODEL BUILDING
-		########################################################	
-		if(is.null(spotConfig$seq.forr.savetheta))spotConfig$seq.forr.savetheta=FALSE
-		if(is.null(spotConfig$seq.forr.loval))spotConfig$seq.forr.loval=1e-3
-		if(is.null(spotConfig$seq.forr.upval))spotConfig$seq.forr.upval=100
-		if(is.null(spotConfig$seq.forr.opt.p))spotConfig$seq.forr.opt.p=FALSE #TODO, not working properly in case of TRUE
-		if(is.null(spotConfig$seq.forr.algtheta))spotConfig$seq.forr.algtheta="optim-L-BFGS-B"
-		if(is.null(spotConfig$seq.forr.budgetalgtheta))spotConfig$seq.forr.budgetalgtheta=100
-		if(is.null(spotConfig$seq.forr.lambda.loval))spotConfig$seq.forr.lambda.loval=-6
-		if(is.null(spotConfig$seq.forr.lambda.upval))spotConfig$seq.forr.lambda.upval=0
+		if(is.null(spotConfig$seq.forr.control))spotConfig$seq.forr.control=list()
 		
 		xNames <- row.names(spotConfig$alg.roi)
-		yNames <- setdiff(names(rawB),xNames)
+		yNames <- spotConfig$alg.resultColumn
 		x <- as.matrix(rawB[xNames])
 		if(length(yNames)==1){
 			y <- as.matrix(rawB[[yNames]])
-			if(!is.null(spotConfig$seq.modelFit) && spotConfig$seq.forr.savetheta){ #if available use last theta/lambda for startpoint of this run
-				spotConfig$seq.forr.starttheta=c(spotConfig$seq.modelFit$Theta,spotConfig$seq.modelFit$Lambda)
-			}
-			fit <- forrBuilder(x, y, spotConfig$seq.forr.loval, spotConfig$seq.forr.upval, 
-							spotConfig$seq.forr.algtheta, spotConfig$seq.forr.budgetalgtheta,
-								spotConfig$alg.roi$lower, spotConfig$alg.roi$upper, 
-								spotConfig$seq.forr.opt.p,
-								spotConfig$seq.forr.lambda.loval, spotConfig$seq.forr.lambda.upval)
+			listXY <- spotRepairMissingValues(x,y,spotConfig)
+			y = as.matrix(listXY$y)
+			x = listXY$x
+			spotConfig$seq.na.fit <- listXY$nafit
+			fit <- forrBuilder(x, y, spotConfig$alg.roi$lower, spotConfig$alg.roi$upper, spotConfig$seq.forr.control)
 		}
 		else{#Distinction for multi criteria spot 
-			y <- rawB[yNames]
+			yMat <- rawB[yNames]
 			fit=list()
+			spotConfig$seq.na.fit <- list()
 			for (i in 1:length(yNames)){
-				if(!is.null(spotConfig$seq.modelFit) && spotConfig$seq.forr.savetheta){ #if available use last theta/lambda for startpoint of this run
-					spotConfig$seq.forr.starttheta=c(spotConfig$seq.modelFit[[i]]$Theta,spotConfig$seq.modelFit[[i]]$Lambda)
-				}
-				fit[[i]]<-forrBuilder(x, as.matrix(y[,i]),spotConfig$seq.forr.loval, spotConfig$seq.forr.upval, 
-							spotConfig$seq.forr.algtheta, spotConfig$seq.forr.budgetalgtheta,
-								spotConfig$alg.roi$lower, spotConfig$alg.roi$upper, 
-								spotConfig$seq.forr.opt.p,
-								spotConfig$seq.forr.lambda.loval, spotConfig$seq.forr.lambda.upval)
+				y<-as.matrix(yMat[,i])
+				listXY <- spotRepairMissingValues(x,y,spotConfig)
+				y = as.matrix(listXY$y)
+				x = listXY$x
+				spotConfig$seq.na.fit[[i]] <- listXY$nafit				
+				fit[[i]]<-forrBuilder(x, y,spotConfig$alg.roi$lower, spotConfig$alg.roi$upper, spotConfig$seq.forr.control)
 				}			
 		}
 	}
@@ -86,14 +71,16 @@ spotPredictForrester <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 			resy=matrix(0,nrow(design),nmodel)
 			resvar=matrix(NA,nrow(design),nmodel)
 			y=list()
-			#design = spotNormalizeMatrix2(t(as.matrix(design)),0,1,fit[[1]]$normalizexmin,fit[[1]]$normalizexmax);
 			for (i in 1:length(fit)){ #predict			
 				if(spotConfig$seq.forr.reinterpolate){
 					res= forrReintPredictor(design,fit[[i]],pred.all)
 				}else{
-					res= forrRegPredictor(design,fit[[i]],pred.all)
+					res= predict(fit[[i]],design,pred.all)
 				}
-				resy[,i]= res$f
+				if(!is.null(spotConfig$seq.na.penalty)) # assign a penalty
+					resy[,i]= spotPenalizeMissingValues(design,res$f,spotConfig$seq.na.fit[[i]], spotConfig$seq.na.penalty[i])
+				else #no penalty
+					resy[,i]= res$f
 				if(pred.all)resvar[,i]= res$s
 				y[[i]]= fit[[i]]$y
 			}
@@ -101,13 +88,15 @@ spotPredictForrester <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 				resy= spotConfig$seq.infill(resy,resvar,y,spotConfig$mco.refPoint)
 			}
 		}else{ #do single criteria prediction
-			#design = spotNormalizeMatrix2(t(as.matrix(design)),0,1,fit$normalizexmin,fit$normalizexmax);
 			if(spotConfig$seq.forr.reinterpolate){
 				res= forrReintPredictor(design,fit,pred.all)
 			}else{
-				res= forrRegPredictor(design,fit,pred.all)
+				res <- predict(fit,design,pred.all)
 			}
-			resy=res$f
+			if(!is.null(spotConfig$seq.na.penalty)) # assign a penalty
+				resy= spotPenalizeMissingValues(design,res$f,spotConfig$seq.na.fit, spotConfig$seq.na.penalty)
+			else # no penalty
+				resy= res$f			
 			resvar=matrix(NA,nrow(design),1)
 			if(pred.all)resvar=res$s
 			if(is.function(spotConfig$seq.infill)){ # do EI			
@@ -135,7 +124,7 @@ spotPredictForrester <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 #'
 #' @rdname print
 #' @method print forr
-#' @S3method print forr
+# @S3method print forr
 #' @param x	fit returned by \code{\link{forrBuilder}}.
 #' @param ... additional parameters	
 #' @export
@@ -174,15 +163,20 @@ print.forr <- function(x,...){
 #' 
 #' @param X design matrix (sample locations)
 #' @param y vector of observations at X
-#' @param loval lower boundary for theta, default is \code{1e-3}
-#' @param upval upper boundary for theta, default is \code{100}
-#' @param algtheta algorithm used to find theta, default is \code{"optim-L-BFGS-B"}. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.
-#' @param budgetalgtheta budget for the above mentioned algorithm, default is \code{100}. The value will be multiplied with the length of the model parameter vector to be optimized.
 #' @param lb lower boundary of the design space. Will be extracted from the matrix \code{X} if not given.
 #' @param ub upper boundary of the design space. Will be extracted from the matrix \code{X} if not given.
-#' @param opt.p boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default value is \code{FALSE}. Default is highly recommended as the implementation of this feature is not yet well tested and might be faulty.
-#' @param lambda.loval lower boundary for regularization constant (nugget), default is \code{-6}. (lambda=10^lambda, e.g. 10^-6)
-#' @param lambda.upval upper boundary for regularization constant (nugget), default is \code{0}. (lambda=10^lambda, e.g. 1)
+#' @param control (list), with the options for the model building procedure:\cr
+#' \code{loval} lower boundary for theta, default is \code{1e-6}\cr
+#' \code{upval} upper boundary for theta, default is \code{100}\cr
+#' \code{corr} function to be used for correlation modeling, default is \code{fcorrGauss}\cr
+#' \code{algtheta}  algorithm used to find theta, default is \code{"NLOPT_LN_NELDERMEAD"}. Else, any from the list of possible \code{method} values in \code{spotOptimizationInterface} from the SPOT package can be chosen.\cr
+#' \code{budgetalgtheta} budget for the above mentioned algorithm, default is \code{100}. The value will be multiplied with the length of the model parameter vector to be optimized.
+#' \code{opt.p} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. \cr
+#' \code{uselambda} whether or not to use the regularization constant lambda (nugget effect). Default is \code{FALSE}.
+#' \code{lambda.loval} lower boundary for lambda, default is \code{-6}\cr 
+#' \code{lambda.upval} upper boundary for lambda, default is \code{0}\cr
+#' \code{starttheta} optional start value for theta.
+#' \code{reinterpolate} whether (TRUE) or not (FALSE, default) reinterpolation should be performed
 #'
 #' @return a fit (list), with the options and found parameters for the model which has to be passed to the predictor function:\cr
 #' \code{X} sample locations (scaled to values between 0 and 1)\cr
@@ -208,7 +202,7 @@ print.forr <- function(x,...){
 #' \code{nevals} number of Likelihood evaluations during MLE
 #'
 #' @export
-#' @seealso \code{\link{spotPredictForrester}} \code{\link{forrRegPredictor}} \code{\link{forrReintPredictor}}
+#' @seealso \code{\link{spotPredictForrester}} \code{\link{predict.forr}} \code{\link{forrReintPredictor}}
 #' @references Forrester, Alexander I.J.; Sobester, Andras; Keane, Andy J. (2008). Engineering Design via Surrogate Modelling - A Practical Guide. John Wiley & Sons.
 #'
 #' @examples
@@ -222,8 +216,12 @@ print.forr <- function(x,...){
 #' print(fit)
 #'
 ###################################################################################
-forrBuilder <- function(X, y, loval=1e-3, upval=100, algtheta= "optim-L-BFGS-B", budgetalgtheta=100, lb=NULL, ub=NULL, opt.p= FALSE, lambda.loval = -6, lambda.upval = 0){
-	fit = list(loval=loval, upval=upval, opt.p=opt.p, algtheta=algtheta, budgetalgtheta=budgetalgtheta)
+forrBuilder <- function(X, y, lb=NULL, ub=NULL, control=list()){#,debug=NA){
+	con<-list(loval=1e-3, upval=1e2, algtheta="optim-L-BFGS-B", budgetalgtheta=100, opt.p= FALSE, uselambda=TRUE, lambda.loval = -6, lambda.upval = 0, starttheta=NULL, reinterpolate=FALSE);
+	con[(namc <- names(control))] <- control;
+	control<-con;
+	
+	fit = control
 	k = ncol(X)
 	fit$X = X
 	fit$y = y
@@ -241,84 +239,71 @@ forrBuilder <- function(X, y, loval=1e-3, upval=100, algtheta= "optim-L-BFGS-B",
 	UpperTheta = rep(1,k)*log10(fit$upval)
 
 	#Wrapper for optimizing theta  based on forrRegLikelihood:
-	fitFun <- function (x, fX, fy,opt.p){ #todo vectorize, at least for cma_es with active vectorize?
-		as.numeric(forrRegLikelihood(x,fX,fy,opt.p)$NegLnLike)
-		#print(c(as.numeric(result$NegLnLike),x))
-		#return(as.numeric(result$NegLnLike)) #without return should be faster
+	fitFun <- function (x, fX, fy,opt.p,uselambda){ #todo vectorize, at least for cma_es with active vectorize?
+		as.numeric(forrRegLikelihood(x,fX,fy,opt.p,uselambda)$NegLnLike)
 	}
-	a=log10(fit$loval)
-	b=log10(fit$upval)
 	n=nrow(fit$X) #number of observations
 	
-	x0 = fit$starttheta	
-	# start point for theta:
-	#x1 =  a+(b-a)*runif(k)
-	x1 =  rep(n/(100*k),k)
+	
+	if(is.null(fit$starttheta))
+		x1 =  rep(n/(100*k),k) # start point for theta
+	else
+		x1 = fit$starttheta
+
 	# start value for lambda:
-	x2 = lambda.loval + (lambda.upval - lambda.loval)*runif(1)
+	x2 = fit$lambda.loval + (fit$lambda.upval - fit$lambda.loval)*runif(1)   #todo also assign start values by user?
 	
-	
-	
-	####instead of the old solution above, concatenate matrices. is faster in likelihood function.
-	#f2<-function(){
-	#A=matrix(0,k,n*n) #preallocate array
-	#for(i in 1:n){ #calculate array for reglikelihood function
-	#	A[,(1+(i-1)*n):(n*i)]=(fit$X[i,]-t(fit$X))
-	#}	
-	#}
-	#f1<-function(){
-	#A=NULL
-	#for(i in 1:k){
-	#	A=rbind(A, as.numeric(as.matrix(dist(fit$X[,i]))))
-	#}
-	#}		
-	#f0<-function(){
 	A=matrix(0,k,n*n)
+
 	for(i in 1:k){
 		A[i,]=as.numeric(as.matrix(dist(fit$X[,i]))) #MZ: speedup fix, using dist function: 100%
 	}
-	#}		
-	#f3<-function(){
-	#fn<-function(x){as.numeric(as.matrix(dist(x)))}
-	#AB=t(apply(fit$X,2,fn))
-	#}	
-	#require(microbenchmark)
-	#print(microbenchmark(f1()))
-	#browser()
+	
 	if(fit$opt.p){ # optimize p
 		LowerTheta = c(LowerTheta, rep(1,k)*0.01)
 		UpperTheta = c(UpperTheta, rep(1,k)*2)		
 		x3 = rep(1,k)* 1.9 #start values for p
-		if(is.null(x0)){x0 = c(x1,x3,x2)}
+		x0 = c(x1,x3)
 	}else{ # p  is fixed to 2 and the array A is completely precalculated
 		A=A^2
-		if(is.null(x0)){x0 = c(x1,x2)}
+		x0 = c(x1)
 	}			
-	#append regression constant lambda (nugget)
-	LowerTheta = c(LowerTheta,lambda.loval)
-	UpperTheta = c(UpperTheta, lambda.upval)
+	if(fit$uselambda){
+		# start value for lambda:
+		x2 = fit$lambda.loval + (fit$lambda.upval - fit$lambda.loval)*runif(1)
+		x0 = c(x0,x2)
+		#append regression constant lambda (nugget)
+		LowerTheta = c(LowerTheta,fit$lambda.loval)
+		UpperTheta = c(UpperTheta,fit$lambda.upval)
+	}	
 	#force x0 into bounds
 	x0= pmin(x0,UpperTheta)
 	x0= pmax(x0,LowerTheta)
 	opts=list(fevals=fit$budgetalgtheta*length(x0), reltol=1e-6, restarts=TRUE)	
+	#browser()
 	res <- spotOptimizationInterface(par=x0,fn=fitFun,gr=NULL,lower=LowerTheta,upper=UpperTheta,method=fit$algtheta,
-						control=opts,fX=A,fy=fit$y,opt.p=fit$opt.p)	
+						control=opts,fX=A,fy=fit$y,opt.p=fit$opt.p,uselambda=fit$uselambda)	
 	if(is.null(res$par))res$par=x0;
 	Params = res$par
 	nevals = as.numeric(res$counts[[1]])
-
+	
 	fit$dmodeltheta=10^Params[1:k]
 	if(fit$opt.p){	
 		fit$P=Params[(k+1):(2*k)]
 	}
-	fit$dmodellambda=10^Params[length(Params)]
+	if(fit$uselambda){
+		fit$Lambda = Params[length(Params)];
+		fit$dmodellambda=10^Params[length(Params)]
+	}else{
+		fit$Lambda = -Inf;
+		fit$dmodellambda=0
+	}
 	# extract model parameters:
 	fit$Theta = Params[1:k]
-	fit$Lambda = Params[length(Params)];
-	res=forrRegLikelihood(c(fit$Theta,fit$P, fit$Lambda),A,fit$y,fit$opt.p);
-#*#browser()
+	res=forrRegLikelihood(c(fit$Theta,fit$P, fit$Lambda),A,fit$y,fit$opt.p,fit$uselambda);
+	
 	fit$yonemu=res$yonemu
-	fit$ssq=res$ssq
+	fit$ssq=as.numeric(res$ssq)
 	fit$mu=res$mu
 	fit$Psi=res$Psi
 	fit$Psinv=res$Psinv
@@ -350,7 +335,7 @@ spotNormalizeMatrix2 <- function (x,ymin,ymax,xmin,xmax){
 	rangex = xmax-xmin
 	rangey = ymax-ymin
 	s = dim(x)[1]
-	y = rangey * (x-matrix(rep(xmin,s),nrow=s,byrow=TRUE))/matrix(rep(rangex,s),nrow=s,byrow=TRUE) + ymin
+	rangey * (x-matrix(rep(xmin,s),nrow=s,byrow=TRUE))/matrix(rep(rangex,s),nrow=s,byrow=TRUE) + ymin
 }
 
 ###################################################################################
@@ -372,17 +357,17 @@ spotNormalizeMatrix2 <- function (x,ymin,ymax,xmin,xmax){
 spotNormalizeMatrix <- function(x,ymin, ymax, xmin=NULL, xmax=NULL){
 	# Return the maximum from each row:
 	if(is.null(xmax))
-		xmax = apply(x,2,max)
+		xmax <- apply(x,2,max)
 	# Return the minimum from each row:
 	if(is.null(xmin))
-		xmin = apply(x,2,min)
-	s = dim(x)[1]
-	rangex = xmax-xmin
-	rangey = ymax-ymin
-	xmin[rangex==0] = xmin[rangex==0]-0.5
-	xmax[rangex==0] = xmax[rangex==0]+0.5
-	rangex[rangex==0] = 1
-	y = rangey * (x-matrix(rep(xmin,s),nrow=s,byrow=TRUE))/matrix(rep(rangex,s),nrow=s,byrow=TRUE) + ymin
+		xmin <- apply(x,2,min)
+	s <- dim(x)[1]
+	rangex <- xmax-xmin
+	rangey <- ymax-ymin
+	xmin[rangex==0] <- xmin[rangex==0]-0.5
+	xmax[rangex==0] <- xmax[rangex==0]+0.5
+	rangex[rangex==0] <- 1
+	y <- rangey * (x-matrix(rep(xmin,s),nrow=s,byrow=TRUE))/matrix(rep(rangex,s),nrow=s,byrow=TRUE) + ymin
 	list(y=y,xmin=xmin,xmax=xmax)
 }
 
@@ -404,10 +389,9 @@ spotNormalizeMatrix <- function(x,ymin, ymax, xmin=NULL, xmax=NULL){
 #' @keywords internal
 ###################################################################################
 spotReverseNormalizeMatrix <- function(y,xmin,xmax,ymin,ymax){
-	s = dim(y)[2]
-	rangex = xmax-xmin
-	rangey = ymax-ymin
-	x = matrix(rep(rangex,s),ncol=s) * (y-ymin)*(1/rangey) + matrix(rep(xmin,s),ncol=s)
+	rangex <- xmax-xmin
+	rangey <- ymax-ymin
+	rangex * (y-ymin)*(1/rangey) + xmin
 }
 
 ###################################################################################
@@ -422,7 +406,7 @@ spotReverseNormalizeMatrix <- function(y,xmin,xmax,ymin,ymax){
 #' @return list with elements\cr
 #' \code{NegLnLike}  concentrated log-likelihood *-1 for minimising \cr
 #' \code{Psi} correlation matrix\cr
-#' \code{Psinv} inverse of correlation matrix (to save computation time in forrRegPredictor)\cr
+#' \code{Psinv} inverse of correlation matrix (to save computation time in predict.forr)\cr
 #FIXMZ: \code{U} U matrix of the LU decomposition of correlation matrix \cr
 #' \code{mu} \cr
 #' \code{ssq}
@@ -430,116 +414,65 @@ spotReverseNormalizeMatrix <- function(y,xmin,xmax,ymin,ymax){
 #' @export
 #' @keywords internal
 ###################################################################################
-forrRegLikelihood <- function(x,AX,Ay,opt.p=FALSE){
-	if(opt.p){
-		nx<-nrow(AX)
-		theta=10^x[1:nx];		
-			if(any(is.na(abs(AX)^(10^x[(nx+1):(2*nx)]))))stop("NA values in theta")
+forrRegLikelihood <- function(x,AX,Ay,opt.p=FALSE,uselambda=TRUE){
+	nx<-nrow(AX)
+	theta=10^x[1:nx]
+	if(opt.p){	
+		#	if(any(is.na(abs(AX)^(10^x[(nx+1):(2*nx)]))))stop("NA values in theta")
 		AX=abs(AX)^(x[(nx+1):(2*nx)])
-	}else{
-		theta=10^x[1:(length(x)-1)];
 	}
-	lambda=10^x[length(x)];	
-	if( any(c(theta,lambda)==0) ||  any(c(theta,lambda)==Inf)){ #for instance caused by bound violation
+	lambda=0
+	if(uselambda)
+		lambda=10^x[length(x)]
+	if( any(theta==0) ||  any(is.infinite(c(theta,lambda)))){ #for instance caused by bound violation
 		return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,ssq=NA))
 	}
 	n=dim(Ay)[1]
-	one=rep(1,n);
-	#benchmarking original gegen vektorisierte schnellere varianten:
-	#a<-function(){Psi=matrix(0,n,n);for (i in 1:(n-1)){for (j in (i+1):n){Psi[i,j]=exp(-sum(theta*abs(AX[i,]-AX[j,])^p));}};Psi=Psi+t(Psi)+diag(1,n)*(lambda+1);}
-	#browser()
-	#b<-function(){Psi=matrix(0,n,n);for (i in 1:n){ Psi[,i]=exp(-colSums(theta*t((matrix(AX[i,],ncol=ncol(AX),nrow=nrow(AX),byrow=TRUE)-AX)^p)));};Psi=Psi+diag(1,n)*lambda;}
-	#cc<-function(){Psi=matrix(0,n,n);for (i in 1:n){ Psi[,i]=exp(-colSums(theta*((-t(AX)+AX[i,])^p)));};Psi=Psi+diag(1,n)*lambda;}
-	#dd<-function(){Psi=matrix(0,n,n);for (i in 1:(n-1)){ Psi[(i+1):n,i]=exp(-colSums(theta*((-t(AX[(i+1):n,])+AX[i,])^p)));};Psi=Psi+t(Psi)+diag(1,n)*(lambda+1);}
-	#ee<-function(){Psi=matrix(0,n,n);for (i in 1:(n-1)){ Psi[(i+1):n,i]=exp(-colSums(theta*t((matrix(AX[i,],ncol=ncol(AX),nrow=nrow(AX)-i,byrow=TRUE)-AX[(i+1):n,])^p)));};Psi=Psi+t(Psi)+diag(1,n)*(lambda+1);}
-	#e<-function(){Psi1=matrix(0,n,n);Psi1=apply(AX,1,function(xx){exp(-colSums(theta*t((matrix(xx,ncol=ncol(AX),nrow=nrow(AX),byrow=TRUE)-AX)^p)))});}
-	#f<-function(){Psi=matrix(0,n,n);for (i in 1:n){ Psi[,i]=exp(-rowSums(((matrix(AX[i,],ncol=ncol(AX),nrow=nrow(AX),byrow=TRUE)-AX)^p)%*%diag(theta)));};Psi=Psi+diag(1,n)*lambda;}
-	#ff<-function(){Psi=matrix(0,n,n);for (i in 1:n){ Psi[,i]=-colSums(theta*((-t(AX)+AX[i,])^p));};Psi=exp(Psi)+diag(1,n)*lambda;}
-	#res1<-b()
-	#res2<-e()
-	#require(microbenchmark)
-	#print(microbenchmark(a()))
-	#print(microbenchmark(b()))
-	#print(microbenchmark(cc()))
-	#print(microbenchmark(dd()))
-	#print(microbenchmark(ee()))
-	#print(microbenchmark(e()))
-	#print(microbenchmark(ff()))
-	#ff is best	
+	
+	Psi=exp(-matrix(colSums(theta*AX),n,n))
+	if(uselambda)
+		Psi=Psi+diag(lambda,n)
 
-	####original
-	#	Psi=matrix(0,n,n);
-	#	for (i in 1:n){
-	#		for (j in (i+1):n){ 
-	#			if(i<n)Psi[i,j]=exp(-sum(theta*abs(AX[i,]-AX[j,])^p));
-	#	}}
-	#	Psi=Psi+t(Psi)+diag(1,n)*(lambda+1); # add upper and lower halves and diagonal of ones plus lambda
+	## cholesky decomposition
+	cholPsi <- try(chol(Psi), TRUE) 
 	
-	####schneller (ausser bei sehr wenigen observations, dann ists aber ohnehin recht flott)
-	#Psi=matrix(0,n,n)
-	#for (i in 1:n){ 
-	#	Psi[,i]=-colSums(theta*((AX[i,]-t(AX))^p))
-	#}
-	#Psi=exp(Psi)+diag(1,n)*lambda
-	###noch schneller, weil matrix AX[i,]-t(AX) schon vorher in forrBuilder berechnet wird_
-	#Psi=matrix(0,n,n)
-	#for (i in 1:n){ 
-	#	Psi[,i]=colSums(theta*AX[,,i])
-	#}
-	#Psi=exp(-Psi)+diag(1,n)*lambda
-	#browser()
+	## use pivoting if standard fails
+	if(class(cholPsi) == "try-error"){
+		cholPsi <- try(chol(Psi,pivot=TRUE), TRUE) 
+	}	
 	
+	## give penalty if both fail
+	if(class(cholPsi) == "try-error"){
+		warning("Correlation matrix is not positive semi-definite (in combinatorialKrigingLikelihood). Returning penalty.")
+		return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,SSQ=NA))
+	}	
+		
+	#calculate natural log of the determinant of Psi (numerically more reliable and also faster than using det or determinant)
+	LnDetPsi=2*sum(log(abs(diag(cholPsi))))
 	
-	#A=NULL
-	#for (i in 1:n){ 
-	#	A=cbind(A,AX[,,i])
-	#}
-
-	Psi=matrix(colSums(theta*AX),n,n)
-	Psi=exp(-Psi)+diag(1,n)*lambda
-	#browser()
-	####benchmarking original gegen vektorisierte schnellere varianten:
-	#a<-function(){Psi=matrix(0,n,n);for(i in 1:n){Psi[,i]=colSums(theta*AX[,(1+(i-1)*n):(n*i)]);};Psi}
-	####fnt<-function(x){-theta*x}
-	####b<-function(){Psi=matrix(0,n,n);Psi=apply(AX,3,fnt);}	
-	####b<-function(){Psi=matrix(0,n,n);for(i in 1:n){Psi[,i]=colSums(AX[,,i]);};apply(Psi,1,fnt)}
-	#b<-function(){Psi=matrix(colSums(theta*AX),n,n);}
-	#require(microbenchmark)
-	#print(microbenchmark(a(),times=100))
-	#print(microbenchmark(b(),times=100))
+	#inverse with cholesky decomposed Psi
+	Psinv= try(chol2inv(cholPsi),TRUE)
+	if(class(Psinv) == "try-error"){
+		warning("Correlation matrix is not positive semi-definite (in combinatorialKrigingLikelihood). Returning penalty.")
+		return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,SSQ=NA))
+	}		
 	
-
-	
-	
-	# concentrated log-likelihood calculation
-	LnDetPsi=as.numeric(determinant(Psi)$modulus) 
-	
-	###Folgende Alternativen gibt es für LnDetPsi:	
-	# log(abs(det(Psi)))  # ---> klappt nicht, det(Psi)=0 wenn werte zu klein werden. numerisches problem mit exp()
-	# 2*sum(log(abs(diag(chol(Psi))))) # original code, chol kann crashen
-	# sum(log(abs(diag(qr(Psi)$qr)))) # noch langsamer, aber vielleicht stabiler als chol
-	# as.numeric(determinant(Psi)$modulus) #ungefähr so schnell wie det(), kein numerisches problem
-	
-	Psinv= try(solve(Psi), TRUE)
-	if(class(Psinv) == "try-error"){		
-		return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,ssq=NA))
-	}
-	mu=sum(Psinv%*%Ay)/sum(Psinv%*%one)# note: matrix%*%onevector is signif. faster than rowSums(matrix)
-	yonemu=Ay-mu  #%yonemu=Ay-one*mu
-	SigmaSqr=(t(yonemu)%*%Psinv%*%yonemu)/n;
-	NegLnLike=0.5*(n*log(SigmaSqr) + LnDetPsi);
+	mu=sum(Psinv%*%Ay)/sum(Psinv)# note: matrix%*%onevector is signif. faster than rowSums(matrix)
+	yonemu=Ay-mu 
+	SigmaSqr=(t(yonemu)%*%Psinv%*%yonemu)/n
+	NegLnLike=n*log(SigmaSqr) + LnDetPsi
 	list(NegLnLike=NegLnLike,Psi=Psi,Psinv=Psinv,mu=mu,yonemu=yonemu,ssq=SigmaSqr)
 }
-
 
 ###################################################################################
 #' Predict Forrester Model
 #' 
 #' Predict samples on a Forrester Kriging model.
 #'
+#' @param object Kriging model (settings and parameters) of class forr
 #' @param x design matrix to be predicted
-#' @param ModelInfo fit of the Kriging model (settings and parameters)
-#' @param pred.all if TRUE return all (RMSE and prediction, in a dataframe), else return only prediction
+#' @param predictAll if TRUE return all (RMSE and prediction, in a dataframe), else return only prediction
+#' @param ... not used
 #'
 #' @return Returned value is dependent on the setting of \code{pred.all}\cr
 #' TRUE: data.frame with columns f (function values) and s (RMSE)\cr
@@ -555,9 +488,9 @@ forrRegLikelihood <- function(x,AX,Ay,opt.p=FALSE){
 #' ## Create candidate design points
 #' xx = cbind(runif(20)*15-5,runif(20)*15)
 #' ## Predict candidates
-#' y1 = forrRegPredictor(xx,fit)$f
+#' y1 = predict(fit,xx)$f
 #' ## Plot model (in comments, due to time consumption)
-#' #fn <- function(x){forrRegPredictor(as.matrix(x),fit)$f}
+#' #fn <- function(x){predict(fit,as.matrix(x))$f}
 #' #spotSurf3d(fn,c(-5,0),c(10,15))
 #' ## Plot real function
 #' #spotSurf3d(function(x){apply(x,1,spotBraninFunction)},c(-5,0),c(10,15))
@@ -565,41 +498,64 @@ forrRegLikelihood <- function(x,AX,Ay,opt.p=FALSE){
 #' @seealso \code{\link{forrBuilder}} \code{\link{forrReintPredictor}}
 #' @export
 ###################################################################################
-forrRegPredictor <- function(x,ModelInfo,pred.all=FALSE){
+predict.forr <- function(object,x,predictAll=FALSE,...){
+	if(object$reinterpolate){
+		return(forrReintPredictor(x,object,predictAll))
+	}
 	#normalize input x
-	x <- spotNormalizeMatrix2(as.matrix(x),0,1,ModelInfo$normalizexmin,ModelInfo$normalizexmax)
-	AX=ModelInfo$X
-	Ay=ModelInfo$y
-	theta=ModelInfo$dmodeltheta
-	Psinv=ModelInfo$Psinv #fixed: does not need to be computed, is already done in likelihood function
+	x <- spotNormalizeMatrix2(as.matrix(x),0,1,object$normalizexmin,object$normalizexmax)
+	AX=object$X
+	#Ay=object$y
+	theta=object$dmodeltheta
+	#theta=rep(sum(theta),length(theta))
+	Psinv=object$Psinv #fixed: does not need to be computed, is already done in likelihood function
 	n=dim(AX)[1]
-	one=rep(1,n)
-	mu=ModelInfo$mu
-	yonemu=ModelInfo$yonemu	
-	SigmaSqr=ModelInfo$ssq
+	#one=rep(1,n)
+	mu=object$mu
+	yonemu=object$yonemu	
+	SigmaSqr=object$ssq
 	psi=matrix(1,nrow(x),n);
-	if(ModelInfo$opt.p){
-		p=ModelInfo$P
-		for (i in 1:n){
-			psi[,i]=exp(-colSums(theta*(abs(AX[i,]-t(x))^p)))
-		}	
+	if(object$opt.p){
+		p=object$P
+		for (i in 1:n) #todo this is for each center, calculate distance to new samples. BUT this should be case sensitive: only forEachCenter if more samples than centers,else other way round?
+			psi[,i]=colSums(theta*(abs(AX[i,]-t(x))^p))
 	}else{
-		p=2
-		for (i in 1:n){
-			psi[,i]=exp(-colSums(theta*((AX[i,]-t(x))^p)))
-		}
+		for (i in 1:n)
+			psi[,i]=colSums(theta*((AX[i,]-t(x))^2))
 	}	
-	f=as.numeric(psi%*%(Psinv%*%(yonemu)))+mu #vectorised
+	psi = exp(-psi)
+	f=as.numeric(psi%*%(Psinv%*%yonemu))+mu #vectorised
 	##########################################################################
-	#if (ModelInfo$Option!="Pred"){
-	if (pred.all){
-		lambda=ModelInfo$dmodellambda;
+	#if (object$Option!="Pred"){
+	if (predictAll){
+		lambda=object$dmodellambda;
 		SSqr= SigmaSqr*(1+lambda-diag(psi%*%(Psinv%*%t(psi)))) #vectorised
 		#TODO "diag(psi%*%...)" is excessive, since diag wastes alot of values computed by %*%
 		s=sqrt(abs(SSqr));
 	}
-	result=if(!pred.all){list(f=f)}else{data.frame(f=f,s=as.numeric(s))}
+	if(!predictAll){list(f=f)}else{data.frame(f=f,s=as.numeric(s))}
 }
+
+# for backwards compatibility:
+###################################################################################
+#' Predict Forrester Model
+#' 
+#' This function is for backwards compatibiltiy only. See new predictor: \code{\link{predict.forr}} 
+#'
+#' @param x design matrix to be predicted
+#' @param fit Kriging model (settings and parameters) of class forr
+#' @param pred.all if TRUE return all (RMSE and prediction, in a dataframe), else return only prediction
+#'
+#' @return Returned value is dependent on the setting of \code{pred.all}\cr
+#' TRUE: data.frame with columns f (function values) and s (RMSE)\cr
+#' FALSE: vector of function values only
+#'
+#' @seealso \code{\link{predict.forr}} 
+#' @export
+###################################################################################
+forrRegPredictor<- function(x,fit,pred.all=FALSE){
+	predict.forr(fit,x,pred.all)
+} 
 
 ###################################################################################
 #' Predict Forrester Model (Re-interpolating)
@@ -626,59 +582,56 @@ forrRegPredictor <- function(x,ModelInfo,pred.all=FALSE){
 #' ## Create model
 #' fit = forrBuilder(x,y)
 #' ## first estimate error with regressive predictor
-#' sreg = forrRegPredictor(x,fit,TRUE)$s
+#' sreg = predict(fit,x,TRUE)$s
 #' ## now estimate error with re-interpolating predictor
 #' sreint = forrReintPredictor(x,fit,TRUE)$s
 #' print(sreg)
 #' print(sreint)
 #' ## sreint should be close to zero, significantly smaller than sreg
 #'
-#' @seealso \code{\link{forrBuilder}} \code{\link{forrCoBuilder}} \code{\link{forrRegPredictor}}
+#' @seealso \code{\link{forrBuilder}} \code{\link{forrCoBuilder}} \code{\link{predict.forr}}
 #' @export
 ###################################################################################
 forrReintPredictor <- function(x,ModelInfo,pred.all=FALSE){
 	#normalize input x
 	x <- spotNormalizeMatrix2(as.matrix(x),0,1,ModelInfo$normalizexmin,ModelInfo$normalizexmax)
 	AX=ModelInfo$X
-	Ay=ModelInfo$y
+	#Ay=ModelInfo$y
 	theta=ModelInfo$dmodeltheta
 	Psi=ModelInfo$Psi
 	Psinv=ModelInfo$Psinv 
 	lambda=ModelInfo$dmodellambda;
 	n=dim(AX)[1]
-	one=rep(1,n)
+	#one=rep(1,n)
 	mu=ModelInfo$mu	
 	yonemu=ModelInfo$yonemu	
 	#
-	PsiB=Psi-diag(1,n)*lambda+diag(1,n)*.Machine$double.eps
+	PsiB=Psi-diag(lambda,n)+diag(.Machine$double.eps,n)
 	SigmaSqr=(t(yonemu)%*%Psinv%*%PsiB%*%Psinv%*%yonemu)/n;
 	#	
 	psi=matrix(1,nrow(x),n);
 	if(ModelInfo$opt.p){
 		p=ModelInfo$P
-		for (i in 1:n){
+		for (i in 1:n)
 			psi[,i]=exp(-colSums(theta*(abs(AX[i,]-t(x))^p)))
-		}	
 	}else{
-		p=2
-		for (i in 1:n){
-			psi[,i]=exp(-colSums(theta*((AX[i,]-t(x))^p)))
-		}
+		for (i in 1:n)
+			psi[,i]=colSums(theta*((AX[i,]-t(x))^2))
 	}	
-	f=as.numeric(psi%*%(Psinv%*%(yonemu)))+mu #vectorised
+	psi = exp(-psi)
+	f=as.numeric(psi%*%(Psinv%*%yonemu))+mu #vectorised
 	##########################################################################
 	#if (ModelInfo$Option!="Pred"){
 	if(pred.all){
 		#
-		Psinv= try(solve(PsiB), TRUE)
+		Psinv= try(solve.default(PsiB), TRUE) ##Important notes: chol2inv(chol(Psi)) may be less likely to give an answer BUT may also be faster and more accurate
 		if(class(Psinv) == "try-error"){
 			Psinv=ginv(Psi)
 		}	
 		#
 		SSqr= SigmaSqr*(1-diag(psi%*%(Psinv%*%t(psi)))) #vectorised
-		#TODO "diag(psi%*%...)" is excessive, since diag wastes alot of values computed by %*%
 		s=sqrt(abs(SSqr));
 	}
-	result=if(!pred.all){list(f=f)}else{data.frame(f=f,s=as.numeric(s))}
+	if(!pred.all){list(f=f)}else{data.frame(f=f,s=as.numeric(s))}
 }
 

@@ -37,7 +37,7 @@ spotCreateDesignLhs <- function(spotConfig, noDesPoints = NaN, repeats=NaN){
 		
 	A <- t(rbind(t(lowerBound), t(upperBound)))
 			
-    M<-as.matrix(improvedLHS(noDesPoints, length(pNames), dup=2))
+  M<-as.matrix(lhs::improvedLHS(noDesPoints, length(pNames), dup=2))
 	## M has entries in the range from 0 to 1, so we 	
 	for (i in 1:nrow(M)){## transform these values into the regions of interest:
 		for (j in 1: ncol(M)){

@@ -27,12 +27,12 @@ spotPredictDice <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	########################################################	
 	if(is.null(fit)){
 		xNames <- row.names(spotConfig$alg.roi)
-		yNames <- setdiff(names(rawB),xNames)
+		yNames <- spotConfig$alg.resultColumn
 		x <- rawB[xNames]
 		if(length(yNames)==1){
 			y <- data.frame(y=rawB[[yNames]])
-			if(spotConfig$io.verbosity>2){fit<-km(design=x,response=y,nugget.estim=TRUE)}
-			else{fit<-km(design=x,response=y,control=list(trace=FALSE),nugget.estim=TRUE)}
+			if(spotConfig$io.verbosity>2){fit<-DiceKriging::km(design=x,response=y,nugget.estim=TRUE)}
+			else{fit<-DiceKriging::km(design=x,response=y,control=list(trace=FALSE),nugget.estim=TRUE)}
 			res <- predict(fit,design,"UK")$mean 
 		}
 		else{#Distinction for multi criteria 
@@ -40,8 +40,8 @@ spotPredictDice <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 			fit=list()
 			res=list()
 			for (i in 1:length(yNames)){
-				if(spotConfig$io.verbosity>2){fit[[i]]<-km(design=x,response=y[,i],nugget.estim=TRUE)}
-				else{fit[[i]]<-km(design=x,response=y[,i],control=list(trace=FALSE),nugget.estim=TRUE)}
+				if(spotConfig$io.verbosity>2){fit[[i]]<-DiceKriging::km(design=x,response=y[,i],nugget.estim=TRUE)}
+				else{fit[[i]]<-DiceKriging::km(design=x,response=y[,i],control=list(trace=FALSE),nugget.estim=TRUE)}
 				res[[i]]<-predict(fit[[i]],design,"UK")$mean 
 			}			
 		}		

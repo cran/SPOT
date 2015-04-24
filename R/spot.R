@@ -29,8 +29,8 @@
 #' \tabular{ll}{
 #' Package: \tab SPOT\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.0.4184\cr
-#' Date: \tab 26.06.2013\cr
+#' Version: \tab 1.0.5543\cr
+#' Date: \tab 2015-04-24\cr
 #' License: \tab GPL (>= 2)\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -40,13 +40,29 @@
 #' @docType package
 #' @title Sequential Parameter Optimization Toolbox in R
 #' @author Thomas Bartz-Beielstein \email{thomas.bartz-beielstein@@fh-koeln.de} with contributions from: J. Ziegenhirt, W.
-#'    Konen, O. Flasch, M. Friese, P. Koch, M. Zaefferer, B. Naujoks
+#'    Konen, O. Flasch, M. Friese, P. Koch, M. Zaefferer, B. Naujoks, M. Friese
 #' @references
-#' \url{http://www.gm.fh-koeln.de/campus/personen/lehrende/thomas.bartz-beielstein/00489/} \cr
 #' \url{http://www.springer.com/3-540-32026-1}
 #' @keywords package
 #' @seealso Main interface functions are \code{\link{spot}} and \code{\link{spotOptim}}.
 #' Also, a graphical interface can be used with \code{\link{spotGui}}
+#' @import emoa
+#' @import rpart
+#' @import twiddler
+#' @import rgl
+#' @import AlgDesign
+#' @import randomForest
+#' @import mco
+#' @import rsm
+#' @import MASS
+#' 
+#' @section Acknowledgments:
+#' This work has been partially supported by the Federal Ministry of Education
+#' and Research (BMBF) under the grants CIMO (FKZ 17002X11) and
+#' MCIOP (FKZ 17N0311).
+#'
+#' @section Maintainer:
+#' Martin Zaefferer \email{martin.zaefferer@@gmx.de} 
 #End of Package Description
 NA #NULL, ends description without hiding first function
 ###################################################################################
@@ -63,37 +79,23 @@ NA #NULL, ends description without hiding first function
 ###################################################################################
 
 ###################################################################################
-## spotPrepareSystem()
-##
-## Prepare the system first: checks for missing packages and installs them if necessary
-## this should only be necessary ONCE but it may fail due to permission problems.
-## see FAQ No. 1
-## This function is called but should have no effect, if the package is installed correctly,
-## since loading the package should also load the packages it is depending on.
-## This function is just left over for the developers, for easy developing the code
+# SPOT Prepare System - loads all required packages for SPOT
+# 
+# installs and loads all packages that are needed for the core functionality of SPOT
+# (hard coded in the function). All user defined Plugins needs to call
+# \code{\link{spotInstAndLoadPackages}} to add their dependencies properly\cr
+# This function is only provided for use in non-packaged version, for all packages 
+# are listed in the "Depends line" of DESCRIPTION 
+# 
+#
+# @export
+# @keywords internal
 ###################################################################################
-## Where are the packages used?
-## - AlgDesign is used by spotCreateDesignDoe() for it needs the function gen.factorial()
-##
-###################################################################################
-###################################################################################
-#' SPOT Prepare System - loads all required packages for SPOT
-#' 
-#' installs and loads all packages that are needed for the core functionality of SPOT
-#' (hard coded in the function). All user defined Plugins needs to call
-#' \code{\link{spotInstAndLoadPackages}} to add their dependencies properly\cr
-#' This function is only provided for use in non-packaged version, for all packages 
-#' are listed in the "Depends line" of DESCRIPTION 
-#' 
-#'
-#' @export
-#' @keywords internal
-###################################################################################
-spotPrepareSystem <- function(){
+#spotPrepareSystem <- function(){
 	### check whether necessary packages are installed and install missing packages
 	# see also: depends and suggests in DESCRIPTION file.
-	necessaryPackages = c('rpart', 'emoa' ); 
-	spotInstAndLoadPackages(necessaryPackages)	
+	#necessaryPackages = c('rpart', 'emoa' ); 
+	#spotInstAndLoadPackages(necessaryPackages)	
 	###### default packages with various use 
 	# 'emoa' - used in various functions for multi objective optimization purpose, but mainly in spotGenerateSequentialDesign
 	###### default packages that are specified to be used in:  
@@ -114,7 +116,7 @@ spotPrepareSystem <- function(){
 	# spotCreateDesignFrF2 : 'FrF2',  'DoE.wrapper',
 	# spotPredictDiceKriging: ,'DiceKriging' # depreciated
 	# spotCreateDesignBasicDoe: 'AlgDesign'	
-}#end spotPrepareSystem
+#}#end spotPrepareSystem
 
 ###################################################################################
 ## SPOT Prepare
@@ -146,9 +148,6 @@ spotPrepare <- function(srcPath,configFile,spotConfigUser){
 	### Load sources
 	######################################	
 	## Add path to files
-	createSourcePath <- function(sourceFileName){
-		normalizePath(paste(srcPath,sourceFileName, sep="/"))
-	}	
 	## everything happens relative to users configuration file
 	if(file.exists(configFile)){
 		setwd(dirname(configFile))
@@ -243,10 +242,24 @@ spotStepInitial <- function(spotConfig) {
 		spotWriteAroi(A,spotConfig$io.verbosity,spotConfig$io.columnSep,spotConfig$io.aroiFileName)	
 	}
 	spotConfig$alg.aroi<-spotConfig$alg.roi
-	initDes<-eval(call(spotConfig$init.design.func, 
+	if(spotConfig$init.design.size>0){
+		initDes<-eval(call(spotConfig$init.design.func, 
 					spotConfig,
 					spotConfig$init.design.size,
 					spotConfig$init.design.retries))
+	}else{
+		initDes <- NULL
+	}
+	
+	#add manually specified design points
+	if(!is.null(spotConfig$init.design.man)){
+		colnames(spotConfig$init.design.man) = rownames(spotConfig$alg.roi)
+		initDes <- rbind(initDes,spotConfig$init.design.man)
+	}
+	
+	if(is.null(initDes)){
+		stop("Initial Design for SPOT is empty. Set spotConfig$init.design.size to a value larger than zero, or specify design points manually in spotConfig$init.design.man.")
+	}
 	
 	## FIRST COLUMN ADDED: Named "CONFIG" - holding a count variable: 
 	## number of the configuration provided
@@ -525,7 +538,7 @@ spotStepAutoOpt <- function(spotConfig,...){
 #' @export
 ###################################################################################
 spotStepMetaOpt <- function(spotConfig) {
-	spotInstAndLoadPackages("AlgDesign")
+	#spotInstAndLoadPackages("AlgDesign")
 	if(is.null(spotConfig$report.meta.func))spotConfig$report.meta.func = "spotReportMetaDefault";	
 	### Delete old FBS file
 	if(file.exists(spotConfig$io.fbsFileName)) {
@@ -540,7 +553,7 @@ spotStepMetaOpt <- function(spotConfig) {
 		dat <- matrix(1:x, byrow = TRUE)
 	}
 	else{
-		dat<-gen.factorial(x,varNames=names(myList),factors="all")
+		dat<- gen.factorial(x,varNames=names(myList),factors="all")
 	}	
 	for (j in 1:nrow(dat)) {## Loop over full factorial combinations of all parameters specified in .meta
 		graphics.off() ## close all remaining graphic devices - from old spotStepAutoOpt Runs
@@ -625,9 +638,8 @@ spotStepMetaOpt <- function(spotConfig) {
 #'						However, values not passed by spotConfig will still be used as defaults. If you want to see those defaults, look at \code{\link{spotGetOptions}}  
 #' @param ... additional parameters to be passed on to target function which is called inside alg.func. Only relevant for spotTask "auto" and "run".
 #' @note \code{spot()} expects char vectors as input, e.g. \code{spot("c:/configfile.conf","auto")}
-#' @seealso \code{\link{SPOT}} \code{\link{spotOptim}} \code{\link{spotStepAutoOpt}}  \code{\link{spotStepInitial}}
-#' \code{\link{spotStepSequential}} \code{\link{spotStepRunAlg}} \code{\link{spotStepReport}} 
-#' \code{\link{spotPrepare}} \code{\link{spotPrepareSystem}}  
+#' @seealso \code{\link{SPOT}}, \code{\link{spotOptim}}, \code{\link{spotStepAutoOpt}},  \code{\link{spotStepInitial}},
+#' \code{\link{spotStepSequential}}, \code{\link{spotStepRunAlg}}, \code{\link{spotStepReport}} 
 #' @export
 ###################################################################################################
 spot <- function(configFile="NULL",spotTask="auto",srcPath=NA,spotConfig=NA,...){
@@ -646,8 +658,7 @@ spot <- function(configFile="NULL",spotTask="auto",srcPath=NA,spotConfig=NA,...)
 	}
 	## PRELIMINARIES 1: load all functions belonging to SPOT - not necessary if provided SPOT is installed as package - useful for developers...
 	spotConfig<-spotPrepare(srcPath,configFile,spotConfig)
-	## PRELIMINARIES 2: dynamic install of packages used - omitted for package-use
-	# spotPrepareSystem() 
+
 	## SWITCH task according to the extracted from command line 
 	resSwitch <- switch(spotTask
 			, init=, initial=spotStepInitial(spotConfig) # First Step
@@ -688,7 +699,7 @@ spot <- function(configFile="NULL",spotTask="auto",srcPath=NA,spotConfig=NA,...)
 #'
 #' @rdname print
 #' @method print spotConfig
-#' @S3method print spotConfig
+# @S3method print spotConfig
 #' @param x	spotConfig
 #' @param ... additional parameters	
 #' @export

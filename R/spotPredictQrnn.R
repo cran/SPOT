@@ -24,18 +24,18 @@ spotPredictQrnn<- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	########################################################	
 	if(is.null(fit)){
 		xNames <- row.names(spotConfig$alg.roi); 	
-		yNames <- setdiff(names(rawB),xNames)
+		yNames <- spotConfig$alg.resultColumn
 		x <- rawB[xNames]		
 		if(length(yNames)==1){
 			y <- rawB[[yNames]]
-			fit <- qrnn.fit(as.matrix(x),as.matrix(y),n.hidden=5)		
+			fit <- qrnn::qrnn.fit(as.matrix(x),as.matrix(y),n.hidden=5)		
 		}
 		else{#Distinction for multi criteria spot 
 			y <- rawB[yNames]
 			fit=list()
 			res=list()
 			for (i in 1:length(yNames)){
-				fit[[i]]<-qrnn.fit(as.matrix(x),as.matrix(y[,i]),n.hidden=5)	
+				fit[[i]]<-qrnn::qrnn.fit(as.matrix(x),as.matrix(y[,i]),n.hidden=5)	
 			}			
 		}	
 	}else{
@@ -48,10 +48,10 @@ spotPredictQrnn<- function(rawB,mergedB,design,spotConfig,fit=NULL){
 		if(length(spotConfig$alg.resultColumn)>1){
 			res=list()
 			for (i in 1:length(fit)){
-				res[[i]]<-qrnn.predict(design,fit[[i]])
+				res[[i]]<-qrnn::qrnn.predict(design,fit[[i]])
 			}	
 		}
-		else{res <- qrnn.predict(design,fit)}		
+		else{res <- qrnn::qrnn.predict(design,fit)}		
 		res[which(is.na(res)==TRUE)] = median(fit$y,na.rm = TRUE) #replaces NA values with median of y..?
 	}else{res <- NULL}
 	########################################################

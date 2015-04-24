@@ -21,7 +21,7 @@
 #' @export
 ####################################################################################
 spotReadBstFile<-function(spotConfig){
-	bstData <- read.table(spotConfig$io.bstFileName
+	read.table(spotConfig$io.bstFileName
 			, sep=spotConfig$io.columnSep
 			, header = TRUE	
 			, stringsAsFactors = TRUE);
@@ -88,13 +88,6 @@ spotPlotBst <- function(spotConfig){
 			main = "Pareto front (all steps)")
 		mtext(paste("Eval: ",as.character(nEvals),"   Step: ",as.character(max(mD$STEP))), side=1, outer = TRUE, cex = 1)			
 	}
-	## uncomment the following to - but reduce the mximum of variables to 10...
-	## plot a simple tree
-	##	rawB <- spotGetRawDataMatrixB(spotConfig);	
-	##	fit.tree <- rpart(y ~ ., data= rawB)
-	##	if (!is.null(fit.tree$splits)){		
-	##		draw.tree(clip.rpart(fit.tree, best=5 ), digits=2, print.levels=FALSE)
-	##	}	
 }
 
 

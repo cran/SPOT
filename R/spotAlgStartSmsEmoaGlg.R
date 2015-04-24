@@ -36,9 +36,9 @@ spotAlgStartSmsEmoaGlg <- function(spotConfig){
 	dim=2
 	lb <- rep(-1,dim)
 	ub <- rep(1,dim)
-	ngauss= 200
+	#ngauss= 200
 	maxval = 10
-	ratio = 0.9
+	#ratio = 0.9
 	npinst = 9 #number of random instances
 	glgSeed = 0 #starting seed for random problem instances
 	alpha=pi #180 deg.

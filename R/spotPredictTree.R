@@ -1,7 +1,7 @@
 ###################################################################################
 #' Meta Model Interface: Tree
 #'  
-#' A prediction model based on rpart, using a single tree model .
+#' A prediction model based on rpart, using a single tree model.
 #' 
 #' @param rawB unmerged data
 #' @param mergedB merged data
@@ -26,9 +26,8 @@ spotPredictTree <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	########################################################	
 	if(is.null(fit)){ #build model if not given
 		xNames <- row.names(spotConfig$alg.roi)
-		x <- rawB[xNames] 
-		y <- rawB$y 
-		fit <- rpart(y ~ ., data= rawB)
+		yNames <- spotConfig$alg.resultColumn
+		fit <- rpart(paste(yNames,"~",xNames), data= rawB)
 	}
 	########################################################
 	# PREDICT

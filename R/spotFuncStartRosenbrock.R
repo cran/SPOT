@@ -24,9 +24,6 @@ spotFuncStartRosenbrock <- function(spotConfig){
 	if(is.null(spotConfig$spot.noise)){spotConfig$spot.noise=10.0}
 	if(is.null(spotConfig$spot.noise.type)){spotConfig$spot.noise.type="weighted"}
 	if(is.null(spotConfig$spot.noise.minimum.at.value)){spotConfig$spot.noise.minimum.at.value=0.0}
-	## spot.noise.type in {"weighted", "constant"}
-	## weighted: y = y + y * noiseValue / 100
-	## constant: y = y + noiseValue
 		
 	if (spotConfig$spot.fileMode){
 		spotWriteLines(spotConfig$io.verbosity,1,paste("Loading design file data from::",  desFileName), con=stderr())
@@ -102,4 +99,3 @@ spotFuncStartRosenbrock <- function(spotConfig){
 	}	
 	spotConfig
 }
-

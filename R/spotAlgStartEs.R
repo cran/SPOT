@@ -45,8 +45,8 @@ spotAlgEsGetSuccessRate <- function(gen,pop){
 #'
 #' Creates a new Individual for the Evolution Strategy implemented in SPOT.
 #'
-#' @param s sigma
-#' @param n n
+#' @param s sigma, step size
+#' @param n n, number of diff. step sizes
 #' @param dimension number of target function dimension
 #' @param noise noise to be added to fitness value
 #' @param fName target function
@@ -62,20 +62,16 @@ spotAlgEsGetSuccessRate <- function(gen,pop){
 #' @seealso  \code{\link{spotAlgEs}}
 #' @keywords internal
 ###################################################################################################
-spotAlgEsIndividualInitial <- function(s,
-		dimension,
-		n,
-		noise=0,
-		fName,
-		gen,
-		low=-1.0,
-		high=1.0,
-		des,...){
- 	c(x = x <- low + (high-low)*des,     #  *runif(dimension),
-			sigma = sigma <- rep(s,n),
-			realFitness = realFitness <- fName(x,...),#spotAlgEsF(x,fName),
-			fitness = fitness <- realFitness + rnorm(1,0,noise),
-			generation = generation <- gen
+spotAlgEsIndividualInitial <- function(s,dimension,n,noise=0,fName,gen,low=-1.0,high=1.0,	des,...){
+	x <- low + (high-low)*des
+	sigma <- rep(s,n)
+	realFitness <- fName(x,...)
+	fitness <- realFitness + rnorm(1,0,noise)
+ 	c(x = x,     #  *runif(dimension),
+			sigma = sigma,
+			realFitness =  realFitness,#spotAlgEsF(x,fName),
+			fitness = fitness,
+			generation = gen
 	)
 }
 
@@ -104,7 +100,7 @@ spotAlgEsIndividualInitial <- function(s,
 spotAlgEsInitParentPop <- function(sigmaInit, dimension, nSigma, noise, fName, gen, low, high, mue,...)
 {
 	parentPop <- NULL	
-	ld <- randomLHS(mue, dimension)
+	ld <- spotNormDesign(dimension,mue,FALSE)$design
 	###ld <- optimumLHS(mue, dimension, 2, 0.1)
 	for(i in 1:mue){      
 		parentPop <- rbind(parentPop,
@@ -380,17 +376,17 @@ spotAlgEsTermination <- function(it, maxIt, ge, maxGe, xk, xOpt, term){
 #' the Evolution Strategy with the given parameter set specified by SPOT.
 #'
 #' @param mue number of parents, default is \code{10}
-#' @param nu number, default is \code{10}
+#' @param nu selection pressure. That means, number of offspring (lambda) is mue multiplied with nu. Default is \code{10}
 #' @param dimension dimension number of the target function, default is \code{2}
 #' @param mutation mutation type, either \code{1} or \code{2}, default is \code{1}
-#' @param sigmaInit initial sigma value (standard deviation), default is \code{1.0}
-#' @param nSigma number of standard deviations, default is \code{1}
+#' @param sigmaInit initial sigma value (step size), default is \code{1.0}
+#' @param nSigma number of different sigmas, default is \code{1}
 #' @param tau0 number, default is \code{0.0}. tau0 is the general multiplier.
 #' @param tau number, learning parameter for self adaption, default is \code{1.0}. tau is the local multiplier for step sizes (for each dimension).
 #' @param rho number of parents involved in the procreation of an offspring (mixing number), default is \code{"bi"}
 #' @param sel number of selected individuals, default is \code{1}
-#' @param stratReco value, Recombination operator for strategy variables, default is \code{1}
-#' @param objReco value, Recombination operator for object variables, default is \code{2}
+#' @param stratReco Recombination operator for strategy variables. \code{1}: none. \code{2}: dominant/discrete (default). \code{3}: intermediate. \code{4}: variation of intermediate recombination. 
+#' @param objReco Recombination operator for object variables. \code{1}: none. \code{2}: dominant/discrete (default). \code{3}: intermediate. \code{4}: variation of intermediate recombination. 
 #' @param maxGen number of generations, stopping criterion, default is \code{Inf}
 #' @param maxIter number of iterations, stopping criterion, default is \code{100}
 #' @param seed number, random seed, default is \code{1}
@@ -461,7 +457,6 @@ spotAlgEs <- function(mue = 10,
 		logPlotResult=FALSE
 	}
 	###
-	tauMult <- tau #save tau multiplier for res-file
 	if(nSigma==1){
 		tau0=0.0
 		###  tau <- tau/sqrt(dimension)
@@ -475,7 +470,7 @@ spotAlgEs <- function(mue = 10,
 	set.seed(seed)
 	parentPop <- NULL
 	gen <- 0
-	succ <- 1
+	#succ <- 1
 	if(verbosity>=1){
 		sigmaAvgList <- rep(sigmaInit,nSigma)
 		sigmaMedList <- rep(sigmaInit,nSigma)
@@ -557,11 +552,11 @@ spotAlgEs <- function(mue = 10,
 
 			iter <- iter +1
 			offspring <- NULL
-			offspring <- c(x=x <- xNew,
-					sigma=sigma <- sigmaNew ,
+			offspring <- c(x= xNew,
+					sigma= sigmaNew ,
 					realFitness=realFitness <-  realFitness,
 					fitness=fitness <- fitness,
-					generation=generation <- gen)
+					generation= gen)
 			#####
 			if(verbosity==2)   print(offspring)
 			offspringPop <- rbind(offspringPop, offspring)
@@ -578,7 +573,7 @@ spotAlgEs <- function(mue = 10,
 		if(verbosity==2)   print("parentPop")
 		if(verbosity==2)   print(parentPop)
 		
-		succ <- spotAlgEsGetSuccessRate(gen,parentPop)
+		#succ <- spotAlgEsGetSuccessRate(gen,parentPop)
 		alg.currentBest <- parentPop$fitness[[1]]
 		currentReal <- parentPop$realFitness[[1]]
 		currentPar <- as.numeric(parentPop[setdiff(names(parentPop),c("sigma","realFitness","fitness","generation"))][1,])
@@ -671,9 +666,9 @@ spotAlgEs <- function(mue = 10,
 	##(2) realBest is the fitness of the bestInd (that is not necessarily a member of the last generation)
 	##(3) allTimeBest is the best fitness found during the whole optimization run, the (noisy) fitness of the bestInd. 
 	##(4) NoisyFitness is the best Fitness in the last generation.
-	res <- NULL
+
 	## special treatment for factors. Their indices should be written as strings.
-	recoType <- c("no", "disc","inter", "interRecoBeSw02")
+	#recoType <- c("no", "disc","inter", "interRecoBeSw02")
 	#OBJRECO = paste('"',toString((1:length(recoType))[recoType==objReco]),'"', sep="")
 	#STRATRECO = paste('"',toString((1:length(recoType))[recoType==stratReco]),'"', sep="")
 	## TODO: use which for the following selection:
@@ -803,10 +798,6 @@ spotAlgStartEs <- function(spotConfig){
 			if (!is.null(des$STRATRECO)){
 				stratReco <- des$STRATRECO[k]
 			}	  
-			conf <- k
-			if (!is.null(des$CONFIG)){
-				conf <- des$CONFIG[k]
-			}
 			spotStep<-NA
 			if (!is.null(des$STEP)){
 				spotStep <- des$STEP[k]
@@ -1006,10 +997,6 @@ spotAlgStartEsVar <- function(spotConfig){
 			if (!is.null(des$STRATRECO)){
 				stratReco <- des$STRATRECO[k]
 			}	  
-			conf <- k
-			if (!is.null(des$CONFIG)){
-				conf <- des$CONFIG[k]
-			}
 			spotStep<-NA
 			if (!is.null(des$STEP)){
 				spotStep <- des$STEP[k]
@@ -1045,7 +1032,6 @@ spotAlgStartEsVar <- function(spotConfig){
 				NU=nu,
 				KAPPA=kappa,
 				InitSgm=sigmaInit,
-				#TauMult=tauMult,###########################TODO?
 				Rho=rho,
 				NSIGMA=nSigma,
 				SIGMARESTART=sigmaRestart,
@@ -1138,7 +1124,7 @@ spotAlgEsQuickTest <- function(
 	prescanmult=1)
 	{
 	##
-	esRun <- spotAlgEs(mue=mue,
+	spotAlgEs(mue=mue,
 			nu=nu,
 			dimension=dimension,
 			mutation=mutation,
@@ -1162,12 +1148,4 @@ spotAlgEsQuickTest <- function(
 			logPlotResult=logPlotResult,
 			sigmaRestart = sigmaRestart,
 			preScanMult=prescanmult)
-			#resFileName=resFileName) only needed in spotAlgStartEs, not used in spotAlgEs
 }
-
-
-
-
-
-
-

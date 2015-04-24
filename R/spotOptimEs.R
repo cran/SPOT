@@ -18,17 +18,17 @@
 #' \describe{
 #' 			\item{maxit}{number of iterations, stopping criterion, default is \code{100}}
 #' 			\item{mue}{number of parents, default is \code{10}}
-#' 			\item{nu}{number, default is \code{10}}
+#' 			\item{nu}{selection pressure. That means, number of offspring (lambda) is mue multiplied with nu. Default is \code{10}}
 #' 			\item{dimension}{dimension number of the target function, default is \code{2}}
 #' 			\item{mutation}{string of mutation type, default is \code{1}}
-#' 			\item{sigmaInit}{initial sigma value (standard deviation), default is \code{1.0}}
-#' 			\item{nSigma}{number of standard deviations, default is \code{1}}
-#' 			\item{tau0}{number, default is \code{0.0}}
-#' 			\item{tau}{number, learning parameter for self adaption, default is \code{1.0}}
+#' 			\item{sigmaInit}{initial sigma value (step size), default is \code{1.0}}
+#' 			\item{nSigma}{number of different sigmas, default is \code{1}}
+#' 			\item{tau0}{number, default is \code{0.0}. tau0 is the general multiplier.}
+#' 			\item{tau}{number, learning parameter for self adaption, i.e. the local multiplier for step sizes (for each dimension).default is \code{1.0}}
 #' 			\item{rho}{number of parents involved in the procreation of an offspring (mixing number), default is \code{"bi"}}
 #' 			\item{sel}{number of selected individuals, default is \code{1}}
-#' 			\item{stratReco}{value, Recombination operator for strategy variables, default is \code{1}}
-#' 			\item{objReco}{value, Recombination operator for object variables, default is \code{2}}
+#' 			\item{stratReco}{Recombination operator for strategy variables. \code{1}: none. \code{2}: dominant/discrete (default). \code{3}: intermediate. \code{4}: variation of intermediate recombination. }
+#' 			\item{objReco}{Recombination operator for object variables. \code{1}: none. \code{2}: dominant/discrete (default). \code{3}: intermediate. \code{4}: variation of intermediate recombination. }
 #' 			\item{maxGen}{number of generations, stopping criterion, default is \code{Inf}}
 #' 			\item{seed}{number, random seed, default is \code{1}}
 #' 			\item{noise}{number, value of noise added to fitness values, default is \code{0.0}}
@@ -57,7 +57,7 @@
 spotOptimEs <- function(par #only for dimension TODO add par to start population
                       , fn
                       , gr=NULL
-					  , ...
+											, ...
                       , lower
                       , upper
                       , method=NULL
@@ -67,7 +67,6 @@ spotOptimEs <- function(par #only for dimension TODO add par to start population
 		seed=1,
 		mue = 10,
 		nu = 10,
-		#dimension = 2,
 		mutation = 2,
 		sigmaInit = 1.0,
 		nSigma = 1,
@@ -78,14 +77,7 @@ spotOptimEs <- function(par #only for dimension TODO add par to start population
 		stratReco = 1,
 		objReco = 2,
 		maxGen = Inf,
-		#maxIter = 100,
-		#seed = 1,
-		noise = 0.0, #TODO handle in target function, not in algorithm
-		#thrs = "no",
-		#thrsConstant = 0.0,
-		#fName = spotBraninFunction,
-		#lowerLimit = -1.0,
-		#upperLimit = 1.0,
+		noise = 0.0, 
 		verbosity=0,
 		plotResult=FALSE,
 		logPlotResult=FALSE,

@@ -184,7 +184,7 @@ spotInfillSD <- function(mean,sd,min){
 #' @keywords internal
 ##############################################################
 spotExiPsi <- function(a,b,m,s){
-  x = s*dnorm((b-m)/s) + (a-m)*pnorm((b-m)/s)
+  s*dnorm((b-m)/s) + (a-m)*pnorm((b-m)/s)
 }
 
 ##############################################################
@@ -266,26 +266,26 @@ spotSExI2d <- function(P,r,mu,s){
   S = P[order(P[1]),]
   k = nrow(S)
   #contr = data.frame()
-  contr = matrix(0,k+1,k+1); #avoid dynamic extension of contr - this costs time
+  contr = matrix(0,k+1,k+1) #avoid dynamic extension of contr - this costs time
 
   c2 = sort(S[,2])
   c1 = sort(S[,1])
  
-  cL1=c(-Inf,c1);
-  cL2=c(-Inf,c2);
-  cU1=c(c1,r[1]);
-  cU2=c(c2,r[2]);
-  fMax1=c(r[1],rev(c1));
-  fMax2=c(r[2],rev(c2));
+  cL1=c(-Inf,c1)
+  cL2=c(-Inf,c2)
+  cU1=c(c1,r[1])
+  cU2=c(c2,r[2])
+  fMax1=c(r[1],rev(c1))
+  fMax2=c(r[2],rev(c2))
   
   #Cumulative Gaussian over length for correction constant
-  GaussCDF1 = pnorm((cU1-mu[1])/s[1]) - pnorm((cL1-mu[1])/s[1]);
+  GaussCDF1 = pnorm((cU1-mu[1])/s[1]) - pnorm((cL1-mu[1])/s[1])
   #Cumulative Gaussian over length for correction constant
-  GaussCDF2 = pnorm((cU2-mu[2])/s[2]) - pnorm((cL2-mu[2])/s[2]);
+  GaussCDF2 = pnorm((cU2-mu[2])/s[2]) - pnorm((cL2-mu[2])/s[2])
   #Marginal integration over the length of a cell
-  Psi1 = outer(fMax1, 0:k, function(fMax1,j) {spotExiPsi(fMax1,cU1[j+1],mu[1],s[1]) - spotExiPsi(fMax1,cL1[j+1],mu[1],s[1]) } );
+  Psi1 = outer(fMax1, 0:k, function(fMax1,j) {spotExiPsi(fMax1,cU1[j+1],mu[1],s[1]) - spotExiPsi(fMax1,cL1[j+1],mu[1],s[1]) } )
   #Marginal integration over the height of a cell
-  Psi2 = outer(0:k, fMax2, function(i,fMax2) {spotExiPsi(fMax2,cU2[i+1],mu[2],s[2]) - spotExiPsi(fMax2,cL2[i+1],mu[2],s[2]) } );
+  Psi2 = outer(0:k, fMax2, function(i,fMax2) {spotExiPsi(fMax2,cU2[i+1],mu[2],s[2]) - spotExiPsi(fMax2,cL2[i+1],mu[2],s[2]) } )
 
   for (i in 0:k){  # hight from below to above
     for (j in 0:(k-i)){ # first coordinate (length) of cell grid
@@ -293,8 +293,8 @@ spotSExI2d <- function(P,r,mu,s){
 		sPlus=if(nrow(SM)==0){0    #MZ: the hypervolume function from emoa package does not allow empty matrices, but its faster
 		}else{dominated_hypervolume(t(SM), c(fMax1[i+1],fMax2[j+1]))}
         #ExI Kontribution fuer die aktuelle Zelle
-        contr[i+1,j+1]= Psi1[i+1,j+1]*Psi2[i+1,j+1]-sPlus*GaussCDF1[j+1]*GaussCDF2[i+1];
+        contr[i+1,j+1]= Psi1[i+1,j+1]*Psi2[i+1,j+1]-sPlus*GaussCDF1[j+1]*GaussCDF2[i+1]
     }
   }
-  res= sum(contr); 
+  sum(contr)
 }

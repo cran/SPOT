@@ -69,14 +69,10 @@ spotGetRawDataMatrixB <- function(spotConfig){
 		res<-NULL
 	}else{
 		rawData=spotConfig$alg.currentResult 
-	}   # WK: if-else needed if a call 'spot(confFileName,"rep")' shall succeed (!)
-	## extract parameter names
-	pNames <- row.names(spotConfig$alg.roi)
-	y <- rawData[,spotConfig$alg.resultColumn]
-	## data frame of parameter values
-	x <- as.matrix(rawData[pNames]) #MZ: Bugfix for 1 dimensional optimization
-	A <- cbind(y,x) 
-	if(!is.null(dim(y))){B <- data.frame(A[order(y[,1],y[,2],decreasing=FALSE),])}
+	}   
+	y <- rawData[,spotConfig$alg.resultColumn,drop=FALSE]
+	A <- rawData
+	if(length(spotConfig$alg.resultColumn) > 1){B <- data.frame(A[order(y[,1],y[,2],decreasing=FALSE),])}
 	else{B <- data.frame(A[order(y,decreasing=FALSE),])}
 	B
 }
@@ -110,9 +106,9 @@ spotGetMergedDataMatrixB <- function(mergedData, spotConfig){
 	## data frame of parameter values	
 	x <- as.matrix(mergedData$x)
 	A <- cbind(y,x)        
+	colnames(A)<- c(spotConfig$alg.resultColumn,pNames)
 	if(!is.null(dim(y))){B <- data.frame(A[order(y[,1],y[,2],decreasing=FALSE),,drop=FALSE])}
 	else{B <- data.frame(A[order(y,decreasing=FALSE),,drop=FALSE])}
-	#B <-  data.frame(A[order(y,decreasing=FALSE),])
 	B
 }
 

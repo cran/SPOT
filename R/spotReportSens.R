@@ -38,11 +38,9 @@ spotReportSensY <- function(B,fit,roi,nsens) {
 ################################################################################################### 
 spotReportSens <- function(spotConfig) {		
 	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotReportSens")
-	spotInstAndLoadPackages("randomForest")	
 	rawB <- spotGetRawDataMatrixB(spotConfig)
 	spotPrint(spotConfig$io.verbosity,1,summary(rawB))
 	mergedData <- spotPrepareData(spotConfig)
-	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig)
 	#rawD<-spotGetRawResData(spotConfig);  # raw data with CONFIG, needed for sd(BestSolution)      MZ: replaced with if/else for fileMode
 	if(spotConfig$spot.fileMode) {
 		rawD <- spotGetRawResData(spotConfig)$rawD
@@ -52,14 +50,15 @@ spotReportSens <- function(spotConfig) {
 	spotConfig=spotWriteBest(mergedData, spotConfig);
 	C1=spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),]       # WK: added ","
 	xNames <- row.names(spotConfig$alg.roi)
+	yNames <- spotConfig$alg.resultColumn
 	B <- NULL 
 	nsens=20             # number of points along the normalized ROI range
 	for (i in 1:nsens) {
 	   # replicate best solution (row 1), but cut away 1st column (Y):   
 	   B <- rbind(B,data.frame(C1[1,xNames]));
 	}
-	names(B)=xNames; 	#MZ: Bugfix for 1 dimensional optimization	
-	fit <- randomForest(rawB[xNames], rawB$y, ntree=100)		#MZ: Bugfix for 1 dimensional optimization	
+	names(B)=xNames; 	
+	fit <- randomForest(rawB[xNames], rawB[[yNames]], ntree=100)		
 	#fit <- rpart(y ~ ., data= rawB)
 	rwb <- cbind(spotConfig$alg.roi,t(B[1,]))     # rwb: roi with 'BEST' column
 	names(rwb)[length(rwb)] <- "BEST"

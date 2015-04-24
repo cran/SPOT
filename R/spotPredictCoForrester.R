@@ -34,37 +34,16 @@
 #' Forrester, Alexander I.J.; Sobester, Andras; Keane, Andy J. (2008). Engineering Design via Surrogate Modelling - A Practical Guide. John Wiley & Sons.
 ###################################################################################
 spotPredictCoForrester <- function(rawB,mergedB,design,spotConfig,fit=NULL) {
-	design <- spotInitializePredictor(design,"data.frame",spotConfig$alg.roi,"MASS","spotPredictCoForrester",spotConfig$io.verbosity)	
+	design <- spotInitializePredictor(design,"data.frame",spotConfig$alg.roi,NULL,"spotPredictCoForrester",spotConfig$io.verbosity)	
 	########################################################
 	# BUILD
 	########################################################	
 	if(is.null(fit)){
 		xNames <- row.names(spotConfig$alg.roi)
 		yNames <- spotConfig$alg.resultColumn
-		if(is.null(spotConfig$seq.forr.savetheta))spotConfig$seq.forr.savetheta=FALSE
-		if(is.null(spotConfig$seq.forr.loval))spotConfig$seq.forr.loval=1e-3
-		if(is.null(spotConfig$seq.forr.upval))spotConfig$seq.forr.upval=100
-		if(is.null(spotConfig$seq.forr.opt.p))spotConfig$seq.forr.opt.p=FALSE #TODO, not working properly in case of TRUE
-		if(is.null(spotConfig$seq.forr.algtheta))spotConfig$seq.forr.algtheta="optim-L-BFGS-B"
-		if(is.null(spotConfig$seq.forr.budgetalgtheta))spotConfig$seq.forr.budgetalgtheta=100
-		if(is.null(spotConfig$seq.forr.reinterpolate))spotConfig$seq.forr.reinterpolate=FALSE
-		if(is.null(spotConfig$seq.forr.lambda.loval))spotConfig$seq.forr.lambda.loval=-6
-		if(is.null(spotConfig$seq.forr.lambda.upval))spotConfig$seq.forr.lambda.upval=0
-		if(is.null(spotConfig$seq.forr.rho.loval))spotConfig$seq.forr.rho.loval=-6
-		if(is.null(spotConfig$seq.forr.rho.upval))spotConfig$seq.forr.rho.upval=0
-		# Create an initial large cheap design if not done yet
+		if(is.null(spotConfig$seq.forr.control))spotConfig$seq.forr.control=list()
 		
-	#TODO: augment xc with exploration based strategy, to produce accurate model of cheap function
-		# Add cheap values of expensive sample locations to the co.design:
-		# maxstep <- max(spotConfig$alg.currentResult$STEP)
-		# xc2 <- unique(spotConfig$alg.currentResult[which(spotConfig$alg.currentResult$STEP==maxstep),][xNames])
-		# dsize2<-nrow(xc2)
-		# xc2$STEP=rep(maxstep,dsize2)
-		# dsize=max(spotConfig$seq.co.res$CONFIG)
-		# xc2$CONFIG=(dsize+1):(dsize+dsize2)
-		# xc2$REPEATS=rep(spotConfig$seq.co.design.repeats,dsize2)
-		# spotConfig$seq.co.res <- spotCallCoFunction(spotConfig,spotConfig$seq.co.res,xc2,spotConfig$seq.co.func)
-		if(length(yNames)==1){	#TODO: fine function is single objective
+			if(length(yNames)==1){	#TODO: fine function is single objective
 			#  sample locations:
 			xe <- as.matrix(spotConfig$alg.currentResult[xNames])	 #rawB not used here, because it is sorted by response value	
 			#  observations:
@@ -72,45 +51,58 @@ spotPredictCoForrester <- function(rawB,mergedB,design,spotConfig,fit=NULL) {
 			# cheap sample locations
 			xc <- as.matrix(spotConfig$alg.currentCoResult[xNames])
 			indf <- spotConfig$alg.currentCoResult$indf
-			xc <- rbind(xc[!indf,],xc[indf,])
+			xc <- rbind(xc[!indf,,drop=FALSE],xc[indf,,drop=FALSE])
 			# cheap observations: 
 			yc <- as.matrix(spotConfig$alg.currentCoResult[yNames])
 			yc <- rbind(yc[!indf,,drop=FALSE],yc[indf,,drop=FALSE])
+			#repair yc and xc before building the coarse-only kriging model
+			config <- spotConfig
+			config$seq.modelFit <- spotConfig$seq.modelFit$c #here, only the cheap model fit can be used.
+			config$seq.predictionModel.func <- "spotPredictForrester" #with the normal kriging model		
+			listXY <- spotRepairMissingValues(xc,yc,config)
+			yc1 <- as.matrix(listXY$y)
+			xc1 <- listXY$x
 			#
-			fitC <- forrBuilder(xc, yc, spotConfig$seq.forr.loval, spotConfig$seq.forr.upval, 
-							spotConfig$seq.forr.algtheta, spotConfig$seq.forr.budgetalgtheta,
-								spotConfig$alg.roi$lower, spotConfig$alg.roi$upper, 
-								spotConfig$seq.forr.opt.p,
-								spotConfig$seq.forr.lambda.loval, spotConfig$seq.forr.lambda.upval)				
+			if(is.null(spotConfig$seq.modelFit)|(is.null(spotConfig$seq.forr.contfitC))){		
+				fitC <- forrBuilder(xc1, yc1, spotConfig$alg.roi$lower, spotConfig$alg.roi$upper, spotConfig$seq.forr.control)
+			}else{ #if allready fit, and desired: use old theta value, and small budget for update
+				controls <- spotConfig$seq.forr.control
+				controls$starttheta <- spotConfig$seq.modelFit$c$Theta
+				controls$budgetalgtheta <-  controls$budgetalgtheta / 5
+				fitC <- forrBuilder(xc1, yc1, spotConfig$alg.roi$lower, spotConfig$alg.roi$upper, controls)		
+			}			
+			#
+			listCE <- spotRepairMissingValuesCoKriging(xe, ye, xc, yc, spotConfig, fitC) #xc/yc have to be repaired now in a different way, because they can now be replaced even in the initial step by fitC
+			yc <- as.matrix(listCE$yc) #todo these yc/xc values are not even used in the forrCoBuilder... if they are, there may be problems, because of differences with the yc/xc in fitC?
+			xc <- listCE$xc			
+			ye <- as.matrix(listCE$ye)
+			xe <- listCE$xe		
 			#note: it is expected that the cheap evaluations of the expensive sample locations are at the end of the xc/yc matrices
-			fit <- forrCoBuilder(xe, ye, xc, yc, fitC, spotConfig$seq.forr.loval, spotConfig$seq.forr.upval, 
-							spotConfig$seq.forr.algtheta, spotConfig$seq.forr.budgetalgtheta,
-								spotConfig$alg.roi$lower, spotConfig$alg.roi$upper, 
-								spotConfig$seq.forr.opt.p,
-								spotConfig$seq.forr.lambda.loval, spotConfig$seq.forr.lambda.upval,
-								spotConfig$seq.forr.rho.loval, spotConfig$seq.forr.rho.upval);		
+			#
+			fit <- forrCoBuilder(xe, ye, xc, yc, fitC,  spotConfig$alg.roi$lower, spotConfig$alg.roi$upper, spotConfig$seq.forr.control);		
+			#
 		}else{NULL} #TODO else does not exist yet, MCO is a problem here. It has to be defined somehow, which objective values have a correlated variable from another target function (or whether there is correlation between themselves???)
 	}
 	########################################################
 	# PREDICT
 	########################################################
 	if(!is.null(design)){ 		
-		pred.all=spotConfig$seq.model.variance
+		pred.all<-spotConfig$seq.model.variance
 		nmodel <- length(spotConfig$alg.resultColumn)
 		if(nmodel>1){ #do multi criteria prediction
 			NULL #TODO
 		}else{ #do single criteria prediction
-			#design = spotNormalizeMatrix2(t(as.matrix(design)),0,1,fit$normalizexmin,fit$normalizexmax);
+			#design <- spotNormalizeMatrix2(t(as.matrix(design)),0,1,fit$normalizexmin,fit$normalizexmax);
 			#if(spotConfig$seq.forr.reinterpolate){
-			#	res= forrCoReintPredictor(design,fit,pred.all)
+			#	res<- forrCoReintPredictor(design,fit,pred.all)
 			#}else{
-				res= forrCoRegPredictor(design,fit,pred.all)
+				res<- forrCoRegPredictor(design,fit,pred.all)
 			#}
-			resy=res$f
-			resvar=matrix(NA,nrow(design),1)
-			if(pred.all)resvar=res$s
+			resy<-res$f
+			resvar<-matrix(NA,nrow(design),1)
+			if(pred.all)resvar<-res$s
 			if(is.function(spotConfig$seq.infill)){ # do EI			
-				resy= spotConfig$seq.infill(resy,resvar,min(fit$y))
+				resy<- spotConfig$seq.infill(resy,resvar,min(fit$y))
 			}
 		}
 	}else{
@@ -120,8 +112,8 @@ spotPredictCoForrester <- function(rawB,mergedB,design,spotConfig,fit=NULL) {
 	########################################################
 	# OUTPUT
 	########################################################		
-	spotConfig$seq.largeDesignY=as.data.frame(resy)
-	spotConfig$seq.largeDesignVar=as.data.frame(resvar)	
+	spotConfig$seq.largeDesignY<-as.data.frame(resy)
+	spotConfig$seq.largeDesignVar<-as.data.frame(resvar)	
 	spotConfig$seq.modelFit<-fit;
 	spotConfig
 }
@@ -181,17 +173,22 @@ forrIF <- function(x,i){
 #' @param Xc design matrix (cheap sample locations). The bottom of this matrix should contain expensive samples.
 #' @param yc 1-row matrix of cheap observations at Xc. 
 #' @param fitC object of class \code{forr}, containing a Kriging model build through the cheap observations
-#' @param loval lower boundary for theta, default is \code{1e-3}
-#' @param upval upper boundary for theta, default is \code{100}
-#' @param algtheta algorithm used to find theta, default is \code{"optim-L-BFGS-B"}. Else, any from the list of possible \code{method} values in \code{\link{spotOptimizationInterface}} can be chosen.
-#' @param budgetalgtheta budget for the above mentioned algorithm, default is \code{100}. The value will be multiplied with the length of the model parameter vector to be optimized.
 #' @param lb lower boundary of the design space. Will be extracted from the matrix \code{Xe} if not given.
 #' @param ub upper boundary of the design space. Will be extracted from the matrix \code{Xe} if not given.
-#' @param opt.p boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default value is \code{FALSE}. Default is highly recommended as the implementation of this feature is not yet well tested and might be faulty.
-#' @param lambda.loval lower boundary for regularization constant (nugget), default is \code{-6}. (lambda=10^lambda, e.g. 10^-6)
-#' @param lambda.upval upper boundary for regularization constant (nugget), default is \code{0}. (lambda=10^lambda, e.g. 1)
-#' @param rho.loval lower boundary for rho, default is \code{-5}. 
-#' @param rho.upval upper boundary for rho, default is \code{5}. 
+#' @param control (list), with the options for the model building procedure:\cr
+#' \code{loval} lower boundary for theta, default is \code{1e-6}\cr
+#' \code{upval} upper boundary for theta, default is \code{100}\cr
+#' \code{corr} function to be used for correlation modeling, default is \code{fcorrGauss}\cr
+#' \code{algtheta}  algorithm used to find theta, default is \code{"NLOPT_LN_NELDERMEAD"}. Else, any from the list of possible \code{method} values in \code{spotOptimizationInterface} from the SPOT package can be chosen.\cr
+#' \code{budgetalgtheta} budget for the above mentioned algorithm, default is \code{100}. The value will be multiplied with the length of the model parameter vector to be optimized.
+#' \code{opt.p} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. \cr
+#' \code{uselambda} whether or not to use the regularization constant lambda (nugget effect). Default is \code{FALSE}.
+#' \code{lambda.loval} lower boundary for lambda, default is \code{-6}\cr 
+#' \code{lambda.upval} upper boundary for lambda, default is \code{0}\cr
+#' \code{rho.loval} lower boundary for rho, default is \code{-5}\cr 
+#' \code{rho.upval} upper boundary for rho, default is \code{5}\cr
+#' \code{starttheta} optional start value for theta.
+#' \code{reinterpolate} whether (TRUE) or not (FALSE, default) reinterpolation should be performed
 #'
 #' @return a fit (list) of class \code{coforr}. This contains Co-Kriging specific parameters, as well as two fits of class \code{forr} which represent the cheap and expensive models.
 #'
@@ -214,17 +211,19 @@ forrIF <- function(x,i){
 #'	ye <- rbind(ovar(xe))
 #'	yc <- rbind(covar(xc))
 #' 	## build the Co-Kriging model, with cheap and expensive observations
-#'	set.seed(2)
-#'  fitC <- forrBuilder(xc, yc, 1e-3, 1e2, "optim-L-BFGS-B", 100,0,1,FALSE);
-#'	fit <- forrCoBuilder(xe, ye, xc, yc, fitC, 1e-3, 1e2, "optim-L-BFGS-B", 100,0,1,FALSE)
+#'	set.seed(1)
+#'  fitC <- forrBuilder(xc, yc)
+#'	fit <- forrCoBuilder(xe, ye, xc, yc, fitC)
 #' 	## build the ordinary Kriging model with expensive observations only
-#'	fit1 <- forrBuilder(xe, ye, 1e-3, 1e2, "optim-L-BFGS-B", 100,0,1,FALSE)	 
+#'	fit1 <- forrBuilder(xe, ye)	 
 #'  ## Predict and plot over whole design space
-#'	x=seq(from=0,to=1,by=0.01)
+#'	x<-seq(from=0,to=1,by=0.01)
 #'	yco <- forrCoRegPredictor(as.matrix(x),fit,FALSE)$f
-#'	ypc <- forrRegPredictor(as.matrix(x),fitC,FALSE)$f
-#'	ype <- forrRegPredictor(as.matrix(x),fit,FALSE)$f
-#'	yy <- forrRegPredictor(as.matrix(x),fit1,FALSE)$f
+#'	ypc <- predict(fitC,as.matrix(x),FALSE)$f
+#' 	fit2 <- fit
+#'  class(fit2) <- "forr"
+#'	ype <- predict(fit2,as.matrix(x),FALSE)$f
+#'	yy <- predict(fit1,as.matrix(x),FALSE)$f
 #'	plot(x,ovar(x),type="l",ylim=c(-15,20),lwd=3)
 #'	points(xe,ye,pch=19,cex=1.5)
 #'	points(xc,yc,cex=1.5)
@@ -245,16 +244,16 @@ forrIF <- function(x,i){
 #' @references FORRESTER, A.I.J, SOBESTER A. & KEAN, A.J. (2007), Multi-Fidelity optimization via surrogate modelling. \emph{Proc. R. Soc. A} 463, 3251-3269. \cr
 #' Forrester, Alexander I.J.; Sobester, Andras; Keane, Andy J. (2008). Engineering Design via Surrogate Modelling - A Practical Guide. John Wiley & Sons.
 ###################################################################################
-forrCoBuilder <- function(Xe,ye, Xc, yc, fitC, loval=1e-3, upval=100, 
-						algtheta= "optim-L-BFGS-B", budgetalgtheta=100, 
-						lb=NULL, ub=NULL, opt.p= FALSE, 
-						lambda.loval = -6, lambda.upval = 0, 
-						rho.loval=-5,	rho.upval=5){
+forrCoBuilder <- function(Xe,ye, Xc, yc, fitC, lb=NULL, ub=NULL, control=list()){
+	
+	con<-list(loval=1e-3, upval=1e2, algtheta="optim-L-BFGS-B", budgetalgtheta=100, opt.p= FALSE, uselambda=TRUE, lambda.loval = -6, lambda.upval = 0, starttheta=NULL, rho.loval=-5, rho.upval=5, reinterpolate=FALSE);
+	con[(namc <- names(control))] <- control;
+	control<-con;
+	
 	#########################################
 	#first build a standard model for the cheap observations
 	#########################################
-	require(MASS)
-	fitE= list(loval=loval, upval=upval, opt.p=opt.p, algtheta=algtheta, budgetalgtheta=budgetalgtheta)
+	fitE= control
 	k = ncol(Xe);
 	fitE$X = Xe; 
 	fitE$y = ye;
@@ -272,73 +271,76 @@ forrCoBuilder <- function(Xe,ye, Xc, yc, fitC, loval=1e-3, upval=100,
 	UpperTheta = rep(1,k)*log10(fitE$upval);
 
 	#Wrapper for optimizing theta  based on forrRegLikelihood:
-	fitFun <- function (x, fX, fy, ffy, opt.p){ #todo vectorize, at least for cma_es with active vectorize?
-		result=as.numeric(forrCoLikelihood(x,fX,fy,ffy,opt.p)$NegLnLike)
-		#print(c(as.numeric(result$NegLnLike),x))
-		#return(as.numeric(result$NegLnLike))
+	fitFun <- function (x, fX, fy, ffy, opt.p,uselambda){ #todo vectorize, at least for cma_es with active vectorize?
+		as.numeric(forrCoLikelihood(x,fX,fy,ffy,opt.p,uselambda)$NegLnLike)
 	}
-	a=log10(fitE$loval);
-	b=log10(fitE$upval);
-	
-	x0 = fitE$starttheta	
-	# start point for theta:
-	x1 =  a+(b-a)*runif(k)
-	# start value for lambda:
-	x2 = lambda.loval + (lambda.upval - lambda.loval)*runif(1)
-	#start value for rho 
-	x4 = rho.loval + (rho.upval - rho.loval)*runif(1)
-	
 	n=nrow(fitE$X) #number of observations
 	
+	if(is.null(fitE$starttheta))
+		x1 =  rep(n/(100*k),k) # start point for theta
+	else
+		x1 = fitE$starttheta
+
+	#start value for rho 
+	x4 = fitE$rho.loval + (fitE$rho.upval - fitE$rho.loval)*runif(1)
+	
+	
+	
 	####instead of the old solution above, concatenate matrices. is faster in likelihood function.
-	A=matrix(0,k,n*n) #preallocate array
-	for(i in 1:n){ #calculate array for reglikelihood function
-		A[,(1+(i-1)*n):(n*i)]=(fitE$X[i,]-t(fitE$X))
+	A=matrix(0,k,n*n)
+	for(i in 1:k){
+		A[i,]=as.numeric(as.matrix(dist(fitE$X[,i]))) #MZ: speedup fix, using dist function: 100%
 	}	
 	if(fitE$opt.p){ # optimize p
 		LowerTheta = c(LowerTheta, rep(1,k)*0.01)
 		UpperTheta = c(UpperTheta, rep(1,k)*2)		
 		x3 = rep(1,k)* 1.9 #start values for p
-		if(is.null(x0)){x0 = c(x1,x3,x4,x2)}
+		x0 = c(x1,x3,x4)
 	}else{ # p  is fixed to 2 and the array A is completely precalculated
 		A=A^2
-		if(is.null(x0)){x0 = c(x1,x4,x2)}
-	}			
-	#append regression constant lambda (nugget)
-	LowerTheta = c(LowerTheta, rho.loval, lambda.loval);	
-	UpperTheta = c(UpperTheta, rho.upval, lambda.upval);		
+		x0 = c(x1,x4)
+	}		
+	#append rho bounds
+	LowerTheta = c(LowerTheta, fitE$rho.loval);	
+	UpperTheta = c(UpperTheta, fitE$rho.upval);		
+	if(fitE$uselambda){
+		# start value for lambda:
+		x2 = fitE$lambda.loval + (fitE$lambda.upval - fitE$lambda.loval)*runif(1)
+		x0 = c(x0,x2)
+		#append regression constant lambda (nugget)
+		LowerTheta = c(LowerTheta, fitE$lambda.loval);	
+		UpperTheta = c(UpperTheta, fitE$lambda.upval);		
+	}		
+
+	lc=dim(fitC$y)[1] 
 
 	opts=list(fevals=fitE$budgetalgtheta*length(x0), reltol=1e-6, restarts=TRUE)	
 	res <- spotOptimizationInterface(par=x0,fn=fitFun,gr=NULL,lower=LowerTheta,upper=UpperTheta,method=fitE$algtheta,
-						control=opts,fX=A,fy=fitE$y, ffy=fitC$y, opt.p=fitE$opt.p)
+						control=opts,fX=A,fy=fitE$y, ffy=fitC$y[(lc-n+1):lc], opt.p=fitE$opt.p,uselambda=fitE$uselambda) #todo what if fitC$y and yc are not the same?
 	if(is.null(res$par))res$par=x0;
 	Params = res$par
 	nevals = as.numeric(res$counts[[1]])
 	
+	# extract model parameters:	
 	fitE$dmodeltheta=10^Params[1:k];
 	if(fitE$opt.p){	
 		fitE$P=Params[(k+1):(2*k)];		
 	}
-	fitE$dmodellambda=10^Params[length(Params)];
-	# extract model parameters:
 	fitE$Theta = Params[1:k];
-	fitE$rho = Params[length(Params)-1];
-	fitE$Lambda = Params[length(Params)];
-	
-	res=forrCoLikelihood(c(fitE$Theta,fitE$P,fitE$rho,fitE$Lambda),A,fitE$y,fitC$y,fitE$opt.p);
-	###########################
-#	fitE$dmodellambda=0;
-#	# extract model parameters:
-#	fitE$Theta = -2.2496;
-#	fitE$dmodeltheta=10^fitE$Theta
-#	fitE$rho = 1.9958
-#	fitE$Lambda = -30;	
-#	res=forrCoLikelihood(c(-2.2496,NULL,1.9958,-30),A,fitE$y,fitC$y,fitE$opt.p);
-	###########################
-	
-	
+	if(fitE$uselambda){
+		fitE$Lambda = Params[length(Params)]
+		fitE$dmodellambda=10^Params[length(Params)]
+		fitE$rho = Params[length(Params)-1]
+		res=forrCoLikelihood(c(fitE$Theta,fitE$P,fitE$rho,fitE$Lambda),A,fitE$y,fitC$y[(lc-n+1):lc],fitE$opt.p,fitE$uselambda);
+	}else{
+		fitE$Lambda = -Inf
+		fitE$dmodellambda=0
+		fitE$rho = Params[length(Params)]
+		res=forrCoLikelihood(c(fitE$Theta,fitE$P,fitE$rho),A,fitE$y,fitC$y[(lc-n+1):lc],fitE$opt.p,fitE$uselambda);
+	}
+		
 	fitE$yonemu=res$yonemu	
-	fitE$ssq=res$ssq	
+	fitE$ssq=as.numeric(res$ssq)
 	fitE$mu=res$mu
 	fitE$Psi=res$Psi
 	fitE$Psinv=res$Psinv
@@ -370,31 +372,29 @@ forrCoBuilder <- function(Xe,ye, Xc, yc, fitC, loval=1e-3, upval=100,
 #' Forrester, Alexander I.J.; Sobester, Andras; Keane, Andy J. (2008). Engineering Design via Surrogate Modelling - A Practical Guide. John Wiley & Sons.
 ###################################################################################
 forrCoModel <- function(fit,AX){
-	Xe=fit$X;
-	Xc=fit$c$X;
-	ye=fit$y;
-	yc=fit$c$y;
+	Xe=fit$X
+	Xc=fit$c$X
+	ye=fit$y
+	yc=fit$c$y
 	ne=dim(Xe)[1]
 	nc=dim(Xc)[1]
-	thetad=10^fit$Theta;
-	thetac=10^fit$c$Theta;
-	lambdac=10^fit$c$Lambda;
-	rho=fit$rho ;
-	one=rep(1,ne+nc);
-	y=c(yc, ye);
+	#thetad=10^fit$Theta; #todo why not used?
+	thetac=10^fit$c$Theta
+	lambdac=10^fit$c$Lambda
+	rho=fit$rho 
+	y=c(yc, ye)
 
 	
 	if(fit$opt.p){ #TODO not working yet!
 		AX=abs(AX)^fit$P
 	}
 	PsicXe=matrix(colSums(thetac*AX),ne,ne)
-	PsicXe=exp(-PsicXe)+diag(1,ne)*lambdac
+	PsicXe=exp(-PsicXe)+diag(lambdac,ne)
 	
 		
-	####instead of the old solution above, concatenate matrices. is faster in likelihood function.
 	A=matrix(0,ncol(Xe),nc*ne) #preallocate array
-	for(i in 1:nc){ #calculate array for reglikelihood function
-		A[,(1+(i-1)*ne):(ne*i)]=(Xc[i,]-t(Xe)) #TODO not a fool proof implementation
+	for(i in 1:nc){
+		A[,(1+(i-1)*ne):(ne*i)]=(Xc[i,]-t(Xe)) #TODO not a fool proof implementation #TODO improve speed?
 	}		
 	if(fit$opt.p){ #TODO not working yet!
 		A=abs(A)^fit$P
@@ -402,7 +402,7 @@ forrCoModel <- function(fit,AX){
 		A=A^2
 	}
 	PsicXcXe=matrix(colSums(thetac*A),nc,ne,byrow=TRUE) #TODO problem somewhere over here
-	PsicXcXe=exp(-PsicXcXe)+rbind(matrix(0,nc-ne,ne),diag(1,ne))*lambdac
+	PsicXcXe=exp(-PsicXcXe)+rbind(matrix(0,nc-ne,ne),diag(lambdac,ne))
 	PsicXeXc=t(PsicXcXe)
 	
 	fit$PsicXe = PsicXe
@@ -417,11 +417,11 @@ forrCoModel <- function(fit,AX){
 					rho^2*as.numeric(fit$c$ssq)*fit$PsicXe+as.numeric(fit$ssq)*fit$PsidXe))
 	
 	# ModelInfo.UC=chol(ModelInfo.C);
-	fit$Cinv= try(solve(fit$C), TRUE) #this is a fix for stability, not proper math.
-	if(class(fit$Cinv) == "try-error"){		
+	fit$Cinv= try(solve.default(fit$C), TRUE) #TODO: this is a fix for stability, not proper math.  #Important notes: chol2inv(chol(Psi)) may be less likely to give an answer BUT may also be faster and more accurate
+	if(class(fit$Cinv) == "try-error"){		#TODO: ginv may be meaningless when solve is instable...
 		fit$Cinv= ginv(fit$C)  # DEPENDENCY OR SUGGEST: ginv needs MASS
 	}
-	fit$mu=sum(fit$Cinv%*%as.matrix(y))/sum(fit$Cinv%*%one)
+	fit$mu=sum(fit$Cinv%*%as.matrix(y))/sum(fit$Cinv)
 	fit
 }
 
@@ -438,7 +438,7 @@ forrCoModel <- function(fit,AX){
 #' @return list with elements\cr
 #' \code{NegLnLike}  concentrated log-likelihood *-1 for minimising \cr
 #' \code{Psi} correlation matrix\cr
-#' \code{Psinv} inverse of correlation matrix (to save computation time in forrRegPredictor)\cr
+#' \code{Psinv} inverse of correlation matrix \cr
 #' \code{mu} \cr
 #' \code{ssq}
 #' @seealso \code{\link{spotPredictCoForrester}} \code{\link{forrCoBuilder}}
@@ -447,37 +447,39 @@ forrCoModel <- function(fit,AX){
 #' @references FORRESTER, A.I.J, SOBESTER A. & KEAN, A.J. (2007), Multi-Fidelity optimization via surrogate modelling. \emph{Proc. R. Soc. A} 463, 3251-3269. \cr
 #' Forrester, Alexander I.J.; Sobester, Andras; Keane, Andy J. (2008). Engineering Design via Surrogate Modelling - A Practical Guide. John Wiley & Sons.
 ###################################################################################
-forrCoLikelihood <- function(x,AX, Ay, Ayc, opt.p=FALSE){
+forrCoLikelihood <- function(x,AX, Ay, Ayc, opt.p=FALSE,uselambda=T){
+	nx<-nrow(AX)
+	theta=10^x[1:nx]
 	#if(opt.p){
-	#	nx<-nrow(AX)
-	#	theta=10^x[1:nx];		
-	#		if(any(is.na(abs(AX)^(10^x[(nx+1):(2*nx)]))))stop("PANIK")
 	#	AX=abs(AX)^(x[(nx+1):(2*nx)])
-	#}else{
-		theta=10^x[1:(length(x)-2)];
 	#}
-	rho=x[length(x)-1];	
-	lambda=10^x[length(x)];	
-	if( any(c(theta,lambda)==0) ||  any(c(theta,lambda)==Inf)){ #unfortunately L-BFGS-B might violate bounds
+	if(uselambda){
+		rho=x[length(x)-1];	
+		lambda=10^x[length(x)]
+	}else{
+		rho=x[length(x)];	
+		lambda=0
+	}
+	if( any(c(theta)==0) ||  any(is.infinite(c(theta,lambda)))){ #unfortunately L-BFGS-B might violate bounds
 		return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,ssq=NA))
 	}
-	n=dim(Ay)[1]
-	k=dim(Ay)[2]
-	one=rep(1,n);
-	Psi=matrix(colSums(theta*AX),n,n)
-	Psi=exp(-Psi)+diag(1,n)*lambda
+	n <- dim(Ay)[1]
+	#k=dim(Ay)[2] #todo why not used?
+	Psi <- exp(-matrix(colSums(theta*AX),n,n))
+	if(uselambda)
+		Psi <- Psi+diag(lambda,n)
 	# concentrated log-likelihood calculation
-	LnDetPsi=as.numeric(determinant(Psi)$modulus) 
-	Psinv= try(solve(Psi), TRUE)
+	LnDetPsi=as.numeric(determinant.matrix(Psi)$modulus) 
+	Psinv= try(solve.default(Psi), TRUE)#Important notes: chol2inv(chol(Psi)) may be less likely to give an answer BUT may also be faster and more accurate
 	if(class(Psinv) == "try-error"){		
 		return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,ssq=NA))
 	}
-	lc=dim(Ayc)[1]
-	d=Ay - rho * Ayc[(lc-n+1):lc]  #todo: why rho #TODO: are corresponding values at the end?
-	mu=sum(Psinv%*%d)/sum(Psinv%*%one)# note: matrix%*%onevector is signif. faster than rowSums(matrix)
+	d=Ay - rho * Ayc #todo other models have a rho vector not a scalar value like forrester
+	mu=sum(Psinv%*%d)/sum(Psinv)# note: matrix%*%onevector is signif. faster than rowSums(matrix)
 	yonemu=d-mu  #%yonemu=d-one*mu
 	SigmaSqr=(t(yonemu)%*%Psinv%*%yonemu)/n;
 	NegLnLike=0.5*(n*log(SigmaSqr) + LnDetPsi);
+	if(is.na(SigmaSqr))browser()
 	list(NegLnLike=NegLnLike,Psi=Psi,Psinv=Psinv,mu=mu,yonemu=yonemu,ssq=SigmaSqr)
 }
 
@@ -506,44 +508,50 @@ forrCoRegPredictor <- function(x,fit,pred.all=FALSE){
 	yc=fit$c$y;
 	ne=dim(Xe)[1]
 	nc=dim(Xc)[1]
-	thetad=10^fit$Theta;
-	thetac=10^fit$c$Theta;
-	#lambdac=10^ModelInfo$Lambda;
-	#lambdac=10^ModelInfo$Lambda;
-	rho=fit$rho ;
-	one=rep(1,ne+nc);
-	y=c(yc, ye);
+	thetad=fit$dmodeltheta
+	thetac=fit$c$dmodeltheta
+	rho=fit$rho 
+	#one=rep(1,ne+nc)
+	y=c(yc, ye)
 	#normalize input x
 	x <- spotNormalizeMatrix2(as.matrix(x),0,1,fit$normalizexmin,fit$normalizexmax)
 	Psinv=fit$Cinv #fixed: does not need to be computed, is already done in likelihood function
 	mu=fit$mu
-				#yonemu=ModelInfo$yonemu	
-				#SigmaSqr=ModelInfo$ssq
-	psic=matrix(1,nrow(x),nc);
-	psid=matrix(1,nrow(x),ne);
-	#if(ModelInfo$opt.p){ #TODO: first solve this issue in normal forrester, then try co-kriging...
-	#	p=ModelInfo$P
-	#	for (i in 1:n){
-	#		psi[,i]=exp(-colSums(theta*(abs(AX[i,]-t(x))^p)))
-	#	}	
-	#}else{
-		p=2
-		for (i in 1:nc){
-			psic[,i]=rho*fit$c$ssq*exp(-colSums(thetac*((Xc[i,]-t(x))^p)))
-		}
+	psic=matrix(1,nrow(x),nc)
+	psid=matrix(1,nrow(x),ne)
+	x <- t(x) 
+	nx <- ncol(x)
+		
+	if(nx>nc){ #loop over whatever is smaller: observed samples or samples to be predicted
+		for (i in 1:nc)
+			psic[,i]=colSums(thetac*((Xc[i,]-x)^2))		
+	}else{			
+		psic <- NULL
+		for (i in 1:nx)
+			psic=rbind(psic,colSums(thetac*(t(Xc)-x[,i])^2))
+	}			
+	psic = rho*fit$c$ssq*exp(-psic)
+	
+	if(nx>ne){ #loop over whatever is smaller: observed samples or samples to be predicted
 		for (i in 1:ne){
-			psid[,i]=rho^2*fit$c$ssq*exp(-colSums(thetac*((Xe[i,]-t(x))^p)))+fit$ssq*exp(-colSums(thetad*((Xe[i,]-t(x))^p)))
+			diffX <- (Xe[i,]-x)^2
+			psid[,i]=rho^2*fit$c$ssq*exp(-colSums(thetac*diffX))+fit$ssq*exp(-colSums(thetad*diffX))
 		}
-	#}	
+	}else{			
+		psid <- NULL
+		for (i in 1:nx){
+			diffX <- (t(Xe)-x[,i])^2
+			psid=rbind(psid,rho^2*fit$c$ssq*exp(-colSums(thetac*diffX))+fit$ssq*exp(-colSums(thetad*diffX)))
+		}	
+	}	
+
 	psi <- cbind(psic,psid)
 	f=as.numeric(psi%*%(Psinv%*%(y-mu)))+mu #vectorised
 	##########################################################################
 	if (pred.all){
-		lambda=fit$dmodellambda;   #dmodellambdaE oder dmodellambda ????
+		lambda=fit$dmodellambda; 
 		SSqr= rho^2*fit$c$ssq+fit$ssq+lambda-diag(psi%*%(Psinv%*%t(psi))) #vectorised
-		#TODO "diag(psi%*%...)" is excessive, since diag wastes alot of values computed by %*%
 		s=sqrt(abs(SSqr));
 	}
-	result=if(!pred.all){list(f=f)}else{data.frame(f=f,s=as.numeric(s))}
-	result
+	if(!pred.all){list(f=f)}else{data.frame(f=f,s=as.numeric(s))}
 }

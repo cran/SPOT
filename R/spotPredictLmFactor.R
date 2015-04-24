@@ -25,14 +25,13 @@
 #' @export
 ###################################################################################
 spotPredictLmFactor <- function(rawB,mergedB,design,spotConfig,fit=NULL){	
-	design <- spotInitializePredictor(design,"data.frame",spotConfig$alg.roi,"MASS","spotPredictLmFactor",spotConfig$io.verbosity)
+	design <- spotInitializePredictor(design,"data.frame",spotConfig$alg.roi,NULL,"spotPredictLmFactor",spotConfig$io.verbosity)
 	xNames <- row.names(spotConfig$alg.roi)	
 	########################################################
 	# BUILD
 	########################################################		
 	if(is.null(fit)){
-		yNames <- setdiff(names(rawB),xNames)
-		which(names(rawB)==yNames)
+		yNames <- spotConfig$alg.resultColumn
 		x <- rawB[xNames]		
 		y <- rawB[yNames]
 		tmp <- spotForceFactorX(x,spotConfig$alg.roi$type,xNames)
@@ -40,25 +39,6 @@ spotPredictLmFactor <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 		spotConfig$alg.factor.levels <- tmp$levels #needed for later conversion of prediction locations	
 		
 		fit<-lm(y~.,data=cbind(y,x))
-		#print(summary(fit))
-    
-		#aov.df1 <- aov(y~.,data=cbind(y,x))
-		#print(summary(aov.df1))
-    
-		#library(MASS)
-		#stp.df1<-stepAIC(aov.df1, scope = list(upper = y~.^2 + I(VARX1)^2+ I(VARX2)^2+I(VARX3)^2+I(VARX6)^2, lower = ~1), trace = FALSE)
-		#print(stp.df1$anova)
-		#fit <- dropterm(stp.df1, test="F")
-		#fit <- stp.df1
-		#browser()
-		#print(xtable(fit,digits=6))
-		#     par(mfrow=c(2,2))
-		#     plot(fit)
-		#     par(mfrow=c(1,1))
-			# browser()    
-    
-		#fit <- earth(as.matrix(y) ~ .,data=x,degree=degree, trace=spotConfig$io.verbosity,nk=nk,keepxy=TRUE)
-		#browser()
 	}
 	########################################################
 	# PREDICT

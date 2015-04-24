@@ -33,12 +33,10 @@ spotPredictEarth <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	# BUILD
 	########################################################
 	if(is.null(fit)){
-		yNames <- setdiff(names(rawB),xNames)
-		which(names(rawB)==yNames)
+		yNames <- spotConfig$alg.resultColumn
 		x <- rawB[xNames]		
 		y <- rawB[yNames]
 
-		#fit <- earth(x=x,y=y,degree=10, trace=1 , nk=100)
 		tmp <- spotForceFactorX(x,spotConfig$alg.roi$type,xNames)
 		x <- tmp$x #parameters are now factors if specified in roi
 		spotConfig$alg.factor.levels <- tmp$levels #needed for later conversion of prediction locations
@@ -46,7 +44,7 @@ spotPredictEarth <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 		else{degree=spotConfig$seq.earth.degree}		
 		if(is.null(spotConfig$seq.earth.nk)){nk=min(200, max(20, 2 * ncol(x))) + 1}
 		else{nk=spotConfig$seq.earth.nk}
-		fit <- earth(x=x,y=y,degree=degree, trace=spotConfig$io.verbosity,nk=nk,keepxy=TRUE)
+		fit <- earth::earth(x=x,y=y,degree=degree, trace=spotConfig$io.verbosity,nk=nk,keepxy=TRUE)
 	}
 	########################################################
 	# PREDICT
@@ -63,11 +61,4 @@ spotPredictEarth <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	spotConfig$seq.largeDesignY<-as.data.frame(res)
 	spotConfig
 }
-
-
-# x <- data.frame(x1=c(1,2,3,4,5,1,2,3,4,5),x2=factor(c(1,1,1,1,1,2,2,2,2,2)))
-# y <- c(1:5,2:6)
-# fit <- earth(x=x,y=y)
-# fit
-# predict(fit,data.frame(x1=1.2,x2=factor(2,levels=levels(x[[2]]))))
 

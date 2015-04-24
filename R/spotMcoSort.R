@@ -33,8 +33,8 @@ spotMcoSort <- function (largeDesign, designY, newsize){
 				sortVec=rep(0,length(index))
 				frontY<-lhdY[,index]
 				for(jj in 1:removeN){ #repeated selection by hypervolume contribution, selected individuals will be last in order
-					iREM=nds_hv_selection(frontY[,sortVec==0])
-					iREM= which(frontY==frontY[,sortVec==0][,iREM],arr.ind=TRUE)[1,2] #ugly hack to select which column to remove by comparing with original front
+					iREM <- nds_hv_selection(frontY[,sortVec==0])
+					iREM <- which(frontY==frontY[,sortVec==0][,iREM],arr.ind=TRUE)[1,2] #ugly hack to select which column to remove by comparing with original front
 					sortVec[iREM]=1						
 				}
 				set<-set[order(sortVec),]
@@ -129,7 +129,7 @@ spotMcoSelectionHypervol <- function (largeDesign, designY, newsize, mergedX, me
 #' - The sorted large design
 #' @keywords internal
 ###################################################################################
-spotMcoCrowdTournament <- function (largeDesign, designY, tsize,ssize){				#problem are allready known points
+spotMcoCrowdTournament <- function (largeDesign, designY, tsize,ssize){			
 	##### load rgp (needed for nondeterministicRanking orderByParetoCrowdingDistance)
 	spotInstAndLoadPackages("rgp");
 	#####calculate number of competitors, repair
@@ -139,13 +139,9 @@ spotMcoCrowdTournament <- function (largeDesign, designY, tsize,ssize){				#prob
 	winners<-NULL
 	i<-0
 	while(i<ssize){
-		#####sample competitors
 		selection <- sample(nrow(largeDesign),tsize)
 		competitors <- largeDesign[selection,]
-		#####sort       #todo consider known points??? how?
-		competitors <- competitors[orderByParetoCrowdingDistance(t(as.matrix(designY[selection,]))),]
-		#####shuffled sort
-		#rgp:::nondeterministicRanking(tsize,p=...?)#p=1 always in rgp example, pointless?	
+		competitors <- competitors[rgp::orderByParetoCrowdingDistance(t(as.matrix(designY[selection,]))),]
 		winners<-rbind(competitors[1,],winners)
 		winners<-unique(winners)
 		i<-nrow(winners)
@@ -175,12 +171,12 @@ spotMcoTournament <- function (largeDesign, designY, tsize, ssize){
 	#####sample competitors
 	i<-0
 	winners<-NULL
-	while(i<ssize){   #Scheme: all non dominatted points win the tournament. Problem: usually those will be more than ssize...
+	while(i<ssize){   #Scheme: all non dominated points win the tournament. Problem: usually those will be more than ssize...
 						#that means: all that the tournament really does is randomly disregard solutions in one single step. and the
 						#rest is not even sorted in any way
 						
-						#big problem: due to previous smsemoa or nsga2 most solutions in large design ARE non dominated... 
-						#not much to do for tthis type of torunament
+						#big problem: due to previous sms-emoa or nsga2 most solutions in large design ARE non dominated... 
+						#not much to do for this type of tournament
 			
 						# smaller problem: new parameter introduced.... tuning necessary.
 		selection <- sample(nrow(largeDesign),tsize)
@@ -192,7 +188,5 @@ spotMcoTournament <- function (largeDesign, designY, tsize, ssize){
 		winners<-unique(winners)
 		i<-nrow(winners)
 	}
-	#####shuffled sort
-	#rgp:::nondeterministicRanking(tsize,p=...?)#p=1 always in rgp example, pointless?	
 	winners[1:ssize,]
 }

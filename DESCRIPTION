@@ -1,62 +1,36 @@
 Package: SPOT
-Maintainer: Martin Zaefferer <martin.zaefferer@gmx.de>
 License: GPL (>= 2)
-Title: Sequential Parameter Optimization
+Title: Sequential Parameter Optimization Toolbox
 Type: Package
 LazyLoad: yes
-Author: T. Bartz-Beielstein with contributions from: J. Ziegenhirt, W.
-        Konen, O. Flasch, M. Friese, P. Koch, M. Zaefferer, B. Naujoks
-Description: R-Package for Sequential Parameter Optimization Toolbox
-Version: 1.0.4184
-URL:
-        http://www.gm.fh-koeln.de/campus/personen/lehrende/thomas.bartz-beielstein/00489/
-Date: 26.06.2013
-Depends: R (>= 2.14.0), rpart, emoa
-Suggests: AlgDesign, BB, cmaes, DEoptim, dfoptim, DiceKriging,
-        DoE.wrapper, earth, fields, FrF2, GenSA, ggplot2, gtools,
-        lattice, lhs, lme4, MASS, mco, minqa, mlegp, monmlp, nloptr,
-        kernlab, penalizedSVM, pso, qrnn, randomForest, rgenoud, rgl,
-        rgp (>= 0.3-4), rsm, tgp, twiddler
-Collate: 'sms_emoa.r' 'spot.R' 'spotCreateDesignBasicDoe.R'
-        'spotCreateDesignFrF2.R' 'spotCreateDesignLhd.R'
-        'spotCreateDesignLhs.R' 'spotCreateDesignLhsOpt.R'
-        'spotGenerateSequentialDesign.R' 'spotGetOptions.R'
-        'spotMcoSort.R' 'spotMeta.R' 'spotOcba.R' 'spotOptim.R'
-        'spotPrepareData.R' 'spotRepeats.R' 'spotAlgStartEs.R'
-        'spotAlgStartRgp.R' 'spotAlgStartSann.R' 'spotComparison.R'
-        'spotEnsembleSingleBLAbern.R' 'spotEnsembleSingleBLAnorm.R'
-        'spotEnsembleSingleEpsGreedy.R' 'spotEnsembleSinglePOKER.R'
-        'spotEnsembleSingleRoundSearch.R' 'spotEnsembleSingleSoftMax.R'
-        'spotEnsembleSingleUCB1.R' 'spotExplainInterfaces.R'
-        'spotFuncStartBranin.R' 'spotFuncStartMexicanHat.R'
-        'spotFuncStartRastrigin.R' 'spotFuncStartRosenbrock.R'
-        'spotFuncStartSixHump.R' 'spotFuncStartSphere.R'
-        'spotFuncTools.R' 'spotGui.R' 'spotHelpFunctions.R'
-        'spotOptimizationFunctions.R' 'spotPredictCoForrester.R'
-        'spotPredictDace.R' 'spotPredictDice.R' 'spotPredictEarth.R'
-        'spotPredictEnsembleMultiAlternate.R'
-        'spotPredictEnsembleMultiAverage.R'
-        'spotPredictEnsembleMultiChoose.R'
-        'spotPredictEnsembleMultiRank.R'
-        'spotPredictEnsembleMultiRankWeighted.R' 'spotPredictEsvm.R'
-        'spotPredictForrester.R' 'spotPredictGausspr.R'
-        'spotPredictKrig.R' 'spotPredictKsvm.R' 'spotPredictLm.R'
-        'spotPredictLmFactor.R' 'spotPredictMlegp.R' 'spotPredictMLP.R'
-        'spotPredictQrnn.R' 'spotPredictRandomForest.R'
-        'spotPredictTgp.R' 'spotPredictTree.R'
-        'spotSeqDesignIncreaseFunctions.R' 'spotStatistics.R'
-        'spotTargetFunctions.R' 'spotPlot.R' 'spotReport3d.R'
-        'spotReportContour.R' 'spotReportDefault.R' 'spotReportEarth.R'
-        'spotReportMetaDefault.R' 'spotReportSens.R' 'spotSurf.R'
-        'spotEnsembleFunctions.R' 'spotExpectedImprovement.R'
-        'spotModelSelection.R' 'spotPredictHelpFunctions.R'
-        'spotPredictRandomForestMlegp.R' 'spotPredictTest.R'
-        'spotPredictMCO.R' 'spotReportMAMP.R' 'spotReportSAMP.R'
-        'spotAlgStartEsGlg.R' 'spotModelParetoOptim.R'
-        'spotModelOptim.R' 'spotCreateDesignFactors.R'
-        'spotGaussianLandscapeGenerator.R' 'spotAlgStartSmsEmoaGlg.R'
-        'spotOptimEs.R'
-Packaged: 2013-06-26 11:12:20 UTC; Martin
+Authors@R: c(
+  person("Thomas", "Bartz-Beielstein", role = "aut"),
+  person("Martin", "Zaefferer", role = c("cre","ctb"), email = "martin.zaefferer@gmx.de"),
+  person("Joerg", "Ziegenhirt", role = "ctb"),
+  person("Wolfgang","Konen",role = "ctb"),
+  person("Oliver","Flasch", role = "ctb"),
+  person("Patrick","Koch", role = "ctb"),
+  person("Martina","Friese", role = "ctb")
+  )
+Description: The Sequential Parameter Optimization Toolbox provides a set of tools for Parameter-tuning, based on modelling techniques, DoE and statistical methods.
+Version: 1.0.5543
+Date: 2015-04-24
+Imports: rpart, emoa, twiddler, rgl, AlgDesign, randomForest, rsm,
+        MASS, mco
+Depends: R (>= 2.14.0)
+Suggests: BB, cmaes, DEoptim, dfoptim, DiceKriging, DoE.wrapper, e1071,
+        earth, fields, FrF2, GenSA, ggplot2, gtools, kernlab, lattice,
+        lhs, lme4, minqa, mlegp, monmlp, nloptr, neuralnet,
+        penalizedSVM, plotmo, pso, qrnn, rgenoud, rgp (>= 0.3-4), tgp
+Packaged: 2015-04-24 13:43:27 UTC; Martin
+Author: Thomas Bartz-Beielstein [aut],
+  Martin Zaefferer [cre, ctb],
+  Joerg Ziegenhirt [ctb],
+  Wolfgang Konen [ctb],
+  Oliver Flasch [ctb],
+  Patrick Koch [ctb],
+  Martina Friese [ctb]
+Maintainer: Martin Zaefferer <martin.zaefferer@gmx.de>
 NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2013-06-26 14:52:50
+Date/Publication: 2015-04-27 15:21:09

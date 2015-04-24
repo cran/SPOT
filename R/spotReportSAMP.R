@@ -11,26 +11,12 @@
 #' @export
 ###################################################################################################
 spotReportSAMP <- function(spotConfig) {	
-	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotReportSAMP");	
-	rawB <- spotGetRawDataMatrixB(spotConfig);
-	spotPrint(spotConfig$io.verbosity,1,summary(rawB));
-	mergedData <- spotPrepareData(spotConfig)	
-	mergedB <- spotGetMergedDataMatrixB(mergedData, spotConfig);	
-	spotConfig=spotWriteBest(mergedData, spotConfig);
-	C1=spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),]
-	## this is superfluous, since this is SAMP SINGLE algorithm
-	#spotWriteLines(spotConfig$io.verbosity,1," ");
-	#spotPrint(spotConfig$io.verbosity,1,paste("Best solution found with ",nrow(rawB)," evaluations:",sep=""));
-	#spotPrint(spotConfig$io.verbosity,1,C1[1,]);
+	spotWriteLines(spotConfig$io.verbosity,2,"  Entering spotReportSAMP")
 	
 	######
 	spotInstAndLoadPackages(c("lme4","ggplot2"))	#TODO in suggest		
-	pNames <- row.names(spotConfig$alg.roi); # names of fixed factors
-	yNames <- spotConfig$alg.resultColumn # names of observations
 	rawB <- spotConfig$alg.currentResult
-	###
-	#paramString <- paste(pNames,collapse=",") 
-    ###
+
 	if(any(rawB$Y < 0))	
 		yLog= log(rawB$Y-min(rawB$Y)+1)
 	else
@@ -53,7 +39,7 @@ spotReportSAMP <- function(spotConfig) {
 	# 	1-pf(MSA/MSE,q-1,q*(r-1))
 	# 	MSA.anova <- MSA
 	###	
-	samp.lmer <- lmer(y~ 1 +(1|fSeed),data=samp.df)
+	samp.lmer <- lme4::lmer(y~ 1 +(1|fSeed),data=samp.df)
 	spotPrint(spotConfig$io.verbosity,1,paste("Summary of the mixed model: ",sep=""));
 	spotPrint(spotConfig$io.verbosity,1,samp.lmer)
 	
@@ -72,7 +58,7 @@ spotReportSAMP <- function(spotConfig) {
 	
   ### 
   ### Since the raw data model is are not adequate, we perform a log transformation: 	
-	samp.lmer.log <- lmer(yLog~ 1 +(1|fSeed),data=samp.df)
+	samp.lmer.log <- lme4::lmer(yLog~ 1 +(1|fSeed),data=samp.df)
 	spotPrint(spotConfig$io.verbosity,1,paste("Summary of the mixed model (logY): ",sep=""));
 	spotPrint(spotConfig$io.verbosity,1,samp.lmer.log)
 	
@@ -89,7 +75,7 @@ spotReportSAMP <- function(spotConfig) {
 	
   ### :WEN
 	####
-	VC <- VarCorr(samp.lmer.log)
+	VC <- lme4::VarCorr(samp.lmer.log)
 	sigma.tau <- as.numeric(attr(VC$fSeed,"stddev"))
 	sigma <- as.numeric(attr(VC,"sc"))
 	q <- nlevels(samp.df$fSeed)
@@ -111,7 +97,7 @@ spotReportSAMP <- function(spotConfig) {
 		confInt.log=c( (Ydotdot - qsr * s), (Ydotdot + qsr * s))
 	
 	##############################
-	VC <- VarCorr(samp.lmer)
+	VC <- lme4::VarCorr(samp.lmer)
 	sigma.tau <- as.numeric(attr(VC$fSeed,"stddev"))
 	sigma <- as.numeric(attr(VC,"sc"))
 	q <- nlevels(samp.df$fSeed)
@@ -149,10 +135,10 @@ spotReportSAMP <- function(spotConfig) {
 	#   pdf(file="gg1Log.pdf")  
 	### nebeneinander plotten:
 	dev.new()
-	plt1 <- ggplot(samp.df, aes_string(x = "yLog", y = "fSeed")) + geom_point() + ggtitle("Performance")
+	plt1 <- ggplot2::ggplot(samp.df, ggplot2::aes_string(x = "yLog", y = "fSeed")) + ggplot2::geom_point() + ggplot2::ggtitle("Performance")
 	print(plt1)
 	dev.new()
-	plt2 <- ggplot(samp.df, aes_string(x = "y", y = "fSeed")) + geom_point() + ggtitle("Performance")
+	plt2 <- ggplot2::ggplot(samp.df, ggplot2::aes_string(x = "y", y = "fSeed")) + ggplot2::geom_point() + ggplot2::ggtitle("Performance")
 	print(plt2)
 	#dev.off()
 	spotConfig

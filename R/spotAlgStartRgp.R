@@ -22,13 +22,13 @@ spotRgpTargetFunction <- function(populationSize = 100, tournamentSize = 10, tim
     data.frame(y=y, x1=x1, x2=x2)
   }
 
-  mdl <- symbolicRegression(y ~ x1 + x2,
+  mdl <- rgp::symbolicRegression(y ~ x1 + x2,
                             data = data1,
                             populationSize = populationSize,
                             #selectionFunction = makeTournamentSelection(tournamentSize = tournamentSize), #deprecated
-							searchHeuristic = makeArchiveBasedParetoTournamentSearchHeuristic(popTournamentSize = tournamentSize),
-                            functionSet = arithmeticFunctionSet,
-                            stopCondition = makeTimeStopCondition(time))
+							searchHeuristic = rgp::makeArchiveBasedParetoTournamentSearchHeuristic(popTournamentSize = tournamentSize),
+                            functionSet = rgp::arithmeticFunctionSet,
+                            stopCondition = rgp::makeTimeStopCondition(time))
 
   ## Calculate RMSE (fitness) of best individual in population
   bestFitness <- min(sapply(mdl$population, mdl$fitnessFunction))

@@ -37,17 +37,18 @@ spotPredictLm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 		makeNNames <- function(n) { Map(function(i) paste("x", i, sep = ""), 1:n) }
 		codeNames <- makeNNames(nParam)
 		codeNames[spotConfig$alg.roi$type == "FACTOR"] <- pNames[spotConfig$alg.roi$type == "FACTOR"] #Factors. not. coded.
-		yNames <- setdiff(names(rawB),pNames)
+		yNames <- spotConfig$alg.resultColumn
 		X <- rawB[pNames] #MZ: Bugfix for 1 dimensional optimization
-		if(length(spotConfig$alg.resultColumn)>1){ #for multi objective modeling
+		if(length(yNames)>1){ #for multi objective modeling
 			fit<-list()
 			res=list()
-			for(ii in 1:length(spotConfig$alg.resultColumn)){
-				Y<-rawB[spotConfig$alg.resultColumn[ii]]					
+			for(ii in 1:length(yNames)){
+				Y<-rawB[yNames[ii]]					
 				df1 <- data.frame(cbind(Y,X))			
-				fmla <- spotCodeFormulas(X,pNames,spotConfig$alg.roi$type)				
+				fmla <- spotCodeFormulas(X,pNames,spotConfig$alg.roi)				
 				rsmDf <- coded.data(df1, formulas = fmla)
-			
+				#check feasibility of all points: use only those IN the ROI
+				rsmDf <- rsmDf[apply(rsmDf[,-1], 1, function(x) all(x >= -1 & x <= 1)), ]
 				## Check if there are sufficient observations for linear, quadratic etc. models
 				nExp <- nrow(X)
 				## Linear model without interactions:
@@ -79,8 +80,10 @@ spotPredictLm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 		}else{#for single objective modeling
 			Y<-rawB[yNames]
 			df1 <- data.frame(cbind(Y,X))			
-			fmla <- spotCodeFormulas(X,pNames,spotConfig$alg.roi$type)		
+			fmla <- spotCodeFormulas(X,pNames,spotConfig$alg.roi)		
 			rsmDf <- coded.data(df1, formulas = fmla)
+			#check feasibility of all points: use only those IN the ROI
+			rsmDf <- rsmDf[apply(rsmDf[,-1], 1, function(x) all(x >= -1 & x <= 1)), ]
 			###
 			## Check if there are sufficiently many data for linear, quadratic etc. models
 			nExp <- nrow(X)

@@ -15,7 +15,7 @@
 #'
 #' @references N. Beume, B. Naujoks, and M.Emmerich. \emph{SMS-EMOA: Multi-objective selection based on dominated hypervolume}.
 #' European Journal of Operational Research, 181(3):1653--1669, 2007. \cr \cr
-#' See the following link for up to date version of this implementation: \url{https://git.p-value.net/emoa.git/plain/examples/sms_emoa.r} 
+#' Link to the sms_emoa code by Olaf Mersmann: \url{http://git.p-value.net/p/emoa.git/tree/examples/sms_emoa.r} 
 #' 
 #' @export
 ###############################################################################
@@ -29,7 +29,7 @@ spotSmsEmoa <- function(f, lower, upper, ...,
   control <- steady_state_emoa_control(f, lower, upper, ..., control=control, default=default)
   control <- sbx_control(f, upper, lower, ..., control=control, default=default)
   control <- pm_control(f, upper, lower, ..., control=control, default=default)  
-  control$ref <- emoa:::coalesce(control[["ref"]], rep(11, control$d))
+  control$ref <- emoa::coalesce(control[["ref"]], rep(11, control$d))
 
   ## Tracking variables:
   X <- matrix(0, nrow=control$n, ncol=control$maxeval)
@@ -39,7 +39,7 @@ spotSmsEmoa <- function(f, lower, upper, ...,
   
   ## Random inital population:
   X[, 1:control$mu] <- replicate(control$mu, runif(control$n, lower, upper))
-  Y[, 1:control$mu] <- sapply(1:control$mu, function(i) f(X[,i]))
+  Y[, 1:control$mu] <- sapply(1:control$mu, function(i) f(X[,i],...))
 
   neval <- control$mu       ## Count the number of function evaluations
   active <- 1:control$mu    ## Indices of individuals that are in the current pop.
@@ -62,7 +62,7 @@ spotSmsEmoa <- function(f, lower, upper, ...,
     ## Add new individual:
     neval <- neval + 1
     X[, neval] <- x
-    Y[, neval] <- f(x)
+    Y[, neval] <- f(x,...)
     dob[neval] <- neval ## For a steady state emoa this is trivial...
     active <- c(active, neval)
 
@@ -73,14 +73,8 @@ spotSmsEmoa <- function(f, lower, upper, ...,
     ## Remove the i-th active individual:
     eol[active[i]] <- neval
     active <- active[-i]
-
-    ############################################################
-    ## Logging:    
-    #logger$step()
-  }
-  #logger$stop()
-  
-  res <- structure(list(X=X, Y=Y,
+  }  
+  structure(list(X=X, Y=Y,
                         dob=dob,
                         eol=eol,
                         par=X[,active], value=Y[,active]),
@@ -103,7 +97,7 @@ spotSmsEmoa <- function(f, lower, upper, ...,
 #'
 #' @seealso N. Beume, B. Naujoks, and M.Emmerich. \emph{SMS-EMOA: Multiobjective selection based on dominated hypervolume}.
 #' European Journal of Operational Research, 181(3):1653--1669, 2007. \cr \cr
-#' See the following link for up to date version of this implementation: \url{https://git.p-value.net/emoa.git/plain/examples/sms_emoa.r} 
+#' Link to the sms_emoa code by Olaf Mersmann: \url{http://git.p-value.net/p/emoa.git/tree/examples/sms_emoa.r} 
 #' 
 #' @export
 ###############################################################################
@@ -117,7 +111,7 @@ spotSmsEmoaKriging <- function(f, lower, upper, ...,
   control <- steady_state_emoa_control(f, lower, upper, ..., control=control, default=default)
   control <- sbx_control(f, upper, lower, ..., control=control, default=default)
   control <- pm_control(f, upper, lower, ..., control=control, default=default)  
-  control$ref <- emoa:::coalesce(control[["ref"]], rep(11, control$d))
+  control$ref <- emoa::coalesce(control[["ref"]], rep(11, control$d))
 
   ## Tracking variables:
   X <- matrix(0, nrow=control$n, ncol=control$maxeval)
@@ -127,7 +121,7 @@ spotSmsEmoaKriging <- function(f, lower, upper, ...,
   
   ## Random inital population:
   X[, 1:control$mu] <- replicate(control$mu, runif(control$n, lower, upper))
-  Y[, 1:control$mu] <- sapply(1:control$mu, function(i) f(X[,i]))
+  Y[, 1:control$mu] <- sapply(1:control$mu, function(i) f(X[,i],...))
 
   neval <- control$mu       ## Count the number of function evaluations
   active <- 1:control$mu    ## Indices of individuals that are in the current pop.
@@ -141,88 +135,58 @@ spotSmsEmoaKriging <- function(f, lower, upper, ...,
   
   #logger$start("sms_emoa")
   while(neval < maxeval) {
-	#build minimal config to use spot kriging predictor
-	rawB=data.frame(cbind(t(X[,1:neval]),t(Y[,1:neval])))
-	spotConfig<-list(alg.roi= matrix(0,nrow=nrow(X),ncol=3),
-				io.verbosity=0,
-				seq.infill=NA,
-				mco.refPoint=apply(Y,1,max)+1,
-				alg.resultColumn = paste(rep("y",nrow(Y)),1:nrow(Y),sep="")
-				)
-	rownames(spotConfig$alg.roi)=paste(rep("x",nrow(X)),1:nrow(X),sep="")
-	colnames(rawB)=c(rownames(spotConfig$alg.roi),spotConfig$alg.resultColumn)
-	spotConfig<-spotPredictForrester(rawB,NULL,t(X[,1:2]),spotConfig)
-	
-	getFitness <- function(x){
+		#build minimal config to use spot kriging predictor
+		rawB=data.frame(cbind(t(X[,1:neval]),t(Y[,1:neval])))
+		spotConfig<-list(alg.roi= matrix(0,nrow=nrow(X),ncol=3),
+			io.verbosity=0,
+			seq.infill=NA,
+			mco.refPoint=apply(Y,1,max)+1,
+			alg.resultColumn = paste(rep("y",nrow(Y)),1:nrow(Y),sep="")
+		)
+		rownames(spotConfig$alg.roi)=paste(rep("x",nrow(X)),1:nrow(X),sep="")
+		colnames(rawB)=c(rownames(spotConfig$alg.roi),spotConfig$alg.resultColumn)
+		spotConfig<-spotPredictForrester(rawB,NULL,t(X[,1:2]),spotConfig)
+
+		getFitness <- function(x){
 		if(any(is.na(x))){rep(NA,length(spotConfig$alg.resultColumn))}  #sms-emoa starts with NA values to determine dimension
-		spotConfig1 <- as.numeric(eval(call("spotPredictForrester"
-                                , NULL 
-								, NULL
-								, as.data.frame(x)
-								, spotConfig
-                                , spotConfig$seq.modelFit #external fit is used, model is only evaluated not build, therefore the NULLS are no prob
-								))$seq.largeDesignY);				
-		#return(as.numeric(spotConfig1$seq.largeDesignY))
-	}
-    ############################################################
-    ## Variation:
-	nn=control$npoints
-	x=matrix(0,nrow=nrow(X),ncol=nn)
-	y=NULL
-    for(i in 1:nn){
+		as.numeric(eval(call("spotPredictForrester"
+						, NULL 
+						, NULL
+						, as.data.frame(x)
+						, spotConfig
+						, spotConfig$seq.modelFit #external fit is used, model is only evaluated not build, therefore the NULLS are no prob
+						))$seq.largeDesignY);				
+		}
+
+		nn=control$npoints
+		x=matrix(0,nrow=nrow(X),ncol=nn)
+		y=NULL
+		for(i in 1:nn){
 		parents <- sample(active, 2)
 		child <- crossover(X[, parents])[,sample(c(1, 2), 1)]
 		x[,i] <- mutate(child)
 		y <- rbind(y,dominated_hypervolume(cbind(Y[,active],getFitness(x[,i])))-dominated_hypervolume(Y[,active]))		
-	}
-	x<-x[,which.max(y)]
-    ## Add new individual:
-    neval <- neval + 1
-    X[, neval] <- x
-    Y[, neval] <- f(x)
-    dob[neval] <- neval ## For a steady state emoa this is trivial...
-    active <- c(active, neval)
+		}
+		x<-x[,which.max(y)]
+		## Add new individual:
+		neval <- neval + 1
+		X[, neval] <- x
+		Y[, neval] <- f(x,...)
+		dob[neval] <- neval ## For a steady state emoa this is trivial...
+		active <- c(active, neval)
+		############################################################
+		## Selection:
+		i <- nds_hv_selection(Y[, active])
 
-    ############################################################
-    ## Selection:
-    i <- nds_hv_selection(Y[, active])
-
-    ## Remove the i-th active individual:
-    eol[active[i]] <- neval
-    active <- active[-i]
-
-    ############################################################
-    ## Logging:    
-    #logger$step()
-  }
-  #logger$stop()
-  
-  res <- structure(list(X=X, Y=Y,
+		## Remove the i-th active individual:
+		eol[active[i]] <- neval
+		active <- active[-i]
+  }  
+	structure(list(X=X, Y=Y,
                         dob=dob,
                         eol=eol,
                         par=X[,active], value=Y[,active]),
                    class="emoa_result")
  }
 
-
   
-  # while(neval < maxeval) {
-    # parents <- rbind(sample(active, nchild),sample(active, nchild))
-	# fun<-function(x){crossover(X[,x])[,sample(c(1, 2), 1)]}
-	# child <- apply(parents,2,fun) 
-	# x <- apply(child,2,mutate)
-	# nold <- neval
-	# neval <- neval + nchild
-    # X[, (nold+1):neval] <- x
-    # Y[, (nold+1):neval] <- f(x)
-  # }
-
-# binh11<-function(x){browser()
-# binh1(x)}
-###Test:
-# require(mco)
- # upper=c(10,10)
- # lower=c(-10,-10)
-# res<-sms_emoa(binh11,lower,upper,control=list(mu=5))
-# plot(t(res$value))
-# plot(t(res$par))

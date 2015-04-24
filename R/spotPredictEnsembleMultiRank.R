@@ -35,7 +35,6 @@
 ###################################################################################
 spotEnsembleMultiRank <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	design <- spotInitializePredictor(design,"data.frame",spotConfig$alg.roi,NULL,"spotEnsembleMultiRank",spotConfig$io.verbosity)
-#TODO: spotConfig defaults for spotEnsembleModelBuilding
 	### Fit all Models and get Predictions		
 	if(is.null(fit)){ #compute errors and build models if no existing information is provided
 		#Build Models:
@@ -48,10 +47,6 @@ spotEnsembleMultiRank <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	### do a voting
 	votedPrediction <- spotEnsembleSummedRank (res,spotConfig$seq.design.size);
 	
-	# developement evaluations
-	# writeTempResults(allPredictions, votedPrediction, design, spotConfig);
-
-
 	spotWriteLines(spotConfig$io.verbosity,3,"spotEnsembleMultiRankWeighted finished");		
 	### return votings (as largeDesignY)	
 	spotConfig$seq.largeDesignY<-as.data.frame(votedPrediction);

@@ -56,7 +56,7 @@ spotPredictDace <- function(rawB,mergedB,design,spotConfig,fit=NULL){	#TODO: Imp
 		if(is.null(spotConfig$seq.dace.algtheta))spotConfig$seq.dace.algtheta="optim-L-BFGS-B"; #optimization algorithm to be used
 		
 		xNames <- row.names(spotConfig$alg.roi);
-		yNames <- setdiff(names(rawB),xNames)
+		yNames <-  spotConfig$alg.resultColumn
 		x <- as.matrix(rawB[xNames])
 		if(length(yNames)==1){
 			y <- rawB[[yNames]]
@@ -301,7 +301,7 @@ dacePredictor = function (x, fit,GRAD=FALSE,MSE=FALSE,GRADMSE=FALSE){
 #'
 #' @rdname print
 #' @method print dace
-#' @S3method print dace
+# @S3method print dace
 #' @param x	fit returned by \code{\link{forrBuilder}}.
 #' @param ... additional parameters	
 #' @export
@@ -494,39 +494,39 @@ daceStartParameters  <- function(n,m,nugget,corr){
 # @export
 ###################################################################################
 daceFixTheta  <- function(m,bestTheta,nugget,corr){
-	lambda=NULL
-	p=NULL
+	lambda <- NULL
+	p <- NULL
 	if(identical(corr,corrnoisykriging)){
 		if(nugget > 0 && nugget <= 1){
-			thetaConv = c(10^bestTheta[1:m], bestTheta[(m+1):(2*m)], nugget);
-			theta= thetaConv[1:m]
-			p= thetaConv[(m+1):(2*m)]
-			lambda = nugget
+			thetaConv <- c(10^bestTheta[1:m], bestTheta[(m+1):(2*m)], nugget)
+			theta <- thetaConv[1:m]
+			p <- thetaConv[(m+1):(2*m)]
+			lambda <- nugget
 		}else if(nugget==-1){
-			thetaConv = c(10^bestTheta[1:m], bestTheta[(m+1):(2*m+1)])
-			theta= thetaConv[1:m]
-			p= thetaConv[(m+1):(2*m)]
-			lambda = thetaConv[2*m+1]			
+			thetaConv <- c(10^bestTheta[1:m], bestTheta[(m+1):(2*m+1)])
+			theta <- thetaConv[1:m]
+			p <- thetaConv[(m+1):(2*m)]
+			lambda <- thetaConv[2*m+1]			
 		}
 	}else if(identical(corr,corrkriging)){
-		thetaConv = c(10^bestTheta[1:m], bestTheta[(m+1):(2*m)])
-		theta= thetaConv[1:m]
+		thetaConv <- c(10^bestTheta[1:m], bestTheta[(m+1):(2*m)])
+		theta <- thetaConv[1:m]
 	}else if(identical(corr,corrnoisygauss)){ # like corrnoisykriging, but exponents not optimized, only activity parameters
 		if(nugget > 0 && nugget <= 1){
-			thetaConv = c(10^bestTheta[1:m], nugget);
-			theta= thetaConv[1:m]
-			p= 2
-			lambda = nugget			
+			thetaConv <- c(10^bestTheta[1:m], nugget)
+			theta <- thetaConv[1:m]
+			p <- 2
+			lambda <- nugget			
 		}else if(nugget==-1){
-			thetaConv = c(10^bestTheta[1:m], bestTheta[m+1])
-			theta= thetaConv[1:m]
-			p= 2
-			lambda = thetaConv[m+1]			
+			thetaConv <- c(10^bestTheta[1:m], bestTheta[m+1])
+			theta <- thetaConv[1:m]
+			p <- 2
+			lambda <- thetaConv[m+1]			
 		}
 	#}else if(identical(corr,correxpg)||identical(corr,corrgauss)||identical(corr,corrspline)||identical(corr,corrspherical)||identical(corr,corrlin)||identical(corr,corrcubic)||identical(corr,correxp)){ # like corrnoisykriging, but exponents not optimized, only activity parameters
 	}else{
-		thetaConv = 10^bestTheta
-		theta=thetaConv
+		thetaConv <- 10^bestTheta
+		theta <- thetaConv
 	}
 	list(thetaConv=thetaConv,theta=theta,lambda=lambda,p=p)
 }
@@ -546,11 +546,11 @@ daceFixTheta  <- function(m,bestTheta,nugget,corr){
 #' @keywords internal
 # @export
 ###################################################################################
-daceLikelihood = function (theta, para, nugget){
-	n= para$n
-	thetaConv = daceFixTheta(n,theta,nugget,para$corr)$thetaConv
-	res = daceEvalFit(thetaConv,para);
-	f = min(res[length(thetaConv)+1]); 
+daceLikelihood <- function (theta, para, nugget){
+	n <- para$n
+	thetaConv <- daceFixTheta(n,theta,nugget,para$corr)$thetaConv
+	res <- daceEvalFit(thetaConv,para)		
+	min(res[length(thetaConv)+1])  #TODO: warum hier min?
 }
 
 
@@ -691,7 +691,7 @@ daceGetFit <- function (theta, para){
 	
 	fit = daceObjfunc(theta, para, "fit")$fit
 
-	dmodel = list(regr=para$regr, corr=para$corr, theta=theta, 
+	list(regr=para$regr, corr=para$corr, theta=theta, 
 				beta=fit$beta, gamma=fit$gamma, sigma2=para$sY^2*fit$sigma2, 
 				S=para$S, Ssc=para$Ssc, Y=para$y, Ysc=para$Ysc, C=fit$C, 
 				Ft=fit$Ft, G=fit$G)#, detR=fit$detR);
@@ -737,7 +737,7 @@ repmat <- function(a,n,m) {kronecker(matrix(1,n,m),a)}
 #'
 #' @param theta model parameters to be evaluated
 #' @param para model option list, as created with \code{\link{dacePrepareFit}}
-#' @param what a string: "all" and both the likelihood (f) and the model list (fit) will be returned, "f" and "fit specify to return only those.
+#' @param what a string: "all" both the likelihood (f) and the model list (fit) will be returned, "f" and "fit specify to return only those.
 #'
 #' @return A list of two elements (which are NA if \code{what} is specified accordingly)\cr
 #' 	\code{f} likelihood \cr
@@ -759,15 +759,15 @@ repmat <- function(a,n,m) {kronecker(matrix(1,n,m),a)}
 ###################################################################################
 daceObjfunc <- function(theta, para, what="all"){
 	#% Initialize
-	obj = Inf
+	obj = Inf #penalty for bad numerical conditions    TODO: Inf crashes some optimizers, some not. Use very large number instead?
 	fit=NA
-	m = dim(para$F)[1];
+	m = dim(para$F)[1]
 	if(is.null(m))m=length(para$F)
 	#% Set up  R
-	r = para$corr(theta, para$D, "r")$r;
+	r = para$corr(theta, para$D, "r")$r
 	idx = which(r>0);
 	o = 1:m;   
-	mu = (10+m)*.Machine$double.eps;
+	mu = (10+m)*.Machine$double.eps
 	#R = sparseMatrix(
 	#		i=c(para$ij[idx,1], o), 
 	#		j=c(para$ij[idx,2], o),
@@ -785,9 +785,9 @@ daceObjfunc <- function(theta, para, what="all"){
 	
 	
 	#% Get least squares solution
-	Cmat = t(Cmat);	
-	Ft = spotHelpBslash(Cmat,para$F); #sparse matrix seems to yield NaN values sometimes... TODO
-	resqr = qr(Ft); 
+	Cmat = t(Cmat)
+	Ft = spotHelpBslash(Cmat,para$F)
+	resqr = qr(Ft)
 	Q=qr.Q(resqr)
 	G=qr.R(resqr)
 	
@@ -800,22 +800,17 @@ daceObjfunc <- function(theta, para, what="all"){
 		} 
 	}
 	Yt = spotHelpBslash(Cmat,para$y)   
-	beta = spotHelpBslash(G,(t(Q)%*%Yt));
-	rho = if(length(beta)==1){Yt - Ft*beta}else{Yt - Ft%*%beta};   #todo fix for one dim beta?
-	sigma2 = colSums(rho^2)/m; 
-	detR = prod( (diag(Cmat)) ^ (2/m) ); #TODO? apply prod?
+	beta = spotHelpBslash(G,(t(Q)%*%Yt))
+	rho = if(length(beta)==1){Yt - Ft*beta}else{Yt - Ft%*%beta}
+	sigma2 = colSums(rho^2)/m
+	detR = prod( (diag(Cmat)) ^ (2/m) )
 	if(what=="f" || what=="all") 
-		obj = sum(sigma2) %*% detR; 
+		obj = sum(sigma2) %*% detR
 	if(what=="fit" || what=="all")
-		fit = list(sigma2=sigma2, beta=beta, gamma= t(rho)%*%solve(Cmat), C=Cmat, Ft=Ft, G=t(G))# ,detR=detR);
-	#print("......") #only for debugging
-	#print(sum(Cmat))
-	#print(obj)
-	
+		fit = list(sigma2=sigma2, beta=beta, gamma= t(rho)%*%solve(Cmat), C=Cmat, Ft=Ft, G=t(G))
 	list(f=obj,fit=fit)
 }
 
-#TODO docu: equations?
 ###################################################################################
 #' Correlation: Noisy Gauss
 #'
@@ -853,18 +848,11 @@ corrnoisygauss = function(theta, d , ret="all"){
 	if(lt != (n + 1)){
 		stop(paste('Length of theta must be',n+1)) 
 	}
-	#else{
-	#	theta = t(theta);  #original code: force into row vector
-	#}
-	
-	#pow = matrix(2, m, n);
+
 	pow = 2
-	#tt = t(repmat(-theta[1:n], 1, m));  #TODO vllt t() hier und oben weglassen?
-	tt = matrix(-theta[1:n],m,n,byrow=TRUE)  #TODO vllt t() hier und oben weglassen?
+	tt = matrix(-theta[1:n],m,n,byrow=TRUE) 
 	nugget = theta[n+1];
 	td = abs(d)^pow * tt;
-	####MZ: fix for speedup (apply solution is too slow)
-	#r = nugget * apply(exp(td),1,prod); #TODO 1 oder 2
 	etd=exp(td)
 	r=1
 	for(i in 1 : ncol(td)){
@@ -877,11 +865,10 @@ corrnoisygauss = function(theta, d , ret="all"){
 	list(r=r,dr=dr)
 }
 
-#TODO docu: equations?
 ###################################################################################
 #' Correlation: Gauss
 #'
-#' Gaussian correlation function.\cr
+#' Gaussian correlation function, no nugget.\cr
 #' If \code{length(theta) = 1}, then the model is isotropic:\cr
 #' all \code{theta_j = theta}.
 #           n
@@ -966,9 +953,6 @@ corrnoisykriging = function(theta, d, ret="all"){
 	if(lt != (2 * n + 1)){
 		stop(paste('Length of theta must be',2*n+1)) 
 	}
-	#else{
-	#	theta = t(theta);  #original code: force into row vector
-	#}
 
 	pow = matrix(theta[(n+1):(2*n)],m,n,byrow=TRUE);
 	#pow = theta[(n+1):(2*n)]
@@ -976,29 +960,13 @@ corrnoisykriging = function(theta, d, ret="all"){
 	nugget = theta[2*n+1];
 	td = abs(d)^pow * tt;
 
-	##
-	##
-	#a<-function(){r = abs(d)^pow * tt;}	
-	#b<-function(){r = abs(d)^pow1 * tt;}
-	#require(microbenchmark)
-	#a()-b()
-	#print(microbenchmark(a(),times=100))
-	#print(microbenchmark(b(),times=100))
-	
-	
-	####MZ: fix for speedup (apply solution is too slow)
-	#r = nugget * apply(exp(td),1,prod); #TODO 1 oder 2
+
 	etd=exp(td)
 	r=1
 	for(i in 1 : ncol(td)){
 		r=r*etd[,i]
 	}
-	#browser()	
-	#require(matrixStats)
-	#b<-function(){r = nugget * rowProds(etd)}	
-	#xxx<-function(x){c(+1,-1)[((rowSums(x<0)%%2)+1)]*exp(rowSums(log(abs(x))))}
-	#xxx <- function(a) Reduce("*", as.data.frame(a)) 
-	#d<-function(){r = nugget * xxx(etd)}
+
 
 	r= nugget * r
 	if(ret=="all" || ret=="dr"){
@@ -1012,7 +980,7 @@ corrnoisykriging = function(theta, d, ret="all"){
 ###################################################################################
 #' Correlation:  Kriging
 #'
-#' Kriging correlation function using nuggets
+#' Kriging correlation function, no nugget
 #' 
 #           n
 #   r_i = prod exp(-theta_j * d_ij^theta_n+j)
@@ -1200,6 +1168,7 @@ correxp <- function(theta,d,ret="all"){
 #' @keywords internal
 ###################################################################################
 correxpg <- function(theta,d,ret="all"){
+
 	siz = dim(d);  #% number of differences and dimension of data
 	m = siz[1]
 	n = siz[2]
@@ -1438,107 +1407,6 @@ corrspline <- function(theta,d , ret="all"){
 	}else{	dr= NA	}
 	list(r=r,dr=dr)
 }
-
-###################################################################################
-# Correlation: Matern(3/2)
-#
-# Matern(3/2) correlation function.
-#
-# @param theta parameters in the correlation function
-# @param d m*n matrix with differences between given data points
-# @param ret A string. If set to \code{"all"} or \code{"dr"}, the derivative of \code{r} (\code{dr}) will be returned, else \code{dr} is \code{NA}.
-#
-# @return returns a list with two elements:
-# 			\item{\code{r}}{correlation}
-# 			\item{\code{dr}}{m*n matrix with the Jacobian of \code{r} at \code{x}. It is
-#           assumed that \code{x} is given implicitly by \code{d[i,] = x - S[i,]},
-#           where \code{S[i,]} is the \code{i}'th design site.}
-#
-# @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
-#
-# @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
-# are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
-# Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
-#
-# @export
-# @keywords internal
-###################################################################################
-# corrmatern3by2 <- function(theta,d,ret="all"){
-	# siz = dim(d)  #% number of differences and dimension of data
-	# m = siz[1]
-	# n = siz[2]
-	# lt = length(theta)
-	# if(lt !=  n){
-		# stop(paste('Length of theta must be',n)) 
-	# }
-	# thetaM = matrix(theta,m,lt,byrow=TRUE)
-	# tt = d^2 * thetaM
-	# td = sqrt( sum(tt,2) )
-	# tc = sqrt(3)* td
-	# a = 1 + tc
-	# b = exp(-tc)
-	# r = a*b
-
-	# if(ret=="all" || ret=="dr"){
-		# dfdf = matrix(1,m,n) 
-		# td[td == 0] = .Machine$double.eps
-		
-		# dtr = sqrt(3) * d * thetaM /  matrix(td[,1],length(td[,1]),n)
-		# dr = (df - matrix(a[,1],length(a[,1]),n)) * dtr * matrix(b[,1],length(b[,1]),n)
-	# }else{	dr= NA	}
-	# list(r=r,dr=dr)
-# }
-
-
-###################################################################################
-# Correlation: Matern(5/2)
-#
-# Matern(5/2) correlation function.
-#
-# @param theta parameters in the correlation function
-# @param d m*n matrix with differences between given data points
-# @param ret A string. If set to \code{"all"} or \code{"dr"}, the derivative of \code{r} (\code{dr}) will be returned, else \code{dr} is \code{NA}.
-#
-# @return returns a list with two elements:
-# 			\item{\code{r}}{correlation}
-# 			\item{\code{dr}}{m*n matrix with the Jacobian of \code{r} at \code{x}. It is
-#           assumed that \code{x} is given implicitly by \code{d[i,] = x - S[i,]},
-#           where \code{S[i,]} is the \code{i}'th design site.}
-#
-# @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
-#
-# @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
-# are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
-# Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
-#
-# @export
-# @keywords internal
-###################################################################################
-# corrmatern5by2 <- function(theta,d,ret="all"){
-	# siz = dim(d);  #% number of differences and dimension of data
-	# m = siz[1]
-	# n = siz[2]
-	# lt = length(theta);
-	# if(lt !=  n){
-		# stop(paste('Length of theta must be',n)) 
-	# }
-	# thetaM = matrix(theta,m,lt,byrow=TRUE)
-	# tt = d^2 * thetaM
-	# td = sqrt( sum(tt,2) )
-	# tc = sqrt(5)* td
-	# a = 1 + tc + (1/3) * tc^2
-	# b = exp(-tc)
-	# r = a*b
-
-	# if(ret=="all" || ret=="dr"){
-		# df = (1 + 2 * matrix(tc[,1],length(tc[,1]),n) / 3);
-		# td[td == 0] = .Machine$double.eps
-		
-		# dtr = sqrt(5) * d * thetaM /  matrix(td[,1],length(td[,1]),n)
-		# dr = (df - matrix(a[,1],length(a[,1]),n)) * dtr * matrix(b[,1],length(b[,1]),n)
-	# }else{	dr= NA	}
-	# list(r=r,dr=dr)
-# }
 
 ###################################################################################
 #' Regression: Regpoly0

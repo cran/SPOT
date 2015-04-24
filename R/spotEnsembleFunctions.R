@@ -19,7 +19,15 @@
 #' \code{spotFeedback.reward*} reward based on success of the model used in last sequential step. Scalar value returned. 
 #'
 #' @name spotFeedback
-#' @usage spotFeedback.y(spotConfig,mergedB,rawB); spotFeedback.sd.interSubModelsFull(spotConfig,mergedB,rawB); spotFeedback.deviation(spotConfig,mergedB,rawB); spotFeedback.error.full(spotConfig,mergedB,rawB);  spotFeedback.error.last(spotConfig,mergedB,rawB); spotFeedback.error.order(spotConfig,mergedB,rawB); spotFeedback.error.combo(spotConfig,mergedB,rawB); spotFeedback.reward.bern(spotConfig,mergedB,rawB); spotFeedback.reward.norm(spotConfig,mergedB,rawB);
+#' @usage spotFeedback.y(spotConfig,mergedB,rawB)
+#' spotFeedback.sd.interSubModelsFull(spotConfig,mergedB,rawB)
+#' spotFeedback.deviation(spotConfig,mergedB,rawB)
+#' spotFeedback.error.full(spotConfig,mergedB,rawB)
+#' spotFeedback.error.last(spotConfig,mergedB,rawB)
+#' spotFeedback.error.order(spotConfig,mergedB,rawB)
+#' spotFeedback.error.combo(spotConfig,mergedB,rawB)
+#' spotFeedback.reward.bern(spotConfig,mergedB,rawB)
+#' spotFeedback.reward.norm(spotConfig,mergedB,rawB)
 #' @param spotConfig parameter list, as created by the calling functions
 #' @param mergedB merged list of design points as evaluated on the target function of SPOT
 #' @param rawB raw list of design points as evaluated on the target function of SPOT
@@ -138,13 +146,12 @@ spotFeedback.error.last <- function(spotConfig,mergedB,rawB){
 	err
 }	
 
-#Das ist: Ordnungsfehler des Modelles, über alle Punkte
+#Das ist: Ordnungsfehler des Modelles, ueber alle Punkte
 spotFeedback.error.order  <-  function(spotConfig,mergedB,rawB){  
 	m=list()
 	err=array()
 	models=spotConfig$seq.ensemble.predictors
 	nmodels=length(models)
-	mergedData <- spotPrepareData(spotConfig)
 	for (i in 1:nmodels){
 		spotConfig1<-spotConfig
 		spotConfig1$io.verbosity=0
@@ -167,13 +174,11 @@ spotFeedback.error.combo <-  function(spotConfig,mergedB,rawB){
 }
 
 #Das ist: calculate bernoulli distrib. feedback for single approach ensembles, success 1 or failure 0
-#TODO überarbeiten?
 spotFeedback.reward.bern <-  function(spotConfig,mergedB,rawB){ 
 	spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),]$CONFIG-spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest)-1,]$CONFIG
 }
 
 #Das ist: calculate normal distrib. feedback for single approach ensembles
-#TODO überarbeiten?
 spotFeedback.reward.norm <-  function(spotConfig,mergedB,rawB){ 
 	if(spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),]$CONFIG>spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest)-1,]$CONFIG){
 		reward<-abs(spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest),1]-spotConfig$alg.currentBest[nrow(spotConfig$alg.currentBest)-1,1])
@@ -248,8 +253,7 @@ spotEnsembleModelBuilding <- function( rawB, mergedB, design, spotConfig){
 #' @keywords internal
 ###################################################################################
 spotEnsembleSubdesigns <- function(res,xnames,ynames,cut.size=10,cut.type="perc",cut.num=1,merge,transform){	
-  
-    if(is.null(cut.type)) cut.type = "perc"
+	if(is.null(cut.type)) cut.type = "perc"
 	if(is.null(cut.size)) cut.size = 10.0
 
 	design.size <- nrow(res)
@@ -269,17 +273,15 @@ spotEnsembleSubdesigns <- function(res,xnames,ynames,cut.size=10,cut.type="perc"
 		mergedY <- sapply(z,fs)
 		if (length(xnames)==1){ 
 			mergedX <- as.data.frame(sapply(split(des[,xnames], des$CONFIG),mean))
-			names(mergedX)<-xnames;
+			names(mergedX)<-xnames
 		}else{
 			mergedX <- as.data.frame(t(sapply(split(des[,xnames], des$CONFIG),colMeans)))
 		}
 		y <- des[,ynames]
-		x <- as.matrix(des[xnames]);
- 		B <- data.frame(cbind(y,x)[order(y,decreasing=FALSE),]);
-		mergedB <- data.frame(cbind(mergedY,as.matrix(mergedX))[order(mergedY,decreasing=FALSE),]);
-		#subdesign <- design[-(r[(i*e)+(e-1)]),];######
+ 		B <- data.frame(res[order(y,decreasing=FALSE),])
+		mergedB <- data.frame(cbind(mergedY,as.matrix(mergedX))[order(mergedY,decreasing=FALSE),])
 		designs <- if (is.null(designs)) list(B) else c(designs, list(B));		
-		designsMerged <- if (is.null(designsMerged)) list(mergedB) else c(designsMerged, list(mergedB));
+		designsMerged <- if (is.null(designsMerged)) list(mergedB) else c(designsMerged, list(mergedB))
 	}	
 	list(rawB=designs,mergB=designsMerged)
 }

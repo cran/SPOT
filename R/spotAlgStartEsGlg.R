@@ -57,7 +57,7 @@ spotAlgStartEsGlg <- function(spotConfig){
 	## read problem design file
 	if(file.exists(io.apdFileName)){
 		source(io.apdFileName,local=TRUE)
-		}
+	}
 	else{
 		spotWriteLines(spotConfig$io.verbosity,1,"apd File not found, defaults used");
 	}		
@@ -74,12 +74,6 @@ spotAlgStartEsGlg <- function(spotConfig){
 		pinst <- glgSeed + j	#SEED passed to GLG
 		fn <- spotGlgCreate(dimension=dim,nGaussian=ngauss,lower=lb, upper=ub, globalvalue=maxval,ratio=ratio,seed=pinst)
 		fun <- function(x) maxval -fn(x) #use difference to opimum as target value
-		### generate pdf
-		#pdfFile <- paste("glg1",pinst,".pdf",sep="")
-		#pdf(file=pdfFile)
-		#spotSurfContour2(fn,lo=lb,up=ub,20)
-		#dev.off()
-		###		
 		for (k in 1:config){
 			for (i in 1:des$REPEATS[k]){
 				## PARAMETER VALUES OF THE ES, WHICH ARE TUNED
@@ -126,10 +120,6 @@ spotAlgStartEsGlg <- function(spotConfig){
 					spotStep <- des$STEP[k]
 				}			
 				seed <- des$SEED[k]+i-1	#SEED passed to ES, as well as GLG
-				#ngauss = c(200,150,100,50,10)[(seed%%5)+1]  #will this make the random effect signif.?
-				#ratio = c(0.95,0.85,0.75,0.65,0.5)[(seed%%5)+1] #will this make the random effect signif.?
-				###fn <- spotGlgCreate(dimension=dim,nGaussian=ngauss,lower=lb, upper=ub, globalvalue=maxval,ratio=ratio,seed=seed)
-				#### START ES
 				control$seed=seed
 				optimres <- spotOptimEs(par= rep(NA,dim), fn = fun, lower= lb, upper= ub, control=control)	
 				#### WRITE RESULTS

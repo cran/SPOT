@@ -7,8 +7,7 @@
 #' spotSphere1Function:\cr
 #' multi-dimensional sphere function, one global optimum: Sum[i^2*(x[[i]]-i)^2, {i, 1, ndim}] \cr\cr
 #' spotSixHumpFunction:\cr
-#' Two dimensional target function, two global optima the 6-hump camel back function, see 
-#'   \url{http://www.it.lut.fi/ip/evo/functions/node26.html} \cr \cr
+#' Two dimensional target function, two global optima the 6-hump camel back function\cr \cr
 #' spotRosenbrockFunction:\cr
 #' Two dimensional Rosenbrocks function with one global optimum, see: \url{http://en.wikipedia.org/wiki/Rosenbrock_function}.
 #' Maple: 
@@ -22,13 +21,21 @@
 #' spotMexicanHatFunction:\cr
 #' Two dimensional MexicanHat function, with a circular valley of global optima\cr \cr
 #' spotBraninFunction:\cr
-#' Two dimensional Branin function implementation, 3 global optima, see also: \url{http://www.it.lut.fi/ip/evo/functions/node27.html} \cr \cr
+#' Two dimensional Branin function implementation, 3 global optima\cr \cr
 #' spotWildFunction: \cr
 #' Another test function, y=10*sin(0.3*x)*sin(1.3*x^2) + 0.00001*x^4 + 0.2*x+80
 #' 
 #'
 #' @name Testfunctions
-#' @usage spotSphereFunction(x); spotSphere1Function(x); spotSixHumpFunction(x); spotRosenbrockFunction(x); spotRosenbrockGradientFunction(x); spotRastriginFunction(x); spotMexicanHatFunction(x); spotBraninFunction(x); spotWildFunction(x);
+#' @usage spotSphereFunction(x)
+#' spotSphere1Function(x)
+#' spotSixHumpFunction(x)
+#' spotRosenbrockFunction(x)
+#' spotRosenbrockGradientFunction(x)
+#' spotRastriginFunction(x)
+#' spotMexicanHatFunction(x)
+#' spotBraninFunction(x)
+#' spotWildFunction(x)
 #'			
 #' @param x	vector that will be evaluated by the test-function
 #'
@@ -89,7 +96,6 @@ spotSphere1Function <- function(x){
 	for(i in 1:length(x)){
 		sum <- sum+(i^2*x[[i]]^2 - i)^2
 	}
-	## Sum[i^2*(x[[i]]-i)^2, {i, 1, ndim}] )
 	sum
 }
 

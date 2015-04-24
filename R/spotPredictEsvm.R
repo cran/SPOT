@@ -25,22 +25,18 @@ spotPredictEsvm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	########################################################
 	if(is.null(fit)){
 		xNames <- row.names(spotConfig$alg.roi)
-		yNames <- setdiff(names(rawB),xNames)
+		yNames <- spotConfig$alg.resultColumn
 		x <- rawB[xNames]
 		nx <- nrow(spotConfig$alg.roi)	
 		opts=list(fevals=100, reltol=1e-4)	#for optimization algorithm		
 		if(length(yNames)==1){
 			y<-rawB[[yNames]]
 			dat <- data.frame(x,y)		
-			#browser()
-			#gammaR=10^(seq(from=-4,by=1,to=2)) / ncol(dat)
-			#costR=10^(seq(from=0, by=1,to=6))
-			#fit<-tune.svm(y~.,data=dat,gamma = gammaR, cost = costR)		
 			fitness<-function(xx){	
-				tune.svm(y~.,data=dat,gamma = (10^xx[1])/nx, cost = (10^xx[2]))$best.performance
+				e1071::tune.svm(y~.,data=dat,gamma = (10^xx[1])/nx, cost = (10^xx[2]))$best.performance
 			}			
 			res <- spotOptimizationInterface(par=c(0,1),fn=fitness,lower=c(-4,0),upper = c(2,6), method="optim-L-BFGS-B", control = opts)
-			fit<-svm(y~.,data=dat,gamma =(10^res$par[1])/nx, cost = (10^res$par[2]))			
+			fit<-e1071::svm(y~.,data=dat,gamma =(10^res$par[1])/nx, cost = (10^res$par[2]))			
 		}
 		else{#Distinction for multi criteria spot 			
 			fit=list()
@@ -50,10 +46,10 @@ spotPredictEsvm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 				y<-yy[,i]
 				dat <- data.frame(x,y)		
 				fitness<-function(xx){	
-					tune.svm(y~.,data=dat,gamma = (10^xx[1])/nx, cost = (10^xx[2]))$best.performance
+					e1071::tune.svm(y~.,data=dat,gamma = (10^xx[1])/nx, cost = (10^xx[2]))$best.performance
 				}				
 				res <- spotOptimizationInterface(par=c(0,1),fn=fitness,lower=c(-4,0),upper = c(2,6), method="optim-L-BFGS-B", control = opts)
-				fit[[i]]<-svm(y~.,data=dat,gamma =(10^res$par[1])/nx, cost = (10^res$par[2]))
+				fit[[i]]<-e1071::svm(y~.,data=dat,gamma =(10^res$par[1])/nx, cost = (10^res$par[2]))
 			}			
 		}		
 	}else{

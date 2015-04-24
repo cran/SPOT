@@ -1,11 +1,8 @@
-
-#this function is used to interface several models at once for mco. That means: A different model for each objective.
-#careful: this will only work for multi criteria problems! makes no sense with single objective
 ###################################################################################
-#' Meta Model Interface: Multi Criteria Modeling
+#' Meta Model Interface: Multi Criteria Modelling
 #' 
 #' This interface function is supposed to be used for Multi Criteria Problems. It can be employed when the user
-#' wants to specify different models for each of the objectives, instead of modeling all the objectives with the same technique.
+#' wants to specify different models for each of the objectives, instead of modelling all the objectives with the same technique.
 #' The user has therefore to specify a list of configurations, where the different models and their settings are specified.
 #'
 #' @param rawB unmerged data
@@ -23,8 +20,6 @@
 #' 	spotConfig$seq.modelFit fit of the model used with the predictor functions \cr
 #'	spotConfig$seq.largeDesignY the y values of the design, evaluated with the fit
 #' @export
-#' @seealso \code{\link{forrBuilder}} \code{\link{forrRegPredictor}} \code{\link{forrReintPredictor}} 
-#' @references Forrester, Alexander I.J.; Sobester, Andras; Keane, Andy J. (2008). Engineering Design via Surrogate Modelling - A Practical Guide. John Wiley & Sons.
 ###################################################################################
 spotPredictMCO  <- function(rawB,mergedB,design,spotConfig,fit=NULL){	
 	#design <- spotInitializePredictor(design,"data.frame",spotConfig$alg.roi,NULL,"spotPredictMCO",spotConfig$io.verbosity)	
@@ -35,8 +30,6 @@ spotPredictMCO  <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	# BUILD
 	########################################################
 	if(is.null(fit)){#build and predict	
-		x <- rawB[xNames]
-		y <- rawB[yNames]
 		spotConfig$seq.modelFit.y<-rawB[yNames]
 		fit=list()
 		resy=NULL		

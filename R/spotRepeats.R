@@ -1,7 +1,6 @@
 ##################################################################################
 #' Select repeats of design points based on OCBA
 #'
-#'
 #' @param spotConfig List, containing all settings of SPOT
 #' @param mergedData merged data from runs of the target function
 #' @param largeDesignEvaluated sorted large design in sequential SPOT step
@@ -16,16 +15,34 @@ spotRepeatsOcba <- function(spotConfig,mergedData,largeDesignEvaluated){
 	### We select only #seq.design.oldBest.size design points. These design points will be considered for re-evaluation:
 	if (spotConfig$seq.design.oldBest.size <= 1) warning("spotRepeatsOcba.R: Increase spotConfig$seq.design.oldBest.size in your conf file, OCBA will not work if it is smaller than 2.");
 	selection <- order(mergedData$mergedY)[1:min(nrow(mergedData$x), spotConfig$seq.design.oldBest.size)];
-	ocbaData <- cbind(  mergedData$x[selection,]
-					, mergedY = data.frame(mergedData$mergedY)[selection,]
-					, varY = data.frame(mergedData$varY)[selection,]
-					, count = data.frame(mergedData$count)[selection,]
-					, CONFIG = data.frame(mergedData$CONFIG)[selection,]
-					, STEP = data.frame(mergedData$STEP)[selection,]
-					, SEED = data.frame(mergedData$SEED)[selection,]
+	ocbaData <- cbind(  mergedData$x[selection,,drop=FALSE]
+					, mergedY =  as.numeric(mergedData$mergedY[selection])
+					, varY = as.numeric(mergedData$varY[selection])
+					, count = as.numeric(mergedData$count[selection])
+					, CONFIG = as.numeric(mergedData$CONFIG[selection])
+					, STEP = as.numeric(mergedData$STEP[selection])
+					, SEED = as.numeric(mergedData$SEED[selection])
 					) ;
+	varY <- ocbaData$varY	
+  
+  ## check if variance >0, yields error.
+  if(any(is.na(varY))|any(is.null(varY))|any(is.nan(varY))|any(varY==0)){
+    stop("			
+There is no variance for some point(s) in the current design.
+Therefore OCBA cannot be used. Possible reasons are a target 
+function without noise, or the design points are not 
+evaluated repeatedly.
+SPOT with OCBA makes only sense if the target function is noisy.
+That means: either use spot.ocba=FALSE, or set the repeats
+(init.design.repeats) to values larger than 1.
+
+The current variance vector for the design points is: 
+",paste(varY," "))
+  }
+  
+	##
 	### Based on OCBA, the budget is distributed among this subset:
-	REPEATS <- spotOcba(ocbaData$mergedY, ocbaData$varY, ocbaData$count, spotConfig$seq.ocba.budget, iz=NA, verbose=spotConfig$io.verbosity)
+	REPEATS <- spotOcba(ocbaData$mergedY, varY, ocbaData$count, spotConfig$seq.ocba.budget, iz=NA, verbose=spotConfig$io.verbosity)
 	spotPrint(spotConfig$io.verbosity,1,REPEATS)
 	oldD <- cbind(ocbaData, REPEATS=data.frame(REPEATS))                  
 	oldD <- oldD[oldD$REPEATS>0,];
@@ -51,7 +68,6 @@ spotRepeatsOcba <- function(spotConfig,mergedData,largeDesignEvaluated){
 ##################################################################################
 #' Select repeats of design points, linearly increasing
 #'
-#'
 #' @param spotConfig List, containing all settings of SPOT
 #' @param mergedData merged data from runs of the target function
 #' @param largeDesignEvaluated sorted large design in sequential SPOT step
@@ -60,7 +76,11 @@ spotRepeatsOcba <- function(spotConfig,mergedData,largeDesignEvaluated){
 #' @keywords internal
 ###################################################################################
 spotRepeats <- function(spotConfig,mergedData,largeDesignEvaluated){
-	selection <- order(mergedData$mergedY)[1:spotConfig$seq.design.oldBest.size];
+	if(length(spotConfig$alg.resultColumn)>1){
+		selection <- order(nds_rank(t(mergedData$mergedY)))[1:min(spotConfig$seq.design.oldBest.size,length(mergedData$CONFIG))] #TODO: this is not sufficient. hypervolume contribution, number of repeats, etc should be considered, too.
+	}else{
+		selection <- order(mergedData$mergedY)[1:min(spotConfig$seq.design.oldBest.size,length(mergedData$CONFIG))]
+	}
 	selectedData=as.data.frame(mergedData$x[selection,]) #MZ: Bugfix for 1 dimensional optimization
 	colnames(selectedData)= row.names(spotConfig$alg.roi); #MZ: Bugfix for 1 dimensional optimization
 	colnames(largeDesignEvaluated)= row.names(spotConfig$alg.roi); #MZ: Bugfix for 1 dimensional optimization
@@ -83,18 +103,7 @@ spotRepeats <- function(spotConfig,mergedData,largeDesignEvaluated){
 	## already evaluated before
 	oldD$repeatsInternal <- totalWanted - oldD$repeatsInternal; 
 	oldD = oldD[oldD$repeatsInternal>0,]	#remove those with zero repeats (i.e. reached max-repeats)
-	## The following might cause problems for the aroi configurations, so continue at 
-	## label [BUXFIX1].
-	##
-	## Handling of:
-	## spotConfig$seq.design.new.size > nrow(largeDesignEvaluated)
-	## This problem might occur if
-	## the meta model predicts less candidate points than
-	## spotConfig$seq.design.new.size
-	## additionalConfigNumbers <- min(spotConfig$seq.design.new.size, nrow(largeDesignEvaluated))
-	##
-	## [BUGFIX1]
-	#additionalConfigNumbers <- nrow(largeDesignEvaluated)
+
 	newCONFIG <- max(mergedData$CONFIG) + 1:nrow(largeDesignEvaluated);
 	newD <- cbind(  largeDesignEvaluated
 			, CONFIG = newCONFIG
@@ -102,7 +111,7 @@ spotRepeats <- function(spotConfig,mergedData,largeDesignEvaluated){
 			, repeatsLastConfig= totalWanted);
 	## if old design points have to be evaluated:
 	if (sum(oldD$repeatsInternal,na.rm=TRUE) > 0){
-		design <- rbind(oldD,newD)}
+		design <- rbind(newD,oldD)}
 	## otherwise take the new design points only:
 	else{
 		design <- newD}
@@ -111,13 +120,6 @@ spotRepeats <- function(spotConfig,mergedData,largeDesignEvaluated){
 	## append column with current step
 	design <- cbind(design,mergedData$step.last + 1);
 	colnames(design)[ncol(design)] <- "STEP";
-	## all configurations start with the same seed, automatically increased for each repeat
-	## the OLD configurations that are to be calculated again, but with only the missing numbers 
-	## of repeats are starting with 
-	## alg.seed + <numberOfRepeatsAlreadyEvaluatedForThisConfiguration>
-	## or as stated below: alg.seed PLUS (totalWanted MINUS missingRepeatsForThisConfiguration)
-	## SEED<-spotConfig$alg.seed+totalWanted-design["REPEATS"]
-	## [BUGFIX2]
 	SEED<-spotConfig$alg.seed+totalWanted-design[,"REPEATS"]
 	design <- cbind(design,SEED);
 	## is the following necessary?

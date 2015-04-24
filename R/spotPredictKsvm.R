@@ -25,27 +25,26 @@ spotPredictKsvm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 	########################################################
 	if(is.null(fit)){		
 		xNames <- row.names(spotConfig$alg.roi)
-		yNames <- setdiff(names(rawB),xNames)
+		yNames <- spotConfig$alg.resultColumn
 		x <- rawB[xNames]		
 		nx <- nrow(spotConfig$alg.roi)
-		nn <- nrow(x)
 		opts=list(fevals=100, reltol=1e-4)	 #optim algorithm options
 		if(length(yNames)==1){
 			y<-rawB[[yNames]]
 			dat <- data.frame(x,y)		
 			fitness<-function(xx){	
-				err<-try(attributes(ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),cross=10))$cross,silent=TRUE)
+				err<-try(attributes(kernlab::ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),cross=10))$cross,silent=TRUE)
 				if(class(err) == "try-error"){err<-10^4}
 				err
 			}			
 			res <- spotOptimizationInterface(par=c(0,1,-1),fn=fitness,lower=c(-4,0,-4),upper = c(2,6,0), method="optim-L-BFGS-B", control = opts)
-			fit<-try( fit<-ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx)) ,silent=TRUE)		
+			fit<-try( fit<-kernlab::ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx)) ,silent=TRUE)		
 			if(class(fit) == "try-error"){
 				fitness<-function(xx){	
-					attributes(ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),kernel="anovadot",cross=10))$cross
+					attributes(kernlab::ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),kernel="anovadot",cross=10))$cross
 				}
 				res <- spotOptimizationInterface(par=c(0,1,-1),fn=fitness,lower=c(-4,0,-4),upper = c(2,6,0), method="optim-L-BFGS-B", control = opts)
-				fit<-ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx),kernel="anovadot")			
+				fit<-kernlab::ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx),kernel="anovadot")			
 			}	
 		}
 		else{#Distinction for multi criteria spot 			
@@ -56,18 +55,18 @@ spotPredictKsvm <- function(rawB,mergedB,design,spotConfig,fit=NULL){
 				y<-yy[,i]
 				dat <- data.frame(x,y)		
 				fitness<-function(xx){	
-					err<-try(attributes(ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),cross=10))$cross,silent=TRUE)
+					err<-try(attributes(kernlab::ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),cross=10))$cross,silent=TRUE)
 					if(class(err) == "try-error"){err<-10^4}
 					err
 				}
 				res <- spotOptimizationInterface(par=c(0,1,-1),fn=fitness,lower=c(-4,0,-4),upper = c(2,6,0), method="optim-L-BFGS-B", control = opts)
-				fit[[i]]<-try( fit[[i]]<-ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx)) ,silent=TRUE)		
+				fit[[i]]<-try( fit[[i]]<-kernlab::ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx)) ,silent=TRUE)		
 				if(class(fit[[i]]) == "try-error"){
 					fitness<-function(xx){	
-						attributes(ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),kernel="anovadot",cross=10))$cross
+						attributes(kernlab::ksvm(y~.,data=data.frame(x,y),epsilon=(10^xx[3]),C=(10^xx[2]),kpar=list(sigma=(10^xx[1])/nx),kernel="anovadot",cross=10))$cross
 					}
 					res <- spotOptimizationInterface(par=c(0,1,-1),fn=fitness,lower=c(-4,0,-4),upper = c(2,6,0), method="optim-L-BFGS-B", control = opts)
-					fit[[i]]<-ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx),kernel="anovadot")			
+					fit[[i]]<-kernlab::ksvm(y~.,data=dat,epsilon=(10^res$par[3]),C=(10^res$par[2]),kpar=list(sigma=(10^res$par[1])/nx),kernel="anovadot")			
 				}	
 			}			
 		}		

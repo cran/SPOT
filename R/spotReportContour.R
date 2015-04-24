@@ -1,6 +1,3 @@
-
-#TODO: hier und für 3dreport parameter dokumentieren
-
 ###################################################################################################
 #' Model Contour Plot -  Report Function
 #' 
@@ -75,7 +72,7 @@ spotReportContour <- function(spotConfig) {
                                 , spotConfig$seq.modelFit #external fit is used, model is only evaluated not build
 								));
 			}
-			ldY <-  spotConfig1$seq.largeDesignY[[1]]
+			spotConfig1$seq.largeDesignY[[1]]
 		}
 		main = spotConfig$report.main
 		p1=cbind(C1[row.names(spotConfig$alg.roi)[aIndex]],C1[row.names(spotConfig$alg.roi)[bIndex]])
@@ -168,7 +165,7 @@ spotReportContourMulti <- function(spotConfig) {
                                 , spotConfig$seq.modelFit #external fit is used, model is only evaluated not build
 								));
 			}
-			ldY <-  spotConfig1$seq.largeDesignY[[ii]]
+			spotConfig1$seq.largeDesignY[[ii]]
 		}
 		main = spotConfig$report.main
 		for(i in 1:length(spotConfig$alg.resultColumn)){
