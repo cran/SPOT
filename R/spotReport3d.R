@@ -34,9 +34,6 @@ spotReport3d <- function(spotConfig) {
 		spotConfig<-spotReport3dMulti(spotConfig)
 		return(spotConfig)
 	}
-	#load packages
-	spotInstAndLoadPackages("rgl")
-	spotInstAndLoadPackages("twiddler")		
 	spotWriteLines(spotConfig$io.verbosity,2,"  Creating 3d-report:");	
 	rawB <- spotGetRawDataMatrixB(spotConfig);
 	spotPrint(spotConfig$io.verbosity,1,summary(rawB));
@@ -91,8 +88,8 @@ spotReport3d <- function(spotConfig) {
 		}else{spotSurf3d(fn,lo,up,100,clip)}
 	}
 	if(spotConfig$report.interactive==TRUE){
-		twiddle(plotFn(a, b), eval = FALSE, a = knob(c(1, nrow(spotConfig$alg.roi)), res = 1),
-			b = knob(c(1, nrow(spotConfig$alg.roi)), res = 1, default=2))
+		twiddler::twiddle(plotFn(a, b), eval = FALSE, a = twiddler::knob(c(1, nrow(spotConfig$alg.roi)), res = 1),
+			b = twiddler::knob(c(1, nrow(spotConfig$alg.roi)), res = 1, default=2))
 	}
 	else{
 		if(is.null(spotConfig$report.aIndex)){spotConfig$report.aIndex=1}
@@ -123,9 +120,6 @@ spotReport3d <- function(spotConfig) {
 #' @keywords internal
 ###################################################################################################
 spotReport3dMulti <- function(spotConfig) {
-	#load packages
-	spotInstAndLoadPackages("rgl")
-	spotInstAndLoadPackages("twiddler")		
 	spotWriteLines(spotConfig$io.verbosity,2,"  Creating 3d-report for multiple objectives:")
 	rawB <- spotGetRawDataMatrixB(spotConfig)
 	spotPrint(spotConfig$io.verbosity,1,summary(rawB))
@@ -195,9 +189,9 @@ spotReport3dMulti <- function(spotConfig) {
 		}	
 	}
 	if(spotConfig$report.interactive==TRUE){
-		twiddle(plotFn(a, b, C), eval = FALSE, a = knob(c(1, nrow(spotConfig$alg.roi)), res = 1),
-			b = knob(c(1, nrow(spotConfig$alg.roi)), res = 1, default=2),
-			C = knob(c(1, nrow(spotConfig$mco.par)), res = 1))
+		twiddler::twiddle(plotFn(a, b, C), eval = FALSE, a = twiddler::knob(c(1, nrow(spotConfig$alg.roi)), res = 1),
+			b = twiddler::knob(c(1, nrow(spotConfig$alg.roi)), res = 1, default=2),
+			C = twiddler::knob(c(1, nrow(spotConfig$mco.par)), res = 1))
 	}
 	else{
 		if(is.null(spotConfig$report.aIndex)){spotConfig$report.aIndex=1}

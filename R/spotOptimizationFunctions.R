@@ -71,7 +71,7 @@ spotOptimizationInterface<-function(par,fn,gr=NULL,lower,upper,method,control,..
 			,verbosity=0
 			,restarts=FALSE
 			,vectorized=FALSE)
-	con[(namc <- names(control))] <- control;
+	con[names(control)] <- control;
 	control<-con;
 	
 	#INITIALIZE
@@ -105,7 +105,7 @@ spotOptimizationInterface<-function(par,fn,gr=NULL,lower,upper,method,control,..
 			resval <- res$value
 			respar <- res$par
 			#TODO: note: the following is only relevant for gradient free optimization
-			resevals <- res$counts[[1]] +res$counts[[1]] * 2 * dim
+			resevals <- res$counts[[1]] +res$counts[[2]] * 2 * dim
 		}else if (method=="BBoptim"){ 
 			spotInstAndLoadPackages("BB")
 			res <- BB::BBoptim(par=par, fn=fn,lower=lower,upper=upper,control=list(maxit=control$fevals,trace=FALSE),quiet=TRUE,...)
@@ -256,7 +256,7 @@ spotOptimizationInterfaceMco<-function(par,fn,gr=NULL,lower,upper,method,control
 			,sbx.n=15, sbx.p=0.7,pm.n=25, pm.p=0.3
 			,restarts=FALSE
 			,vectorized=FALSE)
-	con[(namc <- names(control))] <- control;
+	con[names(control)] <- control;
 	control<-con;
 	
 	#INITIALIZE
@@ -363,7 +363,7 @@ spotOptimLHS<-function(par,fn,gr=NULL,lower,upper,control,...){
 	con<-list(fevals=1000 #CON: Internal List with defaults for control
 			,retries=50
 			,vectorized=FALSE)
-	con[(namc <- names(control))] <- control;
+	con[names(control)] <- control;
 	control<-con;
 	
 	npar <- nrow(par)

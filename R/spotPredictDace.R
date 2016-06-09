@@ -25,7 +25,7 @@
 #'
 #' @seealso \code{\link{dacePredictor}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab toolbox \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab toolbox \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Extension of the Matlab code by Tobias Wagner \email{wagner@@isf.de}. \cr 
 #' Porting and adaptation to R and further extensions by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
@@ -132,7 +132,7 @@ spotPredictDace <- function(rawB,mergedB,design,spotConfig,fit=NULL){	#TODO: Imp
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab toolbox \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab toolbox \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Additional code for generalization to different models by Tobias Wagner \email{wagner@@isf.de}. \cr 
 #' Porting and adaptation to R and further extensions by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
@@ -362,7 +362,7 @@ print.dace <- function(x,...){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{dacePredictor}}
 #'
-#' @author The authors of the original DACE Matlab toolbox \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab toolbox \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Extension of the Matlab code by Tobias Wagner \email{wagner@@isf.de}. \cr 
 #' Porting and adaptation to R and further extensions by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
@@ -832,7 +832,7 @@ daceObjfunc <- function(theta, para, what="all"){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Extension of the Matlab code by Tobias Wagner \email{wagner@@isf.de}. \cr 
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
@@ -887,7 +887,7 @@ corrnoisygauss = function(theta, d , ret="all"){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
 #'
@@ -937,7 +937,7 @@ corrgauss <- function(theta,d,ret="all"){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Extension of the Matlab code by Tobias Wagner \email{wagner@@isf.de}. \cr 
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
@@ -998,7 +998,7 @@ corrnoisykriging = function(theta, d, ret="all"){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Extension of the Matlab code by Tobias Wagner \email{wagner@@isf.de}. \cr 
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
@@ -1047,7 +1047,7 @@ corrkriging <- function(theta,d,ret="all"){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
 #'
@@ -1112,7 +1112,7 @@ corrcubic <- function(theta,d , ret="all"){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
 #'
@@ -1160,7 +1160,7 @@ correxp <- function(theta,d,ret="all"){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
 #'
@@ -1213,7 +1213,7 @@ correxpg <- function(theta,d,ret="all"){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
 #'
@@ -1274,7 +1274,7 @@ corrlin <- function(theta,d , ret="all"){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
 #'
@@ -1344,7 +1344,7 @@ corrspherical <- function(theta,d , ret="all"){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
 #'
@@ -1422,7 +1422,7 @@ corrspline <- function(theta,d , ret="all"){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
 #'
@@ -1460,7 +1460,7 @@ regpoly0 = function(S,grad=FALSE){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
 #'
@@ -1499,7 +1499,7 @@ regpoly1 <- function(S,grad=FALSE){
 #'
 #' @seealso \code{\link{spotPredictDace}} \code{\link{daceBuilder}}
 #'
-#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/~hbni/dace/} 
+#' @author The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
 #' are Hans Bruun Nielsen \email{hbn@@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
 #'

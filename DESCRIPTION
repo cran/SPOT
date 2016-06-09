@@ -12,17 +12,22 @@ Authors@R: c(
   person("Patrick","Koch", role = "ctb"),
   person("Martina","Friese", role = "ctb")
   )
-Description: The Sequential Parameter Optimization Toolbox provides a set of tools for Parameter-tuning, based on modelling techniques, DoE and statistical methods.
-Version: 1.0.5543
-Date: 2015-04-24
-Imports: rpart, emoa, twiddler, rgl, AlgDesign, randomForest, rsm,
-        MASS, mco
+Description: The Sequential Parameter Optimization Toolbox provides a set of
+    tools for Parameter-tuning, based on modelling techniques, DoE and statistical
+    methods.
+Version: 1.1.0
+Date: 2016-06-08
+Imports: rpart, emoa, graphics, grDevices, AlgDesign, randomForest,
+        rsm, utils, stats, MASS, mco
 Depends: R (>= 2.14.0)
-Suggests: BB, cmaes, DEoptim, dfoptim, DiceKriging, DoE.wrapper, e1071,
-        earth, fields, FrF2, GenSA, ggplot2, gtools, kernlab, lattice,
-        lhs, lme4, minqa, mlegp, monmlp, nloptr, neuralnet,
-        penalizedSVM, plotmo, pso, qrnn, rgenoud, rgp (>= 0.3-4), tgp
-Packaged: 2015-04-24 13:43:27 UTC; Martin
+Suggests: BB, twiddler, rgl, cmaes, DEoptim, dfoptim, DiceKriging,
+        DoE.wrapper, e1071, earth, fields, FrF2, GenSA, ggplot2,
+        gtools, kernlab, lattice, lhs, lme4, minqa, mlegp, monmlp,
+        nloptr, neuralnet, penalizedSVM, plotmo, pso, qrnn, rgenoud,
+        rgp (>= 0.3-4), tgp
+RoxygenNote: 5.0.1
+NeedsCompilation: no
+Packaged: 2016-06-08 16:08:48 UTC; Martin
 Author: Thomas Bartz-Beielstein [aut],
   Martin Zaefferer [cre, ctb],
   Joerg Ziegenhirt [ctb],
@@ -31,6 +36,5 @@ Author: Thomas Bartz-Beielstein [aut],
   Patrick Koch [ctb],
   Martina Friese [ctb]
 Maintainer: Martin Zaefferer <martin.zaefferer@gmx.de>
-NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2015-04-27 15:21:09
+Date/Publication: 2016-06-09 06:17:52

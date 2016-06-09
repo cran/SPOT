@@ -1,6 +1,5 @@
 ## Experimental research in evolutionary computation
 ## author: thomas.bartz-beielstein@fh-koeln.de
-## http://www.springer.com/3-540-32026-1
 ##
 ## Copyright (C) 2003-2010 T. Bartz-Beielstein and C. Lasarczyk
 ## This program is free software;
@@ -29,8 +28,8 @@
 #' \tabular{ll}{
 #' Package: \tab SPOT\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.0.5543\cr
-#' Date: \tab 2015-04-24\cr
+#' Version: \tab 1.1.0\cr
+#' Date: \tab 2016-06-08\cr
 #' License: \tab GPL (>= 2)\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -41,20 +40,20 @@
 #' @title Sequential Parameter Optimization Toolbox in R
 #' @author Thomas Bartz-Beielstein \email{thomas.bartz-beielstein@@fh-koeln.de} with contributions from: J. Ziegenhirt, W.
 #'    Konen, O. Flasch, M. Friese, P. Koch, M. Zaefferer, B. Naujoks, M. Friese
-#' @references
-#' \url{http://www.springer.com/3-540-32026-1}
 #' @keywords package
 #' @seealso Main interface functions are \code{\link{spot}} and \code{\link{spotOptim}}.
 #' Also, a graphical interface can be used with \code{\link{spotGui}}
 #' @import emoa
 #' @import rpart
-#' @import twiddler
-#' @import rgl
 #' @import AlgDesign
 #' @import randomForest
 #' @import mco
 #' @import rsm
 #' @import MASS
+#' @import stats
+#' @import utils
+#' @import graphics
+#' @import grDevices
 #' 
 #' @section Acknowledgments:
 #' This work has been partially supported by the Federal Ministry of Education

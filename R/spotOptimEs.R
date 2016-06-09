@@ -84,7 +84,7 @@ spotOptimEs <- function(par #only for dimension TODO add par to start population
 		term="iter",
 		sigmaRestart = 0.1,
 		preScanMult= 1);
-	con[(namc <- names(control))] <- control
+	con[names(control)] <- control
 	control<-con;
 
 	if(is.null(control$maxIter)){

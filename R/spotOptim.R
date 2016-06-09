@@ -56,7 +56,7 @@ spotOptim <- function(par=NULL
 	con<-list(maxit=100 #CON: Internal List with defaults for control
              , seed=123
              , spot.fileMode = FALSE);
-	con[(namc <- names(control))] <- control;
+	con[names(control)] <- control;
 	control<-con;
 	
 	control$alg.func<-fn; #will  be checked for string or function in spotGetOptions, here it is only passed

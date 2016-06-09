@@ -169,13 +169,13 @@ print.forr <- function(x,...){
 #' \code{loval} lower boundary for theta, default is \code{1e-6}\cr
 #' \code{upval} upper boundary for theta, default is \code{100}\cr
 #' \code{corr} function to be used for correlation modeling, default is \code{fcorrGauss}\cr
-#' \code{algtheta}  algorithm used to find theta, default is \code{"NLOPT_LN_NELDERMEAD"}. Else, any from the list of possible \code{method} values in \code{spotOptimizationInterface} from the SPOT package can be chosen.\cr
+#' \code{algtheta}  algorithm used to find theta, default is \code{"optim-L-BFGS-B"}. Else, any from the list of possible \code{method} values in \code{spotOptimizationInterface} from the SPOT package can be chosen.\cr
 #' \code{budgetalgtheta} budget for the above mentioned algorithm, default is \code{100}. The value will be multiplied with the length of the model parameter vector to be optimized.
 #' \code{opt.p} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. \cr
-#' \code{uselambda} whether or not to use the regularization constant lambda (nugget effect). Default is \code{FALSE}.
+#' \code{uselambda} whether or not to use the regularization constant lambda (nugget effect). Default is \code{TRUE}.\cr
 #' \code{lambda.loval} lower boundary for lambda, default is \code{-6}\cr 
 #' \code{lambda.upval} upper boundary for lambda, default is \code{0}\cr
-#' \code{starttheta} optional start value for theta.
+#' \code{starttheta} optional start value for theta.\cr
 #' \code{reinterpolate} whether (TRUE) or not (FALSE, default) reinterpolation should be performed
 #'
 #' @return a fit (list), with the options and found parameters for the model which has to be passed to the predictor function:\cr
@@ -218,7 +218,7 @@ print.forr <- function(x,...){
 ###################################################################################
 forrBuilder <- function(X, y, lb=NULL, ub=NULL, control=list()){#,debug=NA){
 	con<-list(loval=1e-3, upval=1e2, algtheta="optim-L-BFGS-B", budgetalgtheta=100, opt.p= FALSE, uselambda=TRUE, lambda.loval = -6, lambda.upval = 0, starttheta=NULL, reinterpolate=FALSE);
-	con[(namc <- names(control))] <- control;
+	con[names(control)] <- control;
 	control<-con;
 	
 	fit = control
@@ -436,12 +436,7 @@ forrRegLikelihood <- function(x,AX,Ay,opt.p=FALSE,uselambda=TRUE){
 	## cholesky decomposition
 	cholPsi <- try(chol(Psi), TRUE) 
 	
-	## use pivoting if standard fails
-	if(class(cholPsi) == "try-error"){
-		cholPsi <- try(chol(Psi,pivot=TRUE), TRUE) 
-	}	
-	
-	## give penalty if both fail
+	## give penalty if  fail
 	if(class(cholPsi) == "try-error"){
 		warning("Correlation matrix is not positive semi-definite (in combinatorialKrigingLikelihood). Returning penalty.")
 		return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,SSQ=NA))
@@ -461,6 +456,8 @@ forrRegLikelihood <- function(x,AX,Ay,opt.p=FALSE,uselambda=TRUE){
 	yonemu=Ay-mu 
 	SigmaSqr=(t(yonemu)%*%Psinv%*%yonemu)/n
 	NegLnLike=n*log(SigmaSqr) + LnDetPsi
+	if(is.na(NegLnLike)|is.infinite(NegLnLike))
+    return(list(NegLnLike=1e4,Psi=NA,Psinv=NA,mu=NA,SSQ=NA))
 	list(NegLnLike=NegLnLike,Psi=Psi,Psinv=Psinv,mu=mu,yonemu=yonemu,ssq=SigmaSqr)
 }
 

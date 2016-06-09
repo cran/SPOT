@@ -1,6 +1,5 @@
 ## Experimental research in evolutionary computation
 ## author: thomas.bartz-beielstein@fh-koeln.de
-## http://www.springer.com/3-540-32026-1
 ##
 ## Copyright (C) 2004-2011  T. Bartz-Beielstein, C. Lasarczyk
 ## This program is free software;

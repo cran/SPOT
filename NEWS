@@ -1,5 +1,11 @@
 SPOT - Sequential Parameter Optimization Toolbox
 
+Release Notes Version 1.1.0
+  1. Fixed Help Documentation
+  2. Stability of forrBuilder improved
+	3. Bugfix spotCreateDesignLhd: nested designs scaled correctly now
+	4. Required maintenance (imports etc.)
+
 Release Notes Version 1.0.5543
 	1. SPOT may now handle NA values returned by target function (tuned algorithm)
 		 in case a Kriging surrogate model is used.

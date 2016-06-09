@@ -247,7 +247,7 @@ forrIF <- function(x,i){
 forrCoBuilder <- function(Xe,ye, Xc, yc, fitC, lb=NULL, ub=NULL, control=list()){
 	
 	con<-list(loval=1e-3, upval=1e2, algtheta="optim-L-BFGS-B", budgetalgtheta=100, opt.p= FALSE, uselambda=TRUE, lambda.loval = -6, lambda.upval = 0, starttheta=NULL, rho.loval=-5, rho.upval=5, reinterpolate=FALSE);
-	con[(namc <- names(control))] <- control;
+	con[names(control)] <- control;
 	control<-con;
 	
 	#########################################

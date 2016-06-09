@@ -106,8 +106,10 @@ spotCreateDesignLhd <- function(spotConfig, noDesPoints = NaN, retries= 1) {
 	for (param in row.names(roiConfig)){
 		lowerBound <-  spotConfig$alg.roi[param,"lower"]
 		upperBound <-  spotConfig$alg.roi[param,"upper"]
-		nestdes[param] <- lowerBound + nestdes[param] * (upperBound-lowerBound)
+		nestdes[param] <- (nestdes[param] - lowerBound) / (upperBound-lowerBound)
 	}
+	if(!is.null(nestdes))
+		nestdes <- as.matrix(nestdes)
 	
 	## Bei einer Wiederholung muss die Distanz nicht berechnet werden
 	best <- spotNormDesign(nrow(roiConfig),noDesPoints,calcMinDistance=retries>1,nested=nestdes,ineq_constr=ineq_constr_norm)

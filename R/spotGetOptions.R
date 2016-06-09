@@ -1,6 +1,5 @@
 ## Experimental research in evolutionary computation
 ## author: thomas.bartz-beielstein@fh-koeln.de
-## http://www.springer.com/3-540-32026-1
 ##
 ## Copyright (C) 2009 T. Bartz-Beielstein and C. Lasarczyk
 ## This program is free software;
@@ -214,13 +213,26 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	io.aroiFileName <- paste(.genericFileNamePrefix,"aroi",sep=".")
 	io.apdFileName <- paste(.genericFileNamePrefix,"apd",sep=".")
 	io.metaFileName <- paste(.genericFileNamePrefix,"meta",sep=".")
-	io.fbsFileName <- paste(.genericFileNamePrefix,"fbs",sep=".")	
+	io.fbsFileName <- paste(.genericFileNamePrefix,"fbs",sep=".")		
+	
+	############################################################################
+	############################################################################
+	.conf <- list(alg.func,alg.resultColumn,alg.seed,auto.loop.nevals,auto.loop.steps,init.delete.previous.files,init.design.func,
+		init.design.repeats,init.design.retries,init.design.size,report.func,report.io.pdf,report.io.screen,seq.design.func,
+		seq.design.increase.func,seq.design.maxRepeats,seq.design.new.size,seq.design.oldBest.size,
+		seq.design.retries,seq.design.size,seq.infill,seq.mco.selection,seq.merge.func,seq.model.variance,seq.ocba.budget,
+		seq.predictionModel.func,seq.predictionOpt.budget,seq.predictionOpt.func,seq.transformation.func,seq.useAdaptiveRoi,
+		spot.continue,spot.fileMode,spot.ocba,spot.seed
+	)
+	
 	############################################################################
 	### load user settings, this overwrite the defaults that are set up to this line
 	### the basename of the configFile was used in the main 
 	############################################################################
 	userConfFileName  <-  basename(configFileName)
 	.lsBeforeSource<-ls()
+	if(length(.conf)>length(.lsBeforeSource))
+		stop("Problem Encountered During Default Options Generation in SPOT.")
 	#################################################################
 	### load configuration
 	#################################################################
@@ -239,9 +251,12 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 	}	
 	spotWriteLines(io.verbosity,1,paste("  ResultFile Name : ", io.resFileName, collapse=""),con=stderr())
 	spotWriteLines(io.verbosity,1,paste("  DesignFile Name : ", io.desFileName, collapse=""),con=stderr())
+	spotWriteLines(io.verbosity,1,paste("  APDFile Name : ", io.apdFileName, collapse=""),con=stderr())
 	spotWriteLines(io.verbosity,1,paste("  BestFile Name : ", io.bstFileName, collapse=""),con=stderr())
+	spotWriteLines(io.verbosity,1,paste("  MetaFile Name : ", io.metaFileName, collapse=""), con=stderr())
+	spotWriteLines(io.verbosity,1,paste("  ROIFile Name : ", io.roiFileName, collapse=""), con=stderr())
+	spotWriteLines(io.verbosity,1,paste("  AROIFile Name : ", io.aroiFileName, collapse=""), con=stderr())
 	spotWriteLines(io.verbosity,1,paste("  FinalBestSolution FbsFile Name : ", io.fbsFileName, collapse=""), con=stderr())
-	## TBB: Added 26 Feb 2009:
 	spotWriteLines(io.verbosity,1,paste("  pdfFile Name : ", io.pdfFileName, collapse=""),con=stderr())		
 	spotWriteLines(io.verbosity,1,paste("  Load algorithm design (ROI): ", io.roiFileName, collapse=""),con=stderr())
 	## alg.roi is a table that holds the data of the .roi-file for easy and quick use in some functions 
@@ -249,20 +264,22 @@ spotGetOptions <- function( srcPath=".",configFileName) {
 		alg.roi <- spotReadRoi(io.roiFileName,io.columnSep,io.verbosity)
 	}
 	else if (userConfFileName=="NULL"){   #a default roi is used, will be overwritten by any user input
-		alg.roi=spotROI(c(-1,-1),c(1,1)) 
-		spot.fileMode=FALSE
+		alg.roi <- spotROI(c(-1,-1),c(1,1)) 
+		spot.fileMode <- FALSE
 	}
 	else
 	{
-		alg.roi=NA
+		alg.roi <- NA
 	}
-	## at startup, the actual roi (alg.aroi) is the same as the initial roi (alg.roi)
-	alg.aroi <- alg.roi
 	spotWriteLines(io.verbosity,1,"spotGetOptions finished", con=stderr())
 	## generate a list of ALL the defined variables (default AND user written = sourced by .conf-file!)
 	## ls returns a list of all variables in this environment, that is: all the "local" variables (except the ones with leading dot
 	.x<-ls()
 	## now use sapply to generate the list of name/value of all variables. 
-	sapply(.x, function (.x) { get(.x)}, USE.NAMES=TRUE)
+	config <- sapply(.x, function (.x) { get(.x)}, USE.NAMES=TRUE)
+	## at startup, the actual roi (alg.aroi) is the same as the initial roi (alg.roi)
+	config$alg.aroi <- alg.roi
+	## return
+	config
 }
 

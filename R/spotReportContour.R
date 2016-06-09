@@ -85,8 +85,8 @@ spotReportContour <- function(spotConfig) {
 		
 	}
 	if(spotConfig$report.interactive==TRUE){
-		twiddle(plotFn(a, b), eval = FALSE, a = knob(c(1, nrow(spotConfig$alg.roi)), res = 1),
-			b = knob(c(1, nrow(spotConfig$alg.roi)), res = 1, default=2))
+		twiddler::twiddle(plotFn(a, b), eval = FALSE, a = twiddler::knob(c(1, nrow(spotConfig$alg.roi)), res = 1),
+			b = twiddler::knob(c(1, nrow(spotConfig$alg.roi)), res = 1, default=2))
 	}
 	else{
 		if(is.null(spotConfig$report.aIndex)){spotConfig$report.aIndex=1}
@@ -181,9 +181,9 @@ spotReportContourMulti <- function(spotConfig) {
 		}			
 	}
 	if(spotConfig$report.interactive==TRUE){
-		twiddle(plotFn(a, b, C), eval = FALSE, a = knob(c(1, nrow(spotConfig$alg.roi)), res = 1),
-			b = knob(c(1, nrow(spotConfig$alg.roi)), res = 1, default=2),
-			C = knob(c(1, nrow(spotConfig$mco.par)), res = 1))
+		twiddler::twiddle(plotFn(a, b, C), eval = FALSE, a = twiddler::knob(c(1, nrow(spotConfig$alg.roi)), res = 1),
+			b = twiddler::knob(c(1, nrow(spotConfig$alg.roi)), res = 1, default=2),
+			C = twiddler::knob(c(1, nrow(spotConfig$mco.par)), res = 1))
 	}
 	else{
 		if(is.null(spotConfig$report.aIndex)){spotConfig$report.aIndex=1}
