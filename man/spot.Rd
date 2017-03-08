@@ -2,49 +2,155 @@
 % Please edit documentation in R/spot.R
 \name{spot}
 \alias{spot}
-\title{Main function for the use of SPOT}
+\title{Sequential Parameter Optimization}
 \usage{
-spot(configFile = "NULL", spotTask = "auto", srcPath = NA,
-  spotConfig = NA, ...)
+spot(x = NULL, fun, lower, upper, control = list(), ...)
 }
 \arguments{
-\item{configFile}{the absolute path including file-specifier, there is no default, this value should always be given}
+\item{x}{is an optional start point (or set of start points), specified as a matrix. One row for each point, and one column for each optimized parameter.}
 
-\item{spotTask}{[init|seq|run|auto|rep] the switch for the tool used, default is "auto"}
+\item{fun}{is the objective function. It should receive a matrix x and return a matrix y. In case the function uses external code and is noisy, an additional seed parameter may be used, see the \code{control$seedFun} argument below for details.}
 
-\item{srcPath}{the absolute path to user written sources that extend SPOT, the default(NA) will search for sources in the path <.libPath()>/SPOT/R}
+\item{lower}{is a vector that defines the lower boundary of search space. This determines also the dimensionality of the problem.}
 
-\item{spotConfig}{a list of parameters used to configure spot, default is spotConfig=NA, which means the configuration will only be read from the \code{configFile}, not given by manual user input.
-Notice that parameters given in spotConfig will overwrite both default values assigned by SPOT, AND values defined in the Config file
-However, values not passed by spotConfig will still be used as defaults. If you want to see those defaults, look at \code{\link{spotGetOptions}}}
+\item{upper}{is a vector that defines the upper boundary of search space.}
 
-\item{...}{additional parameters to be passed on to target function which is called inside alg.func. Only relevant for spotTask "auto" and "run".}
+\item{control}{is a list of additional settings: 
+\describe{
+  \item{\code{funEvals}}{ This is the budget of function evaluations (spot uses no more than funEvals evaluations of fun), defaults to 20.}
+  \item{\code{types}}{ Vector of data type of each variable as a string, defaults \code{"numeric"} for all variables.}
+  \item{\code{design}}{A function that creates an initial design of experiment. Functions that accept the same parameters, 
+            and return a matrix like \code{\link{designLHD}} or \code{\link{designUniformRandom}} can be used. Default is \code{\link{designLHD}}.}
+  \item{\code{designControl}}{A list of controls based to the \code{control} list of the \code{design} function. See help 
+            of the respective function for details. Default is an empty \code{list}.}
+  \item{\code{model}}{A function that builds a statistical model of the observed data. Functions that accept the same 
+            parameters, and return a matrix like \code{\link{buildKriging}} or \code{\link{buildRandomForest}} 
+            can be used. Default is \code{\link{buildKriging}}.}
+  \item{\code{modelControl}}{A list of controls based to the \code{control} list of the \code{model} function. 
+            See help of the respective function for details.Default is an empty \code{list}.}
+  \item{\code{optimizer}}{A function that is used to optimize based on \code{model}, finding the most promising 
+            candidate solutions. Functions that accept the same parameters, and return a matrix like \code{\link{optimLHD}} 
+            or \code{\link{optimLBFGSB}} can be used. Default is \code{\link{optimLHD}}.}
+  \item{\code{optimizerControl}}{A list of controls based to the \code{control} list of the \code{optimizer} function. 
+            See help of the respective function for details. Default is an empty \code{list}.}
+  \item{\code{noise}}{Boolean, whether the objective function has noise or not. Default is non-noisy, that is, \code{FALSE}.}
+  \item{\code{OCBA}}{Boolean, indicating whether Optimal Computing Budget Allocation (OCBA) should be used in case of a noisy 
+            objective function or not. OCBA controls the number of replications for each candidate solution. 
+                Note, that \code{replicates} should be larger than one in that case, and that the initial experimental design 
+            (see \code{design}) should also have replicates larger one. Default is \code{FALSE}.}
+  \item{\code{OCBAbudget}}{The number of objective function evaluations that OCBA can distribute in each iteration. Default is 3.}
+  \item{\code{replicates}}{The number of times a candidate solution is initially evaluated, that is, in the initial design, 
+            or when created by the optimizer. Default is \code{1}.}
+  \item{\code{seedFun}}{An initial seed for the objective function in case of noise, by default \code{NA}. The default means that no seed is set.
+            The user should be very careful with this setting. It is intended to generate reproducible experiments for each objective
+            function evaluation, e.g., when tuning non-deterministic algorithms. If the objective function uses a constant number
+            of random number generations, this may be undesirable. Note, that this seed is by default set prior to each evaluation. A replicated
+            evaluation will receive an incremented value of the seed.
+            Sometimes, the user may want to call external code using random numbers. To allow for that case, the user can specify an objective function (\code{fun}),
+                which has a second parameter \code{seed}, in addition to first parameter (matrix \code{x}). This seed can then be passed
+            to the external code, for random number generator initialization. See end of examples section for a demonstration.}
+  \item{\code{seedSPOT}}{This value is used to initialize the random number generator. It ensures that experiments are reproducible. Default is \code{1}.}
+  \item{\code{duplicate}}{In case of a deterministic (non-noisy) objective function, this handles duplicated candidate solutions.
+            By default (\code{duplicate = "EXPLORE"}), duplicates are replaced by new candidate solutions, generated by random 
+            sampling with uniform distribution. If desired, the user can set this to "STOP", which means that the optimization
+            stops and results are returned to the user (with a warning). This may be desirable, as duplicates can be a indicator
+            for convergence, or for a problem with the configuration.
+            In case of noise, duplicates are allowed.}
+  \item{\code{plots}}{Whether progress should be tracked by a line plot, default is false}
+}}
+
+\item{...}{additional parameters passed to \code{fun}.}
+}
+\value{
+This function returns a list with:
+\describe{
+	\item{{xbest}}{Parameters of the best found solution (matrix).}
+	\item{\code{ybest}}{Objective function value of the best found solution (matrix).}
+	\item{\code{x}}{Archive of all evaluation parameters (matrix).}
+	\item{\code{y}}{Archive of the respective objective function values (matrix).}
+	\item{\code{count}}{Number of performed objective function evaluations.}
+	\item{\code{msg}}{Message specifying the reason of termination.}
+	\item{\code{modelFit}}{The fit of the last build model, i.e., an object returned by the last call to the function specified by \code{control$model}.}
+}
 }
 \description{
-Sequential Parameter Optimization Toolbox (SPOT) provides a toolbox for the 
-sequential optimization of parameter driven tasks. 
-Use \code{\link{spotOptim}} for a \code{\link{optim}} like interface
+This is one of the main interfaces for using the SPOT package. Based on a user-given objective function
+and configuration, \code{spot} finds the parameter setting that yields the lowest objective value (minimization).
+To that end, it uses methods from the fields of design of experiment, statistical modeling / machine learning
+and optimization.
 }
-\details{
-The path given with the \code{userConfigFile} also fixes the working directory used
-throughout the run of all SPOT functions. All files that are needed for input/output
-can and will be given relative to the path of the userConfigFile (this also holds for 
-the binary of the algorithm). This refers to files that are specified in the configFile
-by the user.
-
-It is of major importance to understand that spot by default expects to optimize noisy functions. That means, the default settings of spot,
-which are also used in spotOptim, include repeats of the initial and sequentially created design points. Also, as a default OCBA
-is used to spread the design points for optimal usage of the function evaluation budget. OCBA will not work when there is no variance in the data.
-So if the user wants to optimize non-noisy functions, the following settings should be used:\cr
-\code{spotConfig$spot.ocba <- FALSE}\cr
-\code{spotConfig$seq.design.maxRepeats <- 1}\cr
-\code{spotConfig$init.design.repeats <- 1}\cr
+\examples{
+## Most simple example: Kriging + LHS + predicted 
+## mean optimization (not expected improvement)
+res <- spot(,funSphere,c(-2,-3),c(1,2))
+res$xbest
+## With expected improvement
+res <- spot(,funSphere,c(-2,-3),c(1,2),
+   control=list(modelControl=list(target="ei"))) 
+res$xbest
+### With additional start point:
+#res <- spot(matrix(c(0.05,0.1),1,2),funSphere,c(-2,-3),c(1,2))
+#res$xbest
+#res <- spot(,funSphere,c(-2,-3),c(1,2),
+#    control=list(funEvals=50)) 
+#res$xbest
+### Use a local optimizer instead of LHS
+#res <- spot(,funSphere,c(-2,-3),c(1,2),
+#    control=list(optimizer=optimLBFGSB)) 
+#res$xbest
+### Random Forest instead of Kriging
+#res <- spot(,funSphere,c(-2,-3),c(1,2),
+#    control=list(model=buildRandomForest)) 
+#res$xbest    
+### LM instead of Kriging
+#res <- spot(,funSphere,c(-2,-3),c(1,2),
+#    control=list(model=buildLM)) #lm as surrogate
+#res$xbest
+### LM and local optimizer (which for this simple example is perfect)
+#res <- spot(,funSphere,c(-2,-3),c(1,2),
+#    control=list(model=buildLM, optimizer=optimLBFGSB)) 
+#res$xbest
+### Or a different Kriging model:
+#res <- spot(,funSphere,c(-2,-3),c(1,2),
+#    control=list(model=buildKrigingDACE, optimizer=optimLBFGSB)) 
+#res$xbest
+## With noise: (this takes some time)
+#res1 <- spot(,function(x)funSphere(x)+rnorm(nrow(x)),c(-2,-3),c(1,2),
+#		control=list(funEvals=100,noise=TRUE)) #noisy objective
+#res2 <- spot(,function(x)funSphere(x)+rnorm(nrow(x)),c(-2,-3),c(1,2),
+#		control=list(funEvals=100,noise=TRUE,replicates=2,
+#		designControl=list(replicates=2))) #noise with replicated evaluations
+#res3 <- spot(,function(x)funSphere(x)+rnorm(nrow(x)),c(-2,-3),c(1,2),
+#		control=list(funEvals=100,noise=TRUE,replicates=2,OCBA=T,OCBABudget=1,
+#		designControl=list(replicates=2))) #and with OCBA
+### Check results with non-noisy function:
+#funSphere(res1$xbest)
+#funSphere(res2$xbest)
+#funSphere(res3$xbest)
+## The following is for demonstration only, to be used for random number 
+## seed handling in case of external noisy target functions.
+#res3 <- spot(,function(x,seed){set.seed(seed);funSphere(x)+rnorm(nrow(x))},
+#    c(-2,-3),c(1,2),control=list(funEvals=100,noise=TRUE,seedFun=1))
+## 
+## Next Example: Handling factor variables
+## Note: factors should be coded as integer values, i.e., 1,2,...,n
+## create a test function:
+braninFunctionFactor <- function (x) {  
+  y <- (x[2]  - 5.1/(4 * pi^2) * (x[1] ^2) + 5/pi * x[1]  - 6)^2 + 
+    10 * (1 - 1/(8 * pi)) * cos(x[1] ) + 10
+  if(x[3]==1)
+    y <- y +1
+  else if(x[3]==2)
+    y <- y -1
+  y  
 }
-\note{
-\code{spot()} expects char vectors as input, e.g. \code{spot("c:/configfile.conf","auto")}
+## vectorize
+objFun <- function(x){apply(x,1,braninFunctionFactor)}
+set.seed(1)
+res <- spot(fun=objFun,lower=c(-5,0,1),upper=c(10,15,3),     
+    control=list(model=buildKriging, 
+      types= c("numeric","numeric","factor"), 
+      optimizer=optimLHD)) 
+res$xbest
+res$ybest
 }
-\seealso{
-\code{\link{SPOT}}, \code{\link{spotOptim}}, \code{\link{spotStepAutoOpt}},  \code{\link{spotStepInitial}},
-\code{\link{spotStepSequential}}, \code{\link{spotStepRunAlg}}, \code{\link{spotStepReport}}
-}
-

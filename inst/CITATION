@@ -1,16 +1,18 @@
-citHeader("To cite SPOT in publications use:")
+citHeader("To cite SPO in publications use:")
 
-citEntry(entry="Techreport",
-         title = "A Gentle Introduction to Sequential Parameter Optimization",
-         author = personList(person(family="Bartz-Beielstein", given="Thomas"),
-	                     person(family="Zaefferer", given="Martin")),
-		 journal = "CIplus",
-		 number = "2",
-		 institution = "Bibliothek der Fachhochschule Koeln",
-         year         = "2012",
-         url          = "http://opus.bsz-bw.de/fhk/volltexte/2012/19",
-         textVersion = paste("T. Bartz-Beielstein and M. Zaefferer (2012). ", 
-               "A Gentle Introduction to Sequential Parameter Optimization. ",
-               "CIplus 2/2012. Bibliothek der Fachhochschule Koeln. ",
-               sep=""))
+citEntry(entry="inproceedings",
+  title = "Sequential Parameter Optimization",
+  author = personList(person(family="Bartz-Beielstein", given="Thomas"),
+                      person(family="Lasarczyk",given="Christian"),
+	                    person(family="Zaefferer", given="Martin")),
+  booktitle = "Proceedings Congress  on  Evolutionary Computation 2005 (CEC'05)",
+  year = "2005",
+  address = "Edinburgh, Scotland",
+  pages ={773--780},
+  url = "http://www.spotseven.de/wp-content/papercite-data/pdf/blp05.pdf",
+  textVersion = paste("Bartz-Beielstein, T., Lasarczyk, C. , & Preuss, M. ", 
+         "Sequential Parameter Optimization. ",
+         "In 2005 IEEE congress on evolutionary computation, IEEE Press ",
+         sep="")
+)
 

@@ -1,4 +1,0 @@
-name low high type
-NPARENTS 2 10 INT
-NU 2 10 FLOAT
-TAU 0.5 2 FLOAT

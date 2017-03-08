@@ -3,33 +3,37 @@ License: GPL (>= 2)
 Title: Sequential Parameter Optimization Toolbox
 Type: Package
 LazyLoad: yes
-Authors@R: c(
-  person("Thomas", "Bartz-Beielstein", role = "aut"),
-  person("Martin", "Zaefferer", role = c("cre","ctb"), email = "martin.zaefferer@gmx.de"),
-  person("Joerg", "Ziegenhirt", role = "ctb"),
-  person("Wolfgang","Konen",role = "ctb"),
-  person("Oliver","Flasch", role = "ctb"),
-  person("Patrick","Koch", role = "ctb"),
-  person("Martina","Friese", role = "ctb")
-  )
-Description: The Sequential Parameter Optimization Toolbox provides a set of
-    tools for Parameter-tuning, based on modelling techniques, DoE and statistical
-    methods.
-Version: 1.1.0
-Date: 2016-06-08
-Imports: rpart, emoa, graphics, grDevices, AlgDesign, randomForest,
-        rsm, utils, stats, MASS, mco
-Depends: R (>= 2.14.0)
-Suggests: BB, twiddler, rgl, cmaes, DEoptim, dfoptim, DiceKriging,
-        DoE.wrapper, e1071, earth, fields, FrF2, GenSA, ggplot2,
-        gtools, kernlab, lattice, lhs, lme4, minqa, mlegp, monmlp,
-        nloptr, neuralnet, penalizedSVM, plotmo, pso, qrnn, rgenoud,
-        rgp (>= 0.3-4), tgp
-RoxygenNote: 5.0.1
+LazyData: true
+Authors@R: c(	
+	      person("Thomas", "Bartz-Beielstein", role = "aut"),
+				person("Joerg", "Stork", role = "aut"),
+				person("Martin", "Zaefferer", role = c("aut", "cre"),email = "martin.zaefferer@gmx.de"),
+	      person("Margarita", "Rebolledo", role = "ctb"),
+	      person("Christian", "Lasarczyk", role = "ctb"),
+				person("Joerg", "Ziegenhirt", role = "ctb"),
+				person("Wolfgang","Konen",role = "ctb"),
+				person("Oliver","Flasch", role = "ctb"),
+				person("Patrick","Koch", role = "ctb"),
+				person("Martina","Friese", role = "ctb"))
+Description: A set of tools for model based optimization and tuning of
+    algorithms. It includes surrogate models, optimizers and design of experiment
+    approaches. The main interface is spot, which uses sequentially updated
+    surrogate models for the purpose of efficient optimization. The main goal is
+    to ease the burden of objective function evaluations, when a single evaluation
+    requires a significant amount of resources.
+Version: 2.0.1
+Date: 2017-03-08
+Depends: R (>= 3.0.0)
+Imports: randomForest, stats, utils, graphics, MASS
+RoxygenNote: 6.0.1
+Suggests: testthat
 NeedsCompilation: no
-Packaged: 2016-06-08 16:08:48 UTC; Martin
+Packaged: 2017-03-08 14:38:55 UTC; Martin
 Author: Thomas Bartz-Beielstein [aut],
-  Martin Zaefferer [cre, ctb],
+  Joerg Stork [aut],
+  Martin Zaefferer [aut, cre],
+  Margarita Rebolledo [ctb],
+  Christian Lasarczyk [ctb],
   Joerg Ziegenhirt [ctb],
   Wolfgang Konen [ctb],
   Oliver Flasch [ctb],
@@ -37,4 +41,4 @@ Author: Thomas Bartz-Beielstein [aut],
   Martina Friese [ctb]
 Maintainer: Martin Zaefferer <martin.zaefferer@gmx.de>
 Repository: CRAN
-Date/Publication: 2016-06-09 06:17:52
+Date/Publication: 2017-03-08 16:37:21

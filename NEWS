@@ -1,5 +1,22 @@
 SPOT - Sequential Parameter Optimization Toolbox
 
+Release Notes Version 2.0.1
+  - This version is a complete rewrite of the SPOT package
+	-- A more modular architecture is provided, that allows the user to easily customize parts of the SPO procedure.
+	-- Core functions for modeling and optimization use interfaces more similar to functions from other packages / core-R, 
+		 hence making them easier accessible for new users. Also, these can now be more easily used separately from the main SPO 
+		 approach, e.g., only for modeling / DoE / optimization.
+	-- The unnecessarily large number of choices and parameters was reduced significantly.
+	-- Removal of extremely rarely used / un-used features, to reduce overall complexity of the framework.
+	-- Documentation and accessibility in were improved.
+	-- Some frequently used procedures received a speed-up.
+	- Please note that not all features of the older versions are available in SPOT.
+	- Please depend on "SPOT (<= 1.1.0)" if your code relies on the previous architecture,
+	and consider to adapt to the new one. 
+	- Several examples for working with the rewritten framework are provided, e.g., in the documentation of the spot() function.
+		
+Release notes of older Versions:	
+	
 Release Notes Version 1.1.0
   1. Fixed Help Documentation
   2. Stability of forrBuilder improved
