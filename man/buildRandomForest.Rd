@@ -22,6 +22,7 @@ The purpose of this function is to provide an interface as required by SPOT, to 
 modeling and model-based optimization with random forest.
 }
 \examples{
+\dontrun{
 ## Test-function:
 braninFunction <- function (x) {	
 	(x[2]  - 5.1/(4 * pi^2) * (x[1] ^2) + 5/pi * x[1]  - 6)^2 + 
@@ -40,4 +41,5 @@ print(fit)
 predict(fit,cbind(1,2))
 ## True value at location
 braninFunction(c(1,2))
+}
 }

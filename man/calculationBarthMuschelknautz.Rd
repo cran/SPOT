@@ -4,29 +4,21 @@
 \alias{calculationBarthMuschelknautz}
 \title{Cyclone Simulation: Barth/Muschelknautz}
 \usage{
-calculationBarthMuschelknautz(cyclone, fluid)
+calculationBarthMuschelknautz(cyclone, fluid, xmean, delta)
 }
 \arguments{
 \item{cyclone}{list of cyclone's geometrical parameters}
 
 \item{fluid}{list of fluid parameters}
+
+\item{xmean}{vector of middle points for the intervals of the particle size distribution}
+
+\item{delta}{vector, amount of dust (percentage value) in each interval}
 }
 \value{
-returns a function that calculates the fractional efficiency for the specified diameter, see example.
+returns a vector, first element is the efficiency, second element is the pressure drop
 }
 \description{
 Calculate cyclone collection efficiency according to Barth/Muschelknautz.
-}
-\examples{
-## get function for specified cyclone and fluid type
-fun <- calculationBarthMuschelknautz(
-       cyclone=list(Da=1260,H=2500,Dt=420,Ht=640,Epsilon=13.1340,He=600,Be=200),
-       fluid=list(Mu=18.5*10^(-6),Vp=5000,Rhop=2000,Rhof=1.204,Croh=50))[[1]]
-## specify diameters to be calculated
-x<-seq(from=0,to=35,by=0.01)*1e-6 
-## compute fractional efficiency and plot
-plot(x,fun(x),type="l",xlab=expression(paste("Particle Size [", mu, "m]")),
-     ylab="Fractional Efficiency")
-
 }
 \keyword{internal}

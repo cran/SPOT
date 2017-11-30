@@ -15,6 +15,7 @@
 #' @export
 #'
 #' @examples
+#'\dontrun{
 #' ## Test-function:
 #' braninFunction <- function (x) {	
 #' 	(x[2]  - 5.1/(4 * pi^2) * (x[1] ^2) + 5/pi * x[1]  - 6)^2 + 
@@ -33,15 +34,22 @@
 #' predict(fit,cbind(1,2))
 #' ## True value at location
 #' braninFunction(c(1,2))
+#'}
 ###################################################################################################
 #todo: example
 buildRandomForest <- function(x, y, control=list()){ 
   fit <- list()
   fit$rfFit <- randomForest(x, y)
 	fit$pNames <- colnames(x)
+	fit$x <- x
+	fit$y <- y
   class(fit) <- "spotRandomForest"
   fit
 }
+
+#update.spotRandomForest <- function(x,y,fit){
+#  
+#}
 
 ###################################################################################################
 #' Prediction method for random forest

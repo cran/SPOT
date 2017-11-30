@@ -53,8 +53,12 @@ an object of class \code{kriging}. Basically a list, with the options and found 
 \description{
 This function builds a Kriging model based on code by Forrester et al..
 By default exponents (p) are fixed at a value of two, and a nugget (or regularization constant) is used.
-To correct the uncertainty estimates in case of nugget, reinterpolation is also by default turned on.
-The model uses a Gaussian kernel.
+To correct the uncertainty estimates in case of nugget, re-interpolation is also by default turned on.
+}
+\details{
+The model uses a Gaussian kernel: \code{k(x,z)=exp(-sum(theta_i * |x_i-z_i|^p_i))}. By default, \code{p_i = 2}.
+Note that if dimension \code{x_i} is a factor variable (see parameter \code{types}), Hamming distance will be used 
+instead of \code{|x_i-z_i|}.
 }
 \examples{
 ## Test-function:

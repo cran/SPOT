@@ -10,6 +10,7 @@
 #' @param size number of points with that dimension needed. (will be no. of rows of the result matrix).
 #' @param calcMinDistance Boolean to indicate whether a minimal distance should be calculated.
 #' @param nested nested design to be considered during distance calculation.
+#' @param inequalityConstraint inequality constraint function, smaller zero for infeasible points. Used to replace infeasible points with random points. Has to evaluate points in interval [0;1].
 #'
 #' @seealso This function is used as a basis for \code{\link{designLHD}}.
 #'
@@ -18,10 +19,23 @@
 #' @keywords internal
 #' @author Original code by Christian Lasarczyk, adaptations by Martin Zaefferer
 ####################################################################################
-designLHDNorm <- function(dim,size, calcMinDistance=FALSE, nested=NULL){
+designLHDNorm <- function(dim,size, calcMinDistance=FALSE, nested=NULL, inequalityConstraint=NULL){
 	step <- 1/size;
 	design <- replicate(dim, sample(0:(size-1),size) * step + runif(size) * step);
 
+	if(!is.null(inequalityConstraint)){ #TODO: this may be inefficient if the feasible space is small.
+		feasible <- apply(design,1,inequalityConstraint) <= 0
+		if(any(feasible))
+			design <- design[feasible,,drop=FALSE]
+		else
+			design <- matrix(NA,0,ncol(design))
+		while(nrow(design)<size){
+			newP <- runif(dim)
+			if(inequalityConstraint(newP)<=0){
+				design<-rbind(design,as.numeric(newP))
+			}
+		}
+	}
 	
 	des <- rbind(design, nested) #adds nested design points, to be considered in distance calculation.
 	
@@ -47,11 +61,14 @@ designLHDNorm <- function(dim,size, calcMinDistance=FALSE, nested=NULL){
 #' 12 points (12 rows). The first two rows will be identical to \code{x}. Only the remaining ten rows are guaranteed to be a valid LHD. 
 #' @param lower vector with lower boundary of the design variables (in case of categorical parameters, please map the respective factor to a set of contiguous integers, e.g., with lower = 1 and upper = number of levels)
 #' @param upper vector with upper boundary of the design variables (in case of categorical parameters, please map the respective factor to a set of contiguous integers, e.g., with lower = 1 and upper = number of levels)
-#' @param control list of controls:\cr
-#'  \code{size} number of design points\cr
-#'  \code{retries} number of retries during design creation\cr
-#'  \code{types} this specifies the data type for each design parameter, as a vector of either "numeric","integer","factor". (here, this only affects rounding)\cr
-#'  \code{replicates} integer for replications of each design point. E.g., if replications is two, every design point will occur twice in the resulting matrix.
+#' @param control list of controls:
+#' \describe{
+#'  \item{\code{size}}{number of design points}
+#'  \item{\code{retries}}{number of retries during design creation}
+#'  \item{\code{types}}{this specifies the data type for each design parameter, as a vector of either "numeric","integer","factor". (here, this only affects rounding)}
+#'  \item{\code{inequalityConstraint}}{inequality constraint function, smaller zero for infeasible points. Used to replace infeasible points with random points.}
+#'  \item{\code{replicates}}{integer for replications of each design point. E.g., if replications is two, every design point will occur twice in the resulting matrix.}
+#' }
 #'
 #' @return matrix \code{design} \cr
 #' - \code{design} has \code{length(lower)} columns and \code{(size + nrow(x))*control$replicates} rows.
@@ -81,6 +98,7 @@ designLHD <- function(x=NULL, lower, upper, control=list()) {
   con<-list(size=10, #number of design points
 			retries=10, #number of randomly created designs, best selected based on max min distance
 			replicates=1, #replications for each design point. leads to replicates*size rows.
+			inequalityConstraint=NULL,
       types=rep("numeric",n)#data type of each column. possib
      )
 	con[names(control)] <- control
@@ -94,13 +112,27 @@ designLHD <- function(x=NULL, lower, upper, control=list()) {
       x[,i] <- (x[,i] - lowerBound)/ (upperBound-lowerBound)
     }
 	}
+	
+	#constraint function: needs to be scaled in [0,1]
+	if(!is.null(control$inequalityConstraint)){
+		ineqConstraint <- control$inequalityConstraint
+		force(ineqConstraint)
+		force(lower)
+		force(upper)
+		ineqConstraint01 <- function(xx){
+			xx <- lower + xx * (upper - lower)
+			ineqConstraint(xx)
+		}
+	}else{
+		ineqConstraint01 <- NULL
+	}
   
 	## Bei einer Wiederholung muss die Distanz nicht berechnet werden
-	best <- designLHDNorm(length(lower),control$size,calcMinDistance=control$retries>1,nested=x)
+	best <- designLHDNorm(length(lower),control$size,calcMinDistance=control$retries>1,nested=x,inequalityConstraint=ineqConstraint01)
 	
 	if (control$retries>1) {
 		for (i in 1:(control$retries-1)) {
-			tmpDes <- designLHDNorm(length(lower),control$size,calcMinDistance=TRUE,nested=x)
+			tmpDes <- designLHDNorm(length(lower),control$size,calcMinDistance=TRUE,nested=x,inequalityConstraint=ineqConstraint01)
 			## maximize minimal distance
 			if (tmpDes$minDistance > best$minDistance)
 				best <- tmpDes

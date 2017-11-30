@@ -59,7 +59,7 @@ buildKrigingDACE <- function(x, y, control=list()){ #nugget -1 means that the nu
 				regr=regpoly0, 
 				corr= corrnoisykriging ,
 				nugget = -1, target="y",
-				algtheta=optimLBFGSB)
+				algTheta=optimLBFGSB)
 	con[names(control)] <- control
 	control<-con
 	
@@ -90,7 +90,7 @@ buildKrigingDACE <- function(x, y, control=list()){ #nugget -1 means that the nu
 	para <- dacePrepareFit(x, y, control$nugget, control$regr, control$corr) 
   opts<-list(funEvals=q)
   ## Optimize likelihood
-	res <- control$algtheta(x=startTheta,fun=daceLikelihood,lower=lb,upper=ub,
+	res <- control$algTheta(x=startTheta,fun=daceLikelihood,lower=lb,upper=ub,
 						control=opts,para=para,nugget=control$nugget)		
 	if(is.null(res$xbest))
     res$xbest<-startTheta
@@ -111,7 +111,8 @@ buildKrigingDACE <- function(x, y, control=list()){ #nugget -1 means that the nu
 		ymean <- c(ymean, mean(y[ind]))
 	}	
   fit$min <- min(ymean)
-	
+	fit$x <- x
+	fit$y <- y	
 	class(fit)<- "dace"
 	fit
 }

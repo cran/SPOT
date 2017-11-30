@@ -4,13 +4,15 @@
 \alias{funCyclone}
 \title{Objective function - Cyclone Simulation: Barth/Muschelknautz}
 \usage{
-funCyclone(x, deterministic = c(T, T, T), cyclone = list(Da = 1260, H =
-  2500, Dt = 420, Ht = 650, He = 600, Be = 200), fluid = list(Mu = 18.5 *
-  10^(-6), Vp = 5000, Rhop = 2000, Rhof = 1.204, Croh = 50),
-  noiseLevel = list(Vp = 0.1, Rhop = 0.05))
+funCyclone(x, deterministic = c(T, T, T), cyclone = list(Da = 1.26, H = 2.5,
+  Dt = 0.42, Ht = 0.65, He = 0.6, Be = 0.2), fluid = list(Mu = 1.85e-05, Ve =
+  (50/36)/0.12, lambdag = 1/200, Rhop = 2000, Rhof = 1.2, Croh = 0.05),
+  noiseLevel = list(Vp = 0.1, Rhop = 0.05), model = "Barth-Muschelknautz",
+  intervals = c(0, 2, 4, 6, 8, 10, 15, 20, 30) * 1e-06, delta = c(0, 0.02,
+  0.03, 0.05, 0.1, 0.3, 0.3, 0.2))
 }
 \arguments{
-\item{x}{vector of length at least one and up to six, specifying non-default geometrical parameters: Da, H, Dt, Ht, He, Be}
+\item{x}{vector of length at least one and up to six, specifying non-default geometrical parameters in [m]: Da, H, Dt, Ht, He, Be}
 
 \item{deterministic}{binary vector. First element specifies whether volume flow is deterministic or not. Second element specifies whether particle density is deterministic or not. Third element specifies whether particle diameters are deterministic or not. Default: All are deterministic (TRUE).}
 
@@ -19,6 +21,12 @@ funCyclone(x, deterministic = c(T, T, T), cyclone = list(Da = 1260, H =
 \item{fluid}{list of default fluid parameters: fluid$Mu, fluid$Vp, fluid$Rhop, fluid$Rhof and fluid$Croh}
 
 \item{noiseLevel}{list of noise levels for volume flow (noiseLevel$Vp) and particle density (noiseLevel$Rhop), only used if non-deterministic.}
+
+\item{model}{type of the model (collection efficiency only): either "Barth-Muschelknautz" or "Mothes"}
+
+\item{intervals}{vector specifying the particle size interval bounds.}
+
+\item{delta}{vector of densities in each interval (specified by intervals). Should have one element less than the intervals parameter.}
 }
 \value{
 returns a function that calculates the fractional efficiency for the specified diameter, see example.
@@ -29,13 +37,13 @@ optimization problem (potentially bi-objective). See the references [1,2].
 }
 \examples{
 ## Call directly
-funCyclone(c(1260,2500))
+funCyclone(c(1.26,2.5))
 ## create vectorized target funcion, vectorized, first objective only
 ## Also: negated, since SPOT always does minimization.
 tfunvecF1 <-function(x){-apply(x,1,funCyclone)[1,]}
-tfunvecF1(matrix(c(1260,2500,1000,2000),2,2,byrow=TRUE))
+tfunvecF1(matrix(c(1.26,2.5,1,2),2,2,byrow=TRUE))
 ## optimize with spot
-res <- spot(fun=tfunvecF1,lower=c(1000,2000),upper=c(2000,3000),
+res <- spot(fun=tfunvecF1,lower=c(1,2),upper=c(2,3),
    control=list(modelControl=list(target="ei"),
    model=buildKriging,optimizer=optimLBFGSB,plots=TRUE)) 
 ## best found solution ...

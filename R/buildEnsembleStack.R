@@ -43,11 +43,9 @@ buildEnsembleStack <- function(x, y, control=list()){ #nugget -1 means that the 
 	con <- list(modelL1 = buildLM  #L1 model: Linear Model
           ,modelL1Control = list() #default: empty list, use default parameters for L1 model
 				  ,modelL0 = list(buildLM
-				                  ,buildRandomForest
 				                  ,buildKriging
-				                  ) #L0 models: Kriging and Random Forest
+				                  ) #L0 models: Linear model and Kriging
           ,modelL0Control = list(list()
-                                 ,list()
                                  ,list()
                                   ) #default: empty lists, use default parameters for all L0 models
           ,k = 10 #number of folds (k-fold CV)
@@ -83,6 +81,8 @@ buildEnsembleStack <- function(x, y, control=list()){ #nugget -1 means that the 
   ## fit level 1 model
   fit1 <- control$modelL1(ythat, y, control$modelL1Control)
   fit <- list(fit0=fit0, fit1=fit1, ythat=ythat,y=y,x=x,k=k,p=p) 
+	fit$x <- x
+	fit$y <- y
 	class(fit)<- "ensembleStack"
 	fit
 }

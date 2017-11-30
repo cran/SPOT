@@ -50,6 +50,9 @@ buildLM<-function(x,y,control=list()){
   con[names(control)] <- control
   control<-con
 	
+	control$x <- x
+	control$y <- y
+	
 	## Convert inputs to combined data frame
 	x <- as.data.frame(x)
 	y <- as.data.frame(y)

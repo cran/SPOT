@@ -4,8 +4,11 @@
 #'
 #' This function builds a Kriging model based on code by Forrester et al..
 #' By default exponents (p) are fixed at a value of two, and a nugget (or regularization constant) is used.
-#' To correct the uncertainty estimates in case of nugget, reinterpolation is also by default turned on.
-#' The model uses a Gaussian kernel.
+#' To correct the uncertainty estimates in case of nugget, re-interpolation is also by default turned on.
+#'
+#' The model uses a Gaussian kernel: \code{k(x,z)=exp(-sum(theta_i * |x_i-z_i|^p_i))}. By default, \code{p_i = 2}.
+#' Note that if dimension \code{x_i} is a factor variable (see parameter \code{types}), Hamming distance will be used 
+#' instead of \code{|x_i-z_i|}.
 #' 
 #' @param x design matrix (sample locations)
 #' @param y vector of observations at \code{x}
@@ -125,7 +128,7 @@ buildKriging <- function(x, y, control=list()){
 	fit$normalizeymin<-ymin
 	fit$normalizeymax<-ymax
 	res <- normalizeMatrix(fit$x, ymin, ymax)
-	fit$x <-res$y
+	fit$scaledx <-res$y
 	fit$normalizexmin<-res$xmin
 	fit$normalizexmax<-res$xmax
 	LowerTheta <- rep(1,k)*log10(fit$thetaLower)
@@ -148,9 +151,9 @@ buildKriging <- function(x, y, control=list()){
 
 	for(i in 1:k){
 		if(control$types[i]!="factor"){
-			A[i,]<-as.numeric(as.matrix(dist(fit$x[,i]))) #euclidean distance
+			A[i,]<-as.numeric(as.matrix(dist(fit$scaledx[,i]))) #euclidean distance
 		}else	{
-			tmp <- outer(fit$x[,i],fit$x[,i],'!=') #hamming distance
+			tmp <- outer(fit$scaledx[,i],fit$scaledx[,i],'!=') #hamming distance
 			class(tmp) <- "numeric"
 			A[i,]<-tmp
 		}
@@ -390,7 +393,7 @@ krigingLikelihood <- function(x,AX,Ay,optimizeP=FALSE,useLambda=TRUE){
 #' @param newdata design matrix to be predicted
 #' @param ... not used
 #'
-#' @return list with predicted mean \code{y}, uncertainty \code{s} (optional) and expected improvement \code{ei} (optional). 
+#' @return list with predicted mean \code{y}, uncertainty / standard deviation \code{s} (optional) and expected improvement \code{ei} (optional). 
 #' Whether \code{s} and \code{ei} are returned is specified by the vector of strings \code{object$target}, which then contains \code{"s"} and \code{"ei"}.
 #'
 #'
@@ -422,7 +425,7 @@ predict.kriging <- function(object,newdata,...){
   
   #normalize input x
 	x <- normalizeMatrix2(data.matrix(x),0,1,object$normalizexmin,object$normalizexmax)
-	AX <- object$x
+	AX <- object$scaledx
 	theta <- object$dmodeltheta
 	Psinv <- object$Psinv #fixed: does not need to be computed, is already done in likelihood function
 	n <- dim(AX)[1]
@@ -515,7 +518,7 @@ predictKrigingReinterpolation <- function(object,newdata,...){
 	x<-newdata
 	#normalize input x
 	x <- normalizeMatrix2(data.matrix(x),0,1,object$normalizexmin,object$normalizexmax)
-	AX <- object$x
+	AX <- object$scaledx
 	theta <- object$dmodeltheta
 	lambda <- object$dmodellambda
 	Psi <- object$Psi

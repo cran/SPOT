@@ -15,11 +15,14 @@ and are taken into account when calculating the pair-wise distances. They do not
 
 \item{upper}{vector with upper boundary of the design variables (in case of categorical parameters, please map the respective factor to a set of contiguous integers, e.g., with lower = 1 and upper = number of levels)}
 
-\item{control}{list of controls:\cr
-\code{size} number of design points\cr
-\code{retries} number of retries during design creation\cr
-\code{types} this specifies the data type for each design parameter, as a vector of either "numeric","integer","factor". (here, this only affects rounding)\cr
-\code{replicates} integer for replications of each design point. E.g., if replications is two, every design point will occur twice in the resulting matrix.}
+\item{control}{list of controls:
+\describe{
+ \item{\code{size}}{number of design points}
+ \item{\code{retries}}{number of retries during design creation}
+ \item{\code{types}}{this specifies the data type for each design parameter, as a vector of either "numeric","integer","factor". (here, this only affects rounding)}
+ \item{\code{inequalityConstraint}}{inequality constraint function, smaller zero for infeasible points. Used to replace infeasible points with random points.}
+ \item{\code{replicates}}{integer for replications of each design point. E.g., if replications is two, every design point will occur twice in the resulting matrix.}
+}}
 }
 \value{
 matrix \code{design} \cr

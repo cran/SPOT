@@ -13,8 +13,8 @@
 #' @param upper boundary of the search space
 #' @param control list of control parameters
 #' \describe{
-#'   \item{\code{funEvals}}{Budget, number of function evaluations allowed.}
-#'   \item{\code{retries}}{Number of retries for design generation, used by \code{\link{designLHD}}}
+#'   \item{\code{funEvals}}{Budget, number of function evaluations allowed. Default: 100.}
+#'   \item{\code{retries}}{Number of retries for design generation, used by \code{\link{designLHD}}. Default: 100.}
 #' }
 #' @param ... passed to \code{fun}
 #'

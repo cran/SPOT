@@ -26,17 +26,17 @@ The rewritten SPOT package aims to improve the following issues of the older pac
   hence making them easier accessible for new users. Also, these can now be more easily used separately from the main SPO 
   approach, e.g., only for modeling.\cr
 - Reducing the unnecessarily large number of choices and parameters.\cr
-- Removal of extremely rarely used / un-used features, to reduce overall complexity of the code.\cr
+- Removal of extremely rarely used / un-used features, to reduce overall complexity of the package.\cr
 - Improving documentation and accessibility in general.\cr
 - Speed-up of frequently used procedures.\cr
-As this is the initial re-written version, we would appreciate feedback about any bugs or other issues with the package. 
+We appreciate feedback about any bugs or other issues with the package. 
 Feel free to send feedback by mail to the maintainer.
 
 \tabular{ll}{
 Package: \tab SPOT\cr
 Type: \tab Package\cr
-Version: \tab 2.0.1\cr
-Date: \tab 2017-03-08\cr
+Version: \tab 2.0.2\cr
+Date: \tab 2017-11-30\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }

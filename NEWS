@@ -1,6 +1,16 @@
 SPOT - Sequential Parameter Optimization Toolbox
 
 Release Notes Version 2.0.1
+  - 3 new interfaces to existing optimization packages: optimDE, optimGenoud, optimNLOPTR
+	- An implementation of an evolution strategy was added: optimES
+	- Inequality constraints can now be handled (via the designLHD for designs, and optimNLOPTR for optimizers)
+	- buildSO was replaced by buildRSM
+	- As an additional model, the the LOESS model is now available via buildLOESS
+	- Several tools for creating simple surface plots from models/data/functions were added to the package: 
+		plotData, plotModel, plotFunction.
+	- Various minor fixes for documentation and code
+
+Release Notes Version 2.0.1
   - This version is a complete rewrite of the SPOT package
 	-- A more modular architecture is provided, that allows the user to easily customize parts of the SPO procedure.
 	-- Core functions for modeling and optimization use interfaces more similar to functions from other packages / core-R, 
