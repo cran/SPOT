@@ -13,7 +13,7 @@
 #' to \code{which.min(object$y)}. The length of this numeric vector should be the same as the number of columns in \code{object$x}
 #' @param xlab a vector of characters, giving the labels for each of the two independent variables.
 #' @param ylab character, the value of the dependent variable predicted by the corresponding model.
-#' @param type string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"} or \code{"persp"} (perspective) plot.
+#' @param type string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"}, \code{"persp"} (perspective), or\ code{"persp3d"} plot.
 #' @param ... additional parameters passed to the \code{contour} or \code{filled.contour} function.
 #'
 #' @examples
@@ -64,8 +64,13 @@ plotModel <- function(object,which=1:2,
 			plotfun2(z2)
 		}	
   }	
-  plotFunction(f=plotfun,lower=lower,upper=upper,
+	if(type=="persp3d"){
+		plotFunction(f=plotfun,lower=lower,upper=upper,
+                     type=type,
+                     xlab=xlab[1],ylab=xlab[2],zlab=ylab,points1=cbind(object$x[,which],object$y),...)	
+	}else{
+		plotFunction(f=plotfun,lower=lower,upper=upper,
                      type=type,
                      xlab=xlab[1],ylab=xlab[2],zlab=ylab,points1=object$x[,which],...)	
-	
+	}
 }

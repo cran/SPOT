@@ -2,6 +2,7 @@
 test_that("check optimNLOPTR interface (no constraint)", {
 	### first example: only using nloptr
 	res <- optimNLOPTR(,fun = funSphere,lower = c(-10,-20),upper=c(20,8))
+	expect_equal(length(res$xbest),2)
 	res
 })
 
@@ -11,9 +12,11 @@ test_that("check optimNLOPTR + inequality constraint", {
 	###specify constraint
 	contr$eval_g_ineq <- function(x) 1+x[1]-x[2]
 	res <- optimNLOPTR(,fun = funSphere,lower = c(-10,-20),upper=c(20,8),control=contr) # with default algorithm="NLOPT_GN_ORIG_DIRECT_L"
+	expect_equal(length(res$xbest),2)
 	res #note: DIRECT is deterministic
 	contr$opts$algorithm <- "NLOPT_GN_ISRES"
 	res <- optimNLOPTR(,fun = funSphere,lower = c(-10,-20),upper=c(20,8),control=contr) # with ISRES
+	expect_equal(length(res$xbest),2)
 	res #note: ISRES is not deterministic, and may also need more evaluations (increase funEvals)
 })
 

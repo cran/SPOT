@@ -27,8 +27,8 @@
 #' \tabular{ll}{
 #' Package: \tab SPOT\cr
 #' Type: \tab Package\cr
-#' Version: \tab 2.0.2\cr
-#' Date: \tab 2017-11-30\cr
+#' Version: \tab 2.0.3\cr
+#' Date: \tab 2018-05-14\cr
 #' License: \tab GPL (>= 2)\cr
 #' LazyLoad: \tab yes\cr
 #' }
@@ -38,7 +38,7 @@
 #' @docType package
 #' @title Sequential Parameter Optimization Toolbox
 #' @author Thomas Bartz-Beielstein \email{thomas.bartz-beielstein@@th-koeln.de}, Joerg Stork, Martin Zaefferer (Maintainer, \email{martin.zaefferer@@gmx.de})
-#' with contributions from: C. Lasarczyk, M. Rebolledo
+#' with contributions from: C. Lasarczyk, M. Rebolledo, J. Ziegenhirt, W. Konen, O. Flasch, P. Koch, M. Friese, L. Gentile, F. Rehbach.
 #' @keywords package
 #' @seealso Main interface function is \code{\link{spot}}.
 #' @import randomForest

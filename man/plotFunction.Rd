@@ -8,7 +8,7 @@ plotFunction(f = function(x) {     rowSums(x^2) }, lower = c(0, 0),
   upper = c(1, 1), type = "filled.contour", s = 100, xlab = "x1",
   ylab = "x2", zlab = "y", color.palette = terrain.colors, title = " ",
   levels = NULL, points1, points2, pch1 = 20, pch2 = 8, lwd1 = 1,
-  lwd2 = 1, cex1 = 1, cex2 = 1, col1 = "black", col2 = "black",
+  lwd2 = 1, cex1 = 1, cex2 = 1, col1 = "red", col2 = "black",
   theta = -40, phi = 40, ...)
 }
 \arguments{
@@ -18,7 +18,7 @@ plotFunction(f = function(x) {     rowSums(x^2) }, lower = c(0, 0),
 
 \item{upper}{boundary (defaults to \code{c(1,1)}).}
 
-\item{type}{string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"} or \code{"persp"} (perspective) plot.}
+\item{type}{string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"}, \code{"persp"} (perspective), or\ code{"persp3d"} plot.}
 
 \item{s}{number of samples along each dimension. e.g. \code{f} will be evaluated \code{s^2} times.}
 
@@ -32,11 +32,11 @@ plotFunction(f = function(x) {     rowSums(x^2) }, lower = c(0, 0),
 
 \item{title}{of the plot}
 
-\item{levels}{number of levels for the plotted function value. Will be set automatically with default NULL.. (contour plots only)}
+\item{levels}{number of levels for the plotted function value. Will be set automatically with default NULL.. (contour plots  only)}
 
-\item{points1}{can be omitted, but if given the points in this matrix are added to the plot in form of dots. (contour plots only)}
+\item{points1}{can be omitted, but if given the points in this matrix are added to the plot in form of dots. Contour plots and persp3d only. Contour plots expect matrix with two columns for coordinates. 3Dperspective expects matrix with three columns, third column giving the corresponding observed value of the plotted function.}
 
-\item{points2}{can be omitted, but if given the points in this matrix are added to the plot in form of crosses. (contour plots only)}
+\item{points2}{can be omitted, but if given the points in this matrix are added to the plot in form of crosses. Contour plots and persp3d only.  Contour plots expect matrix with two columns for coordinates. 3Dperspective expects matrix with three columns, third column giving the corresponding observed value of the plotted function.}
 
 \item{pch1}{pch (symbol) setting for points1 (default: 20). (contour plots only)}
 

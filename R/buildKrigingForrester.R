@@ -420,9 +420,11 @@ krigingLikelihood <- function(x,AX,Ay,optimizeP=FALSE,useLambda=TRUE){
 predict.kriging <- function(object,newdata,...){
 	x<-newdata
 	if(object$reinterpolate){
-		return(predictKrigingReinterpolation(object,newdata,...))
+		return(predictKrigingReinterpolation(object,x,...))
 	}
   
+	x <- repairNonNumeric(x,object$types) #round to nearest integer.
+	
   #normalize input x
 	x <- normalizeMatrix2(data.matrix(x),0,1,object$normalizexmin,object$normalizexmax)
 	AX <- object$scaledx
@@ -432,22 +434,23 @@ predict.kriging <- function(object,newdata,...){
 	mu <- object$mu
 	yonemu <- object$yonemu	
 	SigmaSqr <- object$ssq
-	
-	if(object$optimizeP)
-		p <- object$P
-  else
-    p <- 2
-  
+ 
   k <- nrow(x)
 	nvar <- ncol(x)
+	
+	if(object$optimizeP)
+	  p <- object$P
+	else
+	  p <- rep(2,nvar)	
+		
   psi <- matrix(0,k,n)
 	for (i in 1:nvar){ #todo nnn number variables 
 	  #psi[,i] <- colSums(theta*(abs(AX[i,]-t(x))^p))
 	  tmp <- expand.grid(AX[,i],x[,i])
     if(object$types[i]=="factor"){
-      tmp <- as.numeric(tmp[,1]!=tmp[,2])^p
+      tmp <- as.numeric(tmp[,1]!=tmp[,2])^p[i]
     }else{
-      tmp <- abs(tmp[,1]-tmp[,2])^p
+      tmp <- abs(tmp[,1]-tmp[,2])^p[i]
 	  }
     psi <- psi + theta[i] * matrix(tmp,k,n,byrow = T)	  
 	}
@@ -515,7 +518,8 @@ predict.kriging <- function(object,newdata,...){
 #' @keywords internal
 ###################################################################################
 predictKrigingReinterpolation <- function(object,newdata,...){
-	x<-newdata
+	x <- newdata
+	x <- repairNonNumeric(x,object$types) #round to nearest integer.
 	#normalize input x
 	x <- normalizeMatrix2(data.matrix(x),0,1,object$normalizexmin,object$normalizexmax)
 	AX <- object$scaledx
@@ -530,22 +534,22 @@ predictKrigingReinterpolation <- function(object,newdata,...){
 	PsiB <- Psi-diag(lambda,n)+diag(.Machine$double.eps,n) #TODO this and the following can be precomputed during model building
 	SigmaSqr <- as.numeric(t(yonemu)%*%Psinv%*%PsiB%*%Psinv%*%yonemu)/n
 	#	
+	k <- nrow(x)
+	nvar <- ncol(x)
 	
 	if(object$optimizeP)
 	  p <- object$P
 	else
-	  p <- 2
+	  p <- rep(2,nvar)	
 	
-	k <- nrow(x)
-	nvar <- ncol(x)
 	psi <- matrix(0,k,n)
 	for (i in 1:nvar){ #todo nnn number variables 
 	  #psi[,i] <- colSums(theta*(abs(AX[i,]-t(x))^p))
 	  tmp <- expand.grid(AX[,i],x[,i])
 	  if(object$types[i]=="factor"){
-	    tmp <- as.numeric(tmp[,1]!=tmp[,2])^p
+	    tmp <- as.numeric(tmp[,1]!=tmp[,2])^p[i]
 	  }else{
-	    tmp <- abs(tmp[,1]-tmp[,2])^p
+	    tmp <- abs(tmp[,1]-tmp[,2])^p[i]
 	  }
 	  psi <- psi + theta[i] * matrix(tmp,k,n,byrow = T)	  
 	}

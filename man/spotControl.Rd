@@ -20,17 +20,17 @@ Control is a list of the settings:
   \item{\code{types}}{ Vector of data type of each variable as a string, defaults \code{"numeric"} for all variables.}
   \item{\code{design}}{A function that creates an initial design of experiment. Functions that accept the same parameters, 
 			and return a matrix like \code{\link{designLHD}} or \code{\link{designUniformRandom}} can be used. Default is \code{\link{designLHD}}.}
-  \item{\code{designControl}}{A list of controls based to the \code{control} list of the \code{design} function. See help 
+  \item{\code{designControl}}{A list of controls passed to the \code{control} list of the \code{design} function. See help 
 			of the respective function for details. Default is an empty \code{list}.}
   \item{\code{model}}{A function that builds a statistical model of the observed data. Functions that accept the same 
 			parameters, and return a matrix like \code{\link{buildKriging}} or \code{\link{buildRandomForest}} 
 			can be used. Default is \code{\link{buildKriging}}.}
-  \item{\code{modelControl}}{A list of controls based to the \code{control} list of the \code{model} function. 
+  \item{\code{modelControl}}{A list of controls passed to the \code{control} list of the \code{model} function. 
 			See help of the respective function for details.Default is an empty \code{list}.}
   \item{\code{optimizer}}{A function that is used to optimize based on \code{model}, finding the most promising 
 			candidate solutions. Functions that accept the same parameters, and return a matrix like \code{\link{optimLHD}} 
 			or \code{\link{optimLBFGSB}} can be used. Default is \code{\link{optimLHD}}.}
-  \item{\code{optimizerControl}}{A list of controls based to the \code{control} list of the \code{optimizer} function. 
+  \item{\code{optimizerControl}}{A list of controls passed to the \code{control} list of the \code{optimizer} function. 
 			See help of the respective function for details. Default is an empty \code{list}.}
   \item{\code{noise}}{Boolean, whether the objective function has noise or not. Default is non-noisy, that is, \code{FALSE}.}
   \item{\code{OCBA}}{Boolean, indicating whether Optimal Computing Budget Allocation (OCBA) should be used in case of a noisy 

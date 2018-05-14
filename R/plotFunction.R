@@ -7,16 +7,16 @@
 #' @param f function to be plotted. The function should either be able to take two vectors or one matrix specifying sample locations. i.e. \code{z=f(X)} or \code{z=f(x2,x1)} where Z is a two column matrix containing the sample locations \code{x1} and \code{x2}.
 #' @param lower boundary for x1 and x2 (defaults to \code{c(0,0)}).
 #' @param upper boundary (defaults to \code{c(1,1)}).
-#' @param type string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"} or \code{"persp"} (perspective) plot.
+#' @param type string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"}, \code{"persp"} (perspective), or\ code{"persp3d"} plot.
 #' @param s number of samples along each dimension. e.g. \code{f} will be evaluated \code{s^2} times.
 #' @param xlab lable of first axis
 #' @param ylab lable of second axis
 #' @param zlab lable of third axis
 #' @param color.palette colors used, default is \code{terrain.color}
 #' @param title of the plot 
-#' @param levels number of levels for the plotted function value. Will be set automatically with default NULL.. (contour plots only)
-#' @param points1 can be omitted, but if given the points in this matrix are added to the plot in form of dots. (contour plots only)
-#' @param points2 can be omitted, but if given the points in this matrix are added to the plot in form of crosses. (contour plots only)
+#' @param levels number of levels for the plotted function value. Will be set automatically with default NULL.. (contour plots  only)
+#' @param points1 can be omitted, but if given the points in this matrix are added to the plot in form of dots. Contour plots and persp3d only. Contour plots expect matrix with two columns for coordinates. 3Dperspective expects matrix with three columns, third column giving the corresponding observed value of the plotted function.
+#' @param points2 can be omitted, but if given the points in this matrix are added to the plot in form of crosses. Contour plots and persp3d only.  Contour plots expect matrix with two columns for coordinates. 3Dperspective expects matrix with three columns, third column giving the corresponding observed value of the plotted function.
 #' @param pch1 pch (symbol) setting for points1 (default: 20). (contour plots only)
 #' @param pch2 pch (symbol) setting for points2 (default: 8). (contour plots only)
 #' @param lwd1 line width for points1 (default: 1). (contour plots only)
@@ -37,6 +37,9 @@
 #' @seealso \code{\link{plotData}}, \code{\link{plotModel}}
 #'
 #' @export
+#' @importFrom plotly plot_ly
+#' @importFrom plotly add_trace
+#' @importFrom plotly %>%
 ###################################################################################################
 plotFunction <- function(f=function(x){rowSums(x^2)}, 
                                 lower=c(0,0) , upper=c(1,1) , 
@@ -45,7 +48,7 @@ plotFunction <- function(f=function(x){rowSums(x^2)},
                                 xlab="x1",ylab="x2", zlab="y",
                                 color.palette = terrain.colors, 
                                 title=" ",  levels=NULL, 
-                                points1, points2, pch1=20, pch2=8, lwd1=1, lwd2=1, cex1=1, cex2=1, col1="black", col2="black",
+                                points1, points2, pch1=20, pch2=8, lwd1=1, lwd2=1, cex1=1, cex2=1, col1="red", col2="black",
 																theta=-40,phi=40,
 																...){
   x <- seq(lower[1], upper[1], length = s)  
@@ -122,5 +125,14 @@ plotFunction <- function(f=function(x){rowSums(x^2)},
 					main=title,
 					col=colors[z.facet.range],
 					theta=theta,phi=phi,...)	
+  }else if(type=="persp3d"){ #perspective plot with plotly
+		p <- plot_ly(z = ~z, x = x, y = y,type = "surface")# %>% add_surface()
+    if(!missing(points1))
+      p <- p %>% add_trace(data=points1,x=points1[,1],z=points1[,3],y=points1[,2], mode = "markers", type = "scatter3d", 
+            marker = list(size = 5, color = col1, symbol = 200))
+    if(!missing(points2))
+      p <- p %>% add_trace(data=points2,x=points2[,1],z=points2[,3],y=points2[,2], mode = "markers", type = "scatter3d", 
+            marker = list(size = 5, color = col2, symbol = 102))
+		p
   }
 }

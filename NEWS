@@ -1,6 +1,16 @@
 SPOT - Sequential Parameter Optimization Toolbox
 
-Release Notes Version 2.0.1
+Release Notes Version 2.0.3
+  - Major bug fixed in the model produced by buildKriging. The bug occured when using 
+		optimizeP=TRUE in the control, and affected the predict function.
+	- Before prediction with predict.kriging, the model will now round integer/factor variables to avoid
+		issues caused by optimizers that produce numeric values.
+	- There is now a wrapper function "wrapFunction" available, to help use SPOT with simple, non.vectorized
+		objective functions.
+	- A 3D plot was added to the plotFunction function (also available in plotModel and plotData).
+	  It can be generated with type="persp3d"
+	
+Release Notes Version 2.0.2
   - 3 new interfaces to existing optimization packages: optimDE, optimGenoud, optimNLOPTR
 	- An implementation of an evolution strategy was added: optimES
 	- Inequality constraints can now be handled (via the designLHD for designs, and optimNLOPTR for optimizers)
