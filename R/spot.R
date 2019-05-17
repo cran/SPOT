@@ -107,6 +107,10 @@ spot <- function(x=NULL,fun, #mostly, fun must have format y=f(x,...).
 		## a seed can be passed to fun. For that purpose, the user must specify noise=TRUE and fun should 
 		## be fun(x,seed,...)
 		lower,upper,control=list(),...){
+    
+    #Initial Input Checking
+    initialInputCheck(x,fun,lower,upper,control)
+    
 	## default settings
 	dimension <- length(lower)
 	con <- spotControl(dimension)
@@ -121,12 +125,15 @@ spot <- function(x=NULL,fun, #mostly, fun must have format y=f(x,...).
 	
 	## Initial design generation
 	set.seed(control$seedSPOT)
-  x <- control$design(x,lower,upper,control$designControl)
-  
+  x <- control$design(x=x,lower=lower,upper=upper,control=control$designControl)
+
+  ## Rounding values produced by the design function to integers, etc.
+  x <- repairNonNumeric(x,control$types)
+    
 	## Evaluate initial design with objective function
-  y <- objectiveFunctionEvaluation(NULL,x,fun,control$seedFun,control$noise,...)
+  y <- objectiveFunctionEvaluation(x=NULL,xnew=x,fun=fun,seedFun=control$seedFun,noise=control$noise,...)
 	
-	result <- spotLoop(x,y,fun,lower,upper,control, ...)
+	result <- spotLoop(x=x,y=y,fun=fun,lower=lower,upper=upper,control=control, ...)
 	result
 } 
 
@@ -253,6 +260,10 @@ list(
 #' @export
 ###################################################################################################
 spotLoop <- function(x,y,fun,lower,upper,control,...){
+    
+    #Initial Input Checking
+    initialInputCheck(x,fun,lower,upper,control, inSpotLoop = T)
+    
 	## default settings
 	dimension <- length(lower)
 	con <- spotControl(dimension)
@@ -267,7 +278,7 @@ spotLoop <- function(x,y,fun,lower,upper,control,...){
 	modelFit <- NA
 	while(count < control$funEvals){ 
 		## Model building 
-    modelFit <- control$model(x,y,control$modelControl) #todo return modelControl to allow memory?
+    modelFit <- control$model(x=x,y=y,control=control$modelControl) #todo return modelControl to allow memory?
 		
 		## Generate a surrogate target function from the model
 		funSurrogate <- evaluateModel(modelFit)
@@ -291,7 +302,7 @@ spotLoop <- function(x,y,fun,lower,upper,control,...){
     xnew <- xnew[1:min(max(control$funEvals-count,1),nrow(xnew)),,drop=FALSE]
 		
 		## Evaluation with objective function
-		ynew <- objectiveFunctionEvaluation(x,xnew,fun,control$seedFun,control$noise,...)
+		ynew <- objectiveFunctionEvaluation(x=x,xnew=xnew,fun=fun,seedFun=control$seedFun,noise=control$noise,...)
     
 		## Plots, output, etc 
 		if(control$plots){

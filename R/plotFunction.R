@@ -7,7 +7,9 @@
 #' @param f function to be plotted. The function should either be able to take two vectors or one matrix specifying sample locations. i.e. \code{z=f(X)} or \code{z=f(x2,x1)} where Z is a two column matrix containing the sample locations \code{x1} and \code{x2}.
 #' @param lower boundary for x1 and x2 (defaults to \code{c(0,0)}).
 #' @param upper boundary (defaults to \code{c(1,1)}).
-#' @param type string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"}, \code{"persp"} (perspective), or\ code{"persp3d"} plot.
+#' @param type string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"}, 
+#' \code{"persp"} (perspective), or \code{"persp3d"} plot.
+#' Note that "persp3d" is based on the plotly package and will work in RStudio, but not in the standard RGui.
 #' @param s number of samples along each dimension. e.g. \code{f} will be evaluated \code{s^2} times.
 #' @param xlab lable of first axis
 #' @param ylab lable of second axis
@@ -126,7 +128,7 @@ plotFunction <- function(f=function(x){rowSums(x^2)},
 					col=colors[z.facet.range],
 					theta=theta,phi=phi,...)	
   }else if(type=="persp3d"){ #perspective plot with plotly
-		p <- plot_ly(z = ~z, x = x, y = y,type = "surface")# %>% add_surface()
+		p <- plot_ly(z = ~t(z), x = x, y = y,type = "surface")# %>% add_surface()
     if(!missing(points1))
       p <- p %>% add_trace(data=points1,x=points1[,1],z=points1[,3],y=points1[,2], mode = "markers", type = "scatter3d", 
             marker = list(size = 5, color = col1, symbol = 200))

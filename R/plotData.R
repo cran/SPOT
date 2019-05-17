@@ -22,7 +22,9 @@
 #' @param modelControl control list of the chosen model building function.
 #' @param xlab a vector of characters, giving the labels for each of the two independent variables
 #' @param ylab character, the value of the dependent variable predicted by the corresponding model
-#' @param type string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"}, \code{"persp"} (perspective), or\ code{"3Dperspective"} plot.
+#' @param type string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"}, 
+#' \code{"persp"} (perspective), or \code{"persp3d"} plot.
+#' Note that "persp3d" is based on the plotly package and will work in RStudio, but not in the standard RGui.
 #' @param ... additional parameters passed to the \code{contour} or \code{filled.contour} function
 #'
 #' @examples

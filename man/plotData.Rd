@@ -33,7 +33,9 @@ to \code{which.min(object$y)}. The length of this numeric vector should be the s
 
 \item{ylab}{character, the value of the dependent variable predicted by the corresponding model}
 
-\item{type}{string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"}, \code{"persp"} (perspective), or\ code{"3Dperspective"} plot.}
+\item{type}{string describing the type of the plot:  \code{"filled.contour"} (default), \code{"contour"}, 
+\code{"persp"} (perspective), or \code{"persp3d"} plot.
+Note that "persp3d" is based on the plotly package and will work in RStudio, but not in the standard RGui.}
 
 \item{...}{additional parameters passed to the \code{contour} or \code{filled.contour} function}
 }

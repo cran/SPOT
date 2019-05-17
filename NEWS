@@ -1,5 +1,13 @@
 SPOT - Sequential Parameter Optimization Toolbox
 
+Release Notes Version 2.0.4
+ 
+  - Various fixes to the documentation and help files
+  - The orientation of the surface plots in plot* functions with persp3d is now fixed
+  - design points generated in the initialization of the spot function are now
+    also rounded if they are supposed to be integers
+	- Minor bug fixes
+
 Release Notes Version 2.0.3
   - Major bug fixed in the model produced by buildKriging. The bug occured when using 
 		optimizeP=TRUE in the control, and affected the predict function.

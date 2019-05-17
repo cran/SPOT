@@ -301,7 +301,7 @@ spotAlgEs <- function(mue = 10,
 			xNew <- pmin(xNew,upperLimit)
 			
 			### evaluate
-			result <- fName(xNew,...)
+			result <- as.numeric(fName(xNew,...))
 			realFitness <- result
 			fitness <- result
 			
@@ -537,7 +537,7 @@ spotAlgEsGetSuccessRate <- function(gen,pop){
 spotAlgEsIndividualInitial <- function(s,dimension,n,noise=0,fName,gen,low=-1.0,high=1.0,	des,...){
 	x <- low + (high-low)*des
 	sigma <- rep(s,n)
-	realFitness <- fName(x,...)
+	realFitness <- as.numeric(fName(x,...))
 	fitness <- realFitness + rnorm(1,0,noise)
 	c(x = x,     #  *runif(dimension),
 		sigma = sigma,

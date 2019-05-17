@@ -24,15 +24,15 @@ Description: A set of tools for model based optimization and tuning of
     surrogate models for the purpose of efficient optimization. The main goal is
     to ease the burden of objective function evaluations, when a single evaluation
     requires a significant amount of resources.
-Version: 2.0.3
-Date: 2018-05-14
+Version: 2.0.4
+Date: 2019-05-17
 Depends: R (>= 3.0.0)
 Imports: randomForest, stats, utils, graphics, grDevices, MASS,
         DEoptim, rgenoud, plotly, rsm, nloptr
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Suggests: testthat
 NeedsCompilation: no
-Packaged: 2018-05-14 14:00:06 UTC; Martin
+Packaged: 2019-05-17 17:04:17 UTC; Martin
 Author: Thomas Bartz-Beielstein [aut],
   Joerg Stork [aut],
   Martin Zaefferer [aut, cre],
@@ -47,4 +47,4 @@ Author: Thomas Bartz-Beielstein [aut],
   Frederik Rehbach [ctb]
 Maintainer: Martin Zaefferer <martin.zaefferer@gmx.de>
 Repository: CRAN
-Date/Publication: 2018-05-14 14:26:46 UTC
+Date/Publication: 2019-05-17 17:50:07 UTC

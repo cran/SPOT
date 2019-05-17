@@ -1,4 +1,6 @@
 
+context("designUniformRandom")
+
 test_that("check dimensionality of returned uniform designs", {
   design <- designUniformRandom(,1,2,control=list(size=10))
   expect_equal(dim(design), c(10,1))

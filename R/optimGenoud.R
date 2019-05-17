@@ -45,7 +45,7 @@ optimGenoud<-function(x=NULL,fun,lower,upper,control=list(),...){
   unif.seed <- runif(1)
   max.generations <- itermax
   nvars <- length(lower)
-  Domains <- cbind(lower,upper)
+  Domains <- cbind(as.numeric(lower),as.numeric(upper))
   control$populationSize <- NULL
   control$funEvals <- NULL
   control$types <- NULL

@@ -27,7 +27,7 @@ Noisy Kriging correlation function using nuggets
 \code{\link{buildKrigingDACE}}
 }
 \author{
-The authors of the original DACE Matlab code \url{http://www2.imm.dtu.dk/projects/dace/} 
+The authors of the original DACE Matlab code 
 are Hans Bruun Nielsen \email{hbn@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 Extension of the Matlab code by Tobias Wagner \email{wagner@isf.de}. \cr 
 Ported to R by Martin Zaefferer \email{martin.zaefferer@fh-koeln.de}.

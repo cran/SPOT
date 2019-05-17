@@ -1,3 +1,6 @@
+
+context("SPOT general")
+
 test_that("check that spot function works without problems", {
   res <- spot(,funSphere,c(-2,-3),c(1,2))
 	expect_equal(c(nrow(res$x),length(res$y)), c(20,20))

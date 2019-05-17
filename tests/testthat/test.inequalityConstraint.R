@@ -1,4 +1,6 @@
 
+context("inequalityConstraint")
+
 test_that("check optimNLOPTR interface (no constraint)", {
 	### first example: only using nloptr
 	res <- optimNLOPTR(,fun = funSphere,lower = c(-10,-20),upper=c(20,8))

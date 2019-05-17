@@ -32,7 +32,7 @@
 #' @export
 ###################################################################################################
 optimDE<-function(x=NULL,fun,lower,upper,control=list(),...){
-  con<-list(funEvals=200,populationSize= (10 * length(lower)))
+  con<-list(funEvals=200,populationSize= (10 * length(lower)),trace=0)
   con[names(control)] <- control
   control<-con
   funEvals <- control$funEvals
