@@ -23,17 +23,17 @@
 ###################################################################################################
 satter <- function (MScoeff, MSi, dfi, alpha = 0.05)
 {
-  Lterm = MScoeff * MSi
-  Lsum = sum(MScoeff * MSi)
-  dff <- ((Lsum^2)/sum((Lterm^2)/dfi))
-  dff2 <- round(dff)
-  if (dff2 == 0) 
-    dff2 = 1
-  lower <- (dff2 * Lsum)/(qchisq(1 - alpha/2, dff2))
-  upper <- (dff2 * Lsum)/(qchisq(alpha/2, dff2))
-  return(cbind(estimate = Lsum, 
-               df = round(dff), 
-               lower = lower,
-               upper = upper))
+    Lterm = MScoeff * MSi
+    Lsum = sum(MScoeff * MSi)
+    dff <- ((Lsum^2)/sum((Lterm^2)/dfi))
+    dff2 <- round(dff)
+    if (dff2 == 0) 
+        dff2 = 1
+    lower <- (dff2 * Lsum)/(qchisq(1 - alpha/2, dff2))
+    upper <- (dff2 * Lsum)/(qchisq(alpha/2, dff2))
+    return(cbind(estimate = Lsum, 
+                 df = round(dff), 
+                 lower = lower,
+                 upper = upper))
 }
 

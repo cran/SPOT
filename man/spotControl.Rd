@@ -29,7 +29,7 @@ Control is a list of the settings:
 			See help of the respective function for details.Default is an empty \code{list}.}
   \item{\code{optimizer}}{A function that is used to optimize based on \code{model}, finding the most promising 
 			candidate solutions. Functions that accept the same parameters, and return a matrix like \code{\link{optimLHD}} 
-			or \code{\link{optimLBFGSB}} can be used. Default is \code{\link{optimLHD}}.}
+			or \code{\link{optimDE}} can be used. Default is \code{\link{optimLHD}}.}
   \item{\code{optimizerControl}}{A list of controls passed to the \code{control} list of the \code{optimizer} function. 
 			See help of the respective function for details. Default is an empty \code{list}.}
   \item{\code{noise}}{Boolean, whether the objective function has noise or not. Default is non-noisy, that is, \code{FALSE}.}
@@ -56,6 +56,7 @@ Control is a list of the settings:
 			for convergence, or for a problem with the configuration.
 			In case of noise, duplicates are allowed.}
   \item{\code{plots}}{Whether progress should be tracked by a line plot, default is false}
+  \item{\code{infillCriterion}}{A function defining an infillCriterion to be used while optimizing a model. Default: NULL. For example check infillExpectedImprovement}
 }
 }
 \keyword{internal}

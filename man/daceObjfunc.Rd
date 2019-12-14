@@ -4,12 +4,12 @@
 \alias{daceObjfunc}
 \title{DACE objective function}
 \usage{
-daceObjfunc(theta, para, what = "all")
+daceObjfunc(theta, pars, what = "all")
 }
 \arguments{
 \item{theta}{model parameters to be evaluated}
 
-\item{para}{model option list, as created with \code{\link{dacePrepareFit}}}
+\item{pars}{model option list, as created with \code{\link{dacePrepareFit}}}
 
 \item{what}{a string: "all" both the likelihood (f) and the model list (fit) will be returned, "f" and "fit specify to return only those.}
 }
@@ -32,7 +32,7 @@ get all relevant variables of the model.
 \code{\link{buildKrigingDACE}} \code{\link{daceLikelihood}} \code{\link{daceEvalFit}}
 }
 \author{
-The authors of the original DACE Matlab code are Hans Bruun Nielsen \email{hbn@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
+The authors of the original DACE Matlab code are Hans Bruun Nielsen, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 Extension of the Matlab code by Tobias Wagner \email{wagner@isf.de}. \cr 
 Porting and adaptation to R and further extensions by Martin Zaefferer \email{martin.zaefferer@fh-koeln.de}.
 }

@@ -16,7 +16,7 @@ Authors@R: c(
 				person("Patrick","Koch", role = "ctb"),
 				person("Martina","Friese", role = "ctb"),
 				person("Lorenzo","Gentile", role = "ctb"),
-				person("Frederik","Rehbach", role = "ctb")
+				person("Frederik","Rehbach", role = "aut")
 				)
 Description: A set of tools for model based optimization and tuning of
     algorithms. It includes surrogate models, optimizers and design of experiment
@@ -24,15 +24,15 @@ Description: A set of tools for model based optimization and tuning of
     surrogate models for the purpose of efficient optimization. The main goal is
     to ease the burden of objective function evaluations, when a single evaluation
     requires a significant amount of resources.
-Version: 2.0.4
-Date: 2019-05-17
+Version: 2.0.5
+Date: 2019-12-12
 Depends: R (>= 3.0.0)
-Imports: randomForest, stats, utils, graphics, grDevices, MASS,
-        DEoptim, rgenoud, plotly, rsm, nloptr
-RoxygenNote: 6.1.1
-Suggests: testthat
+Imports: randomForest, ranger, stats, utils, graphics, grDevices, MASS,
+        DEoptim, rgenoud, plotly, rsm, nloptr, ggplot2
+RoxygenNote: 7.0.2
+Suggests: testthat, batchtools
 NeedsCompilation: no
-Packaged: 2019-05-17 17:04:17 UTC; Martin
+Packaged: 2019-12-13 14:20:44 UTC; Martin
 Author: Thomas Bartz-Beielstein [aut],
   Joerg Stork [aut],
   Martin Zaefferer [aut, cre],
@@ -44,7 +44,7 @@ Author: Thomas Bartz-Beielstein [aut],
   Patrick Koch [ctb],
   Martina Friese [ctb],
   Lorenzo Gentile [ctb],
-  Frederik Rehbach [ctb]
+  Frederik Rehbach [aut]
 Maintainer: Martin Zaefferer <martin.zaefferer@gmx.de>
 Repository: CRAN
-Date/Publication: 2019-05-17 17:50:07 UTC
+Date/Publication: 2019-12-14 17:40:23 UTC

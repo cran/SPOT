@@ -30,7 +30,7 @@ all \code{theta_j = theta}.
 }
 \author{
 The authors of the original DACE Matlab code 
-are Hans Bruun Nielsen \email{hbn@imm.dtu.dk}, Soren Nymand Lophaven and Jacob Sondergaard. \cr
+are Hans Bruun Nielsen, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 Ported to R by Martin Zaefferer \email{martin.zaefferer@fh-koeln.de}.
 }
 \keyword{internal}

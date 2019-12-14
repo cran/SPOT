@@ -27,7 +27,7 @@
 #' ## Compute observations at design points (for Branin function)
 #' y <- as.matrix(apply(x,1,braninFunction))
 #' ## Create model
-#' fit <- buildRandomForest(x,y,control = list(algTheta=optimLHD))
+#' fit <- buildRandomForest(x,y)
 #' ## Print model parameters
 #' print(fit)
 #' ## Predict at new location
@@ -39,7 +39,7 @@
 #todo: example
 buildRandomForest <- function(x, y, control=list()){ 
   fit <- list()
-  fit$rfFit <- randomForest(x, y)
+  fit$rfFit <- suppressWarnings(randomForest(x, y))
 	fit$pNames <- colnames(x)
 	fit$x <- x
 	fit$y <- y
