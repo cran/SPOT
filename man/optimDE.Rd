@@ -7,7 +7,7 @@
 optimDE(x = NULL, fun, lower, upper, control = list(), ...)
 }
 \arguments{
-\item{x}{optional start point, not used in DEoptim}
+\item{x}{optional start point}
 
 \item{fun}{objective function, which receives a matrix x and returns observations y}
 
@@ -41,4 +41,15 @@ in SPOT.
 \examples{
 res <- optimDE(,lower = c(-10,-20),upper=c(20,8),fun = funSphere)
 res$ybest
+optimDE(x = matrix(rep(1,6), 3, 2),lower = c(-10,-20),upper=c(20,8),fun = funSphere, 
+   control = list(funEvals=100, populationSize=20))
+#Compare to DEoptim:
+require(DEoptim)
+set.seed(1234)
+DEoptim(function(x){funRosen(matrix(x,1))}, lower=c(-10,-10), upper=c(10,10), 
+  DEoptim.control(strategy = 2,bs = FALSE, N = 20, itermax = 28, CR = 0.7, F = 1.2,
+  trace = FALSE, p = 0.2, c = 0, reltol = sqrt(.Machine$double.eps), steptol = 200 ))
+set.seed(1234)
+optimDE(, fun=funRosen, lower=c(-10,-10), upper= c(10,10), 
+   control = list( populationSize = 20, funEvals = 580, F = 1.2, CR = 0.7))
 }

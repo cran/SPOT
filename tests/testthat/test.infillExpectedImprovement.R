@@ -1,6 +1,7 @@
 context("infillExpectedImprovement")
 
 test_that("check that infillExpectedImprovement has same result as target=ei", {
+		skip_on_cran() 
     ## Fun Rastrigin from spotGUI package, ignore this
     funRast <- function (vec) {
         if (length(dim(vec)) <= 1) {
@@ -37,6 +38,7 @@ test_that("check that infillExpectedImprovement has same result as target=ei", {
 })
 
 test_that("infillExpectedImprovement works with cvModels and sLinear", {
+		skip_on_cran() 
     ## Fun Rastrigin from spotGUI package, ignore this
     funRast <- function (vec) {
         if (length(dim(vec)) <= 1) {

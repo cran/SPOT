@@ -1,4 +1,4 @@
-citHeader("To cite SPO in publications use:")
+citHeader("To cite SPOT in publications use:")
 
 citEntry(entry="inproceedings",
   title = "Sequential Parameter Optimization",

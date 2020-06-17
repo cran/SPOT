@@ -1,6 +1,7 @@
 context("test buildCVModel")
 
 test_that("calling with different models results in different stuff", {
+		skip_on_cran() 
     set.seed(1)
     resA <- spot(,funSphere,c(-2,-3),c(1,2), control = list(model = buildCVModel, modelControl = 
                                                         list(modellingFunction = buildKriging)))

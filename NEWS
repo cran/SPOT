@@ -1,5 +1,11 @@
 SPOT - Sequential Parameter Optimization Toolbox
 
+Release Notes Version 2.0.6
+  - The Kriging model available via buildKriging now includes different options for simulation (via the simulate.kriging method)
+
+Release Notes Version 2.0.5
+  - Typos corrected
+
 Release Notes Version 2.0.4
  
   - Various fixes to the documentation and help files

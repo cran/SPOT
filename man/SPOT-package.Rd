@@ -35,8 +35,8 @@ Feel free to send feedback by mail to the maintainer.
 \tabular{ll}{
 Package: \tab SPOT\cr
 Type: \tab Package\cr
-Version: \tab 2.0.5\cr
-Date: \tab 2019-12-12\cr
+Version: \tab 2.0.6\cr
+Date: \tab 2020-06-17\cr
 License: \tab GPL (>= 2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -50,14 +50,14 @@ MCIOP (FKZ 17N0311).
 
 \section{Maintainer}{
 
-Martin Zaefferer \email{martin.zaefferer@gmx.de}
+Thomas Bartz-Beielstein \email{tbb@bartzundbartz.de}
 }
 
 \seealso{
 Main interface function is \code{\link{spot}}.
 }
 \author{
-Thomas Bartz-Beielstein \email{thomas.bartz-beielstein@th-koeln.de}, Joerg Stork, Martin Zaefferer (Maintainer, \email{martin.zaefferer@gmx.de})
-with contributions from: C. Lasarczyk, M. Rebolledo, J. Ziegenhirt, W. Konen, O. Flasch, P. Koch, M. Friese, L. Gentile, F. Rehbach.
+Thomas Bartz-Beielstein \email{tbb@bartzundbartz.de}, Joerg Stork, Martin Zaefferer
+with contributions from: C. Lasarczyk, M. Rebolledo, L. Gentile, F. Rehbach.
 }
 \keyword{package}
