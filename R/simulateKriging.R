@@ -9,6 +9,10 @@
 #' Else, the simulation is non-conditional.
 #' @param Ncos number of cosine functions used to construct the simulation
 #' @param ... further arguments, not used
+#' 
+#' @importFrom stats runif
+#' @importFrom stats predict
+#' @importFrom stats rnorm
 #'
 #' @return Returned value depends on the setting of \code{object$simulationReturnAll}
 #'
@@ -28,11 +32,7 @@ simulationSpectral <-function(object,conditionalSimulation=FALSE,Ncos=100){
   omega <- matrix(rnorm(Ncos*dimension,0,sqrt(omegavar)),dimension)
   phi <- runif(Ncos,-pi,pi)
   multiplier <- sqrt(sigmas) * sqrt(2/Ncos)
-  omega 
-  phi
-  object
-  multiplier
-  mu
+ 
   fun <- function(xx){
     xx <- normalizeMatrix2(data.matrix(xx),0,1,object$normalizexmin,object$normalizexmax)
     y <-  multiplier * colSums( cos(t(xx%*%omega)+ phi))
@@ -79,6 +79,9 @@ simulationSpectral <-function(object,conditionalSimulation=FALSE,Ncos=100){
 #' @param returnAll if set to TRUE, a list with the simulated values (y) and the corresponding covariance matrix (covar)
 #' of the simulated samples is returned. 
 #' @param ... further arguments, not used
+#' 
+#' @importFrom stats predict
+#' @importFrom stats rnorm
 #'
 #' @return Returned value depends on the setting of \code{object$simulationReturnAll}
 #'
@@ -144,7 +147,7 @@ simulationDecompose <- function(object,nsim=1,xsim,conditionalSimulation=TRUE,re
 #' @param returnAll if set to TRUE, a list with the simulated values (y) and the corresponding covariance matrix (covar)
 #' of the simulated samples is returned. 
 #' @param ... further arguments, not used
-#'
+#' @importFrom stats runif
 #' @return Returned value depends on the setting of \code{object$simulationReturnAll}
 #'
 #' @references N. A. Cressie. Statistics for Spatial Data. JOHN WILEY & SONS INC, 1993.
@@ -189,6 +192,9 @@ simulate.kriging <- function(object,nsim=1,seed=NA,xsim,method="decompose",condi
 #'
 #' @param object fit of the Kriging model (settings and parameters), of class \code{kriging}.
 #' @param x list of samples / data
+#' 
+#'
+#' @importFrom stats dist
 #'
 #' @return the correlation matrix
 #'
@@ -249,6 +255,9 @@ getCorrelationMatrix <- function(object,x){
 #' @param xsim list of samples in input space, for simulation (only used for decomposition-based simulation, not for spectral method)
 #' @param Ncos number of cosine functions (used with \code{method="spectral"} only)
 #' @param conditionalSimulation whether (TRUE) or not (FALSE) to use conditional simulation
+#' 
+#' @importFrom stats simulate
+#' @importFrom stats runif
 #'
 #' @return a list of functions, where each function is the interpolation of one simulation realization. The length of the list depends on the nsim parameter.
 #' 

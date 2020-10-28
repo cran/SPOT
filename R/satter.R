@@ -11,6 +11,8 @@
 #' @param dfi degrees of freedom
 #' @param alpha error probability
 #' 
+#' @importFrom stats qchisq
+#' 
 #' @return vector with 1. estimate of variance 2. degrees of freedom, 3. lower value of 1-alpha confint
 #' 4. upper value of 1-alpha confint
 #'

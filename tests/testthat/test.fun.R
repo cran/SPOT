@@ -28,4 +28,9 @@ test_that("check test functions are evaluated without errors", {
     y2 <- as.double( funBranin(x2))
     expect_equal( y1 , y2)
     
+    ## Eval rosen at (1,1):
+    x1 <- matrix(c(1,1),1,)
+    y <- as.double(funRosen(x1))
+    expect_equal( y , 0)
+    
 })

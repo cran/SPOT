@@ -11,7 +11,7 @@
 #' @param control list of control parameters, currently not used.
 #' 
 #' @return an object of class \code{"spotRandomForest"}, with a \code{predict} method and a \code{print} method.
-#'
+#' @importFrom randomForest randomForest
 #' @export
 #'
 #' @examples
@@ -59,6 +59,8 @@ buildRandomForest <- function(x, y, control=list()){
 #' @param object fit of the model, an object of class \code{"spotRandomForest"}, produced by \code{\link{buildRandomForest}}.
 #' @param newdata matrix of new data.
 #' @param ... not used
+#' 
+#' @importFrom stats predict
 #' 
 #' @export
 #' @keywords internal

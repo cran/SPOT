@@ -1,7 +1,8 @@
 
-###################################################################################################
-#' Sequential Parameter Optimization
-#'
+
+#' @title spot 
+#' 
+#' @description  Sequential Parameter Optimization. 
 #' This is one of the main interfaces for using the SPOT package. Based on a user-given objective function
 #' and configuration, \code{spot} finds the parameter setting that yields the lowest objective value (minimization).
 #' To that end, it uses methods from the fields of design of experiment, statistical modeling / machine learning
@@ -13,7 +14,7 @@
 #' @param upper is a vector that defines the upper boundary of search space.
 #' @param control is a list with control settings for spot. See \code{\link{spotControl}}.
 #' @param ... additional parameters passed to \code{fun}.
-#'
+#' 
 #' @return This function returns a list with:
 #' \describe{
 #'		\item{\code{xbest}}{Parameters of the best found solution (matrix).}
@@ -101,36 +102,44 @@
 #' res$xbest
 #' res$ybest
 #' @export
-###################################################################################################
+
 spot <- function(x=NULL,fun, #mostly, fun must have format y=f(x,...). 
 		## If a noisy function requires some specific seed handling (e.g., in some other non-R code) 
 		## a seed can be passed to fun. For that purpose, the user must specify noise=TRUE and fun should 
 		## be fun(x,seed,...)
 		lower,upper,control=list(),...){
-    
+  
     #Initial Input Checking
-    initialInputCheck(x,fun,lower,upper,control)
+    PASSED <- initialInputCheck(x,fun,lower,upper,control)
     
-	## default settings
-	dimension <- length(lower)
-	
-	control <- spotFillControlList(control, dimension)
-	
-	## Initial design generation
-	set.seed(control$seedSPOT)
-  x <- control$design(x=x,lower=lower,upper=upper,control=control$designControl)
-
-  ## Rounding values produced by the design function to integers, etc.
-  x <- repairNonNumeric(x,control$types)
+    ## default settings
+    dimension <- length(lower)
     
-	## Evaluate initial design with objective function
-  y <- objectiveFunctionEvaluation(x=NULL,xnew=x,fun=fun,seedFun=control$seedFun,noise=control$noise,...)
-	
-	result <- spotLoop(x=x,y=y,fun=fun,lower=lower,upper=upper,control=control, ...)
-	result
+    control <- spotFillControlList(control, dimension)
+    
+    ## Initial design generation
+    set.seed(control$seedSPOT)
+    
+    if(control$verbosity == 0){
+        x <- suppressWarnings(suppressMessages(control$design(x=x,
+                                                              lower=lower,upper=upper,
+                                                              control=control$designControl)))
+    }else{
+        x <- control$design(x=x,lower=lower,upper=upper,control=control$designControl)
+    }
+    
+    
+    ## Rounding values produced by the design function to integers, etc.
+    x <- repairNonNumeric(x,control$types)
+    
+    ## Evaluate initial design with objective function
+    y <- objectiveFunctionEvaluation(x=NULL,xnew=x,fun=fun,seedFun=control$seedFun,noise=control$noise,...)
+    
+    result <- spotLoop(x=x,y=y,fun=fun,lower=lower,upper=upper,control=control, ...)
+    result
 } 
 
-###################################################################################################
+
 #' Fill in some values for the control list. Internal use only.
 #'
 #' @param controlList list of controls, see \code{\link{spotControl}}.
@@ -138,7 +147,7 @@ spot <- function(x=NULL,fun, #mostly, fun must have format y=f(x,...).
 #' @return a list
 #' @export
 #' @keywords internal
-###################################################################################################
+
 spotFillControlList <- function(controlList, dimension){
     con <- spotControl(dimension)
     con[names(controlList)] <- controlList
@@ -153,7 +162,7 @@ spotFillControlList <- function(controlList, dimension){
     return(controlList)
 }
 
-###################################################################################################
+
 #' Default Control list for spot 
 #'
 #' This function returns the default controls for the functions \code{\link{spot}} and \code{\link{spotLoop}}.
@@ -161,6 +170,9 @@ spotFillControlList <- function(controlList, dimension){
 #' \describe{
 #'   \item{\code{funEvals}}{ This is the budget of function evaluations (spot uses no more than funEvals evaluations of fun), defaults to 20.}
 #'   \item{\code{types}}{ Vector of data type of each variable as a string, defaults \code{"numeric"} for all variables.}
+#'   \item{\code{subsetSelect}}{A function that selects a subset from a given set of design points. Default is \code{\link{selectAll}}.}
+#'   \item{\code{subsetControl}}{A list of controls passed to the \code{control} list of the \code{subsetSelect} function. See help 
+#'				of the respective function for details. Default is an empty \code{list}.}
 #'   \item{\code{design}}{A function that creates an initial design of experiment. Functions that accept the same parameters, 
 #'				and return a matrix like \code{\link{designLHD}} or \code{\link{designUniformRandom}} can be used. Default is \code{\link{designLHD}}.}
 #'   \item{\code{designControl}}{A list of controls passed to the \code{control} list of the \code{design} function. See help 
@@ -198,26 +210,34 @@ spotFillControlList <- function(controlList, dimension){
 #'				stops and results are returned to the user (with a warning). This may be desirable, as duplicates can be a indicator
 #'				for convergence, or for a problem with the configuration.
 #'				In case of noise, duplicates are allowed.}
-#'   \item{\code{plots}}{Whether progress should be tracked by a line plot, default is false}
+#'   \item{\code{plots}}{Whether progress should be tracked by a line plot, default is \code{FALSE}}
+#'   \item{\code{progress}}{Whether progress should be visualized, default is \code{FALSE}}
 #'   \item{\code{infillCriterion}}{A function defining an infillCriterion to be used while optimizing a model. Default: NULL. For example check infillExpectedImprovement}
+#'   \item{\code{verbosity}}{Integer level specifying how much output should be given by SPOT. 0 (default) ignores warnings of internal optimizers /models.
+#'              1 will show warnings and output.}
 #' }
-#' @param dimension dimensionality of the problem, that is, the number of optimzed parameters.
+#' @param dimension problem dimension, that is, the number of optimized parameters.
+#' 
+#' 
 #' @return a list
 #' @export
 #' @keywords internal
 #' spotDefaultControls()
-###################################################################################################
+
 spotControl <- function(dimension){
 list(
     funEvals=20,
 		types= rep("numeric",dimension),
     design = designLHD,
     designControl = list(),
+		subsetSelect = selectAll,
+		subsetControl = list(), 
     model = buildKriging,
     modelControl = list(),
     optimizer = optimLHD,
     optimizerControl = list(),
 		plots = FALSE,
+		progress = FALSE,
     OCBA=FALSE,
     OCBABudget=1, #the budget available to OCBA, to be distributed to replications of "old" solutions
     replicates=1, #the number of replications for all "new" solutions (unless generated by the initial design, which handles them separately)
@@ -234,17 +254,20 @@ list(
 		## (e.g., based on OCBA). The model itself should handle repeated samples.
     ## The exception from this rule should be if noise==FALSE, in that case, duplicates are removed.
 		## (?) TODO -> what if only one duplicate suggested -> will be suggested again in next iteration?
-	infillCriterion = NULL ## By default no infillCriterion is used
+	infillCriterion = NULL, ## By default no infillCriterion is used
+    verbosity = 0
   )
 }
 
-###################################################################################################
+
 #' Sequential Parameter Optimization Main Loop
 #'
 #' SPOT is usually started via the function \code{\link{spot}}. However, SPOT runs can be continued
 #' (i.e., with a larger budget specified in \code{control$funEvals}) by using \code{spotLoop}.
 #' This is the main loop of SPOT iterations. It requires the user to give the same inputs as
-#' specified for \code{\link{spot}}.
+#' specified for \code{\link{spot}}. Note: \code{control$funEvals} must be larger than the value 
+#' used in the previous run, because it specifies the total number of function evaluations and 
+#' not the additional number of evalutions.
 #' 
 #' @param x are the known candidate solutions that the SPOT loop is started with, specified as a matrix. One row for each point, and one column for each optimized parameter.
 #' @param y are the corresponding observations for each solution in \code{x}, specified as a matrix. One row for each point.
@@ -253,6 +276,8 @@ list(
 #' @param upper is a vector that defines the upper boundary of search space.
 #' @param control is a list with control settings for spot. See \code{\link{spotControl}}.
 #' @param ... additional parameters passed to \code{fun}.
+#' 
+#' @importFrom graphics abline
 #'
 #' @return This function returns a list with:
 #' \describe{
@@ -270,71 +295,94 @@ list(
 #' ## mean optimization (not expected improvement)
 #' control <- list(funEvals=20)
 #' res <- spot(,funSphere,c(-2,-3),c(1,2),control)
-#' ## now continue with larger budget
+#' ## now continue with larger budget. 
+#' ## 5 additional runs will be performed.
 #' control$funEvals <- 25
 #' res2 <- spotLoop(res$x,res$y,funSphere,c(-2,-3),c(1,2),control)
 #' res2$xbest
 #' res2$ybest
 #' @export
-###################################################################################################
+
 spotLoop <- function(x,y,fun,lower,upper,control,...){
-    
+
     #Initial Input Checking
-    initialInputCheck(x,fun,lower,upper,control, inSpotLoop = T)
+    initialInputCheck(x,fun,lower,upper,control, inSpotLoop = TRUE)
     
-	## default settings
-	dimension <- length(lower)
-	con <- spotControl(dimension)
-	con[names(control)] <- control
-	control <- con
-	rm(con)
-	
-	## Initialize evaluation counter
-  count <- nrow(y)
-  
-	## Main Loop
-	modelFit <- NA
-	while(count < control$funEvals){ 
-		## Model building 
-    modelFit <- control$model(x=x,y=y,control=control$modelControl) #todo return modelControl to allow memory?
-		
-		## Generate a surrogate target function from the model
-		funSurrogate <- evaluateModel(modelFit, control$infillCriterion)
-		
-		## Model optimization
-    optimRes <- control$optimizer(,funSurrogate,lower,upper,control$optimizerControl) #todo return optimizerControl to allow memory?
-    xnew <- optimRes$xbest    
-
-		## Handling of duplicates 
-		xnew <- duplicateAndReplicateHandling(xnew,x,lower,upper,control)
-
-		## Rounding non-numeric values produced by the optimizer
-		xnew <- repairNonNumeric(xnew,control$types)
-
-		## If desired, use OCBA to handle replications of old solutions
-    if(control$noise & control$OCBA){
-      xnew <- rbind(xnew,repeatsOCBA(x,y,control$OCBABudget))
-		}
+    ## default settings
+    dimension <- length(lower)
+    con <- spotControl(dimension)
+    con[names(control)] <- control
+    control <- con
+    rm(con)
     
-    ## Prevent exceeding the budget:
-    xnew <- xnew[1:min(max(control$funEvals-count,1),nrow(xnew)),,drop=FALSE]
-		
-		## Evaluation with objective function
-		ynew <- objectiveFunctionEvaluation(x=x,xnew=xnew,fun=fun,seedFun=control$seedFun,noise=control$noise,...)
+    ## Initialize evaluation counter
+    count <- nrow(y)
     
-		## Plots, output, etc 
-		if(control$plots){
-			plot(y,type="l")
-			abline(a=0,b=0)
-		}
-		
-    ## 
-    colnames(xnew) <- colnames(x)
-    x <- rbind(x,xnew)
-    y <- rbind(y,ynew)
-    count <- count + nrow(ynew)
-  }
+    ## Main Loop
+    modelFit <- NA
+    while(count < control$funEvals){ 
+        ## Select points for model building
+        selectRes <- control$subsetSelect(x = x, y = y, control = control$subsetControl)
+        
+        ## Model building
+        if(control$verbosity == 0){
+            modelFit <- suppressWarnings(suppressMessages(control$model(x=selectRes$x,
+                                                       y=selectRes$y,
+                                                       control=control$modelControl))) #todo return modelControl to allow memory?)
+        }else{
+            modelFit <- control$model(x=selectRes$x,
+                                      y=selectRes$y,
+                                      control=control$modelControl) #todo return modelControl to allow memory?
+        }
+        
+        ## Generate a surrogate target function from the model
+        funSurrogate <- evaluateModel(modelFit, control$infillCriterion)
+        
+        ## Model optimization
+        if(control$verbosity == 0){
+            optimRes <- suppressWarnings(suppressMessages(control$optimizer(,funSurrogate,
+                                                                            lower,upper,
+                                                                            control$optimizerControl))) #todo return optimizerControl to allow memory?
+        }else{
+            optimRes <- control$optimizer(,funSurrogate,lower,upper,control$optimizerControl) #todo return optimizerControl to allow memory?
+        }
+        xnew <- optimRes$xbest
+        
+        ## Handling of duplicates 
+        xnew <- duplicateAndReplicateHandling(xnew,x,lower,upper,control)
+        
+        ## Rounding non-numeric values produced by the optimizer
+        xnew <- repairNonNumeric(xnew,control$types)
+        
+        ## If desired, use OCBA to handle replications of old solutions
+        if(control$noise & control$OCBA){
+            xnew <- rbind(xnew,repeatsOCBA(x,y,control$OCBABudget))
+        }
+        
+        ## Prevent exceeding the budget:
+        xnew <- xnew[1:min(max(control$funEvals-count,1),nrow(xnew)),,drop=FALSE]
+        
+        ## Evaluation with objective function
+        ynew <- objectiveFunctionEvaluation(x=x,xnew=xnew,fun=fun,seedFun=control$seedFun,noise=control$noise,...)
+        
+        ## Plots, output, etc 
+        if(control$plots){
+            plot(y,type="l")
+            abline(a=0,b=0)
+        }
+        ##
+        colnames(xnew) <- colnames(x)
+        x <- rbind(x,xnew)
+        y <- rbind(y,ynew)
+        count <- count + nrow(ynew)
+        ## Progress
+        if(control$progress & (control$funEvals > 0)){
+            cat(paste0(round(count / (control$funEvals) * 100), "% completed.\n"))
+            if (count == (control$funEvals) ) cat("Done.\n")
+        }
+        #
+    }
     
-  indexBest <- which.min(y)
-  list(xbest=x[indexBest,,drop=FALSE],ybest=y[indexBest,,drop=FALSE],x=x, y=y, count=count,msg="budget exhausted",modelFit=modelFit)
+    indexBest <- which.min(y)
+    list(xbest=x[indexBest,,drop=FALSE],ybest=y[indexBest,,drop=FALSE],x=x, y=y, count=count,msg="budget exhausted",modelFit=modelFit)
 }	

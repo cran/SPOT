@@ -1,17 +1,18 @@
-#' buildCVModel
+#' @title buildCVModel
 #' 
+#' @description 
 #' Build a set of models trained on different folds of cross-validated data.
 #' Can be used to estimate the uncertainty of a given model type at any point.
 #' 
 #' @param x design matrix (sample locations)
 #' @param y vector of observations at \code{x}
-# @param modellingFunction the model that shall be fitted to each data fold
 #' @param control (list), with the options for the model building procedure:\cr
 #' \code{types} a character vector giving the data type of each variable. All but "factor" will be handled as numeric, "factor" (categorical) variables will be subject to the hamming distance.\cr
 #' \code{target} target values of the prediction, a vector of strings. Each string specifies a value to be predicted, e.g., "y" for mean, "s" for standard deviation.
 #' This can also be changed after the model has been built, by manipulating the respective \code{object$target} value.\cr
 #' \code{uncertaintyEstimator} a character vector specifying which uncertaintyEstimator should be used.
-#' "s" or the linearlyAdapted uncertrainty "sLinear". Default is "sLinear"
+#' "s" or the linearlyAdapted uncertrainty "sLinear". Default is "sLinear".\cr 
+#' modellingFunction the model that shall be fitted to each data fold
 #'
 #' @return set of models (class cvModel)
 #' @export
@@ -112,6 +113,8 @@ linearAdaptedSE <- function(sOld, newdata, x){
 #' @param object CV model (settings and parameters) of class \code{cvModel}.
 #' @param newdata design matrix to be predicted
 #' @param ... Additional parameters passed to the model
+#' @importFrom stats predict
+#' @importFrom stats sd
 #'
 #' @return prediction results: list with predicted mean ('y'), estimated uncertainty ('y'), linearly adapted uncertainty ('sLinear')
 #' @export

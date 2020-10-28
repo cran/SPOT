@@ -15,4 +15,8 @@ test_that("check that spot function works without problems", {
 	expect_equal(c(nrow(res$x),length(res$y)), c(20,20))
 	res <- spot(,funSphere,c(-2,-3),c(1,2),control=list(modelControl=list(target="ei")))
 	expect_equal(c(nrow(res$x),length(res$y)), c(20,20))
+	res <- spot(,funSphere,c(0,0),c(1,1),control=list(subsetSelect = selectAll, subsetControl=list(N=1)))
+	expect_equal(c(nrow(res$x),length(res$y)), c(20,20))
+	res <- spot(,funSphere,c(0,0),c(1,1),control=list(funEvals = 30, designControl = list(size=10), subsetSelect = selectN, subsetControl=list(N=9)))
+	expect_equal(c(nrow(res$x),length(res$y)), c(30,30))
 })

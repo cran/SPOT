@@ -10,7 +10,9 @@
 #'  \code{size} number of design points\cr
 #'  \code{types} this specifies the data type for each design parameter, as a vector of either "numeric","integer","factor". (here, this only affects rounding)\cr
 #'  \code{replicates} integer for replications of each design point. E.g., if replications is two, every design point will occur twice in the resulting matrix.
-#'
+#'  
+#' @importFrom stats runif
+#' 
 #' @return matrix \code{design} \cr
 #' - \code{design} has \code{length(lower)} columns and \code{(size + nrow(x))*control$replicates} rows.
 #' All values should be within \code{lower <= design <= upper}

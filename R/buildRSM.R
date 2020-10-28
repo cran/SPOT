@@ -10,7 +10,11 @@
 #'		\item{\code{mainEffectsOnly}}{Logical, defaults to FALSE. Set to TRUE if a model with main effects only is desired (no interactions, second order effects).}
 #'		\item{\code{canonical}}{Logical, defaults to FALSE. If this is TRUE, use the canonical path to descent from saddle points. Else, simply use steepest descent}
 #' }
-#'
+#' 
+#' @importFrom rsm coded.data
+#' @importFrom rsm rsm 
+#' @importFrom stats as.formula
+#' 
 #' @return returns an object of class \code{spotRSM}.
 #'
 #' @seealso \code{\link{predict.spotRSM}}
@@ -125,6 +129,9 @@ buildRSM <- function(x, y, control=list()){ #nugget -1 means that the nugget wil
 #' @param object RSM model (settings and parameters) of class \code{spotRSM}.
 #' @param newdata design matrix to be predicted
 #' @param ... not used
+#' 
+#' @importFrom rsm coded.data
+#' @importFrom stats predict
 #'
 #' @return list with predicted value \code{y}
 #'
@@ -151,7 +158,9 @@ predict.spotRSM <- function(object,newdata,...){
 #'
 #' @param x RSM model (settings and parameters) of class \code{spotRSM}.
 #' @param ... parameters passed to plotting function (\code{contour})
-#'
+#' @importFrom graphics contour
+#' @importFrom graphics par
+#' @importFrom stats as.formula
 #' @export
 #' @keywords internal
 ###################################################################################
@@ -173,6 +182,14 @@ plot.spotRSM <- function(x,...){
 #' \code{\link{buildRSM}}.
 #'
 #' @param object RSM model (settings and parameters) of class \code{spotRSM}.
+#' 
+#' @importFrom rsm steepest
+#' @importFrom rsm coded.data
+#' @importFrom rsm code2val
+#' @importFrom rsm codings
+#' @importFrom rsm canonical.path
+#' @importFrom stats predict
+#' 
 #' @return list with
 #' \describe{
 #'		\item{\code{x}}{list of points along the path of steepest descent}

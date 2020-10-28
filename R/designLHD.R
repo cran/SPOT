@@ -13,6 +13,9 @@
 #' @param inequalityConstraint inequality constraint function, smaller zero for infeasible points. Used to replace infeasible points with random points. Has to evaluate points in interval [0;1].
 #'
 #' @seealso This function is used as a basis for \code{\link{designLHD}}.
+#' 
+#' @importFrom stats dist
+#' @importFrom stats runif
 #'
 #' @return list \code{L}  \cr
 #' - \code{L} consists of a matrix \code{L$design} and (if required) a minimal distance \code{L$minDistance}

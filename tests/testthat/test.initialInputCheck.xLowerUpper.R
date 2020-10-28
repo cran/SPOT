@@ -27,9 +27,9 @@ test_that("Check conditions with wrong input dimensions", {
     for(l in seq_along(lWrongs)){
         expected <- lWrongs.expected[l]
         if(expected == warning){
-            expect_warning({
+            expect_error({
                 spot(x = xCorrect, fun = funSphere, lower = lWrongs[[l]], upper = uCorrect)
-            }, regexp = "SPOT Configuration Warning:")
+            }, regexp = "SPOT Configuration Error:")
         }else{
             expect_error({
                 spot(x = xCorrect, fun = funSphere, lower = lWrongs[[l]], upper = uCorrect)
@@ -41,9 +41,9 @@ test_that("Check conditions with wrong input dimensions", {
     for(u in seq_along(uWrongs)){
         expected <- uWrongs.expected[u]
         if(expected == warning){
-            expect_warning({
+            expect_error({
                 spot(x = xCorrect, fun = funSphere, lower = lCorrect, upper = uWrongs[[u]])
-            }, regexp = "SPOT Configuration Warning:")
+            }, regexp = "SPOT Configuration Error:")
         }else{
             expect_error({
                 spot(x = xCorrect, fun = funSphere, lower = lCorrect, upper = uWrongs[[u]])
@@ -56,9 +56,9 @@ test_that("Check conditions with wrong input dimensions", {
         for(u in seq_along(uWrongs)){
             expected <- max(lWrongs.expected[[l]], uWrongs.expected[[u]])
             if(expected == warning){
-                expect_warning({
+                expect_error({
                     spot(x = xCorrect, fun = funSphere, lower = lWrongs[[l]], upper = uWrongs[[u]])
-                })
+                }, regexp = "SPOT Configuration Error:")
             }else{
                 expect_error({
                     spot(x = xCorrect, fun = funSphere, lower = lWrongs[[l]], upper = uWrongs[[u]])

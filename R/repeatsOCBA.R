@@ -119,6 +119,8 @@ OCBA <- function(sMean,sVar,n,addBudget){
 #' @param y observations of the respective samples. For repeated evaluations, y should differ (variance not zero). 
 #' @param budget of additional evaluations to be allocated to the samples.
 #' 
+#' @importFrom stats var
+#' 
 #' @return A vector that specifies how often each solution should be evaluated.
 #'
 #' @seealso repeatsOCBA calls \code{\link{OCBA}}, which also provides some additional details.

@@ -14,6 +14,6 @@ checkForNAs(x, lower, upper)
 \item{upper}{is a vector that defines the upper boundary of search space.}
 }
 \description{
-Creates an error message if there are any nas given in x lower or upper
+Creates an error message if there are any NAs in x lower or upper
 }
 \keyword{internal}

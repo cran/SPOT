@@ -10,6 +10,10 @@
 #' will be passed to loess as arguments. Please refrain from setting the formula or data arguments
 #' as these will be supplied by the interface, based on \code{x} and \code{y}.
 #'
+#' @importFrom stats predict
+#' @importFrom stats as.formula
+#' @importFrom stats loess
+#' 
 #' @return returns an object of class \code{spotLOESS}.
 #'
 #' @seealso \code{\link{predict.spotLOESS}}

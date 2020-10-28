@@ -24,40 +24,16 @@
 #' We appreciate feedback about any bugs or other issues with the package. 
 #' Feel free to send feedback by mail to the maintainer.
 #'
-#' \tabular{ll}{
-#' Package: \tab SPOT\cr
-#' Type: \tab Package\cr
-#' Version: \tab 2.0.6\cr
-#' Date: \tab 2020-06-17\cr
-#' License: \tab GPL (>= 2)\cr
-#' LazyLoad: \tab yes\cr
-#' }
-#'
 #' @name SPOT-package
 #' @aliases SPOT
 #' @docType package
 #' @title Sequential Parameter Optimization Toolbox
 #' @author Thomas Bartz-Beielstein \email{tbb@@bartzundbartz.de}, Joerg Stork, Martin Zaefferer
-#' with contributions from: C. Lasarczyk, M. Rebolledo, L. Gentile, F. Rehbach.
+#' with contributions from: C. Lasarczyk, M. Rebolledo, F. Rehbach.
 #' @keywords package
 #' @seealso Main interface function is \code{\link{spot}}.
-#' @import randomForest
-#' @import stats
-#' @import MASS
-#' @import utils
-#' @import graphics
-#' @import grDevices
-#' @import DEoptim
-#' @import rgenoud
-#' @import rsm
-#' @import nloptr
 #' 
-#' @section Acknowledgments: 
-#' This work has been partially supported by the Federal Ministry of Education
-#' and Research (BMBF) under the grants CIMO (FKZ 17002X11) and
-#' MCIOP (FKZ 17N0311).
-#'
 #' @section Maintainer:
 #' Thomas Bartz-Beielstein \email{tbb@@bartzundbartz.de} 
 #End of Package Description
-NA 
+NA

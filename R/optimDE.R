@@ -15,6 +15,9 @@
 #'   \item{\code{populationSize}}{Population size or number of particles in the population. Default is 10*dimension.}
 #' }
 #' @param ... passed to \code{fun}
+#' 
+#' @importFrom DEoptim DEoptim
+#' @importFrom DEoptim DEoptim.control
 #'
 #' @return list, with elements
 #' \describe{

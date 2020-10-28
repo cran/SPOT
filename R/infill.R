@@ -12,6 +12,8 @@
 #' @param sd vector of estimated uncertainties / standard deviations of the candidate solutions.
 #' @param min minimal observed value.
 #' 
+#' @importFrom stats pnorm
+#' 
 #' @return a vector with the negative logarithm of the expected improvement values, -log10(EI).
 #'
 #' @export

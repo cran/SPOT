@@ -2,7 +2,7 @@
 % Please edit documentation in R/spot.R
 \name{spot}
 \alias{spot}
-\title{Sequential Parameter Optimization}
+\title{spot}
 \usage{
 spot(x = NULL, fun, lower, upper, control = list(), ...)
 }
@@ -32,6 +32,7 @@ This function returns a list with:
 }
 }
 \description{
+Sequential Parameter Optimization. 
 This is one of the main interfaces for using the SPOT package. Based on a user-given objective function
 and configuration, \code{spot} finds the parameter setting that yields the lowest objective value (minimization).
 To that end, it uses methods from the fields of design of experiment, statistical modeling / machine learning

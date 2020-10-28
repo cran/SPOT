@@ -17,6 +17,10 @@
 #' }
 #' @param ... passed to \code{fun}
 #'
+#' @importFrom rgenoud genoud
+#' @importFrom stats runif 
+#' 
+#' 
 #' @return list, with elements
 #' \describe{
 #'   \item{\code{x}}{NULL, currently not used}

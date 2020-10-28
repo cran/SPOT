@@ -2,7 +2,7 @@
 % Please edit documentation in R/duplicateHandling.R
 \name{duplicateAndReplicateHandling}
 \alias{duplicateAndReplicateHandling}
-\title{Handle Duplicates and Replicates}
+\title{duplicateAndReplicateHandling}
 \usage{
 duplicateAndReplicateHandling(xnew, x, lower, upper, control)
 }
@@ -21,6 +21,9 @@ duplicateAndReplicateHandling(xnew, x, lower, upper, control)
 matrix \code{xnew}, with additional replicates for non-duplicates, or duplicates replaced by random solutions.
 }
 \description{
+Handle Duplicates and Replicates
+}
+\details{
 This function deals with duplicates, that is, when a candidate solution (\code{xnew})
 has already been evaluated (that is, \code{xnew} is element of \code{x}).
 If \code{control$noise} is \code{TRUE} (objective is noisy), duplicates are allowed.

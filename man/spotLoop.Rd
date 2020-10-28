@@ -37,14 +37,17 @@ This function returns a list with:
 SPOT is usually started via the function \code{\link{spot}}. However, SPOT runs can be continued
 (i.e., with a larger budget specified in \code{control$funEvals}) by using \code{spotLoop}.
 This is the main loop of SPOT iterations. It requires the user to give the same inputs as
-specified for \code{\link{spot}}.
+specified for \code{\link{spot}}. Note: \code{control$funEvals} must be larger than the value 
+used in the previous run, because it specifies the total number of function evaluations and 
+not the additional number of evalutions.
 }
 \examples{
 ## Most simple example: Kriging + LHS + predicted 
 ## mean optimization (not expected improvement)
 control <- list(funEvals=20)
 res <- spot(,funSphere,c(-2,-3),c(1,2),control)
-## now continue with larger budget
+## now continue with larger budget. 
+## 5 additional runs will be performed.
 control$funEvals <- 25
 res2 <- spotLoop(res$x,res$y,funSphere,c(-2,-3),c(1,2),control)
 res2$xbest

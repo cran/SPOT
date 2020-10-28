@@ -95,6 +95,8 @@ buildEnsembleStack <- function(x, y, control=list()){ #nugget -1 means that the 
 #' @param object Kriging model (settings and parameters) of class \code{kriging}.
 #' @param newdata design matrix to be predicted
 #' @param ... not used
+#' 
+#' @importFrom stats predict
 #'
 #' @return list with predicted value \code{y}
 #'

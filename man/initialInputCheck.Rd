@@ -18,7 +18,7 @@ initialInputCheck(
 
 \item{fun}{is the objective function. It should receive a matrix x and return a matrix y. In case the function uses external code and is noisy, an additional seed parameter may be used, see the \code{control$seedFun} argument below for details.}
 
-\item{lower}{is a vector that defines the lower boundary of search space. This determines also the dimensionality of the problem.}
+\item{lower}{is a vector that defines the lower boundary of search space. This determines also the problem dimension.}
 
 \item{upper}{is a vector that defines the upper boundary of search space.}
 

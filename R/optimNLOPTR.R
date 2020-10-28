@@ -23,6 +23,9 @@
 #' will be mapped to the corresponding arguments of \code{nloptr}: 
 #' \code{x0}, \code{eval_f}, \code{lb} and \code{ub}.
 #'
+#' @importFrom nloptr nloptr
+#' @importFrom stats runif
+#'
 #' @return list, with elements
 #' \describe{
 #'   \item{\code{x}}{archive of evaluated solutions}

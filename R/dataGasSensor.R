@@ -1,7 +1,8 @@
 
 ###################################################################################
-#' Gas Sensor Data
+#' @title Gas Sensor Data
 #'
+#' @description 
 #' A data set of a Gas Sensor, similar to the one used by Rebolledo et al. 2016.
 #' It also contains information of 10 different test/training splits, to enable comparable evaluation procedures.
 #'
@@ -29,6 +30,7 @@
 #'   \item{Set10}{test/training split}
 #' }
 #'
+#' @details 
 #' Two different modeling tasks are of interest for this data set:
 #' \code{Y~X1+X2+X3+X4+X5+X6+X7+Batch+Sensor} and
 #' \code{X1~Y+X7+Batch+Sensor}.

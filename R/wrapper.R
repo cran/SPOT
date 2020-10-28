@@ -131,9 +131,9 @@ wrapSystem_parseMatrixToString <- function(m){
 #' @return callable function for SPOT
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' exampleScriptLocation <- system.file("consoleCallTrialScript.R",package = "SPOT")
-#' f <- wrapSystemCommand(paste("Rscript", exampleScriptLocation))
+#' f <- wrapSystemCommand(paste("$(R_HOME)/bin/Rscript", exampleScriptLocation))
 #' spot(,f,c(1,1),c(100,100))
 #' }
 wrapSystemCommand <- function(systemCall){

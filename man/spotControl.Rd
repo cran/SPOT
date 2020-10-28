@@ -7,7 +7,7 @@
 spotControl(dimension)
 }
 \arguments{
-\item{dimension}{dimensionality of the problem, that is, the number of optimzed parameters.}
+\item{dimension}{problem dimension, that is, the number of optimized parameters.}
 }
 \value{
 a list
@@ -18,6 +18,9 @@ Control is a list of the settings:
 \describe{
   \item{\code{funEvals}}{ This is the budget of function evaluations (spot uses no more than funEvals evaluations of fun), defaults to 20.}
   \item{\code{types}}{ Vector of data type of each variable as a string, defaults \code{"numeric"} for all variables.}
+  \item{\code{subsetSelect}}{A function that selects a subset from a given set of design points. Default is \code{\link{selectAll}}.}
+  \item{\code{subsetControl}}{A list of controls passed to the \code{control} list of the \code{subsetSelect} function. See help 
+			of the respective function for details. Default is an empty \code{list}.}
   \item{\code{design}}{A function that creates an initial design of experiment. Functions that accept the same parameters, 
 			and return a matrix like \code{\link{designLHD}} or \code{\link{designUniformRandom}} can be used. Default is \code{\link{designLHD}}.}
   \item{\code{designControl}}{A list of controls passed to the \code{control} list of the \code{design} function. See help 
@@ -55,8 +58,11 @@ Control is a list of the settings:
 			stops and results are returned to the user (with a warning). This may be desirable, as duplicates can be a indicator
 			for convergence, or for a problem with the configuration.
 			In case of noise, duplicates are allowed.}
-  \item{\code{plots}}{Whether progress should be tracked by a line plot, default is false}
+  \item{\code{plots}}{Whether progress should be tracked by a line plot, default is \code{FALSE}}
+  \item{\code{progress}}{Whether progress should be visualized, default is \code{FALSE}}
   \item{\code{infillCriterion}}{A function defining an infillCriterion to be used while optimizing a model. Default: NULL. For example check infillExpectedImprovement}
+  \item{\code{verbosity}}{Integer level specifying how much output should be given by SPOT. 0 (default) ignores warnings of internal optimizers /models.
+             1 will show warnings and output.}
 }
 }
 \keyword{internal}

@@ -1,7 +1,10 @@
 
 ###################################################################################
-#' Handle Duplicates and Replicates
+#' @title duplicateAndReplicateHandling 
 #' 
+#' @description Handle Duplicates and Replicates
+#' 
+#' @details 
 #' This function deals with duplicates, that is, when a candidate solution (\code{xnew})
 #' has already been evaluated (that is, \code{xnew} is element of \code{x}).
 #' If \code{control$noise} is \code{TRUE} (objective is noisy), duplicates are allowed.
@@ -37,7 +40,9 @@ duplicateAndReplicateHandling <- function(xnew,x,lower,upper,control){
 		for(i in 1:nrow(xnew)){
 			#if solution has NOT been evaluated previously
 			if(any(apply(x,1,identical,xnew[i,]))){ #TODO this may conflict with parameter names... does x, xnew  etc have parameter names?
-				warning("SPOT created a duplicated solution. This can be due to early convergence or bad configuration. Duplicate is replaced by random solution.")
+				if(control$verbosity > 0){
+			  warning("SPOT created a duplicated solution. This can be due to early convergence or bad configuration. Duplicate is replaced by random solution.")
+				}
 				control$designControl$replicates <- 1
 				control$designControl$size <- 1
 				xnew[i,] <- designUniformRandom(,lower,upper,control$designControl) #TODO what if result is also duplicate

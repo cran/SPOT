@@ -1,0 +1,1441 @@
+---
+title: "SPOTVignetteNutshell"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{SPOTVignetteNutshell}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r knitrSetup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# SPOT in a Nutshell
+
+* Note: This file is a 1:1 copy of the section \chapter{Sequential Parameter Optimization in a Nutshell}\label{ch:spotnut} from bart11o.Rnw
+
+## Setup
+
+```{r SPOT, eval = FALSE}
+## install.packages("devtools")
+## devtools::install_github("r-lib/devtools")
+url <- "http://owos.gm.fh-koeln.de:8055/bartz/spot.git"
+devtools::install_git(url = url)
+```
+
+* Package version SPOT is at least `2.0.21`.
+
+```{r setup}
+library("SPOT")
+packageVersion("SPOT")
+```
+
+
+
+## Introduction
+
+* The performance of modern search heuristics such as evolution strategies (`ES`), differential evolution (`DE`), or simulated annealing (`SANN`) relies crucially on their parameterizations---or, 
+statistically speaking, on their factor settings. 
+
+* Finding good parameter settings for an optimization algorithm will be referred to as tuning.
+* We will illustrate how an existing search heuristic can be tuned using the
+sequential parameter optimization toolbox (`SPOT`), which is 
+one possible implementation of the sequential parameter optimization (`SPO`) framework introduced in~\cite{Bart06a}.
+* The version of `SPOT` presented in this article is implemented in `R`.
+* `R` is a freely available language and environment for statistical computing and graphics which provides a wide variety of statistical and graphical techniques: linear and nonlinear modelling, statistical tests, time series analysis, classification, clustering, etc."~\citep{R17a}.
+* \rlang can be downloaded from [CRAN](https://cran.r-project.org).
+* The \SPOT package can be installed from within `R` using the 
+`installPackages` command. 
+
+`install.packages("SPOT")`
+
+* Note, that the package only has to be installed once (unless an update
+to a more recent version is needed).
+* Unlike installation, the package
+has to be loaded to the `R` work space every time a new `R` session is started.
+* `SPOT` can be loaded to the work space with `R`'s `library` command.
+
+
+```{r, loadSpot}
+library("SPOT")
+```
+
+* In order to keep the setup as simple as possible, 
+we will use simulated annealing 
+for illustrating the tuning procedure~\citep{Kirk83a}.
+* Simulated annealing is freely available in \rlang. 
+* This implementation of the simulated annealing heuristic will be referred to as `SANN` in the following.
+
+* Response surface methodology (RSM) will be used in this article~\citep{Box87a}.
+* It can be seen as a set of statistical methods for empirical model building.
+* Using design of experiments, a response (dependent variable, output variable, or fitness value, $y$) 
+that depends on one or several input variables (independent variables or solutions, $\vec{x}$)
+is optimized.
+* The underlying model can be formulated as
+$$
+y = f(\vec{x}) + \epsilon,
+$$
+where $\epsilon$ represents some noise (uncertainty, error observed) in
+the response $y$.
+* The term response surface refers to the surface represented 
+by $f(\vec{x})$. 
+* In order to estimate the quality of a solution, the term fitness is 
+used in evolutionary optimization.
+* In physics, the concept of a potential or energy function is used.
+* Since we are dealing with minimization, a low fitness value 
+$f(\vec{x})$ implies that $\vec{x}$ is a good solution. 
+
+* This report is structured as follows. 
+    * The algorithm-tuning framework consists of three levels, which are useful for distinguishing several problem domains.
+    * The first level (objective function) is detailed.
+    * A second level (optimization algorithm) is descibed. Here, the well known simulated annealing algorithm is used.      * The third level (tuning) is explained. This tuning example can be used as a starting point for beginners.
+    * Details of the `SPOT` configuration are described.
+    * Visual inspection of the results plays an important role in the `SPOT` approach. 
+    * Plot functions that are provided in the `SPOT` toolbox are described. These enable an exploratory fitness landscape analysis.
+    * The response surface methodology is introduced.
+    * Tools for an statistical analysis are described.
+    * Applying `SPOT` to deterministic problems is briefly explained.
+    * Finally, ensemble models via stacking are described.
+
+## Levels During Tuning and Optimization <a id='sec:simopt'></a>
+
+* We will consider algorithm tuning and surrogate model based optimization in this article.
+* The following Figure shows the different levels that are used in these scenarios.
+
+### Algorithm Tuning
+
+* Algorithm tuning is also referred to as off-line parameter tuning in contrast to on-line parameter tuning~\citep{Eibe03a}.
+* Algorithm tuning involves the following three levels, which describe the experimental setup.
+* Consider the following Figure:
+   * The three levels that occur when tuning an optimization algorithm with `SPOT`. This setting will be referred to as algorithm tuning.
+   * `SPOT` can be applied as an optimizer. In this case, `SPOT` tries to find arguments of the objective function that result in an optimal function value. Following the taxonomy introduced in~\citet{Bart16n}, this setting will be referred to as surrogate model based optimization.
+
+![](level2.png)
+
+* (L1) The real-world system. This system allows the specification of an objective function, say $f$. As an example, we will use the sphere function in the following.
+* (L2) The optimization algorithm, here `SANN`. It requires the specification of
+algorithm parameters.
+* (L3) The tuning algorithm, here `SPOT`. 
+
+* An optimization algorithm (L2) requires parameters, e.g., the initial temperature of `SANN` or the mutation rate of evolution strategies. 
+* These parameters determine the performance of the optimization algorithm. 
+* Therefore, they should be tuned. The algorithm is in turn used to determine optimal values of the objective function $f$ from level (L1).
+
+* The term algorithm design summarizes factors that influence the behavior (performance) of an algorithm, whereas problem design refers to factors from the optimization (simulation) problem.
+* The initial temperature in `SANN` is one typical factor which belongs to the algorithm design, the search space dimension belongs to the problem design.
+
+### Surrogate Model Based Optimization 
+
+* Instead of tuning an optimization algorithm, `SPOT` itself can be used as a surrogate model based optimization algorithm.
+* Then, `SPOT` has the same role as `SANN` in the algorithm tuning scenario. 
+* In this the surrogate model based optimization setting, only two levels exist: 
+   1. the objective function (L1) and 
+   2. the optimization algorithm (L2).
+* This situation is seen on the right hand side of Figure~\ref{fig:level}.
+
+### The SPOT Algorithm
+
+* `SPOT` finds improved solutions in the following way (see the following pseudo code): 
+   * Initially, a population of (random) solutions is created.  The initialization step is shown in State 1 in the following pseudo code of the `SPOT` algorithm. 
+   * A set of surrogate models is specified (Step 2).
+   * Then, the solutions are evaluated on the objective function (level L1). This is State 3.
+   * Next, surrogate models are built (State 4).
+   * A global search is performed to generate new candidate solutions (State 5).
+   * The new solutions are evaluated on the objective function (level L1) (State 6).
+* These steps are repeated, until a satisfying solution has been found.
+
+#### Sequential parameter optimization
+* State 1:  $t=0$. $P(t) =$ SetInitialPopulation(). 
+* State 2:  Select one or several surrogate models $\mathfrak{M}$.
+* State 3:  Evaluate($P(t)$) on $f$.
+* While{not TerminationCriterion()}
+   * State 4: Use $P(t)$ to build a model $M(t)$ using $\mathfrak{M}$. 
+   * State 5: $P'(t+1) = $ GlobalSearch($M(t)$). 
+   * State 6: Evaluate($P'(t+1)$) on $f$. 
+   * State 7: $P(t+1) =  P(t) \cup P'(t+1)$.
+   * State 8: $t = t+1$.
+* EndWhile
+
+## Level L1: Objective Function <a id='sec:l1'></a>
+
+* Before `SANN` can be started, the user has to specify an objective function $f$. 
+* To keep things as simple as possible, the sphere function 
+$$
+f(x) = \sum_{i=1}^n x_i^2
+$$
+will be used.
+
+
+```{r, sphereDef}
+sphere <- function (x){
+  sum(x^2)
+  }
+sphere( c(1,2) )
+```
+
+* The `sphere` function uses vector inputs.
+* A matrix-based implementation is defined as `funSphere` in the `SPOT` package.
+
+
+```{r, funSphereDef}
+funSphere
+```
+
+
+<pre class=language-r><code>function (x) 
+{
+<span style=white-space:pre-wrap>    matrix(apply(x, 1, function(x) {</span>
+<span style=white-space:pre-wrap>        sum(x^2)</span>
+<span style=white-space:pre-wrap>    }), , 1)</span>
+}</code></pre>
+
+
+* A surface plot of this function in the interval $[0;1] \times [0;1]$ can be generated using the 
+following command:
+
+```{r, plotSphere, eval FALSE}
+plotFunction(funSphere)
+```
+
+
+
+
+
+## Level L2: Simulated Annealing `SANN`
+
+* Simulated annealing is a generic probabilistic heuristic algorithm for global optimization~\citep{Kirk83a}. 
+* The name comes from annealing in metallurgy. 
+* Controlled heating and cooling of a material reduces defects. 
+* Heating enables atoms to leave their initial positions (which are local minima of their internal energy), and controlled cooling improves the probability to find positions with lower states of internal energy than the initial positions.
+* The `SANN` algorithm replaces the current solution with a randomly generated new solution. 
+* Better solutions are accepted deterministically, where worse solutions are accepted with a probability that depends on the difference between the corresponding function values and on a  global parameter, which is commonly referred to as the `temperature`. 
+* The algorithm parameter `temp` specifies the initial temperature of the `SANN` algorithm.
+* The temperature is gradually decreased during the optimization. 
+* A second parameter, `tmax, is used to model this cooling scheme. 
+
+* We consider the `R` implementation of `SANN`, which is available via the general-purpose optimization function `optim()` from the `R` package `stats`, which is part of every `R` installation.
+* The function `optim()` is parametrized as follows
+
+`optim(par, fn, gr = NULL, ...,
+      method = c("Nelder-Mead", "BFGS", "CG", "L-BFGS-B", "SANN", "Brent"),
+      lower = -Inf, upper = Inf,
+      control = list(), hessian = FALSE)`
+
+* Here, 
+`par` denotes initial values for the parameters to be optimized over.
+* Note, the problem dimension is specified by the length of this vector, so `par=c(1,1,1,1)`  denotes a four-dimensional optimization problem.
+* `fn` is a function to be minimized (or maximized), with first argument the vector of parameters over which minimization is to take place. 
+* `gr` defines a function to return the gradient for the `BFGS`, `CG` and `L-BFGS-B` methods. 
+* If it is `NULL`, a finite-difference approximation will be used. 
+* For the `SANN` method it specifies a function to generate a new candidate point. 
+* If it is `NULL`, a default Gaussian Markov kernel is used.
+* The symbol `...` represents further arguments (optional) that can be be passed to `fn` and `gr`.
+* The parameter `method` denotes the optimization method to be used. 
+* Here, we will use the parameter value `SANN`.
+
+* The parameters `lower`, `upper` specify  bounds  on the variables for the "L-BFGS-B" method, or bounds in which to search for method `Brent`. 
+* So, we will not use these variables in our examples.
+* The argument `control` defines a relatively long  list of control parameters}. We will use the following parameters from this list:
+   1. `maxit`, i.e., the  maximum number of iterations, which is for `SANN` the maximum number of function valuations. This is the stopping criterion.
+   2. `temp` controls the `SANN` algorithm. It is the  starting temperature  for the cooling schedule with a default value of 10.
+   3. Finally, we will use `tmax`, which is the number of  function evaluations at each temperature  for the `SANN` method. Its default value is also 10.
+* To obtain reproducible results, we will set the  random number generator (RNG) seed.
+* Using a two-dimensional objective function (sphere) and the starting point (initial values for the parameters to be optimized over) $(10,10)$, we can execute the optimization runs as follows:
+
+
+```{r, resSANNrun}
+set.seed(123)
+resSANN <- optim(c(10,10), sphere, method="SANN",
+                control=list(maxit=100, temp=10, tmax = 10))
+resSANN
+```
+* The best, i.e., smallest, function value, which was found by `SANN`, reads 45.14084. 
+* The corresponding point in the search space is approximately (4.835178, 4.664964). 
+* No gradient information was used and one hundred function evaluations were performed. 
+* The variable `convergence` is an integer code, and its  value `0` indicates successful completion of the `SANN` run.
+* No additional `message` is returned.
+
+* Now that we have performed a first run of the `SANN` algorithm on our simple test function, we are interested in improving `SANN`'s performance. 
+* The `SANN` heuristic requires some parameter settings, namely `temp` and `tmax`. If these values are omitted, a default value of ten is used. 
+* The questions is: 
+    * Are the default algorithm parameter settings, namely `temp`=10 and `tmax`=10, adequate for `SANN` or can these values be improved? 
+* That is, we are trying to tune the `SANN` optimization algorithm.
+
+* A typical beginner in algorithm tuning would try to improve the algorithm's performance by manually increasing or decreasing the algorithm parameter values, e.g., choosing `temp` = 20 and `tmax` = 5. 
+
+
+```{r, resSANN2}
+set.seed(123)
+resSANN <- optim(par = c(10,10), fn = sphere, method="SANN",
+                control = list(maxit = 100, temp = 20, tmax = 5))
+resSANN
+```
+* Obviously, the manual ``tuning" step worsened the result.
+* And, this procedure is very time consuming and does not allow efficient statistical conclusions. 
+* Therefore, we will present a different approach, which uses `SPOT`.
+* Although the setup for the tuning procedure with `SPOT` is very similar to the setup discussed in this section, it enables deeper insights into the algorithm's performance.
+
+## Level L3: SPOT
+
+* This section presents an example, which demonstrates, how `SPOT` can be 
+used to tune the `SANN` algorithm defined at level L2.
+* The goal of this tuning procedure is to determine improved parameter settings
+for the `SANN` algorithm. 
+* As a level L1 function, which will be optimized by `SANN`, the sphere function 
+was chosen.
+
+### Example: Using Random Forest
+
+* First, the problem setup for level L1 has to be specified.
+    * To keep the situation as simple as possible, we will use the `sphere()` test function, which was introduced above.
+    * The problem design requires the specification of the starting point `x0` for the search. 
+
+
+```{r, defx0}
+x0 =  c(-1,1,-1) 
+```
+
+    * Since `x0` has three elements, we are facing a three dimensional optimization problem.
+    * `SANN` will be used to determine its minimum function value.
+* Secondly, the problem setup for level L2 has to be defined.
+    * Again, several settings have to be specified for the `SANN` algorithm to be tuned.
+    * The budget, i.e., the maximum number of function evaluations that can be used by `SANN` is specified via `maxit`:
+
+
+```{r, defMaxit}
+maxit = 100 
+```
+
+* As above, the `R` implementation of `SANN` will be used via the `optim()` function. 
+* We will consider two parameters: 
+    1.  the initial temperature (`temp`) and 
+    2. the number of function evaluations at each temperature (`tmax`).
+* Both are integer values.
+* All parameters and settings of `SANN`, which were used for this simple example are summarized in the following table.
+
+#### SANN parameters
+* The first two parameters belong to the algorithm design, whereas the remaining parameters are from the problem design. 
+* Note, the starting point defines the problem dimension, i.e., by specifying a three dimensional starting point the problem dimension is set to three. 
+* The initial seed is the value that the RNG is initialized with.
+
+Name  | Symbol | Factor name|
+------| ------ | ---------- |
+Initial temperature | $t$ |  ` temp`|
+Number of function evaluations at each temperature | $t_{\max} $ | ` tmax`|
+Starting point | $\vec{x_0} = (-1,1,-1)$ | `x0`|
+Problem dimension | $n=3$ |
+Objective  function | sphere | ` sphere()` |
+Quality measure | Expected performance, e.g., $E(y)$ | ` y`|
+Initial seed | $s$ | `1`|
+Budget | $\textrm{maxit} = 100$ | ` maxit`|
+
+* Thirdly, the tuning procedure at level L3 has to be specified.
+
+### An interface to SANN+Sphere for SPOT
+
+* To interface `SANN` with `SPOT`, the wrapper function `sann2spot()` is used.
+* Note, `SPOT` uses matrices as the basic data structure.
+    * The matrix format was chosen as a compromise between speed and flexibility.
+* The `matrix()` command can be used as follows:
+
+`matrix(data = NA, nrow = 1, ncol = 1, byrow = FALSE, dimnames = NULL)`
+
+* The interface function receives a matrix where each row is  proposed parameter setting (`temp`, `tmax`), and each column specifies the parameters.
+* It generates a $(n,1)$-matrix as output, where $n$ is the number of (`temp`, `tmax`) parameter settings.
+
+
+```{r, sann2SPOT}
+sann2spot <- function(algpar){
+  performance <- NULL
+  for (i in 1:nrow(algpar)){
+    resultList <- optim(par = c(10,10),
+                    fn = sphere,
+                    method = "SANN",
+                    control = list(maxit = 100,
+                                  temp = algpar[i,1],
+                                  tmax = algpar[i,2]))
+    performance <- c(performance,resultList$value)
+    }
+return(matrix(performance,,1))
+}
+```
+
+* Now we can test the interface. First, we run `SANN` with `temp` = 10 and `tmax` = 10.
+* A second `SANN` run is performed using `temp` = 20 and `tmax` = 5.
+
+
+```{r, sann2SPOT2}
+set.seed(123)
+sann2spot(algpar = matrix(c(10,10),1))
+```
+
+```{r, sann2SPOT3}
+set.seed(123)
+sann2spot(algpar=matrix(c(5,20),1))
+```
+
+### The Configuration List
+* `SPOT` itself has various parameters that need to be configured so that it can solve the tuning problem efficiently.
+* A configuration or `control` list can be defined for `SPOT`.
+* If no configuration list is specified, the default configuration that works fine for many problems, is used.
+* In the following, some elements of the configuration list that are important for our example (tuning `SANN` + `sphere()`) will be explained.
+
+#### types:
+* Since `SANN`'s parameters `temp` and `tmax` are integers, we provide this type information via 
+`types = c("integer", "integer")`. 
+
+#### `funEvals`:
+* The number of algorithm runs, i.e., runs of the `SANN` algorithm, is specified via `funEvals`.
+
+#### `noise`: 
+* `SANN` is a stochastic optimizer, so we specify `noise = TRUE`.
+
+####  `seedFun`:
+* Also due to the stochasticity of the optimizer, a random number generator seed has to be specified, `seedFun = 1`. 
+* Every time an algorithm configuration is tested, the RNG seed will be set. 
+* For the first evaluation, the seed will be `seedFun`, subsequent evaluations will increment this value.
+
+#### `replicates`:
+
+* Since our evaluations are subject to noise, we can make replicates to mitigate it.
+* In our example, each algorithm configuration will be evaluated twice, so the setting `replicates = 2` is used.
+
+#### `seedSPOT`: 
+* An additional seed for `SPOT` can be specified using `seedSPOT = 1`.
+* This second seed is only set once in the beginning. This ensures that the `SPOT` run is reproducible, since `SPOT` itself may also be of a stochastic nature (depending on the configuration).
+
+#### `design`:
+* `design` parameter defines the method to be used to generate an initial design (a set of initial algorithm settings (here: a number of pairs of `temp` and `tmax`).
+* A Latin hyper cube design (LHD) is specified via `design = designLHD`.
+
+#### `model`:
+* Based on the initial design and subsequent evaluations, a `model` can be trained to learn the relation between algorithm parameters (`temp`,`tmax`) and algorithm performance.
+* To generate the meta `model`, we use a random forest implementation~\citep{Brei01a}. 
+* This can be specified via `model = buildRandomForest`.
+* Random forest was chosen, because it is a robust method which can handle categorical and numerical variables.
+
+#### `optimizer`:
+* Once a meta `model`is trained, we need an `optimizer` to find the best potential algorithm configuration, based on the `model`.
+* Here, we choose a very simple optimizer, which creates a large LHD and evaluates it on the `model`: `optimizer = optimLHD`.
+
+#### `optimizerControl`:
+* The specified `optimizer` may have options that need to be set.
+* Here, we only specify the number of `model` evaluations to be performed by the `optimizer` with `optimizerControl = list(funEvals=1000)`.
+
+* Overall, we obtain the following configuration:
+
+
+```{r, spotConfig}
+spotConfig <- list(
+  types = c("integer", "integer"), #data type of tuned parameters
+  funEvals = 50, #maximum number of SANN runs
+  noise = TRUE, #problem is noisy (SANN is non-deterministic)
+  seedFun = 1, #RNG start seed for algorithm calls (iterated)
+  replicates = 2, #2 replicates for each SANN parameterization
+  seedSPOT = 1, #main RNG
+  design = designLHD, #initial design: Latin Hypercube
+  model = buildRandomForest, # model = buildKriging Kriging surrogate model
+  optimizer = optimLHD, #Use LHD to optimize on model 
+  optimizerControl = list(funEvals=100) #100 model evals in each iteration  
+)
+```
+
+## The Region of Interest
+
+* The  region of interest  (ROI)  specifies `SPOT`'s search intervals for the `SANN` parameters, i.e., for `tmax`  and `temp`.
+* Here, both parameters `temp` and `tmax`  will be tuned in the region between one and 100.
+
+
+```{r, lowHigh}
+tempLo = 1
+tempHi = 100
+tmaxLo = 1
+tmaxHi = 100
+lower=c(tempLo,tmaxLo)
+upper=c(tempHi,tmaxHi)
+```
+
+* The order (first `temp` then `tmax`) has to be the same as in the `sann2spot()` interface.
+
+## Calling `spot()`
+
+* Now we are ready to perform our first `SPOT` experiment.
+* We will start `SPOT` via `spot()`. 
+* The result is stored in the list `resRf`:
+
+
+```{r, resRfrun}
+resRf <- spot(x=NULL,
+              fun=sann2spot,
+              lower=lower,
+              upper=upper,
+              control=spotConfig)
+```
+
+* Now, we are able to take a look at the results from the tuning procedure.
+* Output from the `SPOT` run, which is stored in the list `resRf`, has the following structure. 
+
+
+```{r, resRfStr}
+str(resRf)
+```
+
+    
+* `SPOT` generates many information which can be used for a statistical analysis. 
+* For example, the best configuration found can be displayed as follows:
+
+
+```{r, showBest}
+cbind(resRf$xbest, resRf$ybest)
+```
+
+* `SPOT` recommends using `temp` =
+
+```{r, showxBest}
+resRf$xbest[1]
+```
+
+and `tmax` =
+
+
+```{r, showXbest2}
+resRf$xbest[2] 
+```
+
+* These parameter settings differ significantly from the default values.
+    * These values also make sense: the starting temperature `temp` should be low and the number of evaluations at each temperature `tmax` should be high.
+    * Hence, worse solutions will rarely be accepted by `SANN`, which leads to a very localized search. 
+* This is a good configuration for this example, since the sphere function is unimodal.
+
+## Details 1: The `spot()` Interface
+
+### subsubsection{Arguments}
+* `SPOT` uses the same interface as `R`'s standard `optim()` function, which uses the arguments reported in the following Table:
+
+| name | description|
+| -----| -----------|
+`x` |  Optional start point (or set of start points), specified as a matrix. One row for each point, and one column for each optimized parameter.|
+`fun`  | Objective function. It should receive a matrix `x` and return a matrix `y`. In case the function uses external code and is noisy, an additional seed parameter may be used, see the `control$seedFun`  argument in the function documentation for details.|
+`lower` |  Vector that defines the lower boundary of search space|
+`upper` |  Vector that defines the upper boundary of search space|
+`control` |  List of additional settings|
+
+* Note, take care of consistency of `upper`, `lower` and, if specified, `x`. 
+   * In cases of inconsistency, the dimension of the variable `lower` will be taken into account to establish the dimension of the problem.
+
+#### Return Values
+
+* The function `spot()` returns a list with the values shown in the following Table.
+
+| name | description | type|
+| ---- | ----------- | ---- |
+| `xbest` | Parameters of the best found solution | `matrix`|
+| `ybest` | Objective function value of the best found solution |  `matrix`|
+| `x` |  Archive of all evaluation parameters |  `matrix`|
+| `y` | Archive of the respective objective function values  | `matrix`|
+| `count` | Number of performed objective function evaluations | `integer`| 
+| `msg` |  Message specifying the reason of termination | `character`|
+| `modelFit` |  The fit of the model from the last `SPOT` iteration, i.e., an object returned by the last call to the function specified by `control$model` | `list`|
+
+## Details 2: SPOT Configuration
+
+* `SPOT` configuration settings are listed in following Table.
+
+| name  |  description  |  default |
+| ----- | ------------- | -------- |
+| `funEvals`  |  Budget of function evaluations (spot uses no more than funEvals evaluations of fun).  |  `20` | 
+| `types`  |  Vector of data type of each variable as a string.  |  `"numeric"` | 
+| `design`  |  A function that creates an initial design of experiment. Functions that accept the same parameters, and return a matrix like `designLHD` or `designUniformRandom` can be used.  |  `designLHD` | 
+| `designControl`  |  List of controls passed to the `control` list of the `design` function. |  empty `list` | 
+| `model` |  Function that builds a model of the observed data. Functions that accept the same parameters, and return a matrix like `buildKriging` or `buildRandomForest` can be used.  |  `buildKriging`  | 
+| `modelControl` |  List of controls passed to the `control` list of the `model` function.  |  empty `list`| 
+| `optimizer`  |  Function that is used to optimize the `model`, finding the most promising candidate solutions. Functions that accept the same parameters, and return a matrix like `optimLHD` or `optimLBFGSB` can be used.  |   `optimLHD`  | 
+| `optimizerControl`  |  List of controls passed to the `control` list of the `optimizer` function.  |   empty `list` | 
+| `noise`  |  Boolean, whether the objective function has noise.  |  `FALSE`  |  
+| `OCBA`  |  Boolean, indicating whether Optimal Computing Budget Allocation (OCBA) should be used in case of a noisy objective function. OCBA controls the number of replications for each candidate solution. Note, that `replicates` should be larger than one in that case, and that the initial experimental design (see `design`) should also have replicates larger than one.  |  `FALSE` | 
+| `OCBAbudget`  |  Number of objective function evaluations that OCBA can distribute in each iteration.  |  `3` | 
+| `replicates`  |  Number of times a candidate solution is initially evaluated, that is, in the initial design, or when created by the optimizer.  |  `1`  | 
+| `seedFun`  |  Initial seed for the objective function in case of noise. The default means that no seed is set. The  user should be very careful with this setting. It is intended to generate reproducible experiments for each objective function evaluation, e.g., when tuning non-deterministic algorithms. If the objective function uses a constant number of random number generations, this may be undesirable. Note, that this seed is by default set prior to each evaluation. A replicated	evaluation will receive an incremented value of the seed. Sometimes, the user may want to call external code using random numbers. To allow for that case, the user can specify an objective function (`fun`), which has a second parameter `seed`, in addition to first parameter (matrix `x`). This seed can then be passed to the external code, for random number generator initialization. See end of examples section in the documentation of `SPOT` for a demonstration.  |  `NA` | 
+| `seedSPOT`  |  Value used to initialize the random number generator. It ensures that experiments are reproducible.  |  `1`  | 
+| `duplicate`  |  In case of a deterministic (non-noisy) objective function, this handles duplicated candidate solutions. By default (`duplicate = "EXPLORE"`), duplicates are replaced by new candidate solutions, generated by random sampling with uniform distribution. If desired, the user can set this to `"STOP"`, which means that the optimization stops and results are returned to the user (with a warning). This may be desirable, as duplicates can be a indicator of convergence, or problems with the configuration. In case of noise, duplicates are allowed regardless of this parameter.  |  `"EXPLORE"`  | 
+| `plots` |  Logical. Should the progress be tracked by a line plot?  |  `FALSE` | 
+
+* The configuration list stores information about `SPOT` specific settings. 
+* All settings not specified in the list will be set to their default values.
+
+## Details 3: Initial Designs
+
+* The problem design comprehends the information about the optimization problem, e.g., the starting point `x0 = (-1,1,-1)` belongs to the problem design.
+* A  region of interest  (ROI) specifies algorithm parameters and associated lower and upper bounds for the algorithm parameters.
+    *  Values for `temp` are chosen from the interval $[1; 100]$.
+    * Values for `tmax` are chosen from the interval $[1; 100]$.
+* `SPOT` implements a sequential approach, i.e., the available budget is not used in one step. Rather, sequential steps are made, comprised of model training, optimization, and evaluation. To initialize this procedure,  some first data set is required to train the first, coarse-grained meta model.
+
+### Example: Modifying the number of function evaluations
+
+* For example, 
+    * the total number of `SANN` algorithm runs, i.e., the available budget, can be set to 10 using `funEvals = 10}, 
+    * the size of the initial design can be modified via `designControl$size`, 
+    * the number of repeated evaluations of the initial design can be modified via `designControl$replicates`, and 
+    * the number of replicates used for each new algorithm design point suggested by `SPOT` can be modified via `replicates`.
+
+
+```{r, spotConf10}
+spotConfig10 <- list(
+  funEvals = 10,
+  designControl = list(
+    size = 6,
+    replicates = 1
+  ),
+  noise = TRUE,
+  seedFun = 1,
+  seedSPOT = 1,
+  replicates = 2,
+  model = buildRandomForest 
+)
+```
+
+* Using this configuration, the budget will be spent as follows:
+    * Six initial algorithm design points (parameter sets) will be created, and each will be evaluated just once.
+    * Afterwards, `SPOT` will have a remaining budget of four evaluations. These can be spent on sequentially testing two additional design points. Each of those will be evaluated twice.
+
+
+```{r, res10}
+res10 <- spot( ,fun=sann2spot
+              ,lower=lower
+              ,upper=upper
+              ,control=spotConfig10)
+```
+
+* Results from these runs can be displayed as follows. 
+    * The first two columns show the settings of the algorithm parameters `temp` and `tmax`, respectively.
+    * The third row shows the corresponding function values:
+
+
+```{r, res10x}
+cbind(res10$x, res10$y)
+```
+
+* The results show the desired outcome: the first six configurations are unique, the following four contain replications (two identical settings, but with different stochastic result).
+
+
+### Initial Designs
+
+`designLHD()` is the default setting to generate designs. A simple one-dimensional design with values from the interval $[-1, 1]$ can be generated as follows:
+
+
+```{r, desLhd}
+designLHD(,-1,1) 
+```
+
+* A more complicated design, which consists of numeric values for the first variable in the range from -1 to +1, of integer values for the second variable in the range from -2 to 4, of integer values for the third variable in the range from 1 to 9, and with two factors 0 and 1 for the fourth variable, can be generated as follows:
+
+
+```{r, desLhd2}
+designLHD(, c(-1,-2,1,0),c(1,4,9,1)
+          , control=list(size=5, retries=100, types=c("numeric","integer","factor","factor")))
+```
+
+
+* Designs can also be combined as illustrated in the following example.
+   
+
+```{r, combDes}
+set.seed(123)
+x1 <- designLHD(,c(-1,-1),c(1,1),control=list(size=50,retries=100))
+x2 <- designLHD(x1,c(-2,-2),c(2,2),control=list(size=50,retries=100))
+```
+
+* The corresponding plot shows the resulting design.
+
+```{r, plotCombDes, eval=FALSE}
+plot(x2,pch=1)
+points(x1, pch=4)
+```
+
+
+
+
+
+* Designs based on uniform random sampling can be generated with the function `designUniformRandom()` as follows:
+
+
+```{r, desUni}
+designUniformRandom(,c(-1,0),c(1,10),control=list(size=5))
+```
+
+## Details 4: Models
+
+* In `SPOT`, a meta model or surrogate model is used to determine promising algorithm design points. 
+* To that end, it aims to learn the relation between algorithm parameters and the corresponding algorithm performance. * The different models and their options are described next.
+
+### Kriging Models
+
+* As default, the `buildKriging()` function is used for modeling.
+* This function builds a Kriging model (also known as Gaussian process regression) loosely based on code by \citet{Forr08a}. 
+* Kriging models are based on measures of similarity, or kernels.
+* Here, a Gaussian kernel is used:
+$$
+k(x,x') = \exp \left(-\sum^n_{i=1} \theta_i |x_i-x'_i|^{p_i} \right).
+$$
+* By default exponents are fixed at a value of two, $p_i = 2$, ($i=1,\ldots,n$), and the nugget effect (or regularization constant) is used.
+* To correct the uncertainty estimates in case of using the nugget effect, re-interpolation is also by default turned on (see \citet{Forr08a} for more details on these features of the model).
+
+### Example: `SPOT` as a surrogate model based algorithm
+
+* The following code exemplifies how a Kriging model is built with an artificial data set. 
+* Note, this example exemplifies how `SPOT` can be used as a surrogate model based optimization algorithm, i.e., no algorithm is tuned.
+
+
+```{r, braninF}
+# Objective function
+braninFunction <- function (x) {
+    (x[2]  - 5.1/(4 * pi^2) * (x[1] ^2) + 5/pi * x[1]  - 6)^2 + 10 * (1 - 1/(8 * pi)) * cos(x[1] ) + 10
+}
+## Create 20 design points
+set.seed(1)
+x <- cbind(runif(20)*15-5, runif(20)*15)
+## Compute observations at design points (for Branin function)
+y <- as.matrix(apply(x,1,braninFunction))
+## Create model with default settings
+fit <- buildKriging(x,y,control = list(algTheta=optimLHD))
+## Print model parameters
+print(fit)
+##Define a new location
+newloc <- matrix(c(1,2),nrow =1 )
+##Predict at new location
+predict(fit,newloc)
+## True value at location
+braninFunction(newloc)
+## 
+```
+
+
+## Handling Factor Variables in the Kriging Model
+
+* Sometimes, parameters optimized or modeled by `SPOT` functions will not be numerical, but rather categorical. 
+* This may, e.g., occur if an evolutionary algorithm is tuned: 
+    * while some parameters like mutation rates may be real valued, the selection between different mutation operators may be a categorical parameter.
+* Hence, if $x_i$, the $i$th dimension of a parameter configuration $\vec{x}$, is a factor variable (see parameter `types`), Hamming distance, that determines the number of positions at which the corresponding values are different, will be used instead of $|x_i-x'_i|$.
+* To illustrate how factor variables can be handled, we create a test function that uses a factor variable. 
+    * Here, the third dimension $x_3$ is categorical.
+
+
+```{r, braninFunctionFactor}
+braninFunctionFactor <- function (x) {  
+y <- (x[2] - 5.1 / (4 * pi^2) * (x[1]^2) + 5 / pi * x[1] - 6)^2 + 10 * (1 - 1 / (8 * pi)) * cos(x[1]) + 10
+    if(x[3] == 1)
+        y <- y + 1
+    else if(x[3]==2)
+        y <- y - 1
+    y  
+}
+```
+
+* To test how this affects our model, we first generate some training data and fit the model with default settings, which ignores factor information and uses the standard kernel.
+
+
+```{r, fitDefault}
+set.seed(1)
+## Replace x with new data
+x <- cbind(runif(50)*15-5,runif(50)*15,sample(1:3,50,replace=TRUE))
+##
+y <- as.matrix(apply(x,1,braninFunctionFactor))
+fitDefault <- buildKriging(x,y,control = list(algTheta=optimLBFGSB))
+```
+
+* Afterwards we fit the model, which includes information about the factor variable.
+
+
+```{r, fitFactor}
+fitFactor <- buildKriging(x,y,control = list(algTheta=optimLBFGSB,types=c("numeric","numeric","factor")))
+```
+
+* We generate some new, unseen data for testing and perform some predictions with both models.
+
+
+```{r, resNewData}
+##Replace xtest with new data
+xtest <- cbind(runif(200)*15-5,runif(200)*15,sample(1:3,200,replace=TRUE))
+##
+ytest <- as.matrix(apply(xtest,1,braninFunctionFactor))
+## Predict test data with both models, and compute error
+ypredDef <- predict(fitDefault,xtest)$y
+ypredFact <- predict(fitFactor,xtest)$y
+mean((ypredDef-ytest)^2)
+mean((ypredFact-ytest)^2)
+```
+
+* The error of the factor-aware model is lower.
+* This demonstrates that users should make sure to declare the nature of the modeled variables correctly, via the `types` variable.
+
+## Details 5: Optimization on the Meta Model
+
+* Minimization by  Latin hyper cube sampling (LHS) is the default optimizer used for finding the next algorithm design parameters on the meta model.
+* The LHS procedure generates a set of LHD points.
+* The function `optimLHD()` uses LHS to optimize a specified target function as follows:
+    * A Latin hyper cube Design (LHD) is created with `designLHD()`, then evaluated by the objective function. 
+    * All results are reported, including the best (minimal) objective value, and corresponding design point.
+* A standalone optimization run using `optimLHD()` can be implemented as follows. It uses 100 design points as a default value.
+
+
+```{r, resOptimLhd}
+resOptimumLHD <- optimLHD(,fun = funSphere,lower = c(-10,-20),upper=c(20,8))
+str(resOptimumLHD)
+resOptimumLHD$ybest
+```
+
+* Using more sophisticated algorithms, as the variable metric algorithm (L-BFGS-B), might lead to better results.
+* However, they are not as robust as the simple `optimLHD()` search.
+* Also, `L-BFGS-B` is a pure local search, which may not be ideal to solve potentially multi-modal tuning problems.
+
+
+```{r, resOptimBfgs}
+resOptimBFGS <- optimLBFGSB(,fun = funSphere,lower = c(-10,-20),upper=c(20,8))
+resOptimBFGS$ybest
+```
+
+* Hence, `SPOT` also includes interfaces to more sophisticated algorithms, such as differential evolution from `DEoptim` package or various methods included in the `nloptr` package.
+* For further details on these, see e.g., the help of the corresponding functions.
+
+## Details 6: SPOT Loop: Continued Evaluation
+
+* Sometimes, users may desire to continue a previously finished `SPOT` run.
+* We will demonstrate, how `SPOT` can be restarted, reusing the collected data.
+
+### Example: `SPOT` with continued evaluation
+
+* The surrogate model based optimization setting will be used to exemplify the continued evaluation. 
+* The two dimensional sphere function is used as an objective function (level L1) and `SPOT` will be used at level L2.
+* `SPOT` uses 5 function evaluations. 
+
+
+```{r, control01}
+control01 <- list(
+    designControl = list(size = 5, 
+                       replicates = 1),    
+    funEvals = 5)
+res1 <- spot(,funSphere,
+             lower = c(-2,-3),
+             upper = c(1,2),
+             control01)
+cbind(res1$x, res1$y)
+```
+* Now, we continue with a larger budget. 
+* If we would like to add 3 function evaluations, the total number of function evaluations is $5+3=8$.
+* To continue a `SPOT` run, the command `spotLoop()` can be used as follows:
+    * `spotLoop(x, y, fun, lower, upper, control, ...)`.
+* The arguments are:
+    * `x`: the known candidate solutions that the `SPOT` loop is started with, specified as a matrix. One row for each point, and one column for each optimized parameter.
+    * `y`: the corresponding observations for each solution in `x`, specified as a matrix. One row for each point.
+    * `fun`: is the objective function. It should receive a matrix `x` and should return a matrix `y`. 
+    * `lower`:  is the vector that defines the lower boundary of search space. This determines also the dimensionality of the problem.
+    * `upper`:  is the vector that defines the upper boundary of search space.
+    * `control`:  is the list with control settings for spot. 
+    * `...`: additional parameters passed to fun.
+
+
+```{r, control01a}
+control01$funEvals <- 8
+res2 <- spotLoop(res1$x,
+                 res1$y,
+                 funSphere,
+                 lower = c(-2,-3),
+                 upper = c(1,2),
+                 control01)
+cbind(res2$x, res2$y)
+```
+
+# Exploratory Fitness Landscape Analysis
+
+## Introduction to SPOT's Plot Functions
+
+* The `SPOT` package offers three plot functions that can be used to visualize data or evaluate a model's performance creating 2D and 3D surface plots.
+    * `plotFunction()` plots function objects
+    * `plotData()` plots data
+    * `plotModel()` plots model objects, created by `build*` functions from the `SPOT` package.
+
+### plotFunction
+
+* The function `plotFunction()` visualizes the fitness landscape.
+* It generates a (filled) contour plot or perspective / surface plot of a function `f()`.
+* It has several options for changing plotting styles, colors etc., but default values should be fine in many cases. 
+    * The basic arguments are: `plotFunction(f , lower , upper , type)`
+
+### Example: Plot of the sphere function
+
+* The following code generates a 2D filled contour plot of the sphere function.
+* Note that `plotFunction()` requires a function that handles matrix objects, so `funSphere()` is used.
+
+```{r, plotFunSphere, eval=FALSE}
+plotFunction(funSphere, rep(-1,2), rep(1,2)) 
+```
+
+
+
+
+### Example: Plotting a user defined function
+
+* The following code examples show how user defined functions can be plotted. 
+$$
+f(\vec{x}) = \sum_{i=1}^n (x_i^3 -1).
+$$
+* It also illustrates how the color scheme can be modified.
+
+```{r, myFunc, eval=FALSE}
+myFunction <- function (x){
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               function(x) sum(x^3-1) # objective function
+               ),
+         , 1) # number of columns
+  }
+plotFunction(myFunction, 
+             rep(-1,2), 
+             rep(1,2), 
+             color.palette = rainbow) 
+```
+
+
+
+
+
+* We can also generate a perspective plot of the user defined function as shown in the following code.
+
+
+```{r, plotPersp2, eval = FALSE}
+plotFunction(myFunction,
+             rep(-1,2), 
+             rep(1,2), 
+             type="persp", 
+             theta=10, 
+             phi=25, 
+             border = NA)
+```
+
+### plotModel()
+
+* Furthermore, `plotModel()` offers the possibility to visualize models that have already been trained, e.g., during a `SPOT` run. 
+* Some simple examples are given below.
+
+### Example: Plotting a trained model
+
+* First, we generate some training data.
+* To demonstrate how plots from data with more than two input dimensions can be generated, we generate a three-dimensional input design, i.e., we consider a functional relationship of the type
+$$
+f: \mathbb{R}^3 \to \mathbb{R}, \qquad y = f(x_1,x_2,x_3).
+$$
+* The output is one dimensional.
+
+
+```{r, head3dex}
+set.seed(123)
+k <- 30
+x.test <- designLHD(,rep(-1,3),rep(1,3), control = list(size = k)) 
+y.test <- funSphere(x.test)
+head( cbind(x.test, y.test))
+```
+
+* Then, we train a standard response surface using `SPOT`'s `buildRSM()` function.
+* We generate the default contour plot using `plotModel()`.
+
+
+```{r, plot3dex, eval =FALSE}
+fit.test <- buildRSM(x.test,y.test)
+plotModel(fit.test)
+```
+
+
+
+
+
+* Passing the argument `type="contour"` to the `plotModel()` function, a 2D contour plot can be generated as shown in the Figure.
+* By default, the dependent variable $y$ is plotted against the first two $x_i$ variables.
+* Note, that the argument `which` specifies the independent variables $x_i$ that are plotted. 
+* To plot $y$ against $x_1$ and $x_3$, the argument `which=c(1,3)` can be used.
+
+
+```{r, plotContour1, eval=FALSE}
+plotModel(fit.test,which=c(1,3),type="contour",pch1=24,col1="blue")
+```
+
+
+
+
+
+* Perspective plots of the same model can be generated as follows. The arguments `theta` and `phi` can be used to modify the view point.
+* The figure can be generated with the following code:
+
+```{r, plotModel2, eval=FALSE}
+plotModel(fit.test,which=c(1,3),type="persp",border="NA",theta=255,phi=20)
+```
+
+### `plotData()`
+
+* Finally, using `plotData()`, different models built on provided data can be compared. 
+* The `plotData()` function generates a (filled) contour or perspective plot of a data set with two independent and one dependent variable.
+* The plot is generated by some interpolation or regression model. 
+* By default, the `LOESS` function is used.
+* Some simple examples are given below.
+
+#### Example: Plotting data using `LOESS` and `random forest`
+
+* The following code shows a comparison of two different models fitting the same data. 
+* First, the default `LOESS` model is used for interpolation. 
+
+
+```{r, plotDataxy, eval=FALSE}
+plotData(x.test,y.test)
+```
+
+
+
+
+
+* Then, the random forest was used for interpolation.
+
+```{r, plotRf, eval = FALSE}
+plotData(x.test,y.test,type="filled.contour",cex1=1,col1="red",pch1=21,model=buildRandomForest)
+```
+
+
+
+
+
+#### Example: Perspective plot
+
+* The following Figure shows a perspective plot, which is based on the same data that were used in the previous Example. 
+
+
+```{r, plotPersp1, eval=FALSE}
+plotData(x.test,y.test,type="persp",border=NA,model=buildLOESS)
+```
+# Exploratory Fitness Landscape Analysis Using SPOT
+
+* This section demonstrates how functions from the `SPOT` package can be used to perform a visual inspection of the fitness landscape during an interactive `SPOT` run.
+* These results can also be used to illustrate the algorithm's performance. 
+* In this section, reference will be made to the application, in which `SPOT` is used for the tuning procedure of two `SANN` design parameters: 
+    * starting temperature `temp` and the 
+    * number of function evaluations at each temperature `tmax`. 
+* The fitness landscape can be visualized in two different ways:
+    1. Because `SPOT` builds a surrogate model during the sequential optimization, this model can be used to visualize the fitness landscape. In this case, the  `plotModel()` function will be used.
+    2. Using standard interpolation or local regression functions. In this case, the `plotData()` function will be u sed. Note, that the `plotData()` function allows the specification of several interpolation functions (`LOESS` is default).
+* Using `plotFunction()` is usually not applicable, because the underlying (true) analytical function is not known.
+* We consider the `SPOT` model based approach first.
+
+## Plotting the Final Model with `plotModel()`
+
+* Plotting the final model from the `SPOT` run might be the most generic way of visualizing the results, because during the optimization, the optimizer trusted this model. So, why should it be considered unreliable after the optimization is finished?
+* Based on the tuning results from the previoius example (using the `resRf` data), we will demonstrate how the final model, which was built during the `SPOT` run, can be plotted.
+* Since the model is stored in the result list from the `SPOT` run, i.e., in `resRf`, the parameter `resRf$modelFit()` can be passed as an argument to the `plotModel()` function. 
+* The result is shown in the following Figure. It shows a surface plot from the `SPOT` run with random forest.
+
+
+```{r, plotRfmodel, eval=FALSE}
+plotModel(resRf$modelFit)
+```
+
+
+
+
+
+### Plotting the Data with `plotData()`
+
+* Results from Example with `resRf` result data were obtained with the random forest model. 
+* But, the data can be fitted to a different model, e.g., a  locally (weighted) scatter plot smoothing (`LOESS`) or Kriging model as follows.
+
+#### Example: Plotting data using `LOESS`
+
+* The following code  illustrates the `LOESS' model fit, which uses the data generated with a random forest model.
+
+```{r, plotLoess, eval=FALSE}
+plotData(resRf$x,resRf$y,model=buildLOESS)
+```
+
+
+
+#### Example: Plotting data using Kriging
+
+* Plotting the same data as in the previous Figure with a Kriging model can easily be done. 
+* The result can be generated as followings.
+
+```{r, plotKrig, eval=FALSE}
+plotData(resRf$x,resRf$y,model=buildKriging)
+```
+
+
+
+
+* This result can be compared to a case in which Kriging models were used during the `SPOT` run and for the final illustration.
+    * The same setting as in the random forest based optimization will be used. 
+    * Only the meta model will be changed.
+    * The `SPOT` configuration parameters can be changed as follows:
+
+
+```{r, changeConfig}
+spotConfig$model = buildKriging
+spotConfig$optimizer = optimLBFGSB
+spotConfig$modelControl = list(algTheta=optimLBFGSB)
+## Run SPOT
+resK <- spot(x=NULL,
+             fun=sann2spot,
+             lower=lower,
+             upper=upper,
+             control=spotConfig)
+```
+
+* Now, the Kriging model used during the `SPOT` run will be used to visualize the fitness landscape. 
+* The following code can be used for visualization:
+
+
+```{r, plotKrigingRes, eval=FALSE}
+plotModel(resK$modelFit)
+```
+
+
+
+
+* The landscape generated with the random forest based `SPOT` run and the landscape  from the Example, which used the Kriging-based `SPOT` run, differ.
+* We can check if longer runs increase the similarities. 
+
+### Continued Runs
+
+* The optimization procedure from Example which generated the `resRf` data, used 50 runs of the `SANN` algorithm. 
+* Now this number is increased to 100 and the procedure is continued. 
+* This means, an additional 50 evaluations are necessary since the results from the first runs are reused.
+
+#### Example: Continued with 50 additional runs
+
+* The fitness landscape of the random forest meta model with 100 function evaluations is shown at the top in the Figure.
+
+
+```{r, contRun}
+spotConfig$funEvals <- 100
+spotConfig$model <- buildRandomForest
+res100Rf <- spotLoop(resRf$x,
+                     resRf$y,
+                     fun=sann2spot,
+                     lower=lower,
+                     upper=upper,
+                     control=spotConfig)
+```
+
+#### Example: `resK` continued with 50 additional runs
+
+* In a similar manner, new results can be added to the Kriging based optimization runs from Example `resK`.
+
+
+```{r, contRun100}
+spotConfig$model = buildKriging
+spotConfig$optimizer = optimLBFGSB
+spotConfig$modelControl = list(algTheta=optimLBFGSB)
+res100K <- spotLoop(resK$x,
+                    resK$y,
+                    fun=sann2spot,
+                    lower=lower,
+                    upper=upper,
+                    control=spotConfig)
+```
+
+* A comparison of the models resulting from the two long runs (Example `resRf100` and `res100K`) is shown in the following Figures.
+* A visual inspection indicates that the landscapes are qualitatively similar, e.g., poor algorithm settings can be found in the lower right corner.
+    * Comparison of the long runs with 100 function evaluations and two different surrogate models. 
+    * First: Example `resRf100`. Long run using Random forest model. 
+    * Second: Example `res100K`. Long run with 100 function evaluations using a Kriging model.
+
+
+```{r, plotRes100K, eval=FALSE}
+plotModel(res100Rf$modelFit)
+```
+
+```{r, plotResKriging, eval=FALSE}
+plotModel(res100K$modelFit)
+```
+
+# Response Surface Methodology (RSM)
+
+* Using the `rsm` package, which is maintained by~\citet{Lent12a}, the `buildRSM()` function builds a linear response surface model.
+* The arguments of `buildRSM(x, y, control = list())` are as follows:
+    1. `x`: design matrix (sample locations), rows for each sample, columns for each variable.
+    2. `y`: vector of observations at `x`
+    3. `control`: list, with the options for the model building procedure:
+        * mainEffectsOnly: logical, defaults to FALSE. Set to TRUE if a model with main effects only is desired (no interactions, second order effects).
+        * canonical: logical, defaults to FALSE. If this is TRUE, use the canonical path to descent from saddle points. Else, simply use steepest descent
+
+## Example: Path of the steepest descent
+
+* First, we create some design points and compute observations at design points.
+* Then, using `buildRSM()`, the response surface model is build.
+* The function `descentSpotRSM()` returns the path of the steepest descent.
+
+
+```{r, desUnifRand}
+x <- designUniformRandom(lower=rep(-5,2), 
+                         upper=rep(15,2), 
+                         control=list(size=20))
+y <- funSphere(x)
+```
+
+* Create model with default settings
+
+
+```{r, buildRsm1}
+fit <- buildRSM(x,y)
+```
+
+* Predict new point
+
+
+```{r, predictRsm1}
+predict(fit,cbind(1,2))
+```
+
+* True value at location:
+
+
+```{r, showReal}
+sphere(c(1,2))
+```
+
+
+```{r, descentSpot}
+descentSpotRSM(fit)
+```
+
+  
+
+
+* This situation is illustrated in the following Figure, which illustrates the response surface, which fits the sphere function.
+
+
+```{r, plotFitSurf, eval=FALSE}
+plot(fit)
+```
+
+
+
+
+
+## RSM and SPOT
+
+* We can use RSM for an interactive tuning approach.
+* The starting point in this example are the 100 design points that were generated during the Kriging-based `SPOT` run in Example `res100K`.
+* These 100 data points are used to build a response surface with `buildRSM()`.
+
+
+```{r, res100Kfit}
+rsm100K <- buildRSM(x=res100K$x,
+                    y=res100K$y) 
+summary(rsm100K$rsmfit)
+```
+
+* Following the path of the steepest descent on the RSM meta model, we obtain a new design point, which can be evaluated. 
+
+
+```{r, res100Kdesc}
+(xSteep <- descentSpotRSM(rsm100K) )
+```
+
+
+* We have chosen the eighth point, i.e.,
+
+
+```{r, xnew8}
+xNew <- xSteep$x[8,]
+```
+
+* Then we determine its function value.
+
+
+```{r, xnew8Function}
+(yNew <- sann2spot(xNew))
+```
+
+* Next, we can refine the rsm meta model by including this point to the set of design points.
+
+
+```{r, res100KrsmFit}
+x101 <- rbind(res100K$x, xNew)
+y101 <- rbind(res100K$y, yNew)
+rsm101K <- buildRSM(x=x101,
+                    y=y101) 
+summary(rsm101K$rsmfit)
+```
+
+
+
+
+* The resulting plot is shown in the following Figure.
+
+
+```{r, plotRes101K, eval=FALSE}
+plot(rsm101K)
+```
+* Now, we have two options for continuing the optimization.
+* Either, we continue following the path of the steepest descent, i.e., we use `SPOT`'s `descentSpotRSM()` function.
+
+```{r, desc101Kres}
+descentSpotRSM(rsm101K)
+```
+
+* Or, we can continue with `SPOT`.
+* Following this second option, we have built an updated Kriging model using nine additional function evaluations.
+
+
+```{r, spotConf101}
+spotConfig$model = buildKriging
+spotConfig$optimizer = optimLBFGSB
+spotConfig$modelControl = list(algTheta=optimLBFGSB)
+spotConfig$funEvals <- 110
+res110K <- spotLoop(x=x101,
+                    y=y101,
+                    fun=sann2spot,
+                    lower=lower,
+                    upper=upper,
+                    control=spotConfig)
+```
+
+* Finally, we can plot the updated model.
+    * `buildRSM()` was used to build a response surface. 
+    * Data from the Kriging-based `SPOT` run with 100 function evaluations, one additional point, which was calculated using the steepest descent function `descentSpotRSM()`, and one additional `SPOT` run with nine additional design points, were used to generate this model. 
+    * Altogether, 110 design points were used to generate this model.
+
+
+```{r, plotRes101Kfit, eval=FALSE}
+plotModel(res110K$modelFit)
+```
+# Statistical Analysis
+
+* This section describes two basic approaches for the analysis of the results from the previous example: 
+    1. tree-based analysis and 
+    2. regression analysis.
+* We will continue using the data from Example `resRf100`.
+
+## Tree-based Analysis
+
+* `SPOT`'s `buildRandomForest()` function is a wrapper function  for the `randomForest()` function from the  `randomForest` package.
+* Since the `randomForest` package has no default plot function, we switch to the `party` package. 
+    * This package provides the `ctree()` function, which can be applied as follows:
+
+* Tree based analysis with Kriging data. tmax and temp.
+
+
+```{r, plotParty, eval=FALSE}
+tmaxtempz.df <- data.frame(res100K$x[,1], res100K$x[,2], res100K$y)
+names(tmaxtempz.df) <- c("tmax", "temp", "y")
+tmaxtempz.tree <- party::ctree(y ~ ., data=tmaxtempz.df)
+plot(tmaxtempz.tree, type="simple")
+```
+
+## Regression Analysis
+
+### Building the Linear Model
+
+* Data from the `SPOT` run can be used for building linear models.
+* First, we extract the data from the result file.
+* Then we can use the standard `lm()` function for building the linear model.
+
+
+```{r, lm100K}
+xyz100K.df <- data.frame(res100K$x[,1], res100K$x[,2], res100K$y)
+names(xyz100K.df) <- c("x", "y", "z")
+lm100K <- lm(z ~ x*y, data=xyz100K.df)
+summary(lm100K)
+```
+
+
+* Diagnostic plots can be generated as follows:
+
+
+```{r, plotLm100K, eval=FALSE}
+plot(lm100K)
+```
+
+
+### Estimating Variable Effects
+
+* `R`'s `termplot()` function can be used to plot regression terms against their predictors, optionally with standard errors and partial residuals added.
+
+
+```{r, plotTerm, eval=FALSE}
+par(mfrow=c(1,2))
+termplot(lm100K, partial = TRUE, smooth = panel.smooth, ask=FALSE) 
+par(mfrom=c(1,1))
+```
+
+* The `car` package provides the function `avPlots()`, which can be used for visualization as follows:
+
+
+```{r, avPlot, eval=FALSE}
+par(mfrow=c(1,3))
+car::avPlots(lm100K,ask=F)   
+par(mfrow=c(1,1))
+```
+# Deterministic Problems and Surrogate Model Based Optimization
+
+* Previous sections discussed the tuning of non-deterministic, i.e.,  noisy, algorithms, which is the usual case when tuning evolutionary algorithms.
+* This section presents an application of `SPOT` in a simple setting: 
+    * We will describe how `SPOT` can be used for optimizing deterministic problems directly, i.e., we apply `SPOT` in the context of surrogate model based optimization.
+* To present a very simple example, `SPOT` will be used for minimizing the sphere function.
+* Level L2 from  is omitted, and the tuning algorithm for level L3 is applied directly to the real-world system on level L1.
+* So instead of tuning the stochastic `SANN` heuristic, which in turn optimizes the sphere function, `SPOT` tries to find the  minimum of the deterministic sphere function directly. 
+* This example illustrates necessary modifications of the `SPOT` configuration in deterministic settings.
+* Since no randomness occurs, repeats or other mechanism to cope with noise are not necessary anymore.
+* The interval $[-5;5] \times [-5; 5]$ was chosen as the region of interest, i.e., we are considering a two-dimensional optimization problem.
+
+
+```{r, spot55}
+res <- spot(,funSphere,c(-5,-5),c(5,5), control=list(optimizer=optimLBFGSB)) 
+```
+
+* We can extract the best solution with the following command.
+
+
+```{r, res55}
+res$xbest
+res$ybest
+```
+
+# Model Ensembles: Stacking
+
+* `SPOT` provides several models that can be used as surrogates.
+* Sometimes it is not obvious, which surrogate should be chosen.
+* Ensemble-based models provide a well-established solution to this model selection problem~\citep{Bart16n}. 
+* Therefore, `SPOT` provides a stacking approach, that combines several models in a sophisticated manner.
+* The stacking procedure is described in detail in~\citet{Bart16jcos}.
+
+* We will use the data from Example `plotTrained` to illustrate the stacking approach.
+
+
+```{r, fitstack, eval=TRUE}
+fit.stack <- buildEnsembleStack(x.test, y.test)
+```
+
+
+```{r, plotStack, eval=FALSE}
+plotModel(fit.stack)
+```
+
+
+* We can compare predicted and true values as follows:
+
+
+```{r, predictStack}
+xNew <-  cbind(1,1,1)
+predict(fit.stack, xNew)
+funSphere(xNew)
+```
+
+# Summary
+
+* This report describes experimental methods for tuning algorithms.
+* Using a simple simulated annealing algorithm, it was demonstrated how optimization algorithms can be tuned using the
+`SPOT`.
+* Several tools from the `SPOT` for automated and interactive tuning were illustrated and the underling concepts of the `SPOT` approach were explained. 
+* Central in the `SPOT` approach are techniques such as exploratory fitness landscape analysis and response surface methodology.
+* Furthermore, we demonstrated how SPOT can be used as optimizer and how a sophisticated ensemble approach is able to combine several meta models via stacking.
+

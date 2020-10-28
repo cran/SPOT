@@ -160,7 +160,9 @@ optimES <- function(x=NULL
 #' @param globalOpt termination criterion on reaching a desired optimum value, should be a vector of length dimension (LOCATION of the optimum). Default to NULL, which means it is ignored.
 # @param conf config number passed to the result file, default is \code{-1}
 #' @param ... additional parameters to be passed on to \code{fName}
-#'
+#' @importFrom stats median
+#' @importFrom graphics par
+#' @importFrom graphics lines
 #' @export
 ###################################################################################################
 spotAlgEs <- function(mue = 10,
@@ -527,7 +529,7 @@ spotAlgEsGetSuccessRate <- function(gen,pop){
 #' @param high upper limit
 #' @param des des scaling for placement between low and high
 #' @param ... additional parameters to be passed on to \code{fName}
-#'
+#' @importFrom stats rnorm
 #' @return numeric vector \cr
 #' - contains x value, sigma value, real fitness value, fitness with noise, and generation number
 #'
@@ -723,7 +725,8 @@ spotAlgEsDominantReco <- function(parents, rhoVal, dimension, nSigma, objType="o
 #' @param tau the step size multiplier for self adaption in each dimension
 #' @param sigmaRestart sigma values are reset to initial values when a uniformly distributed random number is smaller than sigmaRestart
 #' @param sigmaInit initial sigma value
-#'
+#' @importFrom stats runif
+#' @importFrom stats rnorm
 #' @return number \code{s} \cr
 #' - \code{s} is the new sigma value
 #' @keywords internal
@@ -744,6 +747,7 @@ spotAlgEsStratMutation <- function(strat, tau0, tau, sigmaRestart, sigmaInit){
 #'
 #' @param obj Object to be mutated
 #' @param strat Strategy parameter sigma to mutate with
+#' @importFrom stats rnorm
 #' @keywords internal
 ###
 spotAlgEsObjMutation <- function(obj, strat){

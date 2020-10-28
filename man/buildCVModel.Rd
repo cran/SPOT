@@ -16,7 +16,8 @@ buildCVModel(x, y, control = list())
 \code{target} target values of the prediction, a vector of strings. Each string specifies a value to be predicted, e.g., "y" for mean, "s" for standard deviation.
 This can also be changed after the model has been built, by manipulating the respective \code{object$target} value.\cr
 \code{uncertaintyEstimator} a character vector specifying which uncertaintyEstimator should be used.
-"s" or the linearlyAdapted uncertrainty "sLinear". Default is "sLinear"}
+"s" or the linearlyAdapted uncertrainty "sLinear". Default is "sLinear".\cr 
+modellingFunction the model that shall be fitted to each data fold}
 }
 \value{
 set of models (class cvModel)

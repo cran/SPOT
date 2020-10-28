@@ -28,10 +28,6 @@ A data frame with 280 rows and 20 columns (1 output, 7 input, 2 disturbance, 10 
   \item{Set9}{test/training split}
   \item{Set10}{test/training split}
 }
-
-Two different modeling tasks are of interest for this data set:
-\code{Y~X1+X2+X3+X4+X5+X6+X7+Batch+Sensor} and
-\code{X1~Y+X7+Batch+Sensor}.
 }
 \usage{
 dataGasSensor
@@ -39,6 +35,11 @@ dataGasSensor
 \description{
 A data set of a Gas Sensor, similar to the one used by Rebolledo et al. 2016.
 It also contains information of 10 different test/training splits, to enable comparable evaluation procedures.
+}
+\details{
+Two different modeling tasks are of interest for this data set:
+\code{Y~X1+X2+X3+X4+X5+X6+X7+Batch+Sensor} and
+\code{X1~Y+X7+Batch+Sensor}.
 }
 \references{
 Margarita A. Rebolledo C., Sebastian Krey, Thomas Bartz-Beielstein, Oliver Flasch, Andreas Fischbach and Joerg Stork. \cr

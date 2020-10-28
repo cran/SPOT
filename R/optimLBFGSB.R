@@ -16,6 +16,9 @@
 #' }
 #' All other \code{control} parameters accepted by the \code{optim} function can be used, too, and are passed to \code{optim}.
 #' @param ... passed to \code{fun}
+#' 
+#' @importFrom stats runif
+#' @importFrom stats optim
 #'
 #' @return list, with elements
 #' \describe{

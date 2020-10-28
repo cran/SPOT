@@ -24,10 +24,12 @@ test_that("Wrong Control Settings are blocked",{
     
     warningControlLists <- list(
         list(funEvals = 50 + 5*4,
-             designControl = list(size = 10, replicates = 5)),
+             designControl = list(size = 10, replicates = 5),
+             verbosity = 1),
         list(funEvals = 50 + 4,
-             designControl = list(size = 50)),
-        list(funEvals = 14)
+             designControl = list(size = 50),
+             verbosity = 1),
+        list(funEvals = 14,  verbosity = 1)
     )
     
     goodControlLists <- list(
@@ -37,21 +39,21 @@ test_that("Wrong Control Settings are blocked",{
              designControl <- list(size = 7, replicates = 1))
     )
     
-    for(c in goodControlLists){
+    for(cl in goodControlLists){
         expect_error({
-            spot(x = xCorrect, fun = funSphere, lower = lCorrect, upper = uCorrect, control = c)
+            spot(x = xCorrect, fun = funSphere, lower = lCorrect, upper = uCorrect, control = cl)
         },regexp = NA)
     }
     
-    for(c in warningControlLists){
+    for(cl in warningControlLists){
         expect_warning({
-            spot(x = xCorrect, fun = funSphere, lower = lCorrect, upper = uCorrect, control = c)
+            spot(x = xCorrect, fun = funSphere, lower = lCorrect, upper = uCorrect, control = cl)
         },regexp = "SPOT Configuration Warning:")
     }
     
-    for(c in errorControlLists){
+    for(cl in errorControlLists){
         expect_error({
-            spot(x = xCorrect, fun = funSphere, lower = lCorrect, upper = uCorrect, control = c)
+            spot(x = xCorrect, fun = funSphere, lower = lCorrect, upper = uCorrect, control = cl)
         },regexp = "SPOT Configuration Error:")
     }
 })

@@ -80,6 +80,8 @@ buildRanger <- function(x, y, control=list()){
 #' @param newdata matrix of new data.
 #' @param ... not used
 #' 
+#' @importFrom stats predict
+#' 
 #' @export
 #' @keywords internal
 ###################################################################################################

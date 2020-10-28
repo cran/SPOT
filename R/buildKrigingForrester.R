@@ -50,6 +50,10 @@
 #' \code{Psinv} inverse of Psi\cr
 #' \code{nevals} number of Likelihood evaluations during MLE
 #'
+#' @importFrom stats predict
+#' @importFrom stats dist
+#' @importFrom stats var
+#' 
 #' @export
 #' @seealso \code{\link{predict.kriging}} 
 #' @references Forrester, Alexander I.J.; Sobester, Andras; Keane, Andy J. (2008). Engineering Design via Surrogate Modelling - A Practical Guide. John Wiley & Sons.
@@ -510,6 +514,8 @@ predict.kriging <- function(object,newdata,...){
 #' @param object Kriging model (settings and parameters) of class \code{kriging}.
 #' @param newdata design matrix to be predicted
 #' @param ... not used
+#' 
+#' @importFrom MASS ginv
 #'
 #' @return list with predicted mean \code{y}, uncertainty \code{s} (optional) and expected improvement \code{ei} (optional). 
 #' Whether \code{s} and \code{ei} are returned is specified by the vector of strings \code{object$target}, which then contains "s" and "ei.

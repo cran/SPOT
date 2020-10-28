@@ -31,6 +31,14 @@
 #' @param phi angle defining the viewing direction. theta gives the colatitude. (persp plot only) 
 #' @param ... additional parameters passed to \code{contour} or \code{filled.contour}
 #'
+#' @importFrom grDevices terrain.colors
+#' @importFrom graphics filled.contour
+#' @importFrom graphics points
+#' @importFrom graphics axis
+#' @importFrom graphics persp
+#' @importFrom graphics contour
+#'
+#'
 #' @examples
 #' plotFunction(function(x){rowSums(x^2)},c(-5,0),c(10,15))
 #' plotFunction(function(x){rowSums(x^2)},c(-5,0),c(10,15),type="contour")

@@ -17,6 +17,10 @@
 #' The \code{useStep} boolean specifies whether the \code{step} function is used.
 #' The \code{formula} is passed to the lm function.
 #' Without a formula, a second order model will be built.
+#'  
+#' @importFrom stats as.formula
+#' @importFrom stats lm
+#' @importFrom stats step
 #' 
 #' @return an object of class \code{"spotLinearModel"}, 
 #' with a \code{predict} method and a \code{print} method.
@@ -98,6 +102,8 @@ buildLM<-function(x,y,control=list()){
 #' @param object fit of the model, an object of class \code{"spotLinearModel"}, produced by \code{\link{buildLM}}.
 #' @param newdata matrix of new data.
 #' @param ... not used
+#' 
+#' @importFrom stats predict
 #' 
 #' @export
 #' @keywords internal

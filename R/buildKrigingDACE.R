@@ -253,7 +253,8 @@ daceLikelihood <- function (theta, pars, nugget){
 #' @param nugget Value for nugget. Default is -1, which means the nugget will be optimized during MLE. 
 #' @param regr Regression function to be used: \code{\link{regpoly0}} (default), \code{\link{regpoly1}}, \code{\link{regpoly2}}. Can be a custom user function.
 #' @param corr Correlation function to be used: \code{\link{corrnoisykriging}} (default), \code{\link{corrkriging}}, \code{\link{corrnoisygauss}}, \code{\link{corrgauss}}, \code{\link{correxp}}, \code{\link{correxpg}}, \code{\link{corrlin}}, \code{\link{corrcubic}},\code{\link{corrspherical}},\code{\link{corrspline}}. Can also be user supplied (if in the right form).
-#'
+#' @importFrom stats sd
+#' @importFrom utils tail
 #' @return a list with several model or problem specific settings and parameters
 #'
 #' @author The authors of the original DACE Matlab code are Hans Bruun Nielsen, Soren Nymand Lophaven and Jacob Sondergaard. \cr

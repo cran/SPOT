@@ -7,7 +7,7 @@
 #'
 #' @param x is an optional start point (or set of start points), specified as a matrix. One row for each point, and one column for each optimized parameter.
 #' @param fun is the objective function. It should receive a matrix x and return a matrix y. In case the function uses external code and is noisy, an additional seed parameter may be used, see the \code{control$seedFun} argument below for details.
-#' @param lower is a vector that defines the lower boundary of search space. This determines also the dimensionality of the problem.
+#' @param lower is a vector that defines the lower boundary of search space. This determines also the problem dimension.
 #' @param upper is a vector that defines the upper boundary of search space.
 #' @param control is a list with control settings for spot. See \code{\link{spotControl}}.
 #' 
@@ -26,13 +26,34 @@ initialInputCheck <- function(x=NULL,fun,
     
     checkControlVarTypes(lower, control)
     
+    checkVerbosityLevels(control)
+    
     return(TRUE)
+}
+
+###################################################################################################
+#' Check correct verbosity levels
+#' 
+#' Create an error message if the given verbosity level is not allowed
+#'
+#' @param control spot control list
+#'
+#' @keywords internal
+###################################################################################################
+checkVerbosityLevels <- function(control){
+    if(is.null(control$verbosity))return()
+    
+    allowedLevels <- c(0,1)
+    if(!(control$verbosity %in% allowedLevels)){
+        stop(paste("the specified verbosity level in the spotControl is not allowed. Please specify one of:",
+                   paste(allowedLevels, collapse = ", ")))
+    }
 }
 
 ###################################################################################################
 #' Check for NAs in x lower and upper
 #'
-#' Creates an error message if there are any nas given in x lower or upper
+#' Creates an error message if there are any NAs in x lower or upper
 #'
 #' @param x is an optional start point (or set of start points), specified as a matrix. One row for each point, and one column for each optimized parameter.
 #' @param lower is a vector that defines the lower boundary of search space. This determines also the dimensionality of the problem.
@@ -135,7 +156,7 @@ checkLowerNotEqualsUpper <- function(lower,upper){
 ###################################################################################################
 checkLowerSmallerThanUpper <- function(lower,upper){
     if(any(lower > upper)){
-        warning("SPOT Configuration Warning: Entries in 'lower' are higher than entries in 'upper'")
+        stop("SPOT Configuration Error: Entries in 'lower' are higher than entries in 'upper'")
     }
 }
 
@@ -179,9 +200,11 @@ checkFunEvalsDesignSize <- function(x, lower, control, inSpotLoop){
     }
     
     if(funEvals == (designSize * replicates + lenX * replicates)){
+        if (control$verbosity >0 ){
         warning("SPOT Configuration Warning: The intial design will be as large as funEvals. 
                     SPOT is not run, you are only building a design!
                     Increase funEvals in the spot control list.")
+        }
     }
     if(funEvals < (designSize * replicates + lenX * replicates)){
         stop("SPOT Configuration Error: (designControl$size+nrow(x))*designControl$replicates exceeds control$funEvals. 
