@@ -469,11 +469,15 @@ upper=c(tempHi,tmaxHi)
 
 
 ```{r, resRfrun}
+# library(SPOT)
+# source('~/workspace/SPOT/R/spot.R')
+# source('~/workspace/SPOT/R/initialInputCheck.R')
 resRf <- spot(x=NULL,
               fun=sann2spot,
               lower=lower,
               upper=upper,
               control=spotConfig)
+is.null(spotConfig$optimizerControl$eval_g_ineq)
 ```
 
 * Now, we are able to take a look at the results from the tuning procedure.

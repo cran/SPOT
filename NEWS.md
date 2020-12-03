@@ -1,5 +1,25 @@
 # SPOT
 
+## SPOT 2.1.8
+* CHANGES:
+  * optimNLOPTR can handle additional fun arguments via "..." 
+
+## SPOT 2.1.7
+* NEWS:
+  * optimNLOPTR extended
+
+## SPOT 2.1.6
+* NEWS:
+  * direct mode extended
+  
+## SPOT 2.1.4
+* NEWS:
+  * spotControl(): option direct added
+
+## SPOT 2.1.3
+* NEWS:
+  * buildLasso() added
+  
 ## SPOT 2.1.2
 * CHANGES:
   * reverse dependencies fixed

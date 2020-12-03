@@ -19,17 +19,17 @@ Description: A set of tools for model based optimization and tuning of
     surrogate models for the purpose of efficient optimization. The main goal is
     to ease the burden of objective function evaluations, when a single evaluation
     requires a significant amount of resources.
-Version: 2.1.2
-Date: 2020-10-28
+Version: 2.1.8
+Date: 2020-12-03
 Depends: R (>= 3.5.0)
 Imports: randomForest, ranger, stats, utils, graphics, grDevices, MASS,
-        DEoptim, rgenoud, plotly, rsm, nloptr, ggplot2, SimInf, rpart,
-        rpart.plot, smoof, survival, car, party
+        DEoptim, rgenoud, plotly, rsm, nloptr, ggplot2, glmnet, SimInf,
+        rpart, rpart.plot, smoof
 RoxygenNote: 7.1.1
-Suggests: testthat, batchtools, knitr, rmarkdown, readr
+Suggests: car, testthat, batchtools, knitr, rmarkdown, readr, party
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2020-10-28 14:08:12 UTC; bartz
+Packaged: 2020-12-03 13:55:20 UTC; bartz
 Author: Thomas Bartz-Beielstein [aut, cre],
   Joerg Stork [aut],
   Martin Zaefferer [aut],
@@ -38,4 +38,4 @@ Author: Thomas Bartz-Beielstein [aut, cre],
   Frederik Rehbach [aut]
 Maintainer: Thomas Bartz-Beielstein <tbb@bartzundbartz.de>
 Repository: CRAN
-Date/Publication: 2020-10-28 15:00:09 UTC
+Date/Publication: 2020-12-03 14:40:02 UTC

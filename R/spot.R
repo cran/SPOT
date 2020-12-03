@@ -1,20 +1,18 @@
-
-
-#' @title spot 
-#' 
-#' @description  Sequential Parameter Optimization. 
+#' @title spot
+#'
+#' @description  Sequential Parameter Optimization.
 #' This is one of the main interfaces for using the SPOT package. Based on a user-given objective function
 #' and configuration, \code{spot} finds the parameter setting that yields the lowest objective value (minimization).
 #' To that end, it uses methods from the fields of design of experiment, statistical modeling / machine learning
 #' and optimization.
-#' 
+#'
 #' @param x is an optional start point (or set of start points), specified as a matrix. One row for each point, and one column for each optimized parameter.
 #' @param fun is the objective function. It should receive a matrix x and return a matrix y. In case the function uses external code and is noisy, an additional seed parameter may be used, see the \code{control$seedFun} argument below for details.
 #' @param lower is a vector that defines the lower boundary of search space. This determines also the dimensionality of the problem.
 #' @param upper is a vector that defines the upper boundary of search space.
 #' @param control is a list with control settings for spot. See \code{\link{spotControl}}.
 #' @param ... additional parameters passed to \code{fun}.
-#' 
+#'
 #' @return This function returns a list with:
 #' \describe{
 #'		\item{\code{xbest}}{Parameters of the best found solution (matrix).}
@@ -27,40 +25,52 @@
 #' }
 #'
 #' @examples
-#' ## Most simple example: Kriging + LHS + predicted 
+#' ## Most simple example: Kriging + LHS + predicted
 #' ## mean optimization (not expected improvement)
 #' res <- spot(,funSphere,c(-2,-3),c(1,2),control=list(funEvals=15))
 #' res$xbest
 #' ## With expected improvement
 #' res <- spot(,funSphere,c(-2,-3),c(1,2),
-#'    control=list(funEvals=15,modelControl=list(target="ei"))) 
+#'    control=list(funEvals=15,modelControl=list(target="ei")))
 #' res$xbest
 #' ### With additional start point:
 #' #res <- spot(matrix(c(0.05,0.1),1,2),funSphere,c(-2,-3),c(1,2))
 #' #res$xbest
 ## #larger budget:
 #' #res <- spot(,funSphere,c(-2,-3),c(1,2),
-#' #    control=list(funEvals=50)) 
+#' #    control=list(funEvals=50))
 #' #res$xbest
 #' ### Use local optimization instead of LHS
 #' #res <- spot(,funSphere,c(-2,-3),c(1,2),
-#' #    control=list(optimizer=optimLBFGSB)) 
+#' #    control=list(optimizer=optimLBFGSB))
 #' #res$xbest
 #' ### Random Forest instead of Kriging
 #' #res <- spot(,funSphere,c(-2,-3),c(1,2),
-#' #    control=list(model=buildRandomForest)) 
-#' #res$xbest    
+#' #    control=list(model=buildRandomForest))
+#' #res$xbest
 #' ### LM instead of Kriging
 #' #res <- spot(,funSphere,c(-2,-3),c(1,2),
 #' #    control=list(model=buildLM)) #lm as surrogate
 #' #res$xbest
 #' ### LM and local optimizer (which for this simple example is perfect)
 #' #res <- spot(,funSphere,c(-2,-3),c(1,2),
-#' #    control=list(model=buildLM, optimizer=optimLBFGSB)) 
+#' #    control=list(model=buildLM, optimizer=optimLBFGSB))
+#' #res$xbest
+#' ### Lasso and local optimizer NLOPTR
+#' #res <- spot(,funSphere,c(-2,-3),c(1,2), 
+#' #    control=list(direct= TRUE, model=buildLasso, optimizer = optimNLOPTR))
+#' #res$xbest
+#' ### Kriging and local optimizer LBFGSB 
+#' #res <- spot(,funSphere,c(-2,-3),c(1,2), 
+#' #    control=list(direct= TRUE, model=buildKriging, optimizer = optimLBFGSB))
+#' #res$xbest
+#' ### Kriging and local optimizer NLOPTR 
+#' #res <- spot(,funSphere,c(-2,-3),c(1,2), 
+#' #    control=list(direct= TRUE, model=buildKriging, optimizer = optimNLOPTR))
 #' #res$xbest
 #' ### Or a different Kriging model:
 #' #res <- spot(,funSphere,c(-2,-3),c(1,2),
-#' #    control=list(model=buildKrigingDACE, optimizer=optimLBFGSB)) 
+#' #    control=list(model=buildKrigingDACE, optimizer=optimLBFGSB))
 #' #res$xbest
 #' ## With noise: (this takes some time)
 #' #res1 <- spot(,function(x)funSphere(x)+rnorm(nrow(x)),c(-2,-3),c(1,2),
@@ -75,43 +85,52 @@
 #' #funSphere(res1$xbest)
 #' #funSphere(res2$xbest)
 #' #funSphere(res3$xbest)
-#' ## The following is for demonstration only, to be used for random number 
+#' ## The following is for demonstration only, to be used for random number
 #' ## seed handling in case of external noisy target functions.
 #' #res3 <- spot(,function(x,seed){set.seed(seed);funSphere(x)+rnorm(nrow(x))},
 #' #    c(-2,-3),c(1,2),control=list(funEvals=100,noise=TRUE,seedFun=1))
-#' ## 
+#' ##
 #' ## Next Example: Handling factor variables
 #' ## Note: factors should be coded as integer values, i.e., 1,2,...,n
 #' ## create a test function:
-#' braninFunctionFactor <- function (x) {  
-#'   y <- (x[2]  - 5.1/(4 * pi^2) * (x[1] ^2) + 5/pi * x[1]  - 6)^2 + 
+#' braninFunctionFactor <- function (x) {
+#'   y <- (x[2]  - 5.1/(4 * pi^2) * (x[1] ^2) + 5/pi * x[1]  - 6)^2 +
 #'     10 * (1 - 1/(8 * pi)) * cos(x[1] ) + 10
 #'   if(x[3]==1)
 #'     y <- y +1
 #'   else if(x[3]==2)
 #'     y <- y -1
-#'   y  
+#'   y
 #' }
 #' ## vectorize
 #' objFun <- function(x){apply(x,1,braninFunctionFactor)}
 #' set.seed(1)
-#' res <- spot(fun=objFun,lower=c(-5,0,1),upper=c(10,15,3),     
-#'     control=list(model=buildKriging, 
-#'       types= c("numeric","numeric","factor"), 
-#'       optimizer=optimLHD)) 
+#' res <- spot(fun=objFun,lower=c(-5,0,1),upper=c(10,15,3),
+#'     control=list(model=buildKriging,
+#'       types= c("numeric","numeric","factor"),
+#'       optimizer=optimLHD))
 #' res$xbest
 #' res$ybest
 #' @export
 
-spot <- function(x=NULL,fun, #mostly, fun must have format y=f(x,...). 
-		## If a noisy function requires some specific seed handling (e.g., in some other non-R code) 
-		## a seed can be passed to fun. For that purpose, the user must specify noise=TRUE and fun should 
-		## be fun(x,seed,...)
-		lower,upper,control=list(),...){
-  
+spot <-
+  function(x = NULL,
+           fun,
+           #mostly, fun must have format y=f(x,...).
+           ## If a noisy function requires some specific seed handling (e.g., in some other non-R code)
+           ## a seed can be passed to fun. For that purpose, the user must specify noise=TRUE and fun should
+           ## be fun(x,seed,...)
+           lower,
+           upper,
+           control = list(),
+           ...) {
     #Initial Input Checking
-    PASSED <- initialInputCheck(x,fun,lower,upper,control)
-    
+    PASSED <- initialInputCheck(x, fun, lower, upper, control)
+    ## 20201111 TBB
+    # print("BEGIN: conf in spot(): ++++++++++++++++++++++++++++++++++++++++++++++++++++")
+    # print(conf)
+    # print("conf in spot(): ++++++++++++++++++++++++++++++++++++++++++++++++++++ END")
+   
     ## default settings
     dimension <- length(lower)
     
@@ -120,24 +139,79 @@ spot <- function(x=NULL,fun, #mostly, fun must have format y=f(x,...).
     ## Initial design generation
     set.seed(control$seedSPOT)
     
-    if(control$verbosity == 0){
-        x <- suppressWarnings(suppressMessages(control$design(x=x,
-                                                              lower=lower,upper=upper,
-                                                              control=control$designControl)))
-    }else{
-        x <- control$design(x=x,lower=lower,upper=upper,control=control$designControl)
+    if (control$verbosity == 0) {
+      x <- suppressWarnings(suppressMessages(
+        control$design(
+          x = x,
+          lower = lower,
+          upper = upper,
+          control =
+            control$designControl
+        )
+      ))
+    } else{
+      x <-
+        control$design(
+          x = x,
+          lower = lower,
+          upper = upper,
+          control = control$designControl
+        )
     }
     
-    
     ## Rounding values produced by the design function to integers, etc.
-    x <- repairNonNumeric(x,control$types)
+    x <- repairNonNumeric(x, control$types)
     
     ## Evaluate initial design with objective function
-    y <- objectiveFunctionEvaluation(x=NULL,xnew=x,fun=fun,seedFun=control$seedFun,noise=control$noise,...)
+    y <-
+      objectiveFunctionEvaluation(
+        x = NULL,
+        xnew = x,
+        fun = fun,
+        seedFun = control$seedFun,
+        noise = control$noise,
+        ...
+      )
     
-    result <- spotLoop(x=x,y=y,fun=fun,lower=lower,upper=upper,control=control, ...)
+    result <-
+      spotLoop(
+        x = x,
+        y = y,
+        fun = fun,
+        lower = lower,
+        upper = upper,
+        control = control,
+        ...
+      )
+    # result
+     if(control$direct){
+      print("Starting Direct Optimization:")
+      print("*******************************")
+      print("Result Before Direct Optimization:")
+      print(result$xbest)
+      print(result$ybest)
+      print("*******************************")
+      
+      
+      #count <- control$funEvals
+      optimResDirect <- control$optimizer(x = result$xbest,
+                                          fun = fun,
+                                          lower = lower,
+                                          upper = upper,
+                                          control$optimizerControl,
+                                          ...
+      )
+      result$xbest <-  optimResDirect$xbest
+      result$ybest <-  optimResDirect$ybest
+     }
+    print("Ending Optimization")
+    print("*******************************")
+    print("Final Result from SPOT:")
+    print(result$xbest)
+    print(result$ybest)
+    print("*******************************")
     result
-} 
+  }
 
 
 #' Fill in some values for the control list. Internal use only.
@@ -148,52 +222,52 @@ spot <- function(x=NULL,fun, #mostly, fun must have format y=f(x,...).
 #' @export
 #' @keywords internal
 
-spotFillControlList <- function(controlList, dimension){
-    con <- spotControl(dimension)
-    con[names(controlList)] <- controlList
-    controlList <- con
-    rm(con)
-    
-    ## All functions should deal with the same data types 
-    controlList$designControl$types <- controlList$types
-    controlList$modelControl$types <- controlList$types
-    controlList$optimizerControl$types <- controlList$types
-    
-    return(controlList)
+spotFillControlList <- function(controlList, dimension) {
+  con <- spotControl(dimension)
+  con[names(controlList)] <- controlList
+  controlList <- con
+  rm(con)
+  
+  ## All functions should deal with the same data types
+  controlList$designControl$types <- controlList$types
+  controlList$modelControl$types <- controlList$types
+  controlList$optimizerControl$types <- controlList$types
+  
+  return(controlList)
 }
 
 
-#' Default Control list for spot 
+#' Default Control list for spot
 #'
 #' This function returns the default controls for the functions \code{\link{spot}} and \code{\link{spotLoop}}.
-#' Control is a list of the settings: 
+#' Control is a list of the settings:
 #' \describe{
 #'   \item{\code{funEvals}}{ This is the budget of function evaluations (spot uses no more than funEvals evaluations of fun), defaults to 20.}
 #'   \item{\code{types}}{ Vector of data type of each variable as a string, defaults \code{"numeric"} for all variables.}
 #'   \item{\code{subsetSelect}}{A function that selects a subset from a given set of design points. Default is \code{\link{selectAll}}.}
-#'   \item{\code{subsetControl}}{A list of controls passed to the \code{control} list of the \code{subsetSelect} function. See help 
+#'   \item{\code{subsetControl}}{A list of controls passed to the \code{control} list of the \code{subsetSelect} function. See help
 #'				of the respective function for details. Default is an empty \code{list}.}
-#'   \item{\code{design}}{A function that creates an initial design of experiment. Functions that accept the same parameters, 
+#'   \item{\code{design}}{A function that creates an initial design of experiment. Functions that accept the same parameters,
 #'				and return a matrix like \code{\link{designLHD}} or \code{\link{designUniformRandom}} can be used. Default is \code{\link{designLHD}}.}
-#'   \item{\code{designControl}}{A list of controls passed to the \code{control} list of the \code{design} function. See help 
+#'   \item{\code{designControl}}{A list of controls passed to the \code{control} list of the \code{design} function. See help
 #'				of the respective function for details. Default is an empty \code{list}.}
-#'   \item{\code{model}}{A function that builds a statistical model of the observed data. Functions that accept the same 
-#'				parameters, and return a matrix like \code{\link{buildKriging}} or \code{\link{buildRandomForest}} 
+#'   \item{\code{model}}{A function that builds a statistical model of the observed data. Functions that accept the same
+#'				parameters, and return a matrix like \code{\link{buildKriging}} or \code{\link{buildRandomForest}}
 #'				can be used. Default is \code{\link{buildKriging}}.}
-#'   \item{\code{modelControl}}{A list of controls passed to the \code{control} list of the \code{model} function. 
+#'   \item{\code{modelControl}}{A list of controls passed to the \code{control} list of the \code{model} function.
 #'				See help of the respective function for details.Default is an empty \code{list}.}
-#'   \item{\code{optimizer}}{A function that is used to optimize based on \code{model}, finding the most promising 
-#'				candidate solutions. Functions that accept the same parameters, and return a matrix like \code{\link{optimLHD}} 
+#'   \item{\code{optimizer}}{A function that is used to optimize based on \code{model}, finding the most promising
+#'				candidate solutions. Functions that accept the same parameters, and return a matrix like \code{\link{optimLHD}}
 #'				or \code{\link{optimDE}} can be used. Default is \code{\link{optimLHD}}.}
-#'   \item{\code{optimizerControl}}{A list of controls passed to the \code{control} list of the \code{optimizer} function. 
+#'   \item{\code{optimizerControl}}{A list of controls passed to the \code{control} list of the \code{optimizer} function.
 #'				See help of the respective function for details. Default is an empty \code{list}.}
 #'   \item{\code{noise}}{Boolean, whether the objective function has noise or not. Default is non-noisy, that is, \code{FALSE}.}
-#'   \item{\code{OCBA}}{Boolean, indicating whether Optimal Computing Budget Allocation (OCBA) should be used in case of a noisy 
-#'				objective function or not. OCBA controls the number of replications for each candidate solution. 
-#' 				Note, that \code{replicates} should be larger than one in that case, and that the initial experimental design 
+#'   \item{\code{OCBA}}{Boolean, indicating whether Optimal Computing Budget Allocation (OCBA) should be used in case of a noisy
+#'				objective function or not. OCBA controls the number of replications for each candidate solution.
+#' 				Note, that \code{replicates} should be larger than one in that case, and that the initial experimental design
 #'				(see \code{design}) should also have replicates larger one. Default is \code{FALSE}.}
 #'   \item{\code{OCBAbudget}}{The number of objective function evaluations that OCBA can distribute in each iteration. Default is 3.}
-#'   \item{\code{replicates}}{The number of times a candidate solution is initially evaluated, that is, in the initial design, 
+#'   \item{\code{replicates}}{The number of times a candidate solution is initially evaluated, that is, in the initial design,
 #'				or when created by the optimizer. Default is \code{1}.}
 #'   \item{\code{seedFun}}{An initial seed for the objective function in case of noise, by default \code{NA}. The default means that no seed is set.
 #'				The user should be very careful with this setting. It is intended to generate reproducible experiments for each objective
@@ -205,7 +279,7 @@ spotFillControlList <- function(controlList, dimension){
 #'				to the external code, for random number generator initialization. See end of examples section for a demonstration.}
 #'   \item{\code{seedSPOT}}{This value is used to initialize the random number generator. It ensures that experiments are reproducible. Default is \code{1}.}
 #'   \item{\code{duplicate}}{In case of a deterministic (non-noisy) objective function, this handles duplicated candidate solutions.
-#'				By default (\code{duplicate = "EXPLORE"}), duplicates are replaced by new candidate solutions, generated by random 
+#'				By default (\code{duplicate = "EXPLORE"}), duplicates are replaced by new candidate solutions, generated by random
 #'				sampling with uniform distribution. If desired, the user can set this to "STOP", which means that the optimization
 #'				stops and results are returned to the user (with a warning). This may be desirable, as duplicates can be a indicator
 #'				for convergence, or for a problem with the configuration.
@@ -217,67 +291,80 @@ spotFillControlList <- function(controlList, dimension){
 #'              1 will show warnings and output.}
 #' }
 #' @param dimension problem dimension, that is, the number of optimized parameters.
-#' 
-#' 
+#'
+#'
 #' @return a list
 #' @export
 #' @keywords internal
 #' spotDefaultControls()
 
-spotControl <- function(dimension){
-list(
-    funEvals=20,
-		types= rep("numeric",dimension),
+spotControl <- function(dimension) {
+  list(
+    funEvals = 20,
+    types = rep("numeric", dimension),
     design = designLHD,
     designControl = list(),
-		subsetSelect = selectAll,
-		subsetControl = list(), 
+    subsetSelect = selectAll,
+    subsetControl = list(),
+    direct = FALSE,
     model = buildKriging,
     modelControl = list(),
     optimizer = optimLHD,
     optimizerControl = list(),
-		plots = FALSE,
-		progress = FALSE,
-    OCBA=FALSE,
-    OCBABudget=1, #the budget available to OCBA, to be distributed to replications of "old" solutions
-    replicates=1, #the number of replications for all "new" solutions (unless generated by the initial design, which handles them separately)
-		noise= FALSE, #whether or not the target function is non-deterministic. 
-		seedFun = NA, #start RNG seed for the target function (only important if non-deterministic, i.e., if noise==TRUE). NA means that seed is not set before running fun, this is important for cases where an initial seed for the target function is undesirable. (e.g., functions with constant and identical number of calls to random number generator)
-		seedSPOT =1, #start RNG seed for the SPOT loop 
-	  ## Note: in case of optimization algorithm tuning, where the optimization algorithm again solves 
-		## a noisy objective function, the user should handle proper random number generator seeds for the 
-		## noisy objective function.
-    ## SPOT only sets/handles seeds for the main process as well as the tuned algorithm. 
+    plots = FALSE,
+    progress = FALSE,
+    OCBA = FALSE,
+    OCBABudget = 1,
+    #the budget available to OCBA, to be distributed to replications of "old" solutions
+    replicates = 1,
+    #the number of replications for all "new" solutions (unless generated by the initial design, which handles them separately)
+    noise = FALSE,
+    #whether or not the target function is non-deterministic.
+    seedFun = NA,
+    #start RNG seed for the target function (only important if non-deterministic, i.e., if noise==TRUE). NA means that seed is not set before running fun, this is important for cases where an initial seed for the target function is undesirable. (e.g., functions with constant and identical number of calls to random number generator)
+    seedSPOT = 1,
+    #start RNG seed for the SPOT loop
+    ## Note: in case of optimization algorithm tuning, where the optimization algorithm again solves
+    ## a noisy objective function, the user should handle proper random number generator seeds for the
+    ## noisy objective function.
+    ## SPOT only sets/handles seeds for the main process as well as the tuned algorithm.
     ## Check objectiveFunctionEvaluation to see how to properly disentangle different "random streams"
-		## in R.
-    ## Note: all evaluations are passed to the model, including repeated entries for replicated samples 
-		## (e.g., based on OCBA). The model itself should handle repeated samples.
+    ## in R.
+    ## Note: all evaluations are passed to the model, including repeated entries for replicated samples
+    ## (e.g., based on OCBA). The model itself should handle repeated samples.
     ## The exception from this rule should be if noise==FALSE, in that case, duplicates are removed.
-		## (?) TODO -> what if only one duplicate suggested -> will be suggested again in next iteration?
-	infillCriterion = NULL, ## By default no infillCriterion is used
+    ## (?) TODO -> what if only one duplicate suggested -> will be suggested again in next iteration?
+    infillCriterion = NULL,
+    ## By default no infillCriterion is used
     verbosity = 0
   )
 }
 
 
-#' Sequential Parameter Optimization Main Loop
+#' @title spotLoop. Sequential Parameter Optimization Main Loop
 #'
-#' SPOT is usually started via the function \code{\link{spot}}. However, SPOT runs can be continued
+#' @description  SPOT is usually started via the function \code{\link{spot}}. However, SPOT runs can be continued
 #' (i.e., with a larger budget specified in \code{control$funEvals}) by using \code{spotLoop}.
 #' This is the main loop of SPOT iterations. It requires the user to give the same inputs as
-#' specified for \code{\link{spot}}. Note: \code{control$funEvals} must be larger than the value 
-#' used in the previous run, because it specifies the total number of function evaluations and 
+#' specified for \code{\link{spot}}. Note: \code{control$funEvals} must be larger than the value
+#' used in the previous run, because it specifies the total number of function evaluations and
 #' not the additional number of evalutions.
-#' 
-#' @param x are the known candidate solutions that the SPOT loop is started with, specified as a matrix. One row for each point, and one column for each optimized parameter.
-#' @param y are the corresponding observations for each solution in \code{x}, specified as a matrix. One row for each point.
-#' @param fun is the objective function. It should receive a matrix x and return a matrix y. In case the function uses external code and is noisy, an additional seed parameter may be used, see the \code{control$seedFun} argument below for details.
-#' @param lower is a vector that defines the lower boundary of search space. This determines also the dimensionality of the problem.
+#'
+#' @param x are the known candidate solutions that the SPOT loop is started with,
+#' specified as a matrix. One row for each point, and one column for each optimized parameter.
+#' @param y are the corresponding observations for each solution in \code{x},
+#' specified as a matrix. One row for each point.
+#' @param fun is the objective function. It should receive a matrix x and return a matrix y.
+#' In case the function uses external code and is noisy, an additional seed parameter may be used,
+#' see the \code{control$seedFun} argument below for details.
+#' @param lower is a vector that defines the lower boundary of search space.
+#' This determines also the dimension of the problem.
 #' @param upper is a vector that defines the upper boundary of search space.
 #' @param control is a list with control settings for spot. See \code{\link{spotControl}}.
 #' @param ... additional parameters passed to \code{fun}.
-#' 
+#'
 #' @importFrom graphics abline
+#' @importFrom graphics plot
 #'
 #' @return This function returns a list with:
 #' \describe{
@@ -287,102 +374,148 @@ list(
 #'		\item{\code{y}}{Archive of the respective objective function values (matrix).}
 #'		\item{\code{count}}{Number of performed objective function evaluations.}
 #'		\item{\code{msg}}{Message specifying the reason of termination.}
-#'		\item{\code{modelFit}}{The fit of the last build model, i.e., an object returned by the last call to the function specified by \code{control$model}.}
+#'		\item{\code{modelFit}}{The fit of the last build model, i.e.,
+#'		an object returned by the last call to the function specified by \code{control$model}.}
 #' }
 #'
 #' @examples
-#' ## Most simple example: Kriging + LHS + predicted 
+#' ## Most simple example: Kriging + LHS + predicted
 #' ## mean optimization (not expected improvement)
 #' control <- list(funEvals=20)
 #' res <- spot(,funSphere,c(-2,-3),c(1,2),control)
-#' ## now continue with larger budget. 
+#' ## now continue with larger budget.
 #' ## 5 additional runs will be performed.
 #' control$funEvals <- 25
 #' res2 <- spotLoop(res$x,res$y,funSphere,c(-2,-3),c(1,2),control)
 #' res2$xbest
 #' res2$ybest
 #' @export
-
-spotLoop <- function(x,y,fun,lower,upper,control,...){
-
-    #Initial Input Checking
-    initialInputCheck(x,fun,lower,upper,control, inSpotLoop = TRUE)
+spotLoop <- function(x, y, fun, lower, upper, control, ...) {
+  #Initial Input Checking
+  initialInputCheck(x, fun, lower, upper, control, inSpotLoop = TRUE)
+  
+  ## default settings
+  dimension <- length(lower)
+  con <- spotControl(dimension)
+  con[names(control)] <- control
+  control <- con
+  rm(con)
+  
+  ## Initialize evaluation counter
+  count <- nrow(y)
+  
+  ## Main Loop
+  modelFit <- NA
+  while (count < control$funEvals) {
+    ## Select points for model building
+    selectRes <-
+      control$subsetSelect(x = x,
+                           y = y,
+                           control = control$subsetControl)
     
-    ## default settings
-    dimension <- length(lower)
-    con <- spotControl(dimension)
-    con[names(control)] <- control
-    control <- con
-    rm(con)
+    ## Model building. Based on fit
+    modelFit <- control$model(x = selectRes$x,
+                              y = selectRes$y,
+                              control = control$modelControl) #todo return modelControl to allow memory?
     
-    ## Initialize evaluation counter
-    count <- nrow(y)
+    ## Generate a surrogate target function from the model. Based on predict.
+    funSurrogate <-
+      evaluateModel(modelFit, control$infillCriterion)
     
-    ## Main Loop
-    modelFit <- NA
-    while(count < control$funEvals){ 
-        ## Select points for model building
-        selectRes <- control$subsetSelect(x = x, y = y, control = control$subsetControl)
-        
-        ## Model building
-        if(control$verbosity == 0){
-            modelFit <- suppressWarnings(suppressMessages(control$model(x=selectRes$x,
-                                                       y=selectRes$y,
-                                                       control=control$modelControl))) #todo return modelControl to allow memory?)
-        }else{
-            modelFit <- control$model(x=selectRes$x,
-                                      y=selectRes$y,
-                                      control=control$modelControl) #todo return modelControl to allow memory?
-        }
-        
-        ## Generate a surrogate target function from the model
-        funSurrogate <- evaluateModel(modelFit, control$infillCriterion)
-        
-        ## Model optimization
-        if(control$verbosity == 0){
-            optimRes <- suppressWarnings(suppressMessages(control$optimizer(,funSurrogate,
-                                                                            lower,upper,
-                                                                            control$optimizerControl))) #todo return optimizerControl to allow memory?
-        }else{
-            optimRes <- control$optimizer(,funSurrogate,lower,upper,control$optimizerControl) #todo return optimizerControl to allow memory?
-        }
-        xnew <- optimRes$xbest
-        
-        ## Handling of duplicates 
-        xnew <- duplicateAndReplicateHandling(xnew,x,lower,upper,control)
-        
-        ## Rounding non-numeric values produced by the optimizer
-        xnew <- repairNonNumeric(xnew,control$types)
-        
-        ## If desired, use OCBA to handle replications of old solutions
-        if(control$noise & control$OCBA){
-            xnew <- rbind(xnew,repeatsOCBA(x,y,control$OCBABudget))
-        }
-        
-        ## Prevent exceeding the budget:
-        xnew <- xnew[1:min(max(control$funEvals-count,1),nrow(xnew)),,drop=FALSE]
-        
-        ## Evaluation with objective function
-        ynew <- objectiveFunctionEvaluation(x=x,xnew=xnew,fun=fun,seedFun=control$seedFun,noise=control$noise,...)
-        
-        ## Plots, output, etc 
-        if(control$plots){
-            plot(y,type="l")
-            abline(a=0,b=0)
-        }
-        ##
-        colnames(xnew) <- colnames(x)
-        x <- rbind(x,xnew)
-        y <- rbind(y,ynew)
-        count <- count + nrow(ynew)
-        ## Progress
-        if(control$progress & (control$funEvals > 0)){
-            cat(paste0(round(count / (control$funEvals) * 100), "% completed.\n"))
-            if (count == (control$funEvals) ) cat("Done.\n")
-        }
-        #
+    ## Model optimization
+    indexBest <- which.min(y)
+    xbest <- x[indexBest, , drop = FALSE]
+    
+    if (!is.null(control$optimizerControl$eval_g_ineq)  && 
+        (control$optimizerControl$opts$algorithm == "NLOPT_GN_ISRES"  & control$optimizerControl$eval_g_ineq(xbest) < 0)
+        ) {
+      ## xbest does not satisfy ineq constraint =>
+      ## xbest will NOT be used as a starting point x0
+      x0 <- NULL
+       } else{
+      ## xbest does satisfy ineq constraint OR 
+      ## no constraint function is used =>
+      ## take xbest as starting point x0
+      x0 <- xbest
     }
     
-    indexBest <- which.min(y)
-    list(xbest=x[indexBest,,drop=FALSE],ybest=y[indexBest,,drop=FALSE],x=x, y=y, count=count,msg="budget exhausted",modelFit=modelFit)
+    print("Starting Surrogate Optimization")
+    print("*******************************")
+    optimResSurr <- control$optimizer(x = x0,
+                                      funSurrogate,
+                                      lower,
+                                      upper,
+                                      control$optimizerControl) #todo return optimizerControl to allow memory?
+    xnew <- optimResSurr$xbest
+    
+  
+    ## Handling of duplicates
+    xnew <-
+      duplicateAndReplicateHandling(xnew, x, lower, upper, control)
+    
+    ## Rounding non-numeric values produced by the optimizer
+    xnew <- repairNonNumeric(xnew, control$types)
+    
+    ## If desired, use OCBA to handle replications of old solutions
+    if (control$noise & control$OCBA) {
+      xnew <- rbind(xnew, repeatsOCBA(x, y, control$OCBABudget))
+    }
+    
+    ## Prevent exceeding the budget:
+    xnew <-
+      xnew[1:min(max(control$funEvals - count, 1), nrow(xnew)), , drop = FALSE]
+    
+    ## Evaluation with objective function
+    ynew <-
+      objectiveFunctionEvaluation(
+        x = x,
+        xnew = xnew,
+        fun = fun,
+        seedFun = control$seedFun,
+        noise = control$noise,
+        ...
+      )
+    
+    ## Plots, output, etc
+    if (control$plots) {
+      plot(y, type = "l")
+      abline(a = 0, b = 0)
+    }
+    ##
+    colnames(xnew) <- colnames(x)
+    x <- rbind(x, xnew)
+    y <- rbind(y, ynew)
+    count <- count + nrow(ynew)
+    ## Progress
+    if (control$progress & (control$funEvals > 0)) {
+      cat(paste0(round(count / (
+        control$funEvals
+      ) * 100), "% completed.\n"))
+      if (count == (control$funEvals))
+        cat("Done.\n")
+    }
+    ## exit while loop if direct mode is chosen:
+    if(control$direct){
+      indexBest <- which.min(y)
+      return(list(
+        xbest = x[indexBest, , drop = FALSE],
+        ybest = y[indexBest, , drop = FALSE],
+        x = x,
+        y = y,
+        count = count,
+        msg = "budget exhausted",
+        modelFit = modelFit
+      ))}
+  } # while loop
+  
+  indexBest <- which.min(y)
+  list(
+    xbest = x[indexBest, , drop = FALSE],
+    ybest = y[indexBest, , drop = FALSE],
+    x = x,
+    y = y,
+    count = count,
+    msg = "budget exhausted",
+    modelFit = modelFit
+  )
 }	

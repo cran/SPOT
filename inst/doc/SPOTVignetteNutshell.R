@@ -93,11 +93,15 @@ lower=c(tempLo,tmaxLo)
 upper=c(tempHi,tmaxHi)
 
 ## ---- resRfrun----------------------------------------------------------------
+# library(SPOT)
+# source('~/workspace/SPOT/R/spot.R')
+# source('~/workspace/SPOT/R/initialInputCheck.R')
 resRf <- spot(x=NULL,
               fun=sann2spot,
               lower=lower,
               upper=upper,
               control=spotConfig)
+is.null(spotConfig$optimizerControl$eval_g_ineq)
 
 ## ---- resRfStr----------------------------------------------------------------
 str(resRf)

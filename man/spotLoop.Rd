@@ -2,18 +2,23 @@
 % Please edit documentation in R/spot.R
 \name{spotLoop}
 \alias{spotLoop}
-\title{Sequential Parameter Optimization Main Loop}
+\title{spotLoop. Sequential Parameter Optimization Main Loop}
 \usage{
 spotLoop(x, y, fun, lower, upper, control, ...)
 }
 \arguments{
-\item{x}{are the known candidate solutions that the SPOT loop is started with, specified as a matrix. One row for each point, and one column for each optimized parameter.}
+\item{x}{are the known candidate solutions that the SPOT loop is started with,
+specified as a matrix. One row for each point, and one column for each optimized parameter.}
 
-\item{y}{are the corresponding observations for each solution in \code{x}, specified as a matrix. One row for each point.}
+\item{y}{are the corresponding observations for each solution in \code{x},
+specified as a matrix. One row for each point.}
 
-\item{fun}{is the objective function. It should receive a matrix x and return a matrix y. In case the function uses external code and is noisy, an additional seed parameter may be used, see the \code{control$seedFun} argument below for details.}
+\item{fun}{is the objective function. It should receive a matrix x and return a matrix y.
+In case the function uses external code and is noisy, an additional seed parameter may be used,
+see the \code{control$seedFun} argument below for details.}
 
-\item{lower}{is a vector that defines the lower boundary of search space. This determines also the dimensionality of the problem.}
+\item{lower}{is a vector that defines the lower boundary of search space.
+This determines also the dimension of the problem.}
 
 \item{upper}{is a vector that defines the upper boundary of search space.}
 
@@ -30,23 +35,24 @@ This function returns a list with:
 	\item{\code{y}}{Archive of the respective objective function values (matrix).}
 	\item{\code{count}}{Number of performed objective function evaluations.}
 	\item{\code{msg}}{Message specifying the reason of termination.}
-	\item{\code{modelFit}}{The fit of the last build model, i.e., an object returned by the last call to the function specified by \code{control$model}.}
+	\item{\code{modelFit}}{The fit of the last build model, i.e.,
+	an object returned by the last call to the function specified by \code{control$model}.}
 }
 }
 \description{
 SPOT is usually started via the function \code{\link{spot}}. However, SPOT runs can be continued
 (i.e., with a larger budget specified in \code{control$funEvals}) by using \code{spotLoop}.
 This is the main loop of SPOT iterations. It requires the user to give the same inputs as
-specified for \code{\link{spot}}. Note: \code{control$funEvals} must be larger than the value 
-used in the previous run, because it specifies the total number of function evaluations and 
+specified for \code{\link{spot}}. Note: \code{control$funEvals} must be larger than the value
+used in the previous run, because it specifies the total number of function evaluations and
 not the additional number of evalutions.
 }
 \examples{
-## Most simple example: Kriging + LHS + predicted 
+## Most simple example: Kriging + LHS + predicted
 ## mean optimization (not expected improvement)
 control <- list(funEvals=20)
 res <- spot(,funSphere,c(-2,-3),c(1,2),control)
-## now continue with larger budget. 
+## now continue with larger budget.
 ## 5 additional runs will be performed.
 control$funEvals <- 25
 res2 <- spotLoop(res$x,res$y,funSphere,c(-2,-3),c(1,2),control)

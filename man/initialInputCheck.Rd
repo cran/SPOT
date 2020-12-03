@@ -2,7 +2,7 @@
 % Please edit documentation in R/initialInputCheck.R
 \name{initialInputCheck}
 \alias{initialInputCheck}
-\title{Initial Input Check of Spot Configuration}
+\title{initialInputCheck. Initial Input Check of Spot Configuration}
 \usage{
 initialInputCheck(
   x = NULL,
@@ -25,7 +25,7 @@ initialInputCheck(
 \item{control}{is a list with control settings for spot. See \code{\link{spotControl}}.}
 }
 \description{
-This function takes the same inputs as given to the \code{spot} call and checks for
+#' This function takes the same inputs as given to the \code{spot} call and checks for
 possible problems in the users configuration
 }
 \keyword{internal}

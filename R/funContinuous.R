@@ -1,6 +1,6 @@
-#' funBranin
+#' @title funBranin
 #'
-#' Branin Test Function
+#' @description Branin Test Function
 #'
 #' @param x matrix of points to evaluate with the function. Rows for points and columns for dimension.
 #'
@@ -21,7 +21,7 @@ funBranin <- function (x) {
   ),
   , 1) # number of columns
 }
-###################################################################################################
+
 #' funRosen2
 #'
 #' Rosenbrock Test Function (2-dim)
@@ -45,7 +45,7 @@ funRosen2 <- function (x) {
   ),
   , 1) # number of columns
 }
-###################################################################################################
+
 #' funRosen
 #'
 #' Rosenbrock Test Function
@@ -82,7 +82,7 @@ funRosen <- function (x) {
                rosen),
   , 1) # number of columns
 }
-###################################################################################################
+
 #' funSphere
 #'
 #' Sphere Test Function
@@ -97,7 +97,6 @@ funRosen <- function (x) {
 #'
 #' @export
 #' 
-###################################################################################################
 funSphere <- function (x) {
   matrix(apply(x, # matrix
                1, # margin (apply over rows)

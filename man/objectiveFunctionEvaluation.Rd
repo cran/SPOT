@@ -2,7 +2,7 @@
 % Please edit documentation in R/objectiveFunctionEvaluation.R
 \name{objectiveFunctionEvaluation}
 \alias{objectiveFunctionEvaluation}
-\title{Objective Function Evaluation}
+\title{objectiveFunctionEvaluation  Objective Function Evaluation}
 \usage{
 objectiveFunctionEvaluation(
   x = NULL,

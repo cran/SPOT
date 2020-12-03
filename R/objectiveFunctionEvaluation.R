@@ -1,8 +1,6 @@
-
-###################################################################################################
-#' Objective Function Evaluation
-#'
-#' This function handles the evaluation of the objective function in \code{\link{spot}}.
+#' @title objectiveFunctionEvaluation  Objective Function Evaluation
+#' 
+#' @description  This function handles the evaluation of the objective function in \code{\link{spot}}.
 #' This includes handling of the random number generator stream as well as the actual evaluation.
 #'
 #' @param x matrix of already known solutions, to determine whether RNG seeds for new solutions need to be incremented.

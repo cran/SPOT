@@ -2,7 +2,7 @@
 % Please edit documentation in R/optimNLOPTR.R
 \name{optimNLOPTR}
 \alias{optimNLOPTR}
-\title{Minimization by NLOPT}
+\title{optimNLOPTR. Minimization by NLOPT}
 \usage{
 optimNLOPTR(x = NULL, fun, lower, upper, control = list(), ...)
 }
@@ -41,7 +41,7 @@ list, with elements
 }
 }
 \description{
-This is a wrapper that employs the \code{nloptr} function from the package of the same name.
+#' This is a wrapper that employs the \code{nloptr} function from the package of the same name.
 The \code{nloptr} function itself is an interface to the \code{nlopt} library, which contains a wide selection
 of different optimization algorithms.
 }

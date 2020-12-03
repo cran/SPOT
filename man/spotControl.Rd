@@ -14,34 +14,34 @@ a list
 }
 \description{
 This function returns the default controls for the functions \code{\link{spot}} and \code{\link{spotLoop}}.
-Control is a list of the settings: 
+Control is a list of the settings:
 \describe{
   \item{\code{funEvals}}{ This is the budget of function evaluations (spot uses no more than funEvals evaluations of fun), defaults to 20.}
   \item{\code{types}}{ Vector of data type of each variable as a string, defaults \code{"numeric"} for all variables.}
   \item{\code{subsetSelect}}{A function that selects a subset from a given set of design points. Default is \code{\link{selectAll}}.}
-  \item{\code{subsetControl}}{A list of controls passed to the \code{control} list of the \code{subsetSelect} function. See help 
+  \item{\code{subsetControl}}{A list of controls passed to the \code{control} list of the \code{subsetSelect} function. See help
 			of the respective function for details. Default is an empty \code{list}.}
-  \item{\code{design}}{A function that creates an initial design of experiment. Functions that accept the same parameters, 
+  \item{\code{design}}{A function that creates an initial design of experiment. Functions that accept the same parameters,
 			and return a matrix like \code{\link{designLHD}} or \code{\link{designUniformRandom}} can be used. Default is \code{\link{designLHD}}.}
-  \item{\code{designControl}}{A list of controls passed to the \code{control} list of the \code{design} function. See help 
+  \item{\code{designControl}}{A list of controls passed to the \code{control} list of the \code{design} function. See help
 			of the respective function for details. Default is an empty \code{list}.}
-  \item{\code{model}}{A function that builds a statistical model of the observed data. Functions that accept the same 
-			parameters, and return a matrix like \code{\link{buildKriging}} or \code{\link{buildRandomForest}} 
+  \item{\code{model}}{A function that builds a statistical model of the observed data. Functions that accept the same
+			parameters, and return a matrix like \code{\link{buildKriging}} or \code{\link{buildRandomForest}}
 			can be used. Default is \code{\link{buildKriging}}.}
-  \item{\code{modelControl}}{A list of controls passed to the \code{control} list of the \code{model} function. 
+  \item{\code{modelControl}}{A list of controls passed to the \code{control} list of the \code{model} function.
 			See help of the respective function for details.Default is an empty \code{list}.}
-  \item{\code{optimizer}}{A function that is used to optimize based on \code{model}, finding the most promising 
-			candidate solutions. Functions that accept the same parameters, and return a matrix like \code{\link{optimLHD}} 
+  \item{\code{optimizer}}{A function that is used to optimize based on \code{model}, finding the most promising
+			candidate solutions. Functions that accept the same parameters, and return a matrix like \code{\link{optimLHD}}
 			or \code{\link{optimDE}} can be used. Default is \code{\link{optimLHD}}.}
-  \item{\code{optimizerControl}}{A list of controls passed to the \code{control} list of the \code{optimizer} function. 
+  \item{\code{optimizerControl}}{A list of controls passed to the \code{control} list of the \code{optimizer} function.
 			See help of the respective function for details. Default is an empty \code{list}.}
   \item{\code{noise}}{Boolean, whether the objective function has noise or not. Default is non-noisy, that is, \code{FALSE}.}
-  \item{\code{OCBA}}{Boolean, indicating whether Optimal Computing Budget Allocation (OCBA) should be used in case of a noisy 
-			objective function or not. OCBA controls the number of replications for each candidate solution. 
-				Note, that \code{replicates} should be larger than one in that case, and that the initial experimental design 
+  \item{\code{OCBA}}{Boolean, indicating whether Optimal Computing Budget Allocation (OCBA) should be used in case of a noisy
+			objective function or not. OCBA controls the number of replications for each candidate solution.
+				Note, that \code{replicates} should be larger than one in that case, and that the initial experimental design
 			(see \code{design}) should also have replicates larger one. Default is \code{FALSE}.}
   \item{\code{OCBAbudget}}{The number of objective function evaluations that OCBA can distribute in each iteration. Default is 3.}
-  \item{\code{replicates}}{The number of times a candidate solution is initially evaluated, that is, in the initial design, 
+  \item{\code{replicates}}{The number of times a candidate solution is initially evaluated, that is, in the initial design,
 			or when created by the optimizer. Default is \code{1}.}
   \item{\code{seedFun}}{An initial seed for the objective function in case of noise, by default \code{NA}. The default means that no seed is set.
 			The user should be very careful with this setting. It is intended to generate reproducible experiments for each objective
@@ -53,7 +53,7 @@ Control is a list of the settings:
 			to the external code, for random number generator initialization. See end of examples section for a demonstration.}
   \item{\code{seedSPOT}}{This value is used to initialize the random number generator. It ensures that experiments are reproducible. Default is \code{1}.}
   \item{\code{duplicate}}{In case of a deterministic (non-noisy) objective function, this handles duplicated candidate solutions.
-			By default (\code{duplicate = "EXPLORE"}), duplicates are replaced by new candidate solutions, generated by random 
+			By default (\code{duplicate = "EXPLORE"}), duplicates are replaced by new candidate solutions, generated by random
 			sampling with uniform distribution. If desired, the user can set this to "STOP", which means that the optimization
 			stops and results are returned to the user (with a warning). This may be desirable, as duplicates can be a indicator
 			for convergence, or for a problem with the configuration.

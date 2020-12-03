@@ -241,6 +241,7 @@ preprocessCdeTestData <- function(testData)
 #' @param regionList A list containing a representation of the data.
 #' @param country Name of a country from the list dataList 
 #' @importFrom graphics lines
+#' @importFrom graphics plot
 #' 
 #' @return A plot
 #'
@@ -279,6 +280,7 @@ plotRegionByName <- function(regionList, country="Germany") {
 #' @param regionList A list containing a representation of the data.
 #' @param countryIndex num Index
 #' @importFrom graphics lines
+#' @importFrom graphics plot
 #' 
 #' @return A plot
 #'
@@ -312,6 +314,7 @@ plotRegion <- function(regionList, countryIndex=1) {
 #' @param countryIndex num Index
 #' @param ylog logical plot log y axis (log = y)
 #' @importFrom graphics lines
+#' @importFrom graphics plot
 #' 
 #' @return A plot
 #'
@@ -467,6 +470,7 @@ preprocessCdeInputData <- function(cdeData) {
 #' @importFrom SimInf trajectory
 #' @importFrom SimInf run
 #' @importFrom stats aggregate
+#' @importFrom graphics plot
 #' 
 #' @examples
 #' \dontrun{

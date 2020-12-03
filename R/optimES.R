@@ -163,6 +163,7 @@ optimES <- function(x=NULL
 #' @importFrom stats median
 #' @importFrom graphics par
 #' @importFrom graphics lines
+#' @importFrom graphics plot
 #' @export
 ###################################################################################################
 spotAlgEs <- function(mue = 10,

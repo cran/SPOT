@@ -1,8 +1,6 @@
-
-###################################################################################################
-#' Initial Input Check of Spot Configuration 
+#' @title  initialInputCheck. Initial Input Check of Spot Configuration 
 #'
-#' This function takes the same inputs as given to the \code{spot} call and checks for
+#' @description #' This function takes the same inputs as given to the \code{spot} call and checks for
 #' possible problems in the users configuration
 #'
 #' @param x is an optional start point (or set of start points), specified as a matrix. One row for each point, and one column for each optimized parameter.
@@ -12,6 +10,8 @@
 #' @param control is a list with control settings for spot. See \code{\link{spotControl}}.
 #' 
 #' @keywords internal
+#' 
+#' @export
 ###################################################################################################
 initialInputCheck <- function(x=NULL,fun, 
                               lower,upper,control=list(), inSpotLoop = F){

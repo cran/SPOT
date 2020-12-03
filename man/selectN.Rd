@@ -2,7 +2,7 @@
 % Please edit documentation in R/selectN.R
 \name{selectN}
 \alias{selectN}
-\title{Select n Design Points}
+\title{selectN. Select n Design Points}
 \usage{
 selectN(x, y, control)
 }

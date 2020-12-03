@@ -1,8 +1,6 @@
-
-###################################################################################################
-#' Minimization by NLOPT
+#' @title optimNLOPTR. Minimization by NLOPT
 #' 
-#' This is a wrapper that employs the \code{nloptr} function from the package of the same name.
+#' @description #' This is a wrapper that employs the \code{nloptr} function from the package of the same name.
 #' The \code{nloptr} function itself is an interface to the \code{nlopt} library, which contains a wide selection
 #' of different optimization algorithms.
 #'
@@ -49,8 +47,58 @@
 #' res
 #'}
 #' @export
-###################################################################################################
-optimNLOPTR<-function(x=NULL,fun,lower,upper,control=list(),...){
+#' 
+#' 
+optimNLOPTR <- function(x=NULL,fun,lower,upper,control=list(),...){
+  #if (length(par)==0) stop("dimension of par is null")
+  con<-list(funEvals=100)
+  con[names(control)] <- control
+  control<-con
+
+  #"types" not used here.
+  control$types <- NULL
+  
+  #fixing some required arguments
+  if(!is.null(control$funEvals)){
+    control$opts$maxeval <- control$funEvals
+    control$funEvals <- NULL
+  }
+  if(is.null(control$opts$algorithm)){
+    control$opts$algorithm <- "NLOPT_GN_ORIG_DIRECT_L" #"NLOPT_GN_DIRECT_L"#"NLOPT_GN_ORIG_DIRECT_L"
+  }
+  #main arguments	
+  control$x0 <- x	
+  if(is.null(control$x0))	
+    control$x0 <- runif(length(lower),lower,upper) #fix start guess	if none provided	
+  else
+    control$x0 <- control$x0[1,]
+  control$lb <- lower
+  control$ub <- upper
+  control$eval_f <- function(xx)fun(matrix(xx,1),
+                                    ...)
+  
+  optimizationResult <- nloptr(x0 = control$x0,
+                               eval_f = control$eval_f,
+                               eval_grad_f = NULL,
+                               lb =  control$lb,
+                               ub = control$ub,
+                               eval_g_ineq = control$eval_g_ineq,
+                               eval_jac_g_ineq = NULL, 
+                               eval_g_eq = NULL,
+                               eval_jac_g_eq = NULL,
+                               opts = list("algorithm" = control$opts$algorithm,
+                                           "maxeval" = control$opts$maxeval)
+                               )
+                               
+  ybest <- optimizationResult$objective
+  xbest <- optimizationResult$solution	
+  count <- optimizationResult$iterations
+  msg=optimizationResult$message
+  list(x=NA,y=NA,xbest=matrix(xbest,1),ybest=ybest,count=count,msg=msg)
+}
+
+
+optimNLOPTR_OLD<-function(x=NULL,fun,lower,upper,control=list(),...){
 	#if (length(par)==0) stop("dimension of par is null")
 	con<-list(funEvals=100)
 	con[names(control)] <- control
