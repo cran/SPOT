@@ -18,5 +18,6 @@ Round non-numeric columns of a matrix, specified by a vector of data given data 
 x <- matrix(10*runif(12),4,3)
 types <- c("numeric","factor","factor")
 repairNonNumeric(x,types)
+
 }
 \keyword{internal}

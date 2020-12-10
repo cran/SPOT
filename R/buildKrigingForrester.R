@@ -1,5 +1,4 @@
-
-###################################################################################
+ 
 #' Build Kriging Model
 #'
 #' This function builds a Kriging model based on code by Forrester et al..
@@ -107,7 +106,7 @@
 #' ypredFact <- predict(fitFactor,xtest)$y
 #' mean((ypredDef-ytest)^2)
 #' mean((ypredFact-ytest)^2)
-###################################################################################
+ 
 buildKriging <- function(x, y, control=list()){
   x <- data.matrix(x) #TODO data.matrix is better than as.matrix, because it always converts to numeric, not character! (in case of mixed data types.)
   npar <- length(x[1,])
@@ -243,7 +242,7 @@ buildKriging <- function(x, y, control=list()){
 	fit
 }
 
-###################################################################################
+ 
 #' Normalize design 2
 #'
 #' Normalize design with given maximum and minimum in input space. Supportive function for Kriging model, not to be used directly.
@@ -257,7 +256,7 @@ buildKriging <- function(x, y, control=list()){
 #' @return normalized design matrix
 #' @seealso \code{\link{buildKriging}}
 #' @keywords internal
-###################################################################################
+ 
 normalizeMatrix2 <- function (x,ymin,ymax,xmin,xmax){ 
 	rangex <- xmax-xmin
 	rangey <- ymax-ymin
@@ -265,7 +264,7 @@ normalizeMatrix2 <- function (x,ymin,ymax,xmin,xmax){
 	rangey * (x-matrix(rep(xmin,s),nrow=s,byrow=TRUE))/matrix(rep(rangex,s),nrow=s,byrow=TRUE) + ymin
 }
 
-###################################################################################
+ 
 #' Normalize design
 #' 
 #' Normalize design by using minimum and maximum of the design values for input space. Supportive function for Kriging model, not to be used directly.
@@ -277,7 +276,7 @@ normalizeMatrix2 <- function (x,ymin,ymax,xmin,xmax){
 #' @return normalized design matrix
 #' @seealso \code{\link{buildKriging}}
 #' @keywords internal
-###################################################################################
+ 
 normalizeMatrix <- function(x,ymin, ymax){
 	# Return the maximum from each row:
 	xmax <- apply(x,2,max)
@@ -293,7 +292,7 @@ normalizeMatrix <- function(x,ymin, ymax){
 	list(y=y,xmin=xmin,xmax=xmax)
 }
 
-###################################################################################
+ 
 #' Calculate negative log-likelihood
 #' 
 #' Used to determine theta/lambda values for the Kriging model in \code{\link{buildKriging}}.
@@ -315,7 +314,7 @@ normalizeMatrix <- function(x,ymin, ymax){
 #' @seealso \code{\link{buildKriging}}
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 krigingLikelihood <- function(x,AX,Ay,optimizeP=FALSE,useLambda=TRUE,penval=1e8){
 	## todo: this penalty value should not be a hard constant.
 	## the scale of the likelihood (n*log(SigmaSqr) + LnDetPsi)
@@ -412,7 +411,7 @@ krigingLikelihood <- function(x,AX,Ay,optimizeP=FALSE,useLambda=TRUE,penval=1e8)
 	list(NegLnLike=NegLnLike,Psi=Psi,Psinv=Psinv,mu=mu,yonemu=yonemu,ssq=SigmaSqr)
 }
 
-###################################################################################
+ 
 #' Predict Kriging Model
 #' 
 #' Predict with Kriging model produced by \code{\link{buildKriging}}.
@@ -444,7 +443,7 @@ krigingLikelihood <- function(x,AX,Ay,optimizeP=FALSE,useLambda=TRUE,penval=1e8)
 #' @seealso \code{\link{buildKriging}}
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 predict.kriging <- function(object,newdata,...){
 	x<-newdata
 	if(object$reinterpolate){
@@ -485,7 +484,6 @@ predict.kriging <- function(object,newdata,...){
   
 	psi <- exp(-psi)
 	f <- as.numeric(psi%*%(Psinv%*%yonemu))+mu #vectorised			#TODO: Psinv %*% yonemu can be computed ahead of time
-	##########################################################################
 	res <- list(y=f)
 	if (any(object$target %in% c("s","ei"))){
 		lambda <- object$dmodellambda;
@@ -502,7 +500,7 @@ predict.kriging <- function(object,newdata,...){
 }
 
 
-###################################################################################
+ 
 #' Predict Kriging Model (Re-interpolating)
 #' 
 #' Kriging predictor with re-interpolation to avoid stalling the optimization process which employs this model as a surrogate.
@@ -548,7 +546,7 @@ predict.kriging <- function(object,newdata,...){
 #' @seealso \code{\link{buildKriging}}, \code{\link{predict.kriging}}
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 predictKrigingReinterpolation <- function(object,newdata,...){
 	x <- newdata
 	x <- repairNonNumeric(x,object$types) #round to nearest integer.
@@ -589,7 +587,6 @@ predictKrigingReinterpolation <- function(object,newdata,...){
 	
 	psi <- exp(-psi)
 	f <- as.numeric(psi%*%(Psinv%*%yonemu))+mu #vectorised
-	##########################################################################
 	res <- list(y=f)
 	if (any(object$target %in% c("s","ei"))){
 		#
@@ -612,7 +609,7 @@ predictKrigingReinterpolation <- function(object,newdata,...){
 
 
 
-###################################################################################
+ 
 #' Print Function Forrester Kriging
 #'
 #' Print information about a Forrester Kriging fit, as produced by \code{\link{buildKriging}}.
@@ -624,7 +621,7 @@ predictKrigingReinterpolation <- function(object,newdata,...){
 #' @param ... additional parameters	
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 print.kriging <- function(x,...){
 	cat("------------------------\n")
 	cat("Forrester Kriging model.\n")

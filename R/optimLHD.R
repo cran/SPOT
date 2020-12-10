@@ -1,5 +1,3 @@
-
-###################################################################################################
 #' Minimization by Latin Hypercube Sampling
 #' 
 #' This uses Latin Hypercube Sampling (LHS) to optimize a specified target function.
@@ -32,7 +30,6 @@
 #' res <- optimLHD(,fun = funSphere,lower = c(-10,-20),upper=c(20,8))
 #' res$ybest
 #' @export
-###################################################################################################
 optimLHD<-function(x=NULL,fun,lower,upper,control=list(),...){
 	#if (length(par)==0) stop("dimension of par is null")
 	con<-list(funEvals=100,retries=100,types= rep("numeric",length(lower)))

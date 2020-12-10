@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulateKriging.R
 \name{simulateFunction}
 \alias{simulateFunction}
-\title{Simulation-based Function Generator}
+\title{simulateFunction}
 \usage{
 simulateFunction(
   object,
@@ -35,6 +35,7 @@ On the other hand, \code{"spectral"} yields a function that can be evaluated at 
 a list of functions, where each function is the interpolation of one simulation realization. The length of the list depends on the nsim parameter.
 }
 \description{
+Simulation-based Function Generator. 
 Generate functions via simulation of Kriging models, e.g.,
 for assessment of optimization algorithms with
 non-conditional or conditional simulation, based on real-world data.

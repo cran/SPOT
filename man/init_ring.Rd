@@ -37,9 +37,7 @@ list (params) of
     }
 }
 \description{
-initialize ring parameters
-#'
-Generate Arrival Probabilities for S-Ring
+Initialize ring parameters: generate arrival probabilities for S-Ring.
  - set beginning states to 0 and initialize random customer states and nElevators
  - nStates = (number of floors * 2) - 2. For example for 4 floors, 
               its 6 states because the upper and lower state have only 

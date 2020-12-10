@@ -126,14 +126,8 @@ spot <-
            ...) {
     #Initial Input Checking
     PASSED <- initialInputCheck(x, fun, lower, upper, control)
-    ## 20201111 TBB
-    # print("BEGIN: conf in spot(): ++++++++++++++++++++++++++++++++++++++++++++++++++++")
-    # print(conf)
-    # print("conf in spot(): ++++++++++++++++++++++++++++++++++++++++++++++++++++ END")
-   
     ## default settings
     dimension <- length(lower)
-    
     control <- spotFillControlList(control, dimension)
     
     ## Initial design generation
@@ -185,13 +179,16 @@ spot <-
       )
     # result
      if(control$direct){
+       if (control$verbosity > 0){
       print("Starting Direct Optimization:")
       print("*******************************")
       print("Result Before Direct Optimization:")
       print(result$xbest)
       print(result$ybest)
       print("*******************************")
-      
+      }
+      ## Adapt funevals for direct mode
+      control$optimizerControl$funEvals <- control$funEvals - nrow(result$x)
       
       #count <- control$funEvals
       optimResDirect <- control$optimizer(x = result$xbest,
@@ -201,20 +198,27 @@ spot <-
                                           control$optimizerControl,
                                           ...
       )
+      print(optimResDirect$count)
       result$xbest <-  optimResDirect$xbest
       result$ybest <-  optimResDirect$ybest
+      result$x <- rbind(result$x,optimResDirect$x)
+      result$y <- c(result$y,optimResDirect$y)
      }
+    if (control$verbosity > 0){
     print("Ending Optimization")
     print("*******************************")
     print("Final Result from SPOT:")
     print(result$xbest)
     print(result$ybest)
     print("*******************************")
+    }
     result
   }
 
 
-#' Fill in some values for the control list. Internal use only.
+#' @title spotFillControlList
+#' 
+#' @description Fill in some values for the control list. Internal use only.
 #'
 #' @param controlList list of controls, see \code{\link{spotControl}}.
 #' @param dimension dimension of the optimization problem. See \code{\link{spotControl}}.
@@ -237,9 +241,10 @@ spotFillControlList <- function(controlList, dimension) {
 }
 
 
-#' Default Control list for spot
-#'
+#' @title spotControl
+#' @description Default Control list for spot.
 #' This function returns the default controls for the functions \code{\link{spot}} and \code{\link{spotLoop}}.
+#' @details 
 #' Control is a list of the settings:
 #' \describe{
 #'   \item{\code{funEvals}}{ This is the budget of function evaluations (spot uses no more than funEvals evaluations of fun), defaults to 20.}
@@ -292,12 +297,9 @@ spotFillControlList <- function(controlList, dimension) {
 #' }
 #' @param dimension problem dimension, that is, the number of optimized parameters.
 #'
-#'
 #' @return a list
 #' @export
 #' @keywords internal
-#' spotDefaultControls()
-
 spotControl <- function(dimension) {
   list(
     funEvals = 20,
@@ -341,9 +343,10 @@ spotControl <- function(dimension) {
 }
 
 
-#' @title spotLoop. Sequential Parameter Optimization Main Loop
+#' @title spotLoop
 #'
-#' @description  SPOT is usually started via the function \code{\link{spot}}. However, SPOT runs can be continued
+#' @description  . Sequential Parameter Optimization Main Loop. 
+#' SPOT is usually started via the function \code{\link{spot}}. However, SPOT runs can be continued
 #' (i.e., with a larger budget specified in \code{control$funEvals}) by using \code{spotLoop}.
 #' This is the main loop of SPOT iterations. It requires the user to give the same inputs as
 #' specified for \code{\link{spot}}. Note: \code{control$funEvals} must be larger than the value

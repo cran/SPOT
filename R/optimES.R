@@ -1,8 +1,5 @@
-
-###################################################################################################
-#' Evolution Strategy 
-#'
-#' This is an implementation of an Evolution Strategy.
+#' @title Evolution Strategy 
+#' @description  This is an implementation of an Evolution Strategy.
 #' 
 #' @param x optional start point, not used
 #' @param fun objective function, which receives a matrix x and returns observations y
@@ -48,7 +45,7 @@
 #' optimES(fun=funSphere,lower=rep(0,2), upper=rep(1,2), control= cont) 
 #'
 #' @export
-###################################################################################################
+ 
 optimES <- function(x=NULL
                       , fun
                       , lower
@@ -120,12 +117,6 @@ optimES <- function(x=NULL
 	
 }
 
-
-
-
-### Main Loop #######################################################  
-
-###################################################################################################
 #' Evolution Strategy Implementation
 #'
 #' This function is used by \code{\link{optimES}} as a main loop for running
@@ -165,7 +156,7 @@ optimES <- function(x=NULL
 #' @importFrom graphics lines
 #' @importFrom graphics plot
 #' @export
-###################################################################################################
+ 
 spotAlgEs <- function(mue = 10,
 											nu = 10,
 											dimension = 2,

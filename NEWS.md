@@ -1,5 +1,9 @@
 # SPOT
 
+## SPOT 2.1.10
+* BUGFIX:
+  * spot evaluates funEvals argument correctly
+
 ## SPOT 2.1.8
 * CHANGES:
   * optimNLOPTR can handle additional fun arguments via "..." 

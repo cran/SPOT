@@ -1,8 +1,7 @@
-
-###################################################################################
-#' Select all Design Points
+#' @title selectAll
 #' 
-#' This function returns the whole set of proposed design points.
+#' @description Select all Design Points. 
+#' Returns the whole set of proposed design points.
 #' It is a dummy function, used as the default for more sophisticated selection procedures.
 #'
 #' @param x matrix of design points
@@ -17,7 +16,7 @@
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+#' 
 selectAll <- function(x, y, control){
  return( list(x=x, y=y))
 }

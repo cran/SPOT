@@ -2,7 +2,7 @@
 % Please edit documentation in R/selectAll.R
 \name{selectAll}
 \alias{selectAll}
-\title{Select all Design Points}
+\title{selectAll}
 \usage{
 selectAll(x, y, control)
 }
@@ -21,7 +21,8 @@ This function returns a list with:
 }
 }
 \description{
-This function returns the whole set of proposed design points.
+Select all Design Points. 
+Returns the whole set of proposed design points.
 It is a dummy function, used as the default for more sophisticated selection procedures.
 }
 \keyword{internal}

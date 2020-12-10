@@ -1,5 +1,4 @@
-#' @title
-#' diff0
+#' @title diff0
 #' 
 #' @family 
 #' spotTools

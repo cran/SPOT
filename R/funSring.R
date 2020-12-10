@@ -1,6 +1,6 @@
-#' checkArrival
+#' @title checkArrival
 #'
-#' Calculate arrival events for S-Ring
+#' @description  Calculate arrival events for S-Ring.
 #'
 #' @param probNewCustomer probability of an arrival of a new customer
 #' @importFrom stats runif
@@ -16,11 +16,9 @@ checkArrival <- function(probNewCustomer){
   runif(1) < probNewCustomer
   }
 
-#' init_ring 
+#' @title init_ring 
 #' 
-#' initialize ring parameters
-#' #'
-#' Generate Arrival Probabilities for S-Ring
+#' @description Initialize ring parameters: generate arrival probabilities for S-Ring.
 #'  - set beginning states to 0 and initialize random customer states and nElevators
 #'  - nStates = (number of floors * 2) - 2. For example for 4 floors, 
 #'               its 6 states because the upper and lower state have only 

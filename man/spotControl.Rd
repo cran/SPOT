@@ -2,7 +2,7 @@
 % Please edit documentation in R/spot.R
 \name{spotControl}
 \alias{spotControl}
-\title{Default Control list for spot}
+\title{spotControl}
 \usage{
 spotControl(dimension)
 }
@@ -13,7 +13,10 @@ spotControl(dimension)
 a list
 }
 \description{
+Default Control list for spot.
 This function returns the default controls for the functions \code{\link{spot}} and \code{\link{spotLoop}}.
+}
+\details{
 Control is a list of the settings:
 \describe{
   \item{\code{funEvals}}{ This is the budget of function evaluations (spot uses no more than funEvals evaluations of fun), defaults to 20.}
@@ -66,4 +69,3 @@ Control is a list of the settings:
 }
 }
 \keyword{internal}
-\keyword{spotDefaultControls()}

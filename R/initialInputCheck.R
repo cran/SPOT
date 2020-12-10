@@ -12,7 +12,7 @@
 #' @keywords internal
 #' 
 #' @export
-###################################################################################################
+ 
 initialInputCheck <- function(x=NULL,fun, 
                               lower,upper,control=list(), inSpotLoop = F){
     checkTypesOfInput(x,lower,upper,control)
@@ -31,7 +31,7 @@ initialInputCheck <- function(x=NULL,fun,
     return(TRUE)
 }
 
-###################################################################################################
+ 
 #' Check correct verbosity levels
 #' 
 #' Create an error message if the given verbosity level is not allowed
@@ -39,7 +39,7 @@ initialInputCheck <- function(x=NULL,fun,
 #' @param control spot control list
 #'
 #' @keywords internal
-###################################################################################################
+ 
 checkVerbosityLevels <- function(control){
     if(is.null(control$verbosity))return()
     
@@ -50,7 +50,7 @@ checkVerbosityLevels <- function(control){
     }
 }
 
-###################################################################################################
+ 
 #' Check for NAs in x lower and upper
 #'
 #' Creates an error message if there are any NAs in x lower or upper
@@ -60,7 +60,7 @@ checkVerbosityLevels <- function(control){
 #' @param upper is a vector that defines the upper boundary of search space.
 #' 
 #' @keywords internal
-###################################################################################################
+ 
 checkForNAs <- function(x, lower, upper){
     if(any(is.na(x))){
         stop("SPOT Configuration Error: spotInput 'x' contains NAs")
@@ -73,7 +73,7 @@ checkForNAs <- function(x, lower, upper){
     }
 }
 
-###################################################################################################
+ 
 #' Check Input Types
 #'
 #' Creates an error message if any of the input types are not numeric even though they are configured to be numeric
@@ -84,7 +84,7 @@ checkForNAs <- function(x, lower, upper){
 #' @param control is a list with control settings for spot. See \code{\link{spotControl}}.
 #' 
 #' @keywords internal
-###################################################################################################
+ 
 checkTypesOfInput <- function(x,lower,upper, control){
     #If control$types is null then no types are specified, everything shoud be numeric
     if(is.null(control$types)){
@@ -103,7 +103,7 @@ checkTypesOfInput <- function(x,lower,upper, control){
 }
 
 
-###################################################################################################
+ 
 #' Check Dimensions of spotInputs
 #'
 #' The dimensionality of x, lower and upper should match. If this is not the case, errors are generated
@@ -113,7 +113,7 @@ checkTypesOfInput <- function(x,lower,upper, control){
 #' @param upper is a vector that defines the upper boundary of search space.
 #' 
 #' @keywords internal
-###################################################################################################
+ 
 checkInputDimensionsionalityCorrect <- function(x,lower,upper){
     if(is.null(x)){
         if(!(length(lower) == length(upper))){
@@ -127,7 +127,7 @@ checkInputDimensionsionalityCorrect <- function(x,lower,upper){
     }
 }
 
-###################################################################################################
+ 
 #' Check That Lower and Upper are not Equal
 #'
 #' If any entries in lower and upper are equal, the parameter has no range and cant be optimized. 
@@ -137,14 +137,14 @@ checkInputDimensionsionalityCorrect <- function(x,lower,upper){
 #' @param upper is a vector that defines the upper boundary of search space.
 #' 
 #' @keywords internal
-###################################################################################################
+ 
 checkLowerNotEqualsUpper <- function(lower,upper){
     if(any(lower == upper)){
         stop("SPOT Configuration Error: Entries in 'lower' and 'upper' should not be equal")
     }
 }
 
-###################################################################################################
+ 
 #' Check That Lower is smaller than Upper
 #'
 #' Check if lower actually contains smaller values than upper. Otherwise a warning is generated.
@@ -153,14 +153,14 @@ checkLowerNotEqualsUpper <- function(lower,upper){
 #' @param upper is a vector that defines the upper boundary of search space.
 #' 
 #' @keywords internal
-###################################################################################################
+ 
 checkLowerSmallerThanUpper <- function(lower,upper){
     if(any(lower > upper)){
         stop("SPOT Configuration Error: Entries in 'lower' are higher than entries in 'upper'")
     }
 }
 
-###################################################################################################
+ 
 #' Check funEvals Setting against designSize
 #'
 #' Checks if the designSize will result in a larger value than funEvals. If so, return an error.
@@ -172,7 +172,7 @@ checkLowerSmallerThanUpper <- function(lower,upper){
 #' @param inSpotLoop Boolean indicating whether the check is called from within spotLoop or not
 #' 
 #' @keywords internal
-###################################################################################################
+ 
 checkFunEvalsDesignSize <- function(x, lower, control, inSpotLoop){
     # Rules for checking funEvals:
     # funEvals should be equal to length(y) passed back by spot. Thus it is the total amount of candidate solutions
@@ -214,7 +214,7 @@ checkFunEvalsDesignSize <- function(x, lower, control, inSpotLoop){
 }
 
 
-###################################################################################################
+ 
 #' Check input types in the spotControl list.
 #'
 #' specified variables are tested for their type in the control list. If a type mismatch is found, an error is thrown.
@@ -222,7 +222,7 @@ checkFunEvalsDesignSize <- function(x, lower, control, inSpotLoop){
 #' @param control is a list with control settings for spot. See \code{\link{spotControl}}.
 #' 
 #' @keywords internal
-###################################################################################################
+ 
 checkInputTypesInControl <- function(control){
     #List of all variables that should be tested for type numeric
     typesNumeric <- list("funEvals", "designControl$size", "designControl$replicates", 

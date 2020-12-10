@@ -1,8 +1,8 @@
-
-###################################################################################
-#' Kriging Simulation: Spectral Method
+#' @title simulationSpectral 
 #' 
-#' (Conditional) Simulation via spectral method.
+#' @description  Kriging Simulation: Spectral Method.
+#' 
+#' @details  (Conditional) Simulation via spectral method.
 #'
 #' @param object fit of the Kriging model (settings and parameters), of class \code{kriging}.
 #' @param conditionalSimulation  logical, if set to TRUE (default), the simulation is conditioned with the training data of the Kriging model.
@@ -21,7 +21,7 @@
 #'
 #' @seealso \code{\link{buildKriging}}, \code{\link{simulationDecompose}}
 #' @keywords internal
-###################################################################################
+ 
 simulationSpectral <-function(object,conditionalSimulation=FALSE,Ncos=100){
   theta <- object$dmodeltheta
   lsq <- 1/theta
@@ -44,7 +44,6 @@ simulationSpectral <-function(object,conditionalSimulation=FALSE,Ncos=100){
     objectSim <- object
     xsim <- objectSim$x
     #
-    #ysim <- fun(xsim)
     ysim <- object$y-fun(xsim)
     #
     objectSim$y <- ysim
@@ -55,7 +54,6 @@ simulationSpectral <-function(object,conditionalSimulation=FALSE,Ncos=100){
     force(objectSim)
     funConditional <- function(xx){
       #
-      #y <- predict(object,xx)$y + fun(xx) - predict(objectSim,xx)$y
       y <- fun(xx) + predict(objectSim,xx)$y
       #
       return(y)
@@ -66,10 +64,10 @@ simulationSpectral <-function(object,conditionalSimulation=FALSE,Ncos=100){
   }
 }
 
-###################################################################################
-#' Kriging Simulation: Decomposition
+ 
+#' @title Kriging Simulation: Decomposition
 #' 
-#' (Conditional) Simulation via decomposition approach.
+#' @description  (Conditional) Simulation via decomposition approach.
 #'
 #' @param object fit of the Kriging model (settings and parameters), of class \code{kriging}.
 #' @param xsim list of samples in input space, to be simulated
@@ -90,7 +88,7 @@ simulationSpectral <-function(object,conditionalSimulation=FALSE,Ncos=100){
 #'
 #' @seealso \code{\link{buildKriging}}, \code{\link{simulationSpectral}}
 #' @keywords internal
-###################################################################################
+ 
 simulationDecompose <- function(object,nsim=1,xsim,conditionalSimulation=TRUE,returnAll=FALSE,...){
   #
   len <- nrow(xsim) #number of simulated samples (points  
@@ -125,10 +123,10 @@ simulationDecompose <- function(object,nsim=1,xsim,conditionalSimulation=TRUE,re
     return(y)
 }
 
-###################################################################################
-#' Kriging Simulation
+ 
+#' @title Kriging Simulation
 #' 
-#' (Conditional) Simulation at given locations, with a model fit resulting from \code{\link{buildKriging}}.
+#' @description  (Conditional) Simulation at given locations, with a model fit resulting from \code{\link{buildKriging}}.
 #' In contrast to prediction or estimation, the goal is to reproduce the covariance 
 #' structure, rather than the data itself. Note, that the conditional simulation 
 #' also reproduces the training data, but
@@ -155,7 +153,7 @@ simulationDecompose <- function(object,nsim=1,xsim,conditionalSimulation=TRUE,re
 #'
 #' @seealso \code{\link{buildKriging}}, \code{\link{predict.kriging}}
 #' @export
-###################################################################################
+ 
 simulate.kriging <- function(object,nsim=1,seed=NA,xsim,method="decompose",conditionalSimulation=TRUE,Ncos=10,returnAll=FALSE,...){
   if (!is.na(seed)){
     if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) 
@@ -185,9 +183,9 @@ simulate.kriging <- function(object,nsim=1,seed=NA,xsim,method="decompose",condi
   }
 }
 
-###################################################################################
-#' Compute Correlation Matrix
-#' 
+ 
+#' @title getCorrelationMatrix
+#' @description  Compute Correlation Matrix. 
 #' Compute the correlation matrix of samples x, given the model object.
 #'
 #' @param object fit of the Kriging model (settings and parameters), of class \code{kriging}.
@@ -201,7 +199,7 @@ simulate.kriging <- function(object,nsim=1,seed=NA,xsim,method="decompose",condi
 #' @seealso \code{\link{simulate.kriging}}
 #' @seealso \code{\link{predict.kriging}}
 #' @keywords internal
-###################################################################################
+ 
 getCorrelationMatrix <- function(object,x){
   x <- normalizeMatrix2(data.matrix(x),0,1,object$normalizexmin,object$normalizexmax)
   k <- ncol(x)
@@ -239,9 +237,10 @@ getCorrelationMatrix <- function(object,x){
   Psi  
 }
 
-###################################################################################
-#' Simulation-based Function Generator
+ 
+#' @title simulateFunction
 #' 
+#' @description Simulation-based Function Generator. 
 #' Generate functions via simulation of Kriging models, e.g.,
 #' for assessment of optimization algorithms with
 #' non-conditional or conditional simulation, based on real-world data.
@@ -267,7 +266,7 @@ getCorrelationMatrix <- function(object,x){
 #' @references C. Lantuejoul. Geostatistical Simulation - Models and Algorithms. Springer-Verlag Berlin Heidelberg, 2002.
 #'
 #' @export
-###################################################################################
+ 
 simulateFunction <- function(object,nsim=1, seed=NA, method="spectral", xsim=NA, Ncos=10,
                              conditionalSimulation=TRUE){
   if(any(is.na(xsim)) & method=="decompose"){

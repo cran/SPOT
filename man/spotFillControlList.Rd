@@ -2,7 +2,7 @@
 % Please edit documentation in R/spot.R
 \name{spotFillControlList}
 \alias{spotFillControlList}
-\title{Fill in some values for the control list. Internal use only.}
+\title{spotFillControlList}
 \usage{
 spotFillControlList(controlList, dimension)
 }

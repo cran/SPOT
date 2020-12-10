@@ -1,5 +1,3 @@
-
-###################################################################################
 #' @title duplicateAndReplicateHandling 
 #' 
 #' @description Handle Duplicates and Replicates
@@ -23,7 +21,6 @@
 #'
 #' @export
 #' @keywords internal
-###################################################################################
 duplicateAndReplicateHandling <- function(xnew,x,lower,upper,control){
   if(control$noise){
     ##determine on the fly whether xnew is in x -> no "initialReplications" needed. else, assign initial replications.

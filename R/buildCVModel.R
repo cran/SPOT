@@ -105,10 +105,8 @@ linearAdaptedSE <- function(sOld, newdata, x){
     sOld * 2 # ?
 }
 
-###################################################################################
-#' predict.cvModel
-#'
-#' Predict with the cross validated model produced by \code{\link{buildCVModel}}.
+#' @title predict.cvModel
+#' @description  Predict with the cross validated model produced by \code{\link{buildCVModel}}.
 #'
 #' @param object CV model (settings and parameters) of class \code{cvModel}.
 #' @param newdata design matrix to be predicted

@@ -2,7 +2,7 @@
 % Please edit documentation in R/spot.R
 \name{spotLoop}
 \alias{spotLoop}
-\title{spotLoop. Sequential Parameter Optimization Main Loop}
+\title{spotLoop}
 \usage{
 spotLoop(x, y, fun, lower, upper, control, ...)
 }
@@ -40,6 +40,7 @@ This function returns a list with:
 }
 }
 \description{
+. Sequential Parameter Optimization Main Loop. 
 SPOT is usually started via the function \code{\link{spot}}. However, SPOT runs can be continued
 (i.e., with a larger budget specified in \code{control$funEvals}) by using \code{spotLoop}.
 This is the main loop of SPOT iterations. It requires the user to give the same inputs as

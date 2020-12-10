@@ -16,7 +16,6 @@
 #'
 #' @export
 #' @keywords internal
-###################################################################################################
 objectiveFunctionEvaluation <- function(x=NULL,xnew,fun,seedFun=NA,noise=FALSE,...){ # TODO: vectorization
 	if(!is.null(x))
 		x <- data.matrix(x) 

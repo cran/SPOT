@@ -1,5 +1,4 @@
-
-###################################################################################################
+ 
 #' Function Evaluation Wrapper
 #'
 #' This is a simple wrapper that turns a function of type \code{y=f(x)}, where x is a vector and y is a scalar,
@@ -28,12 +27,12 @@
 #' braninWrapped(matrix(c(1,2,2,2,2,1),3,2,byrow=TRUE))
 #'
 #' @export
-###################################################################################################
+ 
 wrapFunction <- function(fun){
   return(function(x){matrix(apply(x,1,fun),,1)})
 }
 
-###################################################################################################
+ 
 #' Parallelized Function Evaluation Wrapper
 #'
 #' This is a simple wrapper that turns a function of type \code{y=f(x)}, where x is a vector and y is a scalar,
@@ -67,7 +66,7 @@ wrapFunctionParallel <- function(fun, cl = NULL, nCores = NULL){
 }
 
 
-###################################################################################################
+ 
 #' wrapBatchTools
 #' 
 #' Wrap a given objective function to be evaluated via the batchtools package and make it accessible
@@ -80,7 +79,7 @@ wrapFunctionParallel <- function(fun, cl = NULL, nCores = NULL){
 #'
 #' @return callable function for SPOT
 #' @export
-###################################################################################################
+ 
 wrapBatchTools <- function(fun, reg = NULL,
                            clusterFunction = batchtools::makeClusterFunctionsInteractive(), resources = NULL){
     

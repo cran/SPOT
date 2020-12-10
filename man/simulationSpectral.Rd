@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulateKriging.R
 \name{simulationSpectral}
 \alias{simulationSpectral}
-\title{Kriging Simulation: Spectral Method}
+\title{simulationSpectral}
 \usage{
 simulationSpectral(object, conditionalSimulation = FALSE, Ncos = 100)
 }
@@ -20,6 +20,9 @@ Else, the simulation is non-conditional.}
 Returned value depends on the setting of \code{object$simulationReturnAll}
 }
 \description{
+Kriging Simulation: Spectral Method.
+}
+\details{
 (Conditional) Simulation via spectral method.
 }
 \references{

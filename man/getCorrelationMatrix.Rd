@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulateKriging.R
 \name{getCorrelationMatrix}
 \alias{getCorrelationMatrix}
-\title{Compute Correlation Matrix}
+\title{getCorrelationMatrix}
 \usage{
 getCorrelationMatrix(object, x)
 }
@@ -15,6 +15,7 @@ getCorrelationMatrix(object, x)
 the correlation matrix
 }
 \description{
+Compute Correlation Matrix. 
 Compute the correlation matrix of samples x, given the model object.
 }
 \seealso{

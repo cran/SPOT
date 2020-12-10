@@ -1,5 +1,4 @@
-
-###################################################################################################
+ 
 #' Tree Regression Interface
 #'
 #' This is a simple wrapper for the rpart function from the rpart package.
@@ -21,7 +20,7 @@
 #' @examples
 #' ## Create design points
 #' set.seed(1)
-#' x <- cbind(runif(20)*15-5,runif(20)*15)
+#' x <- cbind(runif(20)*15-5, runif(20)*15)
 #' ## Compute observations at design points (for Branin function)
 #' y <- funBranin(x)
 #' ## Create model
@@ -45,7 +44,7 @@
 #' yhat$y == 10
 # 
 #'
-###################################################################################################
+ 
 buildTreeModel <- function(x,y,control=list()){
   ## Control settings
   con<-list()
@@ -81,7 +80,7 @@ buildTreeModel <- function(x,y,control=list()){
 #  
 #}
 
-###################################################################################################
+ 
 #' Prediction method for rpart tree models
 #'
 #' Wrapper for \code{predict.rpart}.
@@ -94,7 +93,7 @@ buildTreeModel <- function(x,y,control=list()){
 #'  
 #' @export
 #' @keywords internal
-###################################################################################################
+ 
 predict.spotTreeModel <- function(object,newdata,...){
   #if(!all(colnames(newdata) %in% object$pNames))
   #  colnames(newdata) <- object$pNames
@@ -107,7 +106,7 @@ predict.spotTreeModel <- function(object,newdata,...){
   list(y=res)
 }
 
-###################################################################################################
+ 
 #' Print method for rpart tree models 
 #' 
 #' Wrapper for \code{print.rpart}.
@@ -119,12 +118,12 @@ predict.spotTreeModel <- function(object,newdata,...){
 #' 
 #' @export
 #' @keywords internal
-###################################################################################################
+ 
 print.spotTreeModel <- function(x,...){
   print(x$fit)
 }
 
-###################################################################################
+
 #' Plot rpart tree model
 #' 
 #' Plot model produced by \code{\link{buildTreeModel}}.
@@ -134,7 +133,7 @@ print.spotTreeModel <- function(x,...){
 #' @importFrom rpart.plot rpart.plot
 #' @export
 #' @keywords internal
-###################################################################################
+#' 
 plot.spotTreeModel <- function(x,...){
   rpart.plot(x$fit)
 }

@@ -13,7 +13,7 @@ checkArrival(probNewCustomer)
 logical
 }
 \description{
-Calculate arrival events for S-Ring
+Calculate arrival events for S-Ring.
 }
 \examples{
 checkArrival(0.5)

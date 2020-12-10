@@ -18,7 +18,6 @@
 #'
 #' @export
 #' @keywords internal
-###################################################################################
 selectN <- function(x, y, control) {
   nx <- dim(x)[1]
   ny <- dim(y)[1]

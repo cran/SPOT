@@ -1,4 +1,4 @@
-###################################################################################
+ 
 #' Build DACE model
 #'
 #' This Kriging meta model is based on DACE (Design and Analysis of Computer Experiments).
@@ -52,7 +52,7 @@
 #' print(fit)
 #'
 #' @export
-###################################################################################
+ 
 buildKrigingDACE <- function(x, y, control=list()){ #nugget -1 means that the nugget will be optimized in lme
 	con <- list(startTheta=NULL, 
 				budgetAlgTheta=100 ,
@@ -118,7 +118,7 @@ buildKrigingDACE <- function(x, y, control=list()){ #nugget -1 means that the nu
 }
 
 
-###################################################################################
+ 
 #' Start parameter setup DACE
 #'
 #' This function returns a starting guess for theta, as well as suitable lower and upper bounds.
@@ -136,7 +136,7 @@ buildKrigingDACE <- function(x, y, control=list()){ #nugget -1 means that the nu
 #'
 #' @seealso \code{\link{buildKrigingDACE}}
 #' @keywords internal
-###################################################################################
+ 
 daceStartParameters  <- function(n,m,nugget,corr){
 	if(identical(corr,corrnoisykriging)||identical(corr,corrkriging)){
 		ones <- matrix(1,1,m)
@@ -164,7 +164,7 @@ daceStartParameters  <- function(n,m,nugget,corr){
 	list(theta=theta,lb=lb,ub=ub)
 }
 
-###################################################################################
+ 
 #' Fix model parameters DACE
 #'
 #' This function fixes theta (model parameter vector) after optimization. That is, if a value was optimized on a logarithmic scale: \code{theta=10^theta}.
@@ -183,7 +183,7 @@ daceStartParameters  <- function(n,m,nugget,corr){
 #'
 #' @seealso \code{\link{buildKrigingDACE}} 
 #' @keywords internal
-###################################################################################
+ 
 daceFixTheta  <- function(m,bestTheta,nugget,corr){
 	lambda <- NULL
 	p <- NULL
@@ -221,7 +221,7 @@ daceFixTheta  <- function(m,bestTheta,nugget,corr){
 	list(thetaConv=thetaConv,theta=theta,lambda=lambda,p=p)
 }
 
-###################################################################################
+ 
 #' Wrapper for Maximum Likelihood Estimation
 #'
 #' Returns the maximum likelihood for the model parameter optimization.
@@ -234,7 +234,7 @@ daceFixTheta  <- function(m,bestTheta,nugget,corr){
 #'
 #' @seealso \code{\link{buildKrigingDACE}} \code{\link{daceEvalFit}} 
 #' @keywords internal
-###################################################################################
+ 
 daceLikelihood <- function (theta, pars, nugget){
 	n <- pars$n
 	thetaConv <- daceFixTheta(n,theta,nugget,pars$corr)$thetaConv
@@ -243,7 +243,7 @@ daceLikelihood <- function (theta, pars, nugget){
 }
 
 
-###################################################################################
+ 
 #' Prepare DACE fit
 #'
 #' Prepares a list with relevant model options and settings based on user choice and problem setup.
@@ -263,7 +263,7 @@ daceLikelihood <- function (theta, pars, nugget){
 #'
 #' @seealso \code{\link{buildKrigingDACE}} 
 #' @keywords internal
-###################################################################################
+ 
 dacePrepareFit <- function (S, Y, nugget, regr=regpoly0, corr=corrnoisykriging){	#this was cut from the dacefit function. dacefit was called repeatedly, doing this same thing again and again. now only done once or twice.
 	m <- dim(S)[1]
 	n <- dim(S)[2]
@@ -316,7 +316,7 @@ dacePrepareFit <- function (S, Y, nugget, regr=regpoly0, corr=corrnoisykriging){
 }
 
 
-###################################################################################
+ 
 #' Evaluate DACE fit
 #'
 #' Evaluate the fit of a certain set of model parameters (\code{theta}).
@@ -328,7 +328,7 @@ dacePrepareFit <- function (S, Y, nugget, regr=regpoly0, corr=corrnoisykriging){
 #'
 #' @seealso \code{\link{buildKrigingDACE}} \code{\link{daceLikelihood}} \code{\link{daceGetFit}} 
 #' @keywords internal
-###################################################################################
+ 
 daceEvalFit <- function (theta, pars){	
 	if(any(theta <= 0)){ 
 		stop('theta for dace model must be strictly positive')
@@ -341,7 +341,7 @@ daceEvalFit <- function (theta, pars){
 	perf
 }  
 
-###################################################################################
+ 
 #' Get DACE fit
 #'
 #' Evaluate the fit of a certain set of model parameters (\code{theta}), and
@@ -372,7 +372,7 @@ daceEvalFit <- function (theta, pars){
 #' @seealso \code{\link{buildKrigingDACE}} \code{\link{daceLikelihood}} \code{\link{daceEvalFit}} 
 #' @keywords internal
 # @export
-###################################################################################
+ 
 daceGetFit <- function (theta, pars){	
 	if(any(theta <= 0)){ 
 		stop('theta for dace model must be strictly positive')
@@ -386,7 +386,7 @@ daceGetFit <- function (theta, pars){
 				Ft=fit$Ft, G=fit$G)#, detR=fit$detR)
 }  
  
-###################################################################################
+ 
 #' Backslash operator.
 #'
 #' Reproduce what MATLAB's backslash operator can do, using qr() and qr.coef().
@@ -397,7 +397,7 @@ daceGetFit <- function (theta, pars){
 #' @return Returns coefficients 
 #' @keywords internal
 # @export
-###################################################################################
+ 
 spotHelpBslash<-function(X,Y){
 	if(length(Y)>1){
 		X<-qr(X)
@@ -407,7 +407,7 @@ spotHelpBslash<-function(X,Y){
 	}
 }
 
-###################################################################################
+ 
 #' repmat
 #'
 #' Reproduce what MATLAB's repmat function can do, using kronecker function.
@@ -419,10 +419,10 @@ spotHelpBslash<-function(X,Y){
 #' @return Returns repeated matrix
 #' @keywords internal
 # @export
-###################################################################################
+ 
 repmat <- function(a,n,m) {kronecker(matrix(1,n,m),a)}
 
-###################################################################################
+ 
 #' DACE objective function
 #'
 #' Evaluate the fit of a certain set of model parameters (\code{theta}), and
@@ -449,7 +449,7 @@ repmat <- function(a,n,m) {kronecker(matrix(1,n,m),a)}
 #' @seealso \code{\link{buildKrigingDACE}} \code{\link{daceLikelihood}} \code{\link{daceEvalFit}} 
 #' @keywords internal
 # @export
-###################################################################################
+ 
 daceObjfunc <- function(theta, pars, what="all"){
 	#% Initialize
 	obj <- 1e4 #penalty for bad numerical conditions    TODO: Inf crashes some optimizers, some not. Use very large number instead?
@@ -499,7 +499,7 @@ daceObjfunc <- function(theta, pars, what="all"){
 	list(f=obj,fit=fit)
 }
 
-###################################################################################
+ 
 #' Correlation: Noisy Gauss
 #'
 #' Noisy Gaussian correlation function using nuggets.
@@ -527,7 +527,7 @@ daceObjfunc <- function(theta, pars, what="all"){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 corrnoisygauss = function(theta, d , ret="all"){
 	siz <- dim(d)  #% number of differences and dimension of data
 	m <- siz[1]
@@ -555,7 +555,7 @@ corrnoisygauss = function(theta, d , ret="all"){
 	list(r=r,dr=dr)
 }
 
-###################################################################################
+ 
 #' Correlation: Gauss
 #'
 #' Gaussian correlation function, no nugget.\cr
@@ -583,7 +583,7 @@ corrnoisygauss = function(theta, d , ret="all"){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 corrgauss <- function(theta,d,ret="all"){
 	siz <- dim(d)  #% number of differences and dimension of data
 	m <- siz[1]
@@ -606,7 +606,7 @@ corrgauss <- function(theta,d,ret="all"){
 }
 
 #TODO docu: equations?
-###################################################################################
+ 
 #' Correlation: Noisy Kriging
 #'
 #' Noisy Kriging correlation function using nuggets
@@ -634,7 +634,7 @@ corrgauss <- function(theta,d,ret="all"){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 corrnoisykriging = function(theta, d, ret="all"){
 	siz <- dim(d)  #% number of differences and dimension of data
 	m <- siz[1]
@@ -666,7 +666,7 @@ corrnoisykriging = function(theta, d, ret="all"){
 
 
 #TODO docu: equations?
-###################################################################################
+ 
 #' Correlation:  Kriging
 #'
 #' Kriging correlation function, no nugget
@@ -694,7 +694,7 @@ corrnoisykriging = function(theta, d, ret="all"){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 corrkriging <- function(theta,d,ret="all"){
 	siz <- dim(d)  #% number of differences and dimension of data
 	m <- siz[1]
@@ -714,7 +714,7 @@ corrkriging <- function(theta,d,ret="all"){
 	list(r=r,dr=dr)
 }
 
-###################################################################################
+ 
 #' Correlation: Cubic
 #'
 #' Cubic correlation function.\cr
@@ -742,7 +742,7 @@ corrkriging <- function(theta,d,ret="all"){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 corrcubic <- function(theta,d , ret="all"){
 	siz <- dim(d)  #% number of differences and dimension of data
 	m <- siz[1]
@@ -779,7 +779,7 @@ corrcubic <- function(theta,d , ret="all"){
 	list(r=r,dr=dr)
 }
 
-###################################################################################
+ 
 #' Correlation: Exp
 #'
 #' Exponential correlation function.\cr
@@ -807,7 +807,7 @@ corrcubic <- function(theta,d , ret="all"){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 correxp <- function(theta,d,ret="all"){
 	siz <- dim(d)  #% number of differences and dimension of data
 	m <- siz[1]
@@ -827,7 +827,7 @@ correxp <- function(theta,d,ret="all"){
 	list(r=r,dr=dr)
 }
 
-###################################################################################
+ 
 #' Correlation: Expg
 #'
 #' General exponential correlation function.\cr
@@ -855,7 +855,7 @@ correxp <- function(theta,d,ret="all"){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 correxpg <- function(theta,d,ret="all"){
 
 	siz <- dim(d)  #% number of differences and dimension of data
@@ -880,7 +880,7 @@ correxpg <- function(theta,d,ret="all"){
 }
 
 
-###################################################################################
+ 
 #' Correlation: Lin
 #'
 #' Linear correlation function.\cr
@@ -908,7 +908,7 @@ correxpg <- function(theta,d,ret="all"){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 corrlin <- function(theta,d , ret="all"){
 	siz <- dim(d)  #% number of differences and dimension of data
 	m <- siz[1]
@@ -941,7 +941,7 @@ corrlin <- function(theta,d , ret="all"){
 }
 
 
-###################################################################################
+ 
 #' Correlation: Spherical
 #'
 #' Spherical correlation function.\cr
@@ -969,7 +969,7 @@ corrlin <- function(theta,d , ret="all"){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 corrspherical <- function(theta,d , ret="all"){
 	siz <- dim(d)  #% number of differences and dimension of data
 	m <- siz[1]
@@ -1006,7 +1006,7 @@ corrspherical <- function(theta,d , ret="all"){
 	list(r=r,dr=dr)
 }
 
-###################################################################################
+ 
 #' Correlation: Spline
 #'
 #' Cubic spline correlation function.\cr
@@ -1039,7 +1039,7 @@ corrspherical <- function(theta,d , ret="all"){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 corrspline <- function(theta,d , ret="all"){
 	siz <- dim(d)  #% number of differences and dimension of data
 	m <- siz[1]
@@ -1097,7 +1097,7 @@ corrspline <- function(theta,d , ret="all"){
 	list(r=r,dr=dr)
 }
 
-###################################################################################
+ 
 #' Regression: Regpoly0
 #'
 #' Zero order polynomial regression function.
@@ -1117,7 +1117,7 @@ corrspline <- function(theta,d , ret="all"){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 regpoly0 <- function(S,grad=FALSE){
 	siz <- dim(S)  
 	m <- siz[1]
@@ -1133,7 +1133,6 @@ regpoly0 <- function(S,grad=FALSE){
 	list(f=f,df=df)
 }
 
-##################################################################################
 #' Regression: Regpoly1
 #'
 #' First order polynomial regression function.
@@ -1155,7 +1154,7 @@ regpoly0 <- function(S,grad=FALSE){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 regpoly1 <- function(S,grad=FALSE){
 	siz <- dim(S)  
 	m <- siz[1]
@@ -1172,8 +1171,6 @@ regpoly1 <- function(S,grad=FALSE){
 	list(f=f,df=df)
 }
 
-
-##################################################################################
 #' Regression: Regpoly2
 #'
 #' Second order polynomial regression function.
@@ -1194,7 +1191,7 @@ regpoly1 <- function(S,grad=FALSE){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 regpoly2 <- function(S,grad=FALSE){
 	siz <- dim(S)  
 	m <- siz[1]
@@ -1231,7 +1228,7 @@ regpoly2 <- function(S,grad=FALSE){
 }
 
 
-###################################################################################
+ 
 #' Print Function DACE Kriging
 #'
 #' Print information about a DACE Kriging fit, as produced by \code{\link{buildKrigingDACE}}.
@@ -1243,7 +1240,7 @@ regpoly2 <- function(S,grad=FALSE){
 #' @param ... additional parameters	
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 print.dace <- function(x,...){
 	cat("------------------------\n")
 	cat("Dace Kriging model.\n")
@@ -1272,7 +1269,7 @@ print.dace <- function(x,...){
 	cat("------------------------\n")
 }
 
-###################################################################################
+ 
 #' DACE predictor
 #' 
 #' Predicts \code{y(x)} for a given DACE model (i.e. as created by \code{\link{buildKrigingDACE}}).
@@ -1320,7 +1317,7 @@ print.dace <- function(x,...){
 #'
 #' @export
 #' @keywords internal
-###################################################################################
+ 
 predict.dace = function (object,newdata,...){
 	x <- newdata
 	dmodel<-object$model

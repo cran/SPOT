@@ -24,7 +24,7 @@ modeling and model-based optimization with regression trees.
 \examples{
 ## Create design points
 set.seed(1)
-x <- cbind(runif(20)*15-5,runif(20)*15)
+x <- cbind(runif(20)*15-5, runif(20)*15)
 ## Compute observations at design points (for Branin function)
 y <- funBranin(x)
 ## Create model
