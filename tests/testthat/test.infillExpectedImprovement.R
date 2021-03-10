@@ -2,6 +2,7 @@ context("infillExpectedImprovement")
 
 test_that("check that infillExpectedImprovement has same result as target=ei", {
 		skip_on_cran() 
+    if(getOption("spot.run.full.test")){
     ## Fun Rastrigin from spotGUI package, ignore this
     funRast <- function (vec) {
         if (length(dim(vec)) <= 1) {
@@ -17,28 +18,38 @@ test_that("check that infillExpectedImprovement has same result as target=ei", {
     
     ## InfillExpectedImprovement should produce exactly the same results as target=ei. Target=y should not!
     set.seed(1)
-    resA <- spot(,funSphere,c(-2,-3),c(1,2), control = list(infillCriterion = infillExpectedImprovement, modelControl = list(target = c("y","s"))))
+    resA <- spot(,funSphere,c(-2,-3),c(1,2), 
+        control = list(optimizer=optimDE,				
+        infillCriterion = infillExpectedImprovement, modelControl = list(target = c("y","s"))))
     set.seed(1)
-    resB <- spot(,funSphere,c(-2,-3),c(1,2), control = list(modelControl = list(target = c("ei"))))
+    resB <- spot(,funSphere,c(-2,-3),c(1,2), 
+        control = list(optimizer=optimDE,				
+        modelControl = list(target = c("ei"))))
     set.seed(1)
-    resC <- spot(,funSphere,c(-2,-3),c(1,2), control = list(modelControl = list(target = c("y"))))
+    resC <- spot(,funSphere,c(-2,-3),c(1,2), control = list(optimizer=optimDE,				
+        modelControl = list(target = c("y"))))
     expect_true(all(resA$x == resB$x))
     expect_true(!all(resA$x == resC$x))
     
     if(getOption("spot.run.full.test")){
         set.seed(1)
-        resA <- spot(,funRast,c(-2,-3),c(1,2), control = list(infillCriterion = infillExpectedImprovement, modelControl = list(target = c("y","s"))))
+        resA <- spot(,funRast,c(-2,-3),c(1,2), control = list(optimizer=optimDE,				
+            infillCriterion = infillExpectedImprovement, modelControl = list(target = c("y","s"))))
         set.seed(1)
-        resB <- spot(,funRast,c(-2,-3),c(1,2), control = list(modelControl = list(target = c("ei"))))
+        resB <- spot(,funRast,c(-2,-3),c(1,2), control = list(optimizer=optimDE,				
+            modelControl = list(target = c("ei"))))
          set.seed(1)
-        resC <- spot(,funRast,c(-2,-3),c(1,2), control = list(modelControl = list(target = c("y"))))
+        resC <- spot(,funRast,c(-2,-3),c(1,2), control = list(optimizer=optimDE,				
+            modelControl = list(target = c("y"))))
         expect_true(all(resA$x == resB$x))
         expect_true(!all(resA$x == resC$x))
+    }
     }
 })
 
 test_that("infillExpectedImprovement works with cvModels and sLinear", {
 		skip_on_cran() 
+    if(getOption("spot.run.full.test")){
     ## Fun Rastrigin from spotGUI package, ignore this
     funRast <- function (vec) {
         if (length(dim(vec)) <= 1) {
@@ -69,21 +80,22 @@ test_that("infillExpectedImprovement works with cvModels and sLinear", {
     for(m in models){
         for(f in functions){
             set.seed(1)
-            resA <- spot(,f,c(-2,-3),c(1,2), control = list(infillCriterion = infillExpectedImprovement, model = buildCVModel, modelControl = 
+            resA <- spot(,f,c(-2,-3),c(1,2), control = list(optimizer=optimDE, infillCriterion = infillExpectedImprovement, model = buildCVModel, modelControl = 
                                                                         list(target = c("y","s"),
                                                                              modellingFunction = m,
                                                                              uncertaintyEstimator = "s")))
             set.seed(1)
-            resB <- spot(,f,c(-2,-3),c(1,2), control = list(infillCriterion = infillExpectedImprovement, model = buildCVModel, modelControl = 
+            resB <- spot(,f,c(-2,-3),c(1,2), control = list(optimizer=optimDE, infillCriterion = infillExpectedImprovement, model = buildCVModel, modelControl = 
                                                                         list(modellingFunction = m)))
             set.seed(1)
-            resC <- spot(,f,c(-2,-3),c(1,2), control = list(infillCriterion = infillExpectedImprovement, model = buildCVModel, modelControl = 
+            resC <- spot(,f,c(-2,-3),c(1,2), control = list(optimizer=optimDE, infillCriterion = infillExpectedImprovement, model = buildCVModel, modelControl = 
                                                                         list(target = c("y","s"),
                                                                              modellingFunction = m,
                                                                              uncertaintyEstimator = "sLinear")))
             expect_true(all(resB$x == resC$x))
             expect_true(!all(resA$x == resC$x))
         }
+    }
     }
 })
 

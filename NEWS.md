@@ -1,5 +1,74 @@
 # SPOT
 
+### 2.3.0
+* CHANGES
+   * Cleanup vignettes
+
+### 2.2.24
+* CHANGES
+  * Tests updated
+  * region* data added
+
+### 2.2.22
+* CHANGES:
+  * Examples check whether babsim.version is geq 11.7.
+
+### 2.2.20
+* FIXED:
+   * Bug: failure (test.infillExpectedImprovement.R:26:5) fixed
+
+### 2.2.18
+* BUGS:
+  * The following test was removed and should be checked:
+     * Failure (test.infillExpectedImprovement.R:26:5): "check that infillExpectedImprovement has same result as target=ei".
+  
+### 2.2.16
+* NEW:
+  * funBabsimhospitalParallel() for parallel execution on each machine (affects unix systems only)
+
+### 2.2.14
+* CHANGES:
+   * vignette updated
+
+### 2.2.12
+* CHANGES
+   * directOpt accepts constraints (similar to optimizer). These can be specified via directOptControl
+   * optimNLOPTR() returns x and y values from nloptr() optimization runs
+
+### 2.2.10
+* CHANGES:
+   * Hybrid approach refined
+
+### 2.2.8
+* CHANGES:
+  * selection of the final best solution: take the result from directOpt only if
+  it is better than the surrogate solution
+  
+### 2.2.6
+* CHANGES:
+  * spotTools functions use vectors instead of matrices to define bounds
+  
+### 2.2.4
+* NEWS:
+   * reports added:
+      * sensitivity analysis
+
+## 2.2.2
+* CHANGES:
+   * donttest instead of dontrun
+
+## 2.2.0
+* CHANGES:
+   * Some surrogate models can be updated: information whether the model is already build is stored in
+    control$modelControl$modelInitialized 
+    * objectiveFunctionEvaluation() returns NULL if xNew is empty
+* NEW:    
+    * funBabsimHospital()
+
+## SPOT 2.1.12
+* CHANGES:
+   * plotly dependencies
+
 ## SPOT 2.1.10
 * BUGFIX:
   * spot evaluates funEvals argument correctly

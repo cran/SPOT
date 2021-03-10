@@ -6,7 +6,7 @@
 \usage{
 funCyclone(
   x,
-  deterministic = c(T, T, T),
+  deterministic = c(TRUE, TRUE, TRUE),
   cyclone = list(Da = 1.26, H = 2.5, Dt = 0.42, Ht = 0.65, He = 0.6, Be = 0.2),
   fluid = list(Mu = 1.85e-05, Ve = (50/36)/0.12, lambdag = 1/200, Rhop = 2000, Rhof =
     1.2, Croh = 0.05),
@@ -41,6 +41,7 @@ Calculate cyclone collection efficiency. A simple, physics-based
 optimization problem (potentially bi-objective). See the references [1,2].
 }
 \examples{
+\donttest{
 ## Call directly
 funCyclone(c(1.26,2.5))
 ## create vectorized target funcion, vectorized, first objective only
@@ -55,7 +56,7 @@ res <- spot(fun=tfunvecF1,lower=c(1,2),upper=c(2,3),
 res$xbest
 ## ... and its objective function value
 res$ybest
-
+}
 }
 \references{
 [1] Zaefferer, M.; Breiderhoff, B.; Naujoks, B.; Friese, M.; Stork, J.; Fischbach, A.; Flasch, O.; Bartz-Beielstein, T. Tuning Multi-objective Optimization Algorithms for Cyclone Dust Separators Proceedings of the 2014 Conference on Genetic and Evolutionary Computation, ACM, 2014, 1223-1230 \cr\cr

@@ -56,13 +56,12 @@ Note: the default number of function evaluations is very low.
 }
 \examples{
  
-\dontrun{
-require(SimInf)
-data <- preprocessInputData(regionTrain, regionPopulation)
-a <- c(0.01,  0.001, 0.001,   0.001)
-b <- c(0.1,  0.01, 0.01,   0.01)
-lapply(data[1], tuneRegionModel, pops=NULL, lower = a, upper = b,
-control=list(funEvals=6, 
-designControl=list(size=5), model = buildLM))
-}
+# require(SimInf)
+# data <- preprocessInputData(regionTrain, regionPopulation)
+# a <- c(0.01,  0.001, 0.001,   0.001)
+# b <- c(0.1,  0.01, 0.01,   0.01)
+# lapply(data[1], tuneRegionModel, pops=NULL, lower = a, upper = b,
+# control=list(funEvals=6, 
+# designControl=list(size=5), model = buildLM))
+
 }

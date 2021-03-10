@@ -41,17 +41,15 @@ from the simulation model output with the real data. The RMSE is
 used as the performance metric.
 }
 \examples{
-\dontrun{
-require("SimInf")
-data <- preprocessInputData(regionTrain, regionPopulation)
-set.seed(123)
-data <- data[[1]]
-N <- attr(data, "regionPopulation")
+# require("SimInf")
+# data <- preprocessInputData(regionTrain, regionPopulation)
+# set.seed(123)
+# data <- data[[1]]
+# N <- attr(data, "regionPopulation")
 ## x = (p, beta, gamma, CFR)
-x <- c(0.01, 0.01, 0.1, 0.01)
+# x <- c(0.01, 0.01, 0.1, 0.01)
 ## Simulate only 2 days
-conf <- list(regionData = data[1:2, ], N = N)
-evalMarkovChain(x = x, conf=conf)
-}
-
+# conf <- list(regionData = data[1:2, ], N = N)
+# evalMarkovChain(x = x, conf=conf)
+ 
 }

@@ -11,7 +11,8 @@ daceObjfunc(theta, pars, what = "all")
 
 \item{pars}{model option list, as created with \code{\link{dacePrepareFit}}}
 
-\item{what}{a string: "all" both the likelihood (f) and the model list (fit) will be returned, "f" and "fit specify to return only those.}
+\item{what}{a string: "all" both the likelihood (f) and the model list (fit) will be returned, 
+"f" and "fit specify to return only those.}
 }
 \value{
 A list of two elements (which are NA if \code{what} is specified accordingly)\cr

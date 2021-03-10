@@ -15,7 +15,7 @@
 #' @export
 #'
 #' @examples
-#'\dontrun{
+#'\donttest{
 #' ## Test-function:
 #' braninFunction <- function (x) {	
 #' 	(x[2]  - 5.1/(4 * pi^2) * (x[1] ^2) + 5/pi * x[1]  - 6)^2 + 

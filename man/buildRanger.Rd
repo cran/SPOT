@@ -23,7 +23,7 @@ The purpose of this function is to provide an interface as required by SPOT, to 
 modeling and model-based optimization with \code{ranger}.
 }
 \examples{
-\dontrun{
+\donttest{
 ## Create a simple training data set
 testfun <- function (x) x[1]^2
 x <- cbind(sort(runif(30)*2-1))
@@ -38,7 +38,7 @@ points(x,y,col="red",pch=20)
 ## Example with extratrees, an interpolating model
 fit <- buildRanger(x,y,
                    control=list(rangerArguments = 
-                                list(replace = F,
+                                list(replace = FALSE,
                                    sample.fraction=1,
                                    min.node.size = 1,
                                    splitrule = "extratrees")))

@@ -42,7 +42,7 @@ SIR considers three compartments: S (susceptible), I (infected), and R (recovere
 The timespan is calculated as \code{tspan = 1:days}.
 }
 \examples{
-\dontrun{
+\donttest{
 require("SimInf")
 # Result from \code{\link{parseTunedRegionModel}}, e.g., deModels:
 # x = c(deModels$p, deModels$beta, deModels$gamma, deModels$CFR)

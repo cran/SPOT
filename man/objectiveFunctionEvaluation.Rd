@@ -22,7 +22,7 @@ objectiveFunctionEvaluation(
 
 \item{seedFun}{initial seed to be used for the random number generator seed. Set to NA to avoid using a fixed seed.}
 
-\item{noise}{parameter specifying whether the target function is noisy.}
+\item{noise}{\code{logical} parameter specifying whether the target function is noisy.}
 
 \item{...}{parameters passed to \code{fun}.}
 }

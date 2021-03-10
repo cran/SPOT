@@ -47,10 +47,6 @@
 #' @seealso \code{\link{plotData}}, \code{\link{plotModel}}
 #'
 #' @export
-#' @importFrom plotly plot_ly
-#' @importFrom plotly add_trace
-#' @importFrom plotly %>%
-###################################################################################################
 plotFunction <- function(f=function(x){rowSums(x^2)}, 
                                 lower=c(0,0) , upper=c(1,1) , 
 																type="filled.contour",
@@ -138,13 +134,29 @@ plotFunction <- function(f=function(x){rowSums(x^2)},
 					col=colors[z.facet.range],
 					theta=theta,phi=phi,...)	
   }else if(type=="persp3d"){ #perspective plot with plotly
-		p <- plot_ly(z = ~t(z), x = x, y = y,type = "surface")# %>% add_surface()
+    p <- NA
+    if (requireNamespace("plotly", quietly=TRUE)) {
+      # package plotly in Suggests
+      p <- plotly::plot_ly(z = ~t(z), x = x, y = y,type = "surface")             
+    } else {
+      warning("Would need plotly for plot_ly")  
+    }
     if(!missing(points1))
-      p <- p %>% add_trace(data=points1,x=points1[,1],z=points1[,3],y=points1[,2], mode = "markers", type = "scatter3d", 
-            marker = list(size = 5, color = col1, symbol = 200))
-    if(!missing(points2))
-      p <- p %>% add_trace(data=points2,x=points2[,1],z=points2[,3],y=points2[,2], mode = "markers", type = "scatter3d", 
-            marker = list(size = 5, color = col2, symbol = 102))
+      if (requireNamespace("plotly", quietly=TRUE)) {
+        # package plotly in Suggests
+        p <- plotly::add_trace(p, data=points1,x=points1[,1],z=points1[,3],y=points1[,2], mode = "markers", type = "scatter3d", 
+                               marker = list(size = 5, color = col1, symbol = 200))
+      } else {
+        warning("Would need plotly for add_trace")  
+      }
+     if(!missing(points2))
+       if (requireNamespace("plotly", quietly=TRUE)) {
+         # package plotly in Suggests
+         p <- plotly::add_trace(p, data=points2,x=points2[,1],z=points2[,3],y=points2[,2], mode = "markers", type = "scatter3d", 
+                                marker = list(size = 5, color = col2, symbol = 102))
+       } else {
+         warning("Would need plotly for add_trace")  
+       }
 		p
   }else if(type=="singleDim"){
       

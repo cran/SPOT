@@ -20,12 +20,12 @@ Plot confirmed cases and fatalities (cumulative) for one country/region by regio
 \details{
 Data are taken from the \code{regionTrain} and \code{regionPopulation} data sets
 that were combined using the \code{\link{preprocessInputData}} function.
+\code{regionTrain} and \code{regionPopulation} are stored in the
+\code{babsim.data} package.
 }
 \examples{
-\dontrun{
-regionList <- preprocessInputData(regionTrain, regionPopulation)
-p <- plotRegionByName(regionList = regionList, country = "Germany")
-}
+# regionList <- preprocessInputData(regionTrain, regionPopulation)
+# p <- plotRegionByName(regionList = regionList, country = "Germany") 
 }
 \seealso{
 \code{\link{plotRegion}}.

@@ -52,18 +52,16 @@ COVID-19 challenge.
 Output from \code{\link{parseTunedRegionModel}} is processed-
 }
 \examples{
-\dontrun{
-require(SimInf)
-data <- preprocessInputData(regionTrain, regionPopulation)
-testData <- preprocessTestData(regionTest)
-# Select the first region:
-testData <- testData[testData$Region==levels(testData$Region)[1], ]
-testData$Region <- droplevels(testData$Region)
-# Very small number of function evaluations:
-n <- 6
-res <- lapply(data[1], tuneRegionModel, pops=NULL, 
-control=list(funEvals=n, designControl=list(size=5), model = buildLM))
-parsedList <- parseTunedRegionModel(res)
-pred <- generateMCPrediction(testData = testData, models = parsedList$models, write = FALSE)
-}
+# require(SimInf)
+# data <- preprocessInputData(regionTrain, regionPopulation)
+# testData <- preprocessTestData(regionTest)
+# ## Select the first region:
+# testData <- testData[testData$Region==levels(testData$Region)[1], ]
+# testData$Region <- droplevels(testData$Region)
+# ## Very small number of function evaluations:
+# n <- 6
+# res <- lapply(data[1], tuneRegionModel, pops=NULL, 
+# control=list(funEvals=n, designControl=list(size=5), model = buildLM))
+# parsedList <- parseTunedRegionModel(res)
+# pred <- generateMCPrediction(testData = testData, models = parsedList$models, write = FALSE)
 }

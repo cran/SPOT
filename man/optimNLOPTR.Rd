@@ -46,7 +46,7 @@ The \code{nloptr} function itself is an interface to the \code{nlopt} library, w
 of different optimization algorithms.
 }
 \examples{
-\dontrun{
+\donttest{
 ##simple example:
 res <- optimNLOPTR(,fun = funSphere,lower = c(-10,-20),upper=c(20,8))
 res

@@ -1,13 +1,13 @@
 context("test markov")
 
 ## check for regionTrain and related data from babsim.data
-babsim.data.available <- FALSE
+# babsim.data.available <- FALSE
 
-skip_if_no_data <- function() {
-  if (babsim.data.available == FALSE) {
-    skip("babsim.data not available")
-  }
-}
+# skip_if_no_data <- function() {
+#   if (babsim.data.available == FALSE) {
+#     skip("babsim.data not available")
+#   }
+# }
 
 test_that("Check SIR model compartments (plausibility).", {
   skip_on_cran() 
@@ -24,7 +24,7 @@ test_that("Check SIR model compartments (plausibility).", {
 
 
 test_that("evalMarkovChain: check RMSE calculation (plausibility).", {
-    skip_if_no_data()
+    # skip_if_no_data()
     skip_on_cran() 
     data <- preprocessInputData(regionTrain, regionPopulation)
     set.seed(123)
@@ -40,17 +40,19 @@ test_that("evalMarkovChain: check RMSE calculation (plausibility).", {
 
 
 test_that("tuneRegionModel: check spot tuner on SIR models.",{
-  skip_if_no_data()
+  # skip_if_no_data()
     skip_on_cran() 
+  if(getOption("spot.run.full.test")){
  data <- preprocessInputData(regionTrain, regionPopulation)
  n <- 6
  res <- lapply(data[1], tuneRegionModel, pops=NULL, control=list(funEvals=n, designControl=list(size=5), model = buildLM))
  ## budget exhausted?
  expect_true(res[[1]]$count == n)
+  }
 })
 
 test_that("parseTunedRegionModel: check parsedList result layout (dimensions).",{
-  skip_if_no_data()
+  # skip_if_no_data()
     skip_on_cran() 
     # number of function evaluations:
     n <- 6
@@ -62,7 +64,9 @@ test_that("parseTunedRegionModel: check parsedList result layout (dimensions).",
 })
 
 test_that("generateMCPrediction: check predictions (generateMCPrediction).",{
-  skip_if_no_data()
+  # skip_if_no_data()
+  skip_on_cran() 
+  if(getOption("spot.run.full.test")){
 # data <- preprocessInputData(regionTrain, regionPopulation)
 testData <- preprocessTestData(regionTest)
 testData <- testData[testData$Region==levels(testData$Region)[1], ]
@@ -73,17 +77,21 @@ testData$Region <- droplevels(testData$Region)
   parsedList <- parseTunedRegionModel(res)
   pred <- generateMCPrediction(testData = testData, models = parsedList$models, write = FALSE)
   expect_true(dim(pred)[2] == 3)
+  }
 })
 
 test_that("preprocessInputData: check data preparation (preprocessInputData): is the number of regions (313) correct?",{
-  skip_if_no_data()
+  # skip_if_no_data()
+  skip_on_cran() 
   data <- preprocessInputData(regionTrain, regionPopulation)
   # There should be 313 regions:
   expect_true(length(data) == 313)
 })
 
 test_that("plotPrediction: check plot", {
-  skip_if_no_data()
+  # skip_if_no_data()
+  skip_on_cran() 
+  if(getOption("spot.run.full.test")){
   # data <- preprocessInputData(regionTrain, regionPopulation)
   testData <- preprocessTestData(regionTest)
   # Select the first region:
@@ -99,6 +107,9 @@ test_that("plotPrediction: check plot", {
   quickPredict <- cbind(pred, testData$Date, testData$Region)
   names(quickPredict) <- c("ForecastID", "confirmed", "fatalities", "date", "region")
   p <- plotPrediction(quickPredict, 1)
+  # plot returns NULL, so we test for equality:
+  expect_null(p)
+  }
 })
 
 

@@ -34,7 +34,5 @@ Locality information is merged with the \code{\link{paste}} command as follows:
 4-dim data is reduced to 3-dim data.
 }
 \examples{
-\dontrun{
-testData <- preprocessTestData(regionTest)
-}
+# testData <- preprocessTestData(regionTest)
 }

@@ -17,6 +17,11 @@
 #' is used for storing `u0` information. 
 #' The timespan is calculated as \code{tspan = 1:days}.
 #' The \code{\link[SimInf]{SIR}} is set up and run, using \code{\link[SimInf]{run}}.
+#' 
+#' Data are taken from the \code{regionTrain} and \code{regionPopulation} data sets
+#' that were combined using the \code{\link{preprocessInputData}} function.
+#' \code{regionTrain} and \code{regionPopulation} are stored in the
+#' \code{babsim.data} package.
 #'  
 #' @param x vector of three parameters. Used for parametrizing the MarkovChain model.
 #' \describe{
@@ -50,21 +55,20 @@
 #' @importFrom SimInf run
 #' @importFrom stats aggregate
 #' @examples
-#' \dontrun{
-#' require("SimInf")
-#' data <- preprocessInputData(regionTrain, regionPopulation)
-#' regionData <- data[[1]]
-#' N <- attr(regionData, "regionPopulation")
-#' # N_curr <- max(regionData$confirmed)
-#' p <- 0.01
-#' beta <- 0.1
-#' gamma <- 0.01
-#' # parameter vector for the SIR model: (p, beta, gamma)
-#' x <- c(p, beta, gamma)
-#' # Every row in the data represents one day:
-#' days <- nrow(regionData)
-#' modelMarkovChain(x = x, days = days, N = N)
-#' }
+#' 
+#' # require("SimInf")
+#' # data <- preprocessInputData(regionTrain, regionPopulation)
+#' # regionData <- data[[1]]
+#' # N <- attr(regionData, "regionPopulation")
+#' # # N_curr <- max(regionData$confirmed)
+#' # p <- 0.01
+#' # beta <- 0.1
+#' # gamma <- 0.01
+#' # # parameter vector for the SIR model: (p, beta, gamma)
+#' # x <- c(p, beta, gamma)
+#' # # Every row in the data represents one day:
+#' # days <- nrow(regionData)
+#' # modelMarkovChain(x = x, days = days, N = N)
 #' @export
 #' 
 modelMarkovChain <- function(x, days, N, n = 3){
@@ -112,11 +116,9 @@ modelMarkovChain <- function(x, days, N, n = 3){
 #' }
 #'
 #' @examples
-#' \dontrun{
-#' x <- preprocessInputData(regionTrain, regionPopulation)
+#' # x <- preprocessInputData(regionTrain, regionPopulation)
 #' ## Plot confirmed cases from the first country (Afghanistan):
-#' p <- plot(x[[1]]$date, x[[1]]$confirmed)
-#' }
+#' # p <- plot(x[[1]]$date, x[[1]]$confirmed)
 #' @export
 #'
 preprocessInputData <- function(trainData,
@@ -175,9 +177,7 @@ preprocessInputData <- function(trainData,
 #'}
 #'
 #' @examples
-#' \dontrun{
-#' testData <- preprocessTestData(regionTest)
-#' }
+#' # testData <- preprocessTestData(regionTest)
 #' @export
 #'
 preprocessTestData <- function(testData)
@@ -215,9 +215,9 @@ preprocessTestData <- function(testData)
 #'}
 #'
 #' @examples
-#' \dontrun{
-#' testData <- preprocessCdeTestData(cde20200813)
-#' }
+#'
+#' # testData <- preprocessCdeTestData(cde20200813)
+#' 
 #' @export
 #'
 preprocessCdeTestData <- function(testData)
@@ -237,6 +237,8 @@ preprocessCdeTestData <- function(testData)
 #' @details 
 #' Data are taken from the \code{regionTrain} and \code{regionPopulation} data sets
 #' that were combined using the \code{\link{preprocessInputData}} function.
+#' \code{regionTrain} and \code{regionPopulation} are stored in the
+#' \code{babsim.data} package.
 #'
 #' @param regionList A list containing a representation of the data.
 #' @param country Name of a country from the list dataList 
@@ -246,10 +248,8 @@ preprocessCdeTestData <- function(testData)
 #' @return A plot
 #'
 #' @examples
-#' \dontrun{
-#' regionList <- preprocessInputData(regionTrain, regionPopulation)
-#' p <- plotRegionByName(regionList = regionList, country = "Germany")
-#' }
+#' # regionList <- preprocessInputData(regionTrain, regionPopulation)
+#' # p <- plotRegionByName(regionList = regionList, country = "Germany") 
 #' @export
 #'
 plotRegionByName <- function(regionList, country="Germany") {
@@ -275,6 +275,8 @@ plotRegionByName <- function(regionList, country="Germany") {
 #' @details 
 #' Data are taken from the \code{regionTrain} and \code{regionPopulation} data sets
 #' that were combined using the \code{\link{preprocessInputData}} function.
+#' \code{regionTrain} and \code{regionPopulation} are stored in the
+#' \code{babsim.data} package.
 #'
 #'
 #' @param regionList A list containing a representation of the data.
@@ -285,10 +287,8 @@ plotRegionByName <- function(regionList, country="Germany") {
 #' @return A plot
 #'
 #' @examples
-#' \dontrun{
-#' regionList <- preprocessInputData(regionTrain, regionPopulation)
-#' p <- plotRegion(regionList = regionList, countryIndex = 1)
-#' }
+#' # regionList <- preprocessInputData(regionTrain, regionPopulation)
+#' # p <- plotRegion(regionList = regionList, countryIndex = 1)
 #' 
 #' @export
 #'
@@ -309,6 +309,12 @@ plotRegion <- function(regionList, countryIndex=1) {
 #' @title plotPrediction
 #'
 #' @description  plot predictions countries/regions by index
+#' 
+#' @details 
+#' Data are taken from the \code{regionTrain} and \code{regionPopulation} data sets
+#' that were combined using the \code{\link{preprocessInputData}} function.
+#' \code{regionTrain} and \code{regionPopulation} are stored in the
+#' \code{babsim.data} package.
 #'
 #' @param regionDf A list containing a representation of the data.
 #' @param countryIndex num Index
@@ -319,23 +325,21 @@ plotRegion <- function(regionList, countryIndex=1) {
 #' @return A plot
 #'
 #' @examples
-#' \dontrun{
-#' require(SPOT)
-#' data <- preprocessInputData(regionTrain, regionPopulation)
-#' testData <- preprocessTestData(regionTest)
-#' # Select the first region:
-#' testData <- testData[testData$Region==levels(testData$Region)[1], ]
-#' testData$Region <- droplevels(testData$Region)
-#' # Very small number of function evaluations:
-#' n <- 6
-#' res <- lapply(data[1], tuneRegionModel, pops=NULL, 
-#'               control=list(funEvals=n, designControl=list(size=5), model = buildLM))
-#' parsedList <- parseTunedRegionModel(res)
-#' pred <- generateMCPrediction(testData = testData, models = parsedList$models, write = FALSE)
-#' quickPredict <- cbind(pred, testData$Date, testData$Region)
-#' names(quickPredict) <- c("ForecastID", "confirmed", "fatalities", "date", "region")
-#' p <- plotPrediction(quickPredict, 1)
-#' }
+#' # require(SPOT)
+#' # data <- preprocessInputData(regionTrain, regionPopulation)
+#' # testData <- preprocessTestData(regionTest)
+#' # # Select the first region:
+#' # testData <- testData[testData$Region==levels(testData$Region)[1], ]
+#' # testData$Region <- droplevels(testData$Region)
+#' # # Very small number of function evaluations:
+#' # n <- 6
+#' # res <- lapply(data[1], tuneRegionModel, pops=NULL, 
+#' #               control=list(funEvals=n, designControl=list(size=5), model = buildLM))
+#' # parsedList <- parseTunedRegionModel(res)
+#' # pred <- generateMCPrediction(testData = testData, models = parsedList$models, write = FALSE)
+#' # quickPredict <- cbind(pred, testData$Date, testData$Region)
+#' # names(quickPredict) <- c("ForecastID", "confirmed", "fatalities", "date", "region")
+#' # p <- plotPrediction(quickPredict, 1)
 #' @export
 #'
 plotPrediction <- function(regionDf, countryIndex=1, ylog=FALSE) {
@@ -388,11 +392,9 @@ plotPrediction <- function(regionDf, countryIndex=1, ylog=FALSE) {
 #' }
 #'
 #' @examples
-#' \dontrun{
-#' x <- preprocessCdeInputData(cde20200813)
-#' ## Plot confirmed cases from the first country:
-#' p <- plot(x[[1]]$date, x[[1]]$confirmed)
-#' }
+#' # x <- preprocessCdeInputData(cde20200813)
+#' # ## Plot confirmed cases from the first country:
+#' # p <- plot(x[[1]]$date, x[[1]]$confirmed)
 #' @export
 #'
 preprocessCdeInputData <- function(cdeData) {
@@ -473,7 +475,7 @@ preprocessCdeInputData <- function(cdeData) {
 #' @importFrom graphics plot
 #' 
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' require("SimInf")
 #' # Result from \code{\link{parseTunedRegionModel}}, e.g., deModels:
 #' # x = c(deModels$p, deModels$beta, deModels$gamma, deModels$CFR)

@@ -50,5 +50,11 @@ plotData <- function(x,y,
   df <- data.frame(x[,1], x[,2], y)
   names(df) <- c("x", "y", "z")
   fit <- model(x,y,control=modelControl)
-  plotModel(object=fit,which=which,constant=constant,xlab= xlab,ylab=ylab,type=type,...)
+  plotModel(object=fit,
+            which=which,
+            constant=constant,
+            xlab= xlab,
+            ylab=ylab,
+            type=type,
+            ...)
 }

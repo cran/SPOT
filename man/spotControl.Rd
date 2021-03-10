@@ -38,6 +38,11 @@ Control is a list of the settings:
 			or \code{\link{optimDE}} can be used. Default is \code{\link{optimLHD}}.}
   \item{\code{optimizerControl}}{A list of controls passed to the \code{control} list of the \code{optimizer} function.
 			See help of the respective function for details. Default is an empty \code{list}.}
+  \item{\code{directOpt}}{A function that is used to optimize after the \code{spot} run is finished.
+   Functions that accept the same parameters, and return a matrix like \code{\link{optimNLOPTR}}
+			or \code{\link{optimDE}} can be used. Default is \code{\link{optimNLOPTR}}.}
+  \item{\code{directOptControl}}{A list of controls passed to the \code{control} list of the \code{directOpt} function.
+			See help of the respective function for details. Default is \code{list(funEvals = 0)}.}
   \item{\code{noise}}{Boolean, whether the objective function has noise or not. Default is non-noisy, that is, \code{FALSE}.}
   \item{\code{OCBA}}{Boolean, indicating whether Optimal Computing Budget Allocation (OCBA) should be used in case of a noisy
 			objective function or not. OCBA controls the number of replications for each candidate solution.
@@ -66,6 +71,12 @@ Control is a list of the settings:
   \item{\code{infillCriterion}}{A function defining an infillCriterion to be used while optimizing a model. Default: NULL. For example check infillExpectedImprovement}
   \item{\code{verbosity}}{Integer level specifying how much output should be given by SPOT. 0 (default) ignores warnings of internal optimizers /models.
              1 will show warnings and output.}
+  \item{\code{maxTime}}{\code{num} Maximum allowed run time (in minutes) for \code{spot} or \code{spotLoop}. 
+         The default value for \code{maxTime} (in minutes) is \code{Inf} and can be overwritten by the user.
+         The internal value \code{startTime}, that is used to control \code{maxTime},
+         will be set by \code{\link{spotFillControlList}}. 
+         Note: \code{maxTime}  is only an approximate value. It does not affect the \code{directOpt} run.
+  }            
 }
 }
 \keyword{internal}

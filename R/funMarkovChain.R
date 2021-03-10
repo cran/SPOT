@@ -34,19 +34,17 @@
 #' @return value (log RMSE)
 #'
 #' @examples
-#' \dontrun{
-#' require("SimInf")
-#' data <- preprocessInputData(regionTrain, regionPopulation)
-#' set.seed(123)
-#' data <- data[[1]]
-#' N <- attr(data, "regionPopulation")
+#' # require("SimInf")
+#' # data <- preprocessInputData(regionTrain, regionPopulation)
+#' # set.seed(123)
+#' # data <- data[[1]]
+#' # N <- attr(data, "regionPopulation")
 #' ## x = (p, beta, gamma, CFR)
-#' x <- c(0.01, 0.01, 0.1, 0.01)
+#' # x <- c(0.01, 0.01, 0.1, 0.01)
 #' ## Simulate only 2 days
-#' conf <- list(regionData = data[1:2, ], N = N)
-#' evalMarkovChain(x = x, conf=conf)
-#' }
-#' 
+#' # conf <- list(regionData = data[1:2, ], N = N)
+#' # evalMarkovChain(x = x, conf=conf)
+#'  
 #' @export
 #'
 evalMarkovChain <- function(x, conf){
@@ -121,16 +119,16 @@ evalMarkovChain <- function(x, conf){
 #' @return 1-column matrix with resulting function values (RMSE)
 #'
 #' @examples
-#' \dontrun{
-#' data <- preprocessInputData(regionTrain, regionPopulation)
-#' set.seed(123)
-#' data <- data[[1]]
-#' N <- attr(data, "regionPopulation")
+#'
+#' # data <- preprocessInputData(regionTrain, regionPopulation)
+#' # set.seed(123)
+#' # data <- data[[1]]
+#' # N <- attr(data, "regionPopulation")
 #' ## x = (p, beta, gamma, CFR)
-#' x <- matrix(c(0.01, 0.1, 0.01, 0.1),1,4)
-#' conf <- list(regionData = data, N = N)
-#' funMarkovChain(x, conf)
-#' }
+#' # x <- matrix(c(0.01, 0.1, 0.01, 0.1),1,4)
+#' # conf <- list(regionData = data, N = N)
+#' # funMarkovChain(x, conf)
+#' 
 #' @export
 #'
 funMarkovChain <- function (x, conf) {
@@ -183,15 +181,14 @@ funMarkovChain <- function (x, conf) {
 #'  }
 #'  
 #' @examples  
-#' \dontrun{
-#' require(SimInf)
-#' data <- preprocessInputData(regionTrain, regionPopulation)
-#' a <- c(0.01,  0.001, 0.001,   0.001)
-#' b <- c(0.1,  0.01, 0.01,   0.01)
-#' lapply(data[1], tuneRegionModel, pops=NULL, lower = a, upper = b,
-#' control=list(funEvals=6, 
-#' designControl=list(size=5), model = buildLM))
-#' }
+#' # require(SimInf)
+#' # data <- preprocessInputData(regionTrain, regionPopulation)
+#' # a <- c(0.01,  0.001, 0.001,   0.001)
+#' # b <- c(0.1,  0.01, 0.01,   0.01)
+#' # lapply(data[1], tuneRegionModel, pops=NULL, lower = a, upper = b,
+#' # control=list(funEvals=6, 
+#' # designControl=list(size=5), model = buildLM))
+#' 
 #' @export
 tuneRegionModel <- function(regionData, 
                             pops=NULL, 
@@ -252,14 +249,11 @@ tuneRegionModel <- function(regionData,
 #'      }
 #' 
 #' @examples
-#' \dontrun{
-#' require(SimInf)
-#' data <- preprocessInputData(regionTrain, regionPopulation)
-#' resList <- lapply(data[1], tuneRegionModel, pops=NULL, control=list(funEvals=6, 
-#' designControl=list(size=5), model = buildLM))
-#' parsedList <- parseTunedRegionModel(resList)
-#' }
-#' 
+#' # require(SimInf)
+#' # data <- preprocessInputData(regionTrain, regionPopulation)
+#' # resList <- lapply(data[1], tuneRegionModel, pops=NULL, control=list(funEvals=6, 
+#' # designControl=list(size=5), model = buildLM))
+#' # parsedList <- parseTunedRegionModel(resList)
 #' @export
 #'
 parseTunedRegionModel <- function(xList){
@@ -334,20 +328,18 @@ parseTunedRegionModel <- function(xList){
 #' 
 #' 
 #' @examples
-#' \dontrun{
-#' require(SimInf)
-#' data <- preprocessInputData(regionTrain, regionPopulation)
-#' testData <- preprocessTestData(regionTest)
-#' # Select the first region:
-#' testData <- testData[testData$Region==levels(testData$Region)[1], ]
-#' testData$Region <- droplevels(testData$Region)
-#' # Very small number of function evaluations:
-#' n <- 6
-#' res <- lapply(data[1], tuneRegionModel, pops=NULL, 
-#' control=list(funEvals=n, designControl=list(size=5), model = buildLM))
-#' parsedList <- parseTunedRegionModel(res)
-#' pred <- generateMCPrediction(testData = testData, models = parsedList$models, write = FALSE)
-#' }
+#' # require(SimInf)
+#' # data <- preprocessInputData(regionTrain, regionPopulation)
+#' # testData <- preprocessTestData(regionTest)
+#' # ## Select the first region:
+#' # testData <- testData[testData$Region==levels(testData$Region)[1], ]
+#' # testData$Region <- droplevels(testData$Region)
+#' # ## Very small number of function evaluations:
+#' # n <- 6
+#' # res <- lapply(data[1], tuneRegionModel, pops=NULL, 
+#' # control=list(funEvals=n, designControl=list(size=5), model = buildLM))
+#' # parsedList <- parseTunedRegionModel(res)
+#' # pred <- generateMCPrediction(testData = testData, models = parsedList$models, write = FALSE)
 #' @export
 #'
 generateMCPrediction <- function(testData, 

@@ -53,22 +53,22 @@ checkArrival <- function(probNewCustomer){
 #'     } 
 #'
 #' @examples
-#' \dontrun{
+#' 
 #' params <-list(sElevator=NULL,
 #'   sCustomer=NULL,
 #'   currentState=NULL,
 #'   nextState=NULL,
 #'   counter=NULL,
-#'   nStates=nStates,
-#'   nElevators=nElevators,
-#'   probNewCustomer=probNewCustomer,
-#'   weightsPerceptron=weightsPerceptron,
+#'   nStates=12,
+#'   nElevators=2,
+#'   probNewCustomer=0.1,
+#'   weightsPerceptron=rep(0.1, 24),
 #'   nWeights=NULL,
-#'   nIterations=nIterations,
-#'   randomSeed=randomSeed)
+#'   nIterations=100,
+#'   randomSeed=1234)
 #'   
 #' init_ring(params)
-#' } 
+#'  
 #' @export
 #' 
 init_ring <- function(params) {

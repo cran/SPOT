@@ -24,6 +24,8 @@ Expected Improvement infill criterion that can be passed to control$modelControl
 Parameters dont have to be specified as this function is ment to be internally by SPOT.
 }
 \examples{
+\donttest{
 spot(,funSphere,c(-2,-3),c(1,2), control = 
     list(infillCriterion = infillExpectedImprovement, modelControl = list(target = c("y","s"))))
+}     
 }

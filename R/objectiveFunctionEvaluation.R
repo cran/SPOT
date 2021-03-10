@@ -7,7 +7,7 @@
 #' @param xnew matrix of new solutions.
 #' @param fun objective function to evaluate the solutions in \code{xnew}.
 #' @param seedFun initial seed to be used for the random number generator seed. Set to NA to avoid using a fixed seed.
-#' @param noise parameter specifying whether the target function is noisy.
+#' @param noise \code{logical} parameter specifying whether the target function is noisy.
 #' @param ... parameters passed to \code{fun}.
 #' 
 #' @return the matrix ynew, which are the observations for fun(xnew)
@@ -16,14 +16,21 @@
 #'
 #' @export
 #' @keywords internal
-objectiveFunctionEvaluation <- function(x=NULL,xnew,fun,seedFun=NA,noise=FALSE,...){ # TODO: vectorization
+objectiveFunctionEvaluation <- function(x=NULL,
+                                        xnew,
+                                        fun,
+                                        seedFun=NA,
+                                        noise=FALSE,...){ # TODO: vectorization
 	if(!is.null(x))
 		x <- data.matrix(x) 
 	xnew <- data.matrix(xnew) #TODO: same as in ocba. else, problems with identical() due to names
 
-  ## if xnew is empty, return.
+  ## if xnew is empty, return NULL
 	if(nrow(xnew)==0)
-		return(numeric(0))
+	  ## return(numeric(0))
+	  ## Changed in 2.2.0 to:
+		return(NULL)
+	 
 	
 	## save seed status (to avoid disturbing the main loops RNG stream)
   ## note: theoretically only needed in case of noise==TRUE, but always done to avoid mistakes.
@@ -65,8 +72,11 @@ objectiveFunctionEvaluation <- function(x=NULL,xnew,fun,seedFun=NA,noise=FALSE,.
   if(!is.null(SAVESEED))
     assign(".Random.seed", SAVESEED, envir=globalenv())
 	
-	if(is.numeric(ynew))
-		ynew <- matrix(ynew,,1) #convert to column matrix
-		
+	if(!is.matrix(ynew) & nrow(xnew)>1)
+		ynew <- matrix(data = ynew,
+		               ncol = 1) #convert to column matrix
+	if(!is.matrix(ynew) & nrow(xnew)==1)
+		ynew <- matrix(data = ynew,
+		               nrow = 1) #convert to row matrix
 	ynew
 }

@@ -1,7 +1,7 @@
 
-#' infillExpectedImprovement
+#' @title  infillExpectedImprovement
 #' 
-#' Compute the negative logarithm of the Expected Improvement of a set of candidate solutions.
+#' @description  Compute the negative logarithm of the Expected Improvement of a set of candidate solutions.
 #' Based on mean and standard deviation of a candidate solution,
 #' this estimates the expectation of improvement. Improvement
 #' considers the amount by which the best known value (best observed value)
@@ -16,12 +16,13 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' spot(,funSphere,c(-2,-3),c(1,2), control = 
 #'     list(infillCriterion = infillExpectedImprovement, modelControl = list(target = c("y","s"))))
+#' }     
 infillExpectedImprovement <- function(predictionList, model){
     mean <- predictionList$y
     sd <- predictionList$s
     modelMin <- min(model$y)
-    
     return(expectedImprovement(mean,sd,modelMin))
 }

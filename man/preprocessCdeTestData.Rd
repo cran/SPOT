@@ -33,7 +33,7 @@ The variable \code{location} is renamed to \code{Region} and converted
 to a factor variable.
 }
 \examples{
-\dontrun{
-testData <- preprocessCdeTestData(cde20200813)
-}
+
+# testData <- preprocessCdeTestData(cde20200813)
+
 }

@@ -16,7 +16,7 @@
 #' @export
 #'
 #' @examples
-#'\dontrun{
+#'\donttest{
 #' ## Create a simple training data set
 #' testfun <- function (x) x[1]^2
 #' x <- cbind(sort(runif(30)*2-1))
@@ -31,7 +31,7 @@
 #' ## Example with extratrees, an interpolating model
 #' fit <- buildRanger(x,y,
 #'                    control=list(rangerArguments = 
-#'                                 list(replace = F,
+#'                                 list(replace = FALSE,
 #'                                    sample.fraction=1,
 #'                                    min.node.size = 1,
 #'                                    splitrule = "extratrees")))
@@ -86,6 +86,8 @@ buildRanger <- function(x, y, control=list()){
 #' @keywords internal
 ###################################################################################################
 predict.spotRanger <- function(object,newdata,...){
+	if(!is.data.frame(newdata))
+		newdata <- as.data.frame(newdata)
   if(!all(colnames(newdata) %in% object$pNames))
     colnames(newdata) <- object$pNames
   res <- predict(object$rangerFit,newdata,...)$predictions

@@ -23,6 +23,7 @@
 #'
 #' @importFrom nloptr nloptr
 #' @importFrom stats runif
+#' @importFrom utils str
 #'
 #' @return list, with elements
 #' \describe{
@@ -35,7 +36,7 @@
 #' }
 #'
 #' @examples
-#'\dontrun{
+#'\donttest{
 #' ##simple example:
 #' res <- optimNLOPTR(,fun = funSphere,lower = c(-10,-20),upper=c(20,8))
 #' res
@@ -50,8 +51,9 @@
 #' 
 #' 
 optimNLOPTR <- function(x=NULL,fun,lower,upper,control=list(),...){
+ 
   #if (length(par)==0) stop("dimension of par is null")
-  con<-list(funEvals=100)
+  con<-list(funEvals=100, verbosity = 0)
   con[names(control)] <- control
   control<-con
 
@@ -74,9 +76,29 @@ optimNLOPTR <- function(x=NULL,fun,lower,upper,control=list(),...){
     control$x0 <- control$x0[1,]
   control$lb <- lower
   control$ub <- upper
-  control$eval_f <- function(xx)fun(matrix(xx,1),
+  # control$eval_f <- function(xx)fun(matrix(xx,1),
+  #                                  ...)
+  ### NEW in SPOT 2.2.10/12
+  f <- function(xx)fun(matrix(xx,1),
                                     ...)
+  control$eval_f <- function(xx) {
+    xx <- matrix(xx, 1)
+    ynew <- as.vector(f(xx))
+    ylog <<- rbind(ylog, ynew)
+    xlog <<- rbind(xlog, xx)
+    return(ynew)
+  }
+###   END NEW in SPOT 2.2.10/12
+  if (control$verbosity > 0){
+    print("optimNLOPTR starting point:")
+    str(control$x0)
+  }
   
+
+  ## initialize logged variables
+  xlog <- NULL
+	ylog <- NULL
+
   optimizationResult <- nloptr(x0 = control$x0,
                                eval_f = control$eval_f,
                                eval_grad_f = NULL,
@@ -94,7 +116,15 @@ optimNLOPTR <- function(x=NULL,fun,lower,upper,control=list(),...){
   xbest <- optimizationResult$solution	
   count <- optimizationResult$iterations
   msg=optimizationResult$message
-  list(x=NA,y=NA,xbest=matrix(xbest,1),ybest=ybest,count=count,msg=msg)
+  rownames(ylog) <- NULL
+  
+  if (control$verbosity > 0){
+    print("optimNLOPTR finished:")
+    str(list(x=xlog,y=ylog,xbest=matrix(xbest,1),ybest=ybest,count=count,msg=msg)
+    )
+  }
+  ### list(x=NA,y=NA,xbest=matrix(xbest,1),ybest=ybest,count=count,msg=msg)
+  list(x=xlog,y=ylog,xbest=matrix(xbest,1),ybest=ybest,count=count,msg=msg)
 }
 
 

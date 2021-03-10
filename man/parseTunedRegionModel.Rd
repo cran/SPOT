@@ -34,12 +34,9 @@ Parse results from the \code{\link{tuneRegionModel}} function, i.e.,
 results from a \code{\link{spot}} run on \code{\link{funMarkovChain}}
 }
 \examples{
-\dontrun{
-require(SimInf)
-data <- preprocessInputData(regionTrain, regionPopulation)
-resList <- lapply(data[1], tuneRegionModel, pops=NULL, control=list(funEvals=6, 
-designControl=list(size=5), model = buildLM))
-parsedList <- parseTunedRegionModel(resList)
-}
-
+# require(SimInf)
+# data <- preprocessInputData(regionTrain, regionPopulation)
+# resList <- lapply(data[1], tuneRegionModel, pops=NULL, control=list(funEvals=6, 
+# designControl=list(size=5), model = buildLM))
+# parsedList <- parseTunedRegionModel(resList)
 }

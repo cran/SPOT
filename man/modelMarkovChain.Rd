@@ -53,21 +53,25 @@ R is the number of recovered in each node.
 is used for storing `u0` information. 
 The timespan is calculated as \code{tspan = 1:days}.
 The \code{\link[SimInf]{SIR}} is set up and run, using \code{\link[SimInf]{run}}.
+
+Data are taken from the \code{regionTrain} and \code{regionPopulation} data sets
+that were combined using the \code{\link{preprocessInputData}} function.
+\code{regionTrain} and \code{regionPopulation} are stored in the
+\code{babsim.data} package.
 }
 \examples{
-\dontrun{
-require("SimInf")
-data <- preprocessInputData(regionTrain, regionPopulation)
-regionData <- data[[1]]
-N <- attr(regionData, "regionPopulation")
-# N_curr <- max(regionData$confirmed)
-p <- 0.01
-beta <- 0.1
-gamma <- 0.01
-# parameter vector for the SIR model: (p, beta, gamma)
-x <- c(p, beta, gamma)
-# Every row in the data represents one day:
-days <- nrow(regionData)
-modelMarkovChain(x = x, days = days, N = N)
-}
+
+# require("SimInf")
+# data <- preprocessInputData(regionTrain, regionPopulation)
+# regionData <- data[[1]]
+# N <- attr(regionData, "regionPopulation")
+# # N_curr <- max(regionData$confirmed)
+# p <- 0.01
+# beta <- 0.1
+# gamma <- 0.01
+# # parameter vector for the SIR model: (p, beta, gamma)
+# x <- c(p, beta, gamma)
+# # Every row in the data represents one day:
+# days <- nrow(regionData)
+# modelMarkovChain(x = x, days = days, N = N)
 }

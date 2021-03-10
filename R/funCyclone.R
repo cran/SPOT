@@ -1,7 +1,6 @@
-###################################################################################
-#' Cyclone Simulation: Mothes
+#' @title  Cyclone Simulation: Mothes
 #'
-#' Calculate cyclone collection efficiency and pressure drop according to Mothes.
+#' @description  Calculate cyclone collection efficiency and pressure drop according to Mothes.
 #'
 #' @param x a single particle diameter (scalar)
 #' @param cyclone list of cyclone's geometrical parameters
@@ -11,7 +10,6 @@
 #'
 #' @keywords internal
 #' @export
-###################################################################################
 calculationMothes <- function(x, cyclone, fluid)
 {
   #---------------------------------------------
@@ -136,10 +134,10 @@ calculationMothes <- function(x, cyclone, fluid)
   ##############################################
   return(c(t,deltaP))	
 }
-###################################################################################
-#' Cyclone Simulation: Barth/Muschelknautz
+
+#' @title Cyclone Simulation: Barth/Muschelknautz
 #'
-#' Calculate cyclone collection efficiency according to Barth/Muschelknautz.
+#' @description  Calculate cyclone collection efficiency according to Barth/Muschelknautz.
 #'
 #' @param cyclone list of cyclone's geometrical parameters
 #' @param fluid list of fluid parameters
@@ -150,7 +148,7 @@ calculationMothes <- function(x, cyclone, fluid)
 #'
 #' @keywords internal
 #' @export
-###################################################################################
+
 calculationBarthMuschelknautz <- function(cyclone, fluid, xmean, delta){
   #---------------------------------------------
   #Umrechnung Geometriedaten fuer Modell Barth / geometric data
@@ -218,10 +216,10 @@ calculationBarthMuschelknautz <- function(cyclone, fluid, xmean, delta){
 }
 
 
-###################################################################################
-#' Objective function - Cyclone Simulation: Barth/Muschelknautz
+
+#' @title  Objective function - Cyclone Simulation: Barth/Muschelknautz
 #'
-#' Calculate cyclone collection efficiency. A simple, physics-based
+#' @description  Calculate cyclone collection efficiency. A simple, physics-based
 #' optimization problem (potentially bi-objective). See the references [1,2].
 #'
 #' @param x vector of length at least one and up to six, specifying non-default geometrical parameters in [m]: Da, H, Dt, Ht, He, Be
@@ -242,6 +240,7 @@ calculationBarthMuschelknautz <- function(cyclone, fluid, xmean, delta){
 #' [2] Breiderhoff, B.; Bartz-Beielstein, T.; Naujoks, B.; Zaefferer, M.; Fischbach, A.; Flasch, O.; Friese, M.; Mersmann, O.; Stork, J.; Simulation and Optimization of Cyclone Dust Separators Proceedings 23. Workshop Computational Intelligence, 2013, 177-196
 #'
 #' @examples
+#' \donttest{
 #' ## Call directly
 #' funCyclone(c(1.26,2.5))
 #' ## create vectorized target funcion, vectorized, first objective only
@@ -256,10 +255,10 @@ calculationBarthMuschelknautz <- function(cyclone, fluid, xmean, delta){
 #' res$xbest
 #' ## ... and its objective function value
 #' res$ybest
-#'
+#' }
 #' @export
 ###################################################################################
-funCyclone <- function(x,deterministic=c(T,T,T),
+funCyclone <- function(x,deterministic=c(TRUE,TRUE,TRUE),
                        cyclone=list(Da=1.260,H=2.500,Dt=0.420,Ht=0.650,He=0.600,Be=0.200),
                        fluid=list(Mu=1.85e-5,
                                   Ve=(50/36)/0.12,#Vp=5000,

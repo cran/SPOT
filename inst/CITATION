@@ -1,18 +1,16 @@
 citHeader("To cite SPOT in publications use:")
 
-citEntry(entry="inproceedings",
-  title = "Sequential Parameter Optimization",
+citEntry(entry="article",
+  title = "In a Nutshell -- The Sequential Parameter Optimization Toolbox",
   author = personList(person(family="Bartz-Beielstein", given="Thomas"),
-                      person(family="Lasarczyk",given="Christian"),
-	                    person(family="Preuss", given="Mike")),
-  booktitle = "Proceedings Congress  on  Evolutionary Computation 2005 (CEC'05)",
-  year = "2005",
-  address = "Edinburgh, Scotland",
-  pages ={773--780},
-  url = "http://www.spotseven.de/wp-content/papercite-data/pdf/blp05.pdf",
-  textVersion = paste("Bartz-Beielstein, T., Lasarczyk, C. , & Preuss, M. ", 
-         "Sequential Parameter Optimization. ",
-         "In 2005 IEEE congress on evolutionary computation, IEEE Press ",
+                      person(family="Zaefferer",given="Martin"),
+	                    person(family="Rehbach", given="Frederik")),
+  year = "2021",
+  journal = "arXiv e-prints",
+  pages = "arXiv:1712.04076",
+  url = "https://arxiv.org/abs/1712.04076",
+  textVersion = paste("Bartz-Beielstein, T., Zaefferer, M., & Rehbach, F. ", 
+         "In a Nutshell -- The Sequential Parameter Optimization Toolbox. ",
+         "https://arxiv.org/abs/1712.04076 ",
          sep="")
 )
-

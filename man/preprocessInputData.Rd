@@ -29,9 +29,7 @@ Resulting data set can be used as input for the COVID-19 simulations of the
 \code{\link{tuneRegionModel}} function.
 }
 \examples{
-\dontrun{
-x <- preprocessInputData(regionTrain, regionPopulation)
+# x <- preprocessInputData(regionTrain, regionPopulation)
 ## Plot confirmed cases from the first country (Afghanistan):
-p <- plot(x[[1]]$date, x[[1]]$confirmed)
-}
+# p <- plot(x[[1]]$date, x[[1]]$confirmed)
 }

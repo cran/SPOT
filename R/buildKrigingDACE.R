@@ -90,17 +90,31 @@ buildKrigingDACE <- function(x, y, control=list()){ #nugget -1 means that the nu
 	pars <- dacePrepareFit(x, y, control$nugget, control$regr, control$corr) 
   opts<-list(funEvals=budget)
   ## Optimize likelihood
-	res <- control$algTheta(x=startTheta,fun=daceLikelihood,lower=lb,upper=ub,
-						control=opts,pars=pars,nugget=control$nugget)		
+	res <- control$algTheta(x=startTheta,
+	                        fun=daceLikelihood,
+	                        lower=lb,
+	                        upper=ub,
+	                        control=opts,
+	                        pars=pars,
+	                        nugget=control$nugget)		
 	if(is.null(res$xbest))
     res$xbest<-startTheta
 	bestTheta = res$xbest		
 
-	ftheta <- daceFixTheta(m,bestTheta,control$nugget,control$corr)
-	model <- daceGetFit(ftheta$thetaConv,pars)
+	ftheta <- daceFixTheta(m, bestTheta, control$nugget, control$corr)
+	model <- daceGetFit(ftheta$thetaConv, pars)
 	like <-  res$ybest
 	nEval <- as.numeric(res$counts[[1]])
-	fit <- list(model=model,like=like,theta=ftheta$theta,lambda=ftheta$lambda,p=ftheta$p,nevals=nEval,GRAD=FALSE,MSE=FALSE,GRADMSE=FALSE,target=control$target)
+	fit <- list(model=model,
+	            like=like,
+	            theta=ftheta$theta,
+	            lambda=ftheta$lambda,
+	            p=ftheta$p,
+	            nevals=nEval,
+	            GRAD=FALSE,
+	            MSE=FALSE,
+	            GRADMSE=FALSE,
+	            target=control$target)
 	
 	## calculate observed minimum
 	xlist <- split(x, row(x))
@@ -264,7 +278,9 @@ daceLikelihood <- function (theta, pars, nugget){
 #' @seealso \code{\link{buildKrigingDACE}} 
 #' @keywords internal
  
-dacePrepareFit <- function (S, Y, nugget, regr=regpoly0, corr=corrnoisykriging){	#this was cut from the dacefit function. dacefit was called repeatedly, doing this same thing again and again. now only done once or twice.
+dacePrepareFit <- function (S, Y, nugget, regr=regpoly0, corr=corrnoisykriging){	
+  # this was cut from the dacefit function. 
+  # dacefit was called repeatedly, doing this same thing again and again. now only done once or twice.
 	m <- dim(S)[1]
 	n <- dim(S)[2]
 	sY <- length(Y)
@@ -380,10 +396,19 @@ daceGetFit <- function (theta, pars){
 	
 	fit <- daceObjfunc(theta, pars, "fit")$fit
 
-	list(regr=pars$regr, corr=pars$corr, theta=theta, 
-				beta=fit$beta, gamma=fit$gamma, sigma2=pars$sY^2*fit$sigma2, 
-				S=pars$S, Ssc=pars$Ssc, Y=pars$y, Ysc=pars$Ysc, C=fit$C, 
-				Ft=fit$Ft, G=fit$G)#, detR=fit$detR)
+	list(regr=pars$regr, 
+	     corr=pars$corr, 
+	     theta=theta, 
+			beta=fit$beta, 
+			gamma=fit$gamma, 
+			sigma2=pars$sY^2*fit$sigma2,
+			S=pars$S, 
+			Ssc=pars$Ssc, 
+			Y=pars$y, 
+			Ysc=pars$Ysc, 
+			C=fit$C,
+			Ft=fit$Ft, 
+			G=fit$G) #, detR=fit$detR)
 }  
  
  
@@ -430,7 +455,8 @@ repmat <- function(a,n,m) {kronecker(matrix(1,n,m),a)}
 #'
 #' @param theta model parameters to be evaluated
 #' @param pars model option list, as created with \code{\link{dacePrepareFit}}
-#' @param what a string: "all" both the likelihood (f) and the model list (fit) will be returned, "f" and "fit specify to return only those.
+#' @param what a string: "all" both the likelihood (f) and the model list (fit) will be returned, 
+#' "f" and "fit specify to return only those.
 #'
 #' @return A list of two elements (which are NA if \code{what} is specified accordingly)\cr
 #' 	\code{f} likelihood \cr
@@ -1185,7 +1211,7 @@ regpoly1 <- function(S,grad=FALSE){
 #'
 #' @seealso \code{\link{buildKrigingDACE}}
 #'
-#' @author The authors of the original DACE Matlab code \ 
+#' @author The authors of the original DACE Matlab code  
 #' are Hans Bruun Nielsen, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 #' Ported to R by Martin Zaefferer \email{martin.zaefferer@@fh-koeln.de}.
 #'
@@ -1317,14 +1343,12 @@ print.dace <- function(x,...){
 #'
 #' @export
 #' @keywords internal
- 
 predict.dace = function (object,newdata,...){
 	x <- newdata
 	dmodel<-object$model
-	
 	MSE <- GRAD <- GRADMSE <- FALSE
 	
-	if(any(object$target %in% c("s","sgrad","ei")))
+	if(any(object$target %in% c("s", "sgrad", "ei")))
 		MSE <- TRUE	
 		
 	if(any(object$target %in% c("sgrad")))

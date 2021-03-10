@@ -2,18 +2,20 @@
 % Please edit documentation in R/spot.R
 \name{spotLoop}
 \alias{spotLoop}
-\title{spotLoop}
+\title{Sequential Parameter Optimization Main Loop}
 \usage{
 spotLoop(x, y, fun, lower, upper, control, ...)
 }
 \arguments{
-\item{x}{are the known candidate solutions that the SPOT loop is started with,
-specified as a matrix. One row for each point, and one column for each optimized parameter.}
+\item{x}{\code{(m,n) matrix} that contains the known candidate solutions. 
+The SPOT loop is started with these values. Each row represents one \code{n} dimensional 
+data point. Each of the \code{m} columns represents one optimized parameter.}
 
-\item{y}{are the corresponding observations for each solution in \code{x},
-specified as a matrix. One row for each point.}
+\item{y}{\code{(m,p) matrix} that represents observations for each point in \code{x},
+Each of the \code{m} rows represents solutions for one data point.}
 
-\item{fun}{is the objective function. It should receive a matrix x and return a matrix y.
+\item{fun}{\code{function} that represents the objective function. 
+It should receive a matrix \code{x} and return a matrix \code{y}.
 In case the function uses external code and is noisy, an additional seed parameter may be used,
 see the \code{control$seedFun} argument below for details.}
 
@@ -40,7 +42,6 @@ This function returns a list with:
 }
 }
 \description{
-. Sequential Parameter Optimization Main Loop. 
 SPOT is usually started via the function \code{\link{spot}}. However, SPOT runs can be continued
 (i.e., with a larger budget specified in \code{control$funEvals}) by using \code{spotLoop}.
 This is the main loop of SPOT iterations. It requires the user to give the same inputs as
@@ -51,6 +52,7 @@ not the additional number of evalutions.
 \examples{
 ## Most simple example: Kriging + LHS + predicted
 ## mean optimization (not expected improvement)
+\donttest{
 control <- list(funEvals=20)
 res <- spot(,funSphere,c(-2,-3),c(1,2),control)
 ## now continue with larger budget.
@@ -59,4 +61,5 @@ control$funEvals <- 25
 res2 <- spotLoop(res$x,res$y,funSphere,c(-2,-3),c(1,2),control)
 res2$xbest
 res2$ybest
+}
 }

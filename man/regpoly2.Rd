@@ -24,7 +24,7 @@ Second order polynomial regression function.
 \code{\link{buildKrigingDACE}}
 }
 \author{
-The authors of the original DACE Matlab code \ 
+The authors of the original DACE Matlab code  
 are Hans Bruun Nielsen, Soren Nymand Lophaven and Jacob Sondergaard. \cr
 Ported to R by Martin Zaefferer \email{martin.zaefferer@fh-koeln.de}.
 }

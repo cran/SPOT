@@ -37,14 +37,14 @@ Wrapper function for \code{\link{evalMarkovChain}} used by \code{\link{spot}}.
 Optimization of Continuous Time Markov Chains (MarkovChain) models.
 }
 \examples{
-\dontrun{
-data <- preprocessInputData(regionTrain, regionPopulation)
-set.seed(123)
-data <- data[[1]]
-N <- attr(data, "regionPopulation")
+
+# data <- preprocessInputData(regionTrain, regionPopulation)
+# set.seed(123)
+# data <- data[[1]]
+# N <- attr(data, "regionPopulation")
 ## x = (p, beta, gamma, CFR)
-x <- matrix(c(0.01, 0.1, 0.01, 0.1),1,4)
-conf <- list(regionData = data, N = N)
-funMarkovChain(x, conf)
-}
+# x <- matrix(c(0.01, 0.1, 0.01, 0.1),1,4)
+# conf <- list(regionData = data, N = N)
+# funMarkovChain(x, conf)
+
 }

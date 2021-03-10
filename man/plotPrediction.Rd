@@ -19,22 +19,26 @@ A plot
 \description{
 plot predictions countries/regions by index
 }
-\examples{
-\dontrun{
-require(SPOT)
-data <- preprocessInputData(regionTrain, regionPopulation)
-testData <- preprocessTestData(regionTest)
-# Select the first region:
-testData <- testData[testData$Region==levels(testData$Region)[1], ]
-testData$Region <- droplevels(testData$Region)
-# Very small number of function evaluations:
-n <- 6
-res <- lapply(data[1], tuneRegionModel, pops=NULL, 
-              control=list(funEvals=n, designControl=list(size=5), model = buildLM))
-parsedList <- parseTunedRegionModel(res)
-pred <- generateMCPrediction(testData = testData, models = parsedList$models, write = FALSE)
-quickPredict <- cbind(pred, testData$Date, testData$Region)
-names(quickPredict) <- c("ForecastID", "confirmed", "fatalities", "date", "region")
-p <- plotPrediction(quickPredict, 1)
+\details{
+Data are taken from the \code{regionTrain} and \code{regionPopulation} data sets
+that were combined using the \code{\link{preprocessInputData}} function.
+\code{regionTrain} and \code{regionPopulation} are stored in the
+\code{babsim.data} package.
 }
+\examples{
+# require(SPOT)
+# data <- preprocessInputData(regionTrain, regionPopulation)
+# testData <- preprocessTestData(regionTest)
+# # Select the first region:
+# testData <- testData[testData$Region==levels(testData$Region)[1], ]
+# testData$Region <- droplevels(testData$Region)
+# # Very small number of function evaluations:
+# n <- 6
+# res <- lapply(data[1], tuneRegionModel, pops=NULL, 
+#               control=list(funEvals=n, designControl=list(size=5), model = buildLM))
+# parsedList <- parseTunedRegionModel(res)
+# pred <- generateMCPrediction(testData = testData, models = parsedList$models, write = FALSE)
+# quickPredict <- cbind(pred, testData$Date, testData$Region)
+# names(quickPredict) <- c("ForecastID", "confirmed", "fatalities", "date", "region")
+# p <- plotPrediction(quickPredict, 1)
 }
