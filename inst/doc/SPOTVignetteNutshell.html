@@ -148,7 +148,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   method    from </span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   print.src dplyr</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;SPOT&quot;</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &#39;2.3.0&#39;</span></span></code></pre></div>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &#39;2.4.2&#39;</span></span></code></pre></div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <ul>
@@ -198,8 +198,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">control=</span><span class="fu">list</span>(<span class="at">optimizer=</span>optimLBFGSB))</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a> res<span class="sc">$</span>xbest</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             [,1]        [,2]</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.01573485 -0.00886033</span></span></code></pre></div>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             [,1]         [,2]</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.01573496 -0.008860252</span></span></code></pre></div>
 </div>
 <div id="random-forest-instead-of-kriging" class="section level3">
 <h3>Random Forest instead of Kriging</h3>
@@ -217,312 +217,320 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.1531584 0.3294388</span></span></code></pre></div>
 </div>
+<div id="bayesian-optimization" class="section level3">
+<h3>Bayesian Optimization</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildBO)) <span class="co">#BO as surrogate</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              [,1]        [,2]</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.009619762 -0.01032117</span></span></code></pre></div>
+</div>
 <div id="lm-and-local-optimizer-which-for-this-simple-example-is-perfect" class="section level3">
 <h3>LM and local optimizer (which for this simple example is perfect)</h3>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildLM, <span class="at">optimizer=</span>optimLBFGSB))</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             [,1]       [,2]</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.02651579 -0.1091904</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildLM, <span class="at">optimizer=</span>optimLBFGSB))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             [,1]       [,2]</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.02651579 -0.1091904</span></span></code></pre></div>
 </div>
 <div id="lasso-and-local-optimizer-nloptr" class="section level3">
 <h3>Lasso and local optimizer NLOPTR</h3>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), </span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildLasso, <span class="at">optimizer =</span> optimNLOPTR))</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]</span></span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.1531584 0.3294388</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildLasso, <span class="at">optimizer =</span> optimNLOPTR))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; fold</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.1531584 0.3294388</span></span></code></pre></div>
 </div>
 <div id="kriging-and-local-optimizer-lbfgsb" class="section level3">
 <h3>Kriging and local optimizer LBFGSB</h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildKriging, <span class="at">optimizer =</span> optimLBFGSB))</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             [,1]        [,2]</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.01573485 -0.00886033</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildKriging, <span class="at">optimizer =</span> optimLBFGSB))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             [,1]         [,2]</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.01573496 -0.008860252</span></span></code></pre></div>
 </div>
 <div id="kriging-and-local-optimizer-nloptr" class="section level3">
 <h3>Kriging and local optimizer NLOPTR</h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildKriging, <span class="at">optimizer =</span> optimNLOPTR))</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             [,1]         [,2]</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.01440329 0.0006858711</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildKriging, <span class="at">optimizer =</span> optimNLOPTR))</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             [,1]         [,2]</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.01440329 0.0006858711</span></span></code></pre></div>
 </div>
 <div id="or-a-different-kriging-model" class="section level3">
 <h3>Or a different Kriging model:</h3>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a> <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildKrigingDACE, <span class="at">optimizer=</span>optimLBFGSB))</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             [,1]         [,2]</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.03586733 -0.004407048</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a> <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildKrigingDACE, <span class="at">optimizer=</span>optimLBFGSB))</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             [,1]         [,2]</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.03586733 -0.004407048</span></span></code></pre></div>
 </div>
 <div id="with-noise-this-takes-some-time" class="section level3">
 <h3>With noise: (this takes some time)</h3>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># noisy objective</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>res1 <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x)<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x)),<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">40</span>,<span class="at">noise=</span><span class="cn">TRUE</span>)) </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># noise with replicated evaluations</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>res2 <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x)<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x)),<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">40</span>,<span class="at">noise=</span><span class="cn">TRUE</span>,<span class="at">replicates=</span><span class="dv">2</span>,</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">designControl=</span><span class="fu">list</span>(<span class="at">replicates=</span><span class="dv">2</span>))) </span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># and with OCBA</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>res3 <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x)<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x)),<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">40</span>,<span class="at">noise=</span><span class="cn">TRUE</span>,<span class="at">replicates=</span><span class="dv">2</span>,<span class="at">OCBA=</span><span class="cn">TRUE</span>,<span class="at">OCBABudget=</span><span class="dv">1</span>,</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">designControl=</span><span class="fu">list</span>(<span class="at">replicates=</span><span class="dv">2</span>))) </span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Check results with non-noisy function:</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="fu">funSphere</span>(res1<span class="sc">$</span>xbest)</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           [,1]</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.9811919</span></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="fu">funSphere</span>(res2<span class="sc">$</span>xbest)</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         [,1]</span></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 1.74417</span></span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="fu">funSphere</span>(res3<span class="sc">$</span>xbest)</span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          [,1]</span></span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 1.084404</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># noisy objective</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>res1 <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x)<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x)),<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">40</span>,<span class="at">noise=</span><span class="cn">TRUE</span>)) </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># noise with replicated evaluations</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>res2 <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x)<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x)),<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">40</span>,<span class="at">noise=</span><span class="cn">TRUE</span>,<span class="at">replicates=</span><span class="dv">2</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">designControl=</span><span class="fu">list</span>(<span class="at">replicates=</span><span class="dv">2</span>))) </span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># and with OCBA</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>res3 <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x)<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x)),<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">40</span>,<span class="at">noise=</span><span class="cn">TRUE</span>,<span class="at">replicates=</span><span class="dv">2</span>,<span class="at">OCBA=</span><span class="cn">TRUE</span>,<span class="at">OCBABudget=</span><span class="dv">1</span>,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">designControl=</span><span class="fu">list</span>(<span class="at">replicates=</span><span class="dv">2</span>))) </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Check results with non-noisy function:</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="fu">funSphere</span>(res1<span class="sc">$</span>xbest)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           [,1]</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.9811919</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="fu">funSphere</span>(res2<span class="sc">$</span>xbest)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         [,1]</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 1.74417</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="fu">funSphere</span>(res3<span class="sc">$</span>xbest)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          [,1]</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 1.084404</span></span></code></pre></div>
 </div>
 <div id="random-number-seed-handling" class="section level3">
 <h3>Random number seed handling</h3>
 <p>The following is for demonstration only, to be used for random number seed handling in case of external noisy target functions.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>res1a <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x,seed){<span class="fu">set.seed</span>(seed);<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x))},</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>     <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">25</span>,<span class="at">noise=</span><span class="cn">TRUE</span>,<span class="at">seedFun=</span><span class="dv">1</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>res1b <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x,seed){<span class="fu">set.seed</span>(seed);<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x))},</span>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>res1a <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x,seed){<span class="fu">set.seed</span>(seed);<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x))},</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>     <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">25</span>,<span class="at">noise=</span><span class="cn">TRUE</span>,<span class="at">seedFun=</span><span class="dv">1</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>res2 <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x,seed){<span class="fu">set.seed</span>(seed);<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x))},</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>     <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">25</span>,<span class="at">noise=</span><span class="cn">TRUE</span>,<span class="at">seedFun=</span><span class="dv">2</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;Should be equal: %f = %f. Should be different:  %f&quot;</span>, res1a<span class="sc">$</span>ybest, res1b<span class="sc">$</span>ybest, res2<span class="sc">$</span>ybest)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Should be equal: -1.296329 = -1.296329. Should be different:  -0.889934&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>res1b <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x,seed){<span class="fu">set.seed</span>(seed);<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x))},</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>     <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">25</span>,<span class="at">noise=</span><span class="cn">TRUE</span>,<span class="at">seedFun=</span><span class="dv">1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>res2 <span class="ot">&lt;-</span> <span class="fu">spot</span>(,<span class="cf">function</span>(x,seed){<span class="fu">set.seed</span>(seed);<span class="fu">funSphere</span>(x)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="fu">nrow</span>(x))},</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>     <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),<span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">25</span>,<span class="at">noise=</span><span class="cn">TRUE</span>,<span class="at">seedFun=</span><span class="dv">2</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;Should be equal: %f = %f. Should be different:  %f&quot;</span>, res1a<span class="sc">$</span>ybest, res1b<span class="sc">$</span>ybest, res2<span class="sc">$</span>ybest)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Should be equal: -1.296329 = -1.296329. Should be different:  -0.889934&quot;</span></span></code></pre></div>
 </div>
 <div id="handling-factor-variables" class="section level3">
 <h3>Handling factor variables</h3>
 <p>Note: factors should be coded as integer values, i.e., 1,2,…,n First, we create a test function with a factor variable:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>braninFunctionFactor <span class="ot">&lt;-</span> <span class="cf">function</span> (x) {</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>   y <span class="ot">&lt;-</span> (x[<span class="dv">2</span>]  <span class="sc">-</span> <span class="fl">5.1</span><span class="sc">/</span>(<span class="dv">4</span> <span class="sc">*</span> pi<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> (x[<span class="dv">1</span>] <span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> <span class="dv">5</span><span class="sc">/</span>pi <span class="sc">*</span> x[<span class="dv">1</span>]  <span class="sc">-</span> <span class="dv">6</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>     <span class="dv">10</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="dv">8</span> <span class="sc">*</span> pi)) <span class="sc">*</span> <span class="fu">cos</span>(x[<span class="dv">1</span>] ) <span class="sc">+</span> <span class="dv">10</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>   <span class="cf">if</span>(x[<span class="dv">3</span>]<span class="sc">==</span><span class="dv">1</span>)</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>     y <span class="ot">&lt;-</span> y <span class="sc">+</span><span class="dv">1</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>   <span class="cf">else</span> <span class="cf">if</span>(x[<span class="dv">3</span>]<span class="sc">==</span><span class="dv">2</span>)</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>     y <span class="ot">&lt;-</span> y <span class="sc">-</span><span class="dv">1</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>   <span class="fu">return</span>(y)</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>braninFunctionFactor <span class="ot">&lt;-</span> <span class="cf">function</span> (x) {</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>   y <span class="ot">&lt;-</span> (x[<span class="dv">2</span>]  <span class="sc">-</span> <span class="fl">5.1</span><span class="sc">/</span>(<span class="dv">4</span> <span class="sc">*</span> pi<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> (x[<span class="dv">1</span>] <span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> <span class="dv">5</span><span class="sc">/</span>pi <span class="sc">*</span> x[<span class="dv">1</span>]  <span class="sc">-</span> <span class="dv">6</span>)<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>     <span class="dv">10</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span>(<span class="dv">8</span> <span class="sc">*</span> pi)) <span class="sc">*</span> <span class="fu">cos</span>(x[<span class="dv">1</span>] ) <span class="sc">+</span> <span class="dv">10</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>   <span class="cf">if</span>(x[<span class="dv">3</span>]<span class="sc">==</span><span class="dv">1</span>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>     y <span class="ot">&lt;-</span> y <span class="sc">+</span><span class="dv">1</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>   <span class="cf">else</span> <span class="cf">if</span>(x[<span class="dv">3</span>]<span class="sc">==</span><span class="dv">2</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>     y <span class="ot">&lt;-</span> y <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>   <span class="fu">return</span>(y)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Vectorize the test function.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>objFun <span class="ot">&lt;-</span> <span class="cf">function</span>(x){<span class="fu">apply</span>(x,<span class="dv">1</span>,braninFunctionFactor)}</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>objFun <span class="ot">&lt;-</span> <span class="cf">function</span>(x){<span class="fu">apply</span>(x,<span class="dv">1</span>,braninFunctionFactor)}</span></code></pre></div>
 <p>Run <code>spot</code>.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(<span class="at">fun=</span>objFun,<span class="at">lower=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">upper=</span><span class="fu">c</span>(<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">3</span>),</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildKriging,</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">types=</span> <span class="fu">c</span>(<span class="st">&quot;numeric&quot;</span>,<span class="st">&quot;numeric&quot;</span>,<span class="st">&quot;factor&quot;</span>),</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">optimizer=</span>optimLHD))</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a> res<span class="sc">$</span>xbest</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          [,1]     [,2] [,3]</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 2.619386 2.725642    2</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a> res<span class="sc">$</span>ybest</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           [,1]</span></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.6777176</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(<span class="at">fun=</span>objFun,<span class="at">lower=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">upper=</span><span class="fu">c</span>(<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">3</span>),</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildKriging,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">types=</span> <span class="fu">c</span>(<span class="st">&quot;numeric&quot;</span>,<span class="st">&quot;numeric&quot;</span>,<span class="st">&quot;factor&quot;</span>),</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">optimizer=</span>optimLHD))</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a> res<span class="sc">$</span>xbest</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          [,1]     [,2] [,3]</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 2.619386 2.725642    2</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a> res<span class="sc">$</span>ybest</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           [,1]</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.6777176</span></span></code></pre></div>
 </div>
 <div id="high-dimensional-problem" class="section level3">
 <h3>High dimensional problem</h3>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">10</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,n)</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>,n)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,n)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>,n)</span></code></pre></div>
 <p>First, we consider the default <code>spot</code> setting with <code>buildKriging()</code>.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>tic <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>res0 <span class="ot">&lt;-</span> <span class="fu">spot</span>(<span class="at">x=</span><span class="cn">NULL</span>, funSphere, <span class="at">lower =</span> a, <span class="at">upper =</span> b, </span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">30</span>))</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>toc <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;value: %f, time: %f&quot;</span>,  res0<span class="sc">$</span>ybest, toc<span class="sc">-</span>tic)</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 0.332121, time: 24.957000&quot;</span></span></code></pre></div>
-<p>Then, we use the <code>buildGaussianProcess()</code> model.</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>tic <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>res1 <span class="ot">&lt;-</span>  <span class="fu">spot</span>(<span class="at">x=</span><span class="cn">NULL</span>, funSphere, <span class="at">lower =</span> a, <span class="at">upper =</span> b, </span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">30</span>, </span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">model =</span> buildGaussianProcess))</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>toc <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;value: %f, time: %f&quot;</span>,  res1<span class="sc">$</span>ybest, toc<span class="sc">-</span>tic)</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 0.530886, time: 0.944000&quot;</span></span></code></pre></div>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>res0 <span class="ot">&lt;-</span> <span class="fu">spot</span>(<span class="at">x=</span><span class="cn">NULL</span>, funSphere, <span class="at">lower =</span> a, <span class="at">upper =</span> b, </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">30</span>))</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>toc <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;value: %f, time: %f&quot;</span>,  res0<span class="sc">$</span>ybest, toc<span class="sc">-</span>tic)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 0.332121, time: 10.705000&quot;</span></span></code></pre></div>
+<p>Then, we use the <code>buildGaussianProcess()</code> model.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>tic <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>res1 <span class="ot">&lt;-</span>  <span class="fu">spot</span>(<span class="at">x=</span><span class="cn">NULL</span>, funSphere, <span class="at">lower =</span> a, <span class="at">upper =</span> b, </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">30</span>, </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">model =</span> buildGaussianProcess))</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>toc <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;value: %f, time: %f&quot;</span>,  res1<span class="sc">$</span>ybest, toc<span class="sc">-</span>tic)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 0.530886, time: 0.668000&quot;</span></span></code></pre></div>
 </div>
 <div id="run-spot-with-logging" class="section level3">
 <h3>Run SPOT with logging</h3>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="do">## run spot without log</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(<span class="at">fun =</span> funSphere,</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">lower=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">upper=</span><span class="fu">c</span>(<span class="dv">100</span>,<span class="dv">100</span>)</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="do">## run spot with log</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>funSphereLog <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="fu">funSphere</span>(x),x)</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>res2 <span class="ot">&lt;-</span> <span class="fu">spot</span>(<span class="at">fun =</span> funSphereLog,</span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">lower=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">upper=</span><span class="fu">c</span>(<span class="dv">100</span>,<span class="dv">100</span>)</span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>logInfo</span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] NA</span></span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>res2<span class="sc">$</span>logInfo</span>
-<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            [,1]       [,2]</span></span>
-<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1,]  8.648076 81.4784571</span></span>
-<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [2,] 71.771945 66.5887761</span></span>
-<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [3,] 44.933187 41.8506996</span></span>
-<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [4,] 14.297134 39.5437814</span></span>
-<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [5,] 25.642638 58.9784849</span></span>
-<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [6,] 56.561623 79.4369705</span></span>
-<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7,] 69.785541 27.2369075</span></span>
-<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [8,] 92.321611 93.7035707</span></span>
-<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9,] 32.408116  7.8101754</span></span>
-<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [10,] 87.968361 10.1114951</span></span>
-<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [11,]  3.152969  3.1352284</span></span>
-<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [12,] 35.979045 83.1545726</span></span>
-<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [13,]  1.401563  0.3142767</span></span>
-<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [14,] 32.165836 18.4191631</span></span>
-<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [15,] 27.534938 83.0152530</span></span>
-<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [16,] 34.745003 77.4768640</span></span>
-<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [17,] 21.418092 95.5431781</span></span>
-<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [18,] 42.504694 61.7054862</span></span>
-<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [19,] 87.533618 15.9641532</span></span>
-<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [20,] 74.720086 84.2995194</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="do">## run spot without log</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(<span class="at">fun =</span> funSphere,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">lower=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">upper=</span><span class="fu">c</span>(<span class="dv">100</span>,<span class="dv">100</span>)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="do">## run spot with log</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>funSphereLog <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(<span class="fu">funSphere</span>(x),x)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>res2 <span class="ot">&lt;-</span> <span class="fu">spot</span>(<span class="at">fun =</span> funSphereLog,</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">lower=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">upper=</span><span class="fu">c</span>(<span class="dv">100</span>,<span class="dv">100</span>)</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>logInfo</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] NA</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>res2<span class="sc">$</span>logInfo</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            [,1]       [,2]</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1,]  8.648076 81.4784571</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [2,] 71.771945 66.5887761</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [3,] 44.933187 41.8506996</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [4,] 14.297134 39.5437814</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [5,] 25.642638 58.9784849</span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [6,] 56.561623 79.4369705</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7,] 69.785541 27.2369075</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [8,] 92.321611 93.7035707</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9,] 32.408116  7.8101754</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [10,] 87.968361 10.1114951</span></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [11,]  3.152969  3.1352284</span></span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [12,] 35.979045 83.1545726</span></span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [13,]  1.401563  0.3142767</span></span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [14,] 32.165836 18.4191631</span></span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [15,] 27.534938 83.0152530</span></span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [16,] 34.745003 77.4768640</span></span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [17,] 21.418092 95.5431781</span></span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [18,] 42.504694 61.7054862</span></span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [19,] 87.533618 15.9641532</span></span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [20,] 74.720086 84.2995194</span></span></code></pre></div>
 </div>
 </div>
 <div id="hybrid-optimization" class="section level2">
 <h2>Hybrid optimization</h2>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(<span class="at">fun =</span> funSphere, <span class="at">lower =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="sc">-</span><span class="dv">5</span>),</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">upper =</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">5</span>), </span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">control =</span> <span class="fu">list</span>(<span class="at">funEvals =</span> <span class="dv">20</span>,</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">directOpt =</span> optimNLOPTR,</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">directOptControl =</span> <span class="fu">list</span>(<span class="at">funEvals =</span> <span class="dv">10</span>)</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>                ))</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(res)</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 9</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ xbest   : num [1, 1:2] 0 0</span></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ ybest   : num 0</span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ x       : num [1:33, 1:2] -4.135 2.177 -0.507 -3.57 -2.436 ...</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ y       : num [1:33, 1] 27.009 7.492 0.921 13.84 6.739 ...</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ logInfo : logi NA</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ count   : int 20</span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ msg     : chr &quot;budget exhausted&quot;</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ modelFit:List of 33</span></span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ thetaLower      : num 1e-04</span></span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ thetaUpper      : num 100</span></span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ types           : chr [1:2] &quot;numeric&quot; &quot;numeric&quot;</span></span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ algTheta        :function (x = NULL, fun, lower, upper, control = list(), ...)  </span></span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ budgetAlgTheta  : num 200</span></span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ optimizeP       : logi FALSE</span></span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ useLambda       : logi TRUE</span></span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ lambdaLower     : num -6</span></span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ lambdaUpper     : num 0</span></span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ startTheta      : NULL</span></span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ reinterpolate   : logi TRUE</span></span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ target          : chr &quot;y&quot;</span></span>
-<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ modelInitialized: logi TRUE</span></span>
-<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ x               : num [1:19, 1:2] -4.135 2.177 -0.507 -3.57 -2.436 ...</span></span>
-<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ y               : num [1:19, 1] 27.009 7.492 0.921 13.84 6.739 ...</span></span>
-<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ normalizeymin   : num 0</span></span>
-<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ normalizeymax   : num 1</span></span>
-<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ scaledx         : num [1:19, 1:2] 0 0.7544 0.4337 0.0675 0.2031 ...</span></span>
-<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ normalizexmin   : num [1:2] -4.14 -4.22</span></span>
-<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ normalizexmax   : num [1:2] 4.23 4.55</span></span>
-<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ dmodeltheta     : num [1:2] 0.122 0.141</span></span>
-<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ Lambda          : num -5.96</span></span>
-<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ dmodellambda    : num 1.09e-06</span></span>
-<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ Theta           : num [1:2] -0.915 -0.852</span></span>
-<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ yonemu          : num [1:19, 1] -323 -342 -349 -336 -343 ...</span></span>
-<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ ssq             : num 14020</span></span>
-<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ mu              : num 350</span></span>
-<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ Psi             : num [1:19, 1:19] 1 0.929 0.95 0.968 0.986 ...</span></span>
-<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ Psinv           : num [1:19, 1:19] 77206 -36217 35306 -27605 -92449 ...</span></span>
-<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ nevals          : num 1200</span></span>
-<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ like            : num [1, 1] 1.96</span></span>
-<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ returnCrossCor  : logi FALSE</span></span>
-<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ min             : num 0.0988</span></span>
-<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..- attr(*, &quot;class&quot;)= chr &quot;kriging&quot;</span></span>
-<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ ybestVec: num [1:20] 0.921 0.921 0.921 0.921 0.921 ...</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(<span class="at">fun =</span> funSphere, <span class="at">lower =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>,<span class="sc">-</span><span class="dv">5</span>),</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">upper =</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">5</span>), </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">control =</span> <span class="fu">list</span>(<span class="at">funEvals =</span> <span class="dv">20</span>,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">directOpt =</span> optimNLOPTR,</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">directOptControl =</span> <span class="fu">list</span>(<span class="at">funEvals =</span> <span class="dv">10</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>                ))</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(res)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; List of 9</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ xbest   : num [1, 1:2] 0 0</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ ybest   : num 0</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ x       : num [1:33, 1:2] -4.135 2.177 -0.507 -3.57 -2.436 ...</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ y       : num [1:33, 1] 27.009 7.492 0.921 13.84 6.739 ...</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ logInfo : logi NA</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ count   : int 20</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ msg     : chr &quot;budget exhausted&quot;</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ modelFit:List of 33</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ thetaLower      : num 1e-04</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ thetaUpper      : num 100</span></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ types           : chr [1:2] &quot;numeric&quot; &quot;numeric&quot;</span></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ algTheta        :function (x = NULL, fun, lower, upper, control = list(), ...)  </span></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ budgetAlgTheta  : num 200</span></span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ optimizeP       : logi FALSE</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ useLambda       : logi TRUE</span></span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ lambdaLower     : num -6</span></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ lambdaUpper     : num 0</span></span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ startTheta      : NULL</span></span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ reinterpolate   : logi TRUE</span></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ target          : chr &quot;y&quot;</span></span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ modelInitialized: logi TRUE</span></span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ x               : num [1:19, 1:2] -4.135 2.177 -0.507 -3.57 -2.436 ...</span></span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ y               : num [1:19, 1] 27.009 7.492 0.921 13.84 6.739 ...</span></span>
+<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ normalizeymin   : num 0</span></span>
+<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ normalizeymax   : num 1</span></span>
+<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ scaledx         : num [1:19, 1:2] 0 0.7544 0.4337 0.0675 0.2031 ...</span></span>
+<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ normalizexmin   : num [1:2] -4.14 -4.22</span></span>
+<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ normalizexmax   : num [1:2] 4.23 4.55</span></span>
+<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ dmodeltheta     : num [1:2] 0.122 0.141</span></span>
+<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ Lambda          : num -5.96</span></span>
+<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ dmodellambda    : num 1.09e-06</span></span>
+<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ Theta           : num [1:2] -0.915 -0.852</span></span>
+<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ yonemu          : num [1:19, 1] -323 -342 -349 -336 -343 ...</span></span>
+<span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ ssq             : num 14020</span></span>
+<span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ mu              : num 350</span></span>
+<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ Psi             : num [1:19, 1:19] 1 0.929 0.95 0.968 0.986 ...</span></span>
+<span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ Psinv           : num [1:19, 1:19] 77206 -36217 35306 -27605 -92449 ...</span></span>
+<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ nevals          : num 1200</span></span>
+<span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ like            : num [1, 1] 1.96</span></span>
+<span id="cb27-48"><a href="#cb27-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ returnCrossCor  : logi FALSE</span></span>
+<span id="cb27-49"><a href="#cb27-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ min             : num 0.0988</span></span>
+<span id="cb27-50"><a href="#cb27-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..- attr(*, &quot;class&quot;)= chr &quot;kriging&quot;</span></span>
+<span id="cb27-51"><a href="#cb27-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  $ ybestVec: num [1:20] 0.921 0.921 0.921 0.921 0.921 ...</span></span></code></pre></div>
 </div>
 <div id="handling-constraints" class="section level2">
 <h2>Handling constraints</h2>
 <ul>
 <li>Definitions and constraints</li>
 </ul>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(babsim.hospital)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">29</span> </span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>reps <span class="ot">&lt;-</span> <span class="dv">2</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>funEvals <span class="ot">&lt;-</span> <span class="dv">3</span><span class="sc">*</span>n </span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>size <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span>n</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>x0 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">as.numeric</span>(babsim.hospital<span class="sc">::</span><span class="fu">getParaSet</span>(<span class="dv">5374</span>)[<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>]),<span class="dv">1</span>,)</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>bounds <span class="ot">&lt;-</span> <span class="fu">getBounds</span>()</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> bounds<span class="sc">$</span>lower</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> bounds<span class="sc">$</span>upper</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">rbind</span>(a[<span class="dv">1</span>] <span class="sc">-</span> x[<span class="dv">1</span>], x[<span class="dv">1</span>] <span class="sc">-</span> b[<span class="dv">1</span>], a[<span class="dv">2</span>] <span class="sc">-</span> x[<span class="dv">2</span>], x[<span class="dv">2</span>] <span class="sc">-</span> b[<span class="dv">2</span>], </span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">3</span>] <span class="sc">-</span> x[<span class="dv">3</span>], x[<span class="dv">3</span>] <span class="sc">-</span> b[<span class="dv">3</span>], a[<span class="dv">4</span>] <span class="sc">-</span> x[<span class="dv">4</span>], x[<span class="dv">4</span>] <span class="sc">-</span> b[<span class="dv">4</span>], </span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">5</span>] <span class="sc">-</span> x[<span class="dv">5</span>], x[<span class="dv">5</span>] <span class="sc">-</span> b[<span class="dv">5</span>], a[<span class="dv">6</span>] <span class="sc">-</span> x[<span class="dv">6</span>], x[<span class="dv">6</span>] <span class="sc">-</span> b[<span class="dv">6</span>], </span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">7</span>] <span class="sc">-</span> x[<span class="dv">7</span>], x[<span class="dv">7</span>] <span class="sc">-</span> b[<span class="dv">7</span>], a[<span class="dv">8</span>] <span class="sc">-</span> x[<span class="dv">8</span>], x[<span class="dv">8</span>] <span class="sc">-</span> b[<span class="dv">8</span>], </span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">9</span>] <span class="sc">-</span> x[<span class="dv">9</span>], x[<span class="dv">9</span>] <span class="sc">-</span> b[<span class="dv">9</span>], a[<span class="dv">10</span>] <span class="sc">-</span> x[<span class="dv">10</span>], x[<span class="dv">10</span>] <span class="sc">-</span> b[<span class="dv">10</span>],</span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">11</span>] <span class="sc">-</span> x[<span class="dv">11</span>], x[<span class="dv">11</span>] <span class="sc">-</span> b[<span class="dv">11</span>], a[<span class="dv">12</span>] <span class="sc">-</span> x[<span class="dv">12</span>],  x[<span class="dv">12</span>] <span class="sc">-</span> b[<span class="dv">12</span>],</span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">13</span>] <span class="sc">-</span> x[<span class="dv">13</span>], x[<span class="dv">13</span>] <span class="sc">-</span> b[<span class="dv">13</span>], a[<span class="dv">14</span>] <span class="sc">-</span> x[<span class="dv">14</span>],  x[<span class="dv">14</span>] <span class="sc">-</span> b[<span class="dv">14</span>],</span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">15</span>] <span class="sc">-</span> x[<span class="dv">15</span>], x[<span class="dv">15</span>] <span class="sc">-</span> b[<span class="dv">15</span>], a[<span class="dv">16</span>] <span class="sc">-</span> x[<span class="dv">16</span>],  x[<span class="dv">16</span>] <span class="sc">-</span> b[<span class="dv">16</span>],</span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">17</span>] <span class="sc">-</span> x[<span class="dv">17</span>], x[<span class="dv">17</span>] <span class="sc">-</span> b[<span class="dv">17</span>], a[<span class="dv">18</span>] <span class="sc">-</span> x[<span class="dv">18</span>],  x[<span class="dv">18</span>] <span class="sc">-</span> b[<span class="dv">18</span>],</span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">19</span>] <span class="sc">-</span> x[<span class="dv">19</span>], x[<span class="dv">19</span>] <span class="sc">-</span> b[<span class="dv">19</span>], a[<span class="dv">20</span>] <span class="sc">-</span> x[<span class="dv">20</span>],  x[<span class="dv">20</span>] <span class="sc">-</span> b[<span class="dv">20</span>],</span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">21</span>] <span class="sc">-</span> x[<span class="dv">21</span>], x[<span class="dv">21</span>] <span class="sc">-</span> b[<span class="dv">21</span>], a[<span class="dv">22</span>] <span class="sc">-</span> x[<span class="dv">22</span>],  x[<span class="dv">22</span>] <span class="sc">-</span> b[<span class="dv">22</span>],</span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">23</span>] <span class="sc">-</span> x[<span class="dv">23</span>], x[<span class="dv">23</span>] <span class="sc">-</span> b[<span class="dv">23</span>], a[<span class="dv">24</span>] <span class="sc">-</span> x[<span class="dv">24</span>],  x[<span class="dv">24</span>] <span class="sc">-</span> b[<span class="dv">24</span>],</span>
-<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">25</span>] <span class="sc">-</span> x[<span class="dv">25</span>], x[<span class="dv">25</span>] <span class="sc">-</span> b[<span class="dv">25</span>], a[<span class="dv">26</span>] <span class="sc">-</span> x[<span class="dv">26</span>],  x[<span class="dv">26</span>] <span class="sc">-</span> b[<span class="dv">26</span>],</span>
-<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">27</span>] <span class="sc">-</span> x[<span class="dv">27</span>], x[<span class="dv">27</span>] <span class="sc">-</span> b[<span class="dv">27</span>], x[<span class="dv">15</span>] <span class="sc">+</span> x[<span class="dv">16</span>] <span class="sc">-</span> <span class="dv">1</span>, </span>
-<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>                   x[<span class="dv">17</span>] <span class="sc">+</span> x[<span class="dv">18</span>] <span class="sc">+</span> x[<span class="dv">19</span>] <span class="sc">-</span> <span class="dv">1</span>, x[<span class="dv">20</span>] <span class="sc">+</span> x[<span class="dv">21</span>] <span class="sc">-</span> <span class="dv">1</span>, x[<span class="dv">23</span>] <span class="sc">+</span> x[<span class="dv">29</span>] <span class="sc">-</span> <span class="dv">1</span>)</span>
-<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> x0,</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fun =</span> funBaBSimHospital,</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> a,</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> b,</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbosity =</span> <span class="dv">0</span>,</span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> <span class="fu">list</span>(</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">funEvals =</span> <span class="dv">2</span> <span class="sc">*</span> funEvals,</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">noise =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">designControl =</span> <span class="fu">list</span>(<span class="co"># inequalityConstraint = g,</span></span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> size,</span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">retries =</span> <span class="dv">1000</span>),</span>
-<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">optimizer =</span> optimNLOPTR,</span>
-<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">optimizerControl =</span> <span class="fu">list</span>(</span>
-<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">opts =</span> <span class="fu">list</span>(<span class="at">algorithm =</span> <span class="st">&quot;NLOPT_GN_ISRES&quot;</span>),</span>
-<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">eval_g_ineq =</span> g</span>
-<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span>  buildKriging,</span>
-<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">plots =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">progress =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">directOpt =</span> optimNLOPTR,</span>
-<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">directOptControl =</span> <span class="fu">list</span>(<span class="at">funEvals =</span> <span class="dv">0</span>),</span>
-<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">eval_g_ineq =</span> g</span>
-<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(res)</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(babsim.hospital)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">29</span> </span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>reps <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>funEvals <span class="ot">&lt;-</span> <span class="dv">3</span><span class="sc">*</span>n </span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>size <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">*</span>n</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>x0 <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">as.numeric</span>(babsim.hospital<span class="sc">::</span><span class="fu">getParaSet</span>(<span class="dv">5374</span>)[<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>]),<span class="dv">1</span>,)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>bounds <span class="ot">&lt;-</span> <span class="fu">getBounds</span>()</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> bounds<span class="sc">$</span>lower</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> bounds<span class="sc">$</span>upper</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">rbind</span>(a[<span class="dv">1</span>] <span class="sc">-</span> x[<span class="dv">1</span>], x[<span class="dv">1</span>] <span class="sc">-</span> b[<span class="dv">1</span>], a[<span class="dv">2</span>] <span class="sc">-</span> x[<span class="dv">2</span>], x[<span class="dv">2</span>] <span class="sc">-</span> b[<span class="dv">2</span>], </span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">3</span>] <span class="sc">-</span> x[<span class="dv">3</span>], x[<span class="dv">3</span>] <span class="sc">-</span> b[<span class="dv">3</span>], a[<span class="dv">4</span>] <span class="sc">-</span> x[<span class="dv">4</span>], x[<span class="dv">4</span>] <span class="sc">-</span> b[<span class="dv">4</span>], </span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">5</span>] <span class="sc">-</span> x[<span class="dv">5</span>], x[<span class="dv">5</span>] <span class="sc">-</span> b[<span class="dv">5</span>], a[<span class="dv">6</span>] <span class="sc">-</span> x[<span class="dv">6</span>], x[<span class="dv">6</span>] <span class="sc">-</span> b[<span class="dv">6</span>], </span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">7</span>] <span class="sc">-</span> x[<span class="dv">7</span>], x[<span class="dv">7</span>] <span class="sc">-</span> b[<span class="dv">7</span>], a[<span class="dv">8</span>] <span class="sc">-</span> x[<span class="dv">8</span>], x[<span class="dv">8</span>] <span class="sc">-</span> b[<span class="dv">8</span>], </span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">9</span>] <span class="sc">-</span> x[<span class="dv">9</span>], x[<span class="dv">9</span>] <span class="sc">-</span> b[<span class="dv">9</span>], a[<span class="dv">10</span>] <span class="sc">-</span> x[<span class="dv">10</span>], x[<span class="dv">10</span>] <span class="sc">-</span> b[<span class="dv">10</span>],</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">11</span>] <span class="sc">-</span> x[<span class="dv">11</span>], x[<span class="dv">11</span>] <span class="sc">-</span> b[<span class="dv">11</span>], a[<span class="dv">12</span>] <span class="sc">-</span> x[<span class="dv">12</span>],  x[<span class="dv">12</span>] <span class="sc">-</span> b[<span class="dv">12</span>],</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">13</span>] <span class="sc">-</span> x[<span class="dv">13</span>], x[<span class="dv">13</span>] <span class="sc">-</span> b[<span class="dv">13</span>], a[<span class="dv">14</span>] <span class="sc">-</span> x[<span class="dv">14</span>],  x[<span class="dv">14</span>] <span class="sc">-</span> b[<span class="dv">14</span>],</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">15</span>] <span class="sc">-</span> x[<span class="dv">15</span>], x[<span class="dv">15</span>] <span class="sc">-</span> b[<span class="dv">15</span>], a[<span class="dv">16</span>] <span class="sc">-</span> x[<span class="dv">16</span>],  x[<span class="dv">16</span>] <span class="sc">-</span> b[<span class="dv">16</span>],</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">17</span>] <span class="sc">-</span> x[<span class="dv">17</span>], x[<span class="dv">17</span>] <span class="sc">-</span> b[<span class="dv">17</span>], a[<span class="dv">18</span>] <span class="sc">-</span> x[<span class="dv">18</span>],  x[<span class="dv">18</span>] <span class="sc">-</span> b[<span class="dv">18</span>],</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">19</span>] <span class="sc">-</span> x[<span class="dv">19</span>], x[<span class="dv">19</span>] <span class="sc">-</span> b[<span class="dv">19</span>], a[<span class="dv">20</span>] <span class="sc">-</span> x[<span class="dv">20</span>],  x[<span class="dv">20</span>] <span class="sc">-</span> b[<span class="dv">20</span>],</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">21</span>] <span class="sc">-</span> x[<span class="dv">21</span>], x[<span class="dv">21</span>] <span class="sc">-</span> b[<span class="dv">21</span>], a[<span class="dv">22</span>] <span class="sc">-</span> x[<span class="dv">22</span>],  x[<span class="dv">22</span>] <span class="sc">-</span> b[<span class="dv">22</span>],</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">23</span>] <span class="sc">-</span> x[<span class="dv">23</span>], x[<span class="dv">23</span>] <span class="sc">-</span> b[<span class="dv">23</span>], a[<span class="dv">24</span>] <span class="sc">-</span> x[<span class="dv">24</span>],  x[<span class="dv">24</span>] <span class="sc">-</span> b[<span class="dv">24</span>],</span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">25</span>] <span class="sc">-</span> x[<span class="dv">25</span>], x[<span class="dv">25</span>] <span class="sc">-</span> b[<span class="dv">25</span>], a[<span class="dv">26</span>] <span class="sc">-</span> x[<span class="dv">26</span>],  x[<span class="dv">26</span>] <span class="sc">-</span> b[<span class="dv">26</span>],</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>                   a[<span class="dv">27</span>] <span class="sc">-</span> x[<span class="dv">27</span>], x[<span class="dv">27</span>] <span class="sc">-</span> b[<span class="dv">27</span>], x[<span class="dv">15</span>] <span class="sc">+</span> x[<span class="dv">16</span>] <span class="sc">-</span> <span class="dv">1</span>, </span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>                   x[<span class="dv">17</span>] <span class="sc">+</span> x[<span class="dv">18</span>] <span class="sc">+</span> x[<span class="dv">19</span>] <span class="sc">-</span> <span class="dv">1</span>, x[<span class="dv">20</span>] <span class="sc">+</span> x[<span class="dv">21</span>] <span class="sc">-</span> <span class="dv">1</span>, x[<span class="dv">23</span>] <span class="sc">+</span> x[<span class="dv">29</span>] <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> x0,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fun =</span> funBaBSimHospital,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">lower =</span> a,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">upper =</span> b,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbosity =</span> <span class="dv">0</span>,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> <span class="fu">list</span>(</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">funEvals =</span> <span class="dv">2</span> <span class="sc">*</span> funEvals,</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">noise =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">designControl =</span> <span class="fu">list</span>(<span class="co"># inequalityConstraint = g,</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> size,</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">retries =</span> <span class="dv">1000</span>),</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">optimizer =</span> optimNLOPTR,</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">optimizerControl =</span> <span class="fu">list</span>(</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">opts =</span> <span class="fu">list</span>(<span class="at">algorithm =</span> <span class="st">&quot;NLOPT_GN_ISRES&quot;</span>),</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">eval_g_ineq =</span> g</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span>  buildKriging,</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">plots =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">progress =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">directOpt =</span> optimNLOPTR,</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">directOptControl =</span> <span class="fu">list</span>(<span class="at">funEvals =</span> <span class="dv">0</span>),</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">eval_g_ineq =</span> g</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(res)</span></code></pre></div>
 </div>
 
 

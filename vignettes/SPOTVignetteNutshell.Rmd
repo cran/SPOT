@@ -96,6 +96,15 @@ res <- spot(,funSphere,c(-2,-3),c(1,2),
 res$xbest
 ```
 
+### Bayesian Optimization
+
+```{r, spotBO}
+res <- spot(,funSphere,c(-2,-3),c(1,2),
+     control=list(model=buildBO)) #BO as surrogate
+res$xbest
+```
+
+
 
 ### LM and local optimizer (which for this simple example is perfect)
 ```{r, spotLMOPT}

@@ -31,30 +31,6 @@
 #'
 #' @return sa \code{list} with sensitivity information (effects) for subgroups.
 #'
-#' @examples
-#' \donttest{
-#' # babsim.hospital version must be greater equal 11.7:
-#' ver <-  unlist(packageVersion("babsim.hospital"))
-#' if( ver[1] >= 11 & ver[2] >= 7){
-#'   set.seed(1)
-#'   require(babsim.hospital)
-#'   require(sensitivity)
-#'   require(parallel)
-#'   bounds <- getBounds()
-#'   lower <- matrix(bounds$lower,1,)
-#'   upper <- matrix(bounds$upper,1,)
-#'   n <- length(lower)
-#'   fun <- funBaBSimHospital
-#'   sens <- sequentialBifurcation(fun,
-#'                       lower, upper,
-#'                       k=2, interaction = FALSE,
-#'                       verbosity = 0,
-#'                       nCores = 1)
-#'   ps <- print(sens)
-#'   colors <- RColorBrewer::brewer.pal(12, "Set3") 
-#'   barplot(ps$effect, names.arg=ps$group, col= colors)
-#'   }
-#' }
 #' @export
 sequentialBifurcation <- function(fun,
                                   lower,

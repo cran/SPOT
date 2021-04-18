@@ -17,7 +17,7 @@ initialInputCheck <- function(x=NULL,fun,
                               lower,upper,control=list(), inSpotLoop = F){
     checkTypesOfInput(x,lower,upper,control)
     checkInputDimensionsionalityCorrect(x,lower,upper)
-    checkLowerNotEqualsUpper(lower,upper)
+    # checkLowerNotEqualsUpper(lower,upper)
     checkLowerSmallerThanUpper(lower,upper)
     checkForNAs(x,lower,upper)
     

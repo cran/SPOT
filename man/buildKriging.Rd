@@ -19,7 +19,7 @@ buildKriging(x, y, control = list())
 \code{budgetAlgTheta} budget for the above mentioned algorithm, default is \code{200}. The value will be multiplied with the length of the model parameter vector to be optimized.\cr
 \code{optimizeP} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default is \code{FALSE}\cr
 \code{useLambda} whether or not to use the regularization constant lambda (nugget effect). Default is \code{TRUE}.\cr
-\code{lambdaLower} lower boundary for log10{lambda}, default is \code{-6}\cr 
+\code{lambdaLower} lower boundary for log10{lambda}, default is \code{-6}\cr
 \code{lambdaUpper} upper boundary for log10{lambda}, default is \code{0}\cr
 \code{startTheta} optional start value for theta optimization, default is \code{NULL}\cr
 \code{reinterpolate} whether (\code{TRUE},default) or not (\code{FALSE}) reinterpolation should be performed
@@ -57,7 +57,7 @@ To correct the uncertainty estimates in case of nugget, re-interpolation is also
 }
 \details{
 The model uses a Gaussian kernel: \code{k(x,z)=exp(-sum(theta_i * |x_i-z_i|^p_i))}. By default, \code{p_i = 2}.
-Note that if dimension \code{x_i} is a factor variable (see parameter \code{types}), Hamming distance will be used 
+Note that if dimension \code{x_i} is a factor variable (see parameter \code{types}), Hamming distance will be used
 instead of \code{|x_i-z_i|}.
 }
 \examples{
@@ -75,18 +75,18 @@ print(fit)
 predict(fit,cbind(1,2))
 ## True value at location
 funBranin(matrix(c(1,2), 1))
-## 
+##
 ## Next Example: Handling factor variables
-\donttest{ 
+\donttest{
 ## create a test function:
-braninFunctionFactor <- function (x) {  
-y <- (x[2]  - 5.1/(4 * pi^2) * (x[1] ^2) + 5/pi * x[1]  - 6)^2 + 
+braninFunctionFactor <- function (x) {
+y <- (x[2]  - 5.1/(4 * pi^2) * (x[1] ^2) + 5/pi * x[1]  - 6)^2 +
 		10 * (1 - 1/(8 * pi)) * cos(x[1] ) + 10
 if(x[3]==1)
 		y <- y +1
 else if(x[3]==2)
 		y <- y -1
-y  
+y
 }
 ## create training data
 set.seed(1)
@@ -95,7 +95,7 @@ y <- as.matrix(apply(x,1,braninFunctionFactor))
 ## fit the model (default: assume all variables are numeric)
 fitDefault <- buildKriging(x,y,control = list(algTheta=optimDE))
 ## fit the model (give information about the factor variable)
-fitFactor <- buildKriging(x,y,control = 
+fitFactor <- buildKriging(x,y,control =
 	list(algTheta=optimDE,types=c("numeric","numeric","factor")))
 ## create test data
 xtest <- cbind(runif(200)*15-5,runif(200)*15,sample(1:3,200,replace=TRUE))

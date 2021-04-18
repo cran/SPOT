@@ -17,7 +17,7 @@ normalizeMatrix(x, ymin, ymax)
 normalized design matrix
 }
 \description{
-Normalize design by using minimum and maximum of the design values for input space. 
+Normalize design by using minimum and maximum of the design values for input space.
 Supportive function for Kriging model, not to be used directly.
 }
 \seealso{

@@ -46,31 +46,6 @@ The model without interaction is
  This is a difference with Bettonvil et al. where the factors vary across [0,1] in the former case, while [-1,1] in the latter.
  Another difference with Bettonvil et al. is that in the current implementation, the groups are splitted right in the middle.
 }
-\examples{
-\donttest{
-# babsim.hospital version must be greater equal 11.7:
-ver <-  unlist(packageVersion("babsim.hospital"))
-if( ver[1] >= 11 & ver[2] >= 7){
-  set.seed(1)
-  require(babsim.hospital)
-  require(sensitivity)
-  require(parallel)
-  bounds <- getBounds()
-  lower <- matrix(bounds$lower,1,)
-  upper <- matrix(bounds$upper,1,)
-  n <- length(lower)
-  fun <- funBaBSimHospital
-  sens <- sequentialBifurcation(fun,
-                      lower, upper,
-                      k=2, interaction = FALSE,
-                      verbosity = 0,
-                      nCores = 1)
-  ps <- print(sens)
-  colors <- RColorBrewer::brewer.pal(12, "Set3") 
-  barplot(ps$effect, names.arg=ps$group, col= colors)
-  }
-}
-}
 \references{
 B. Bettonvil and J. P. C. Kleijnen, 1996, 
 Searching for important factors in simulation models with many factors: 

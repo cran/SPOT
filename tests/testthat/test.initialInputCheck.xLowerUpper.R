@@ -82,23 +82,23 @@ test_that("Check conditions with wrong input dimensions", {
     }
     
     #Test for error if lower and upper are same
-    expect_error({
-        spot(x = xCorrect, fun = funSphere, lower = c(5,5,5), upper = c(5,5,5))
-    }, regexp = "SPOT Configuration Error:")
-    expect_error({
-        spot(x = xCorrect, fun = funSphere, lower = c(1,8,2.6), upper = c(11,8,17.4))
-    }, regexp = "SPOT Configuration Error:")
-    expect_error({
-        spot(x = xCorrect, fun = funSphere, lower = c(12,1,2), upper = c(12,4,5))
-    }, regexp = "SPOT Configuration Error:")
+    # expect_error({
+    #     spot(x = xCorrect, fun = funSphere, lower = c(5,5,5), upper = c(5,5,5))
+    # }, regexp = "SPOT Configuration Error:")
+    # expect_error({
+    #     spot(x = xCorrect, fun = funSphere, lower = c(1,8,2.6), upper = c(11,8,17.4))
+    # }, regexp = "SPOT Configuration Error:")
+    # expect_error({
+    #     spot(x = xCorrect, fun = funSphere, lower = c(12,1,2), upper = c(12,4,5))
+    # }, regexp = "SPOT Configuration Error:")
     
     #Test for Error when NAs are present in bounds
-    expect_error({
-        spot(x = xCorrect, fun = funSphere, lower = c(5,NA,5), upper = c(5,5,5))
-    }, regexp = "SPOT Configuration Error:")
-    expect_error({
-        spot(x = xCorrect, fun = funSphere, lower = c(5,5,5), upper = c(NA,NA,NA))
-    }, regexp = "SPOT Configuration Error:")
+    # expect_error({
+    #     spot(x = xCorrect, fun = funSphere, lower = c(5,NA,5), upper = c(5,5,5))
+    # }, regexp = "SPOT Configuration Error:")
+    # expect_error({
+    #     spot(x = xCorrect, fun = funSphere, lower = c(5,5,5), upper = c(NA,NA,NA))
+    # }, regexp = "SPOT Configuration Error:")
     
     #Test for Error in strange cases with wrong inputs
     expect_error({

@@ -1,5 +1,23 @@
 # SPOT
 
+### 2.4.2 
+* CHANGES:
+    * sequentialBifurcation example removed, because 
+        * execution time might be too long or
+        * example fails, because of missing data
+        
+### 2.4.0
+* NEW:
+  * Bayesian Optimization Model: buildBO
+
+### 2.3.4
+* CHANGES:
+   * checks for most recent babsim.hospital version
+   
+### 2.3.2
+* CHANGES:
+   * spot() allows equal lower and upper bounds
+
 ### 2.3.0
 * CHANGES
    * Cleanup vignettes

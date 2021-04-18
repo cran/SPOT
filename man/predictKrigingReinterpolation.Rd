@@ -14,7 +14,7 @@ predictKrigingReinterpolation(object, newdata, ...)
 \item{...}{not used}
 }
 \value{
-list with predicted mean \code{y}, uncertainty \code{s} (optional) and expected improvement \code{ei} (optional). 
+list with predicted mean \code{y}, uncertainty \code{s} (optional) and expected improvement \code{ei} (optional).
 Whether \code{s} and \code{ei} are returned is specified by the vector of strings \code{object$target}, which then contains "s" and "ei.
 }
 \description{
@@ -30,7 +30,7 @@ Please note that this re-interpolation implementation will not necessarily yield
 ## Create design points
 x <- cbind(runif(20)*15-5,runif(20)*15)
 ## Compute observations at design points (for Branin function)
-y <- funBranin(x) 
+y <- funBranin(x)
 ## Create model
 fit <- buildKriging(x,y,control=list(reinterpolate=FALSE))
 fit$target <- c("y","s")
