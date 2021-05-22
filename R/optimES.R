@@ -131,7 +131,7 @@ optimES <- function(x=NULL
 #' @param tau0 number, default is \code{0.0}. tau0 is the general multiplier.
 #' @param tau number, learning parameter for self adaption, default is \code{1.0}. tau is the local multiplier for step sizes (for each dimension).
 #' @param rho number of parents involved in the procreation of an offspring (mixing number), default is \code{"bi"}
-#' @param sel number of selected individuals, default is \code{1}
+#' @param sel number of selected individuals, default is \code{-1}
 #' @param stratReco Recombination operator for strategy variables. \code{1}: none. \code{2}: dominant/discrete (default). \code{3}: intermediate. \code{4}: variation of intermediate recombination. 
 #' @param objReco Recombination operator for object variables. \code{1}: none. \code{2}: dominant/discrete (default). \code{3}: intermediate. \code{4}: variation of intermediate recombination. 
 #' @param maxGen number of generations, stopping criterion, default is \code{Inf}

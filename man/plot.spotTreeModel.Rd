@@ -9,9 +9,13 @@
 \arguments{
 \item{x}{tree model (settings and parameters) of class \code{spotTreeModel}.}
 
-\item{...}{parameters passed to rpart.plot plotting function}
+\item{...}{parameters passed to plot function}
 }
 \description{
-Plot model produced by \code{\link{buildTreeModel}}.
+Simple plot of the model produced by \code{\link{buildTreeModel}}.
+}
+\details{
+A nicer plot can be generated with the \code{plotnice()} function
+from the \code{SPOTMisc} package.
 }
 \keyword{internal}

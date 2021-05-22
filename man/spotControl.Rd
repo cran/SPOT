@@ -79,4 +79,3 @@ Control is a list of the settings:
   }            
 }
 }
-\keyword{internal}

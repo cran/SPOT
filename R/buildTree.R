@@ -126,15 +126,17 @@ print.spotTreeModel <- function(x,...){
 
 #' Plot rpart tree model
 #' 
-#' Plot model produced by \code{\link{buildTreeModel}}.
+#' Simple plot of the model produced by \code{\link{buildTreeModel}}.
+#' 
+#' A nicer plot can be generated with the \code{plotnice()} function
+#' from the \code{SPOTMisc} package.
 #'
 #' @param x tree model (settings and parameters) of class \code{spotTreeModel}.
-#' @param ... parameters passed to rpart.plot plotting function 
-#' @importFrom rpart.plot rpart.plot
+#' @param ... parameters passed to plot function 
 #' @export
 #' @keywords internal
 #' 
 plot.spotTreeModel <- function(x,...){
-  rpart.plot(x$fit)
+  plot(x$fit)
 }
 

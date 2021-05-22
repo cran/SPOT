@@ -52,7 +52,7 @@ spotAlgEs(
 
 \item{rho}{number of parents involved in the procreation of an offspring (mixing number), default is \code{"bi"}}
 
-\item{sel}{number of selected individuals, default is \code{1}}
+\item{sel}{number of selected individuals, default is \code{-1}}
 
 \item{stratReco}{Recombination operator for strategy variables. \code{1}: none. \code{2}: dominant/discrete (default). \code{3}: intermediate. \code{4}: variation of intermediate recombination.}
 

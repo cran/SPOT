@@ -1,5 +1,27 @@
 # SPOT
 
+### 2.5.0
+* CHANGES:
+   * Miscellaeneuos functions and related R scripts moved to the new package SPOTMisc:
+     * funExternal.R
+     * funMarkovChain.R
+     * mlrTools.R
+     * modelMarkovChain.F
+     * subgoups() from spotTools.R
+
+### 2.4.8
+* CHANGES
+  * mlrTools:  package=TRUE -> package = "mlr"
+
+
+### 2.4.6.
+* NEW:
+   * mlrTools.R (experimental)
+
+### 2.4.4
+* CHANGES:
+  * Minor corrections in the documentation
+  
 ### 2.4.2 
 * CHANGES:
     * sequentialBifurcation example removed, because 

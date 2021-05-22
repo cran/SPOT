@@ -357,14 +357,15 @@ krigingLikelihood <-
            optimizeP = FALSE,
            useLambda = TRUE,
            penval = 1e8) {
-    ## todo: this penalty value should not be a hard constant.
+    ## note: this penalty value should not be a hard constant.
     ## the scale of the likelihood (n*log(SigmaSqr) + LnDetPsi)
     ## at least depends on log(var) and the number of samples
     ## hence, large number of samples may lead to cases where the
     ## penality is lower than the likelihood of most valid parameterizations
-    ## suggested solution (still requires testing):
+    ## suggested penalty:
     #penval <- n*log(var(y)) + 1e4
-    
+    ## currently, this better penalty is set in the buildKriging function, 
+    ## when calling krigingLikelihood
     
     nx <- nrow(AX)
     theta <- 10 ^ x[1:nx]

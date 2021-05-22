@@ -306,7 +306,6 @@ spotFillControlList <- function(controlList, dimension) {
 #'
 #' @return a list
 #' @export
-#' @keywords internal
 spotControl <- function(dimension) {
   list(
     funEvals = 20,
