@@ -1,5 +1,37 @@
 # SPOT
 
+### 2.5.8
+* BUGFIX
+  * Fixes a bug that prevents passing additional arguments to the objective function, 
+    i.e.: objectiveFunctionEvaluation handles ... also for `ynew <- rbind(ynew,fun(xnew[i,,drop=FALSE],...))` 
+  * NEW
+     * funShiftedSphere: f = sum (x-a)^2 (can be used for testing the bug from above, i.e., 
+       parameters are passed correctly to the objective function)
+
+### 2.5.6
+* CHANGES:
+  * SPOTVignette Nutshell contains example code for the GECCO Industrial Challenge
+
+### 2.5.4
+* CHANGES:
+  * Additional test functions
+     * funRoth
+     * funPowellBs
+     * funBrownBs
+     * funBeale
+     * funJennSamp
+     * funHelical
+     * funBard
+     * funGauss
+     * funMeyer
+     * funGulf
+     * funBox3d
+     * fun PowellS
+
+### 2.5.2
+* CHANGES:
+  * Documentation (package.R)
+
 ### 2.5.0
 * CHANGES:
    * Miscellaeneuos functions and related R scripts moved to the new package SPOTMisc:

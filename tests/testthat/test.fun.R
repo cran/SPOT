@@ -13,6 +13,13 @@ test_that("check test functions are evaluated without errors", {
     x <- matrix(rep(1, n),1,)
     y <- as.double( funSphere(x))
     expect_equal( y , n)
+    
+    ##  fun shifted sphere should have min at x=-a, i.e., f(-a) = 0
+    a = 1.23
+    x <- matrix(rep(a, n),1,)
+    y <- as.double( funShiftedSphere(x, a))
+    expect_equal( y , 0)
+    
     ##
     ## Rosenbrock function: optimum at (1,1) with fmin = 0
     x <- matrix(rep(1, 2),1,)

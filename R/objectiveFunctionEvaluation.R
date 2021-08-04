@@ -61,7 +61,7 @@ objectiveFunctionEvaluation <- function(x=NULL,
 			ynew <- NULL
 			for(i in 1:nrow(xnew)){
 				set.seed(seed[i])
-				ynew <- rbind(ynew,fun(xnew[i,,drop=FALSE])) 
+				ynew <- rbind(ynew,fun(xnew[i,,drop=FALSE],...)) 
 			}
 		}
 	}else{

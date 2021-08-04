@@ -30,7 +30,10 @@ duplicateAndReplicateHandling <- function(xnew,x,lower,upper,control){
 			if(!any(apply(x,1,identical,xnew[i,]))){ #TODO this may conflict with parameter names... does x, xnew, xtmp  etc have parameter names?
 					xtmp <- rbind(xtmp, xnew[rep(i,control$replicates-1),] )  #TODO this does not deal with duplicates in xnew itself. 
 				}              
-		}
+    }
+        if(!is.null(xtmp)){
+            xtmp <- matrix(xtmp, ncol = ncol(x))
+        }
 		xnew <- rbind(xnew,xtmp)
 	}else{
 		## check for duplicates in case of noise==FALSE --> warning + return results or warning + replace with random solution

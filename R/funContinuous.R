@@ -54,7 +54,7 @@ funRosen2 <- function (x) {
 #' @return 1-column matrix with resulting function values
 #'
 #' @references
-#' More', J. J., Garbow, B. S., & Hillstrom, K. E. (1981).
+#' More, J. J., Garbow, B. S., and  Hillstrom, K. E. (1981).
 #' Testing unconstrained optimization software.
 #' \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
 #' \doi{10.1145/355934.355936}
@@ -87,6 +87,8 @@ funRosen <- function (x) {
 #' Sphere Test Function
 #'
 #' @param x matrix of points to evaluate with the function. Rows for points and columns for dimension.
+#' 
+#' @seealso \code{\link{funShiftedSphere}}
 #'
 #' @return 1-column matrix with resulting function values
 #'
@@ -102,6 +104,36 @@ funSphere <- function (x) {
                function(x) {
                  sum(x ^ 2)  # objective function
                }),
+         , 1) # number of columns
+}
+
+#' @title funShiftedSphere
+#'
+#' @description  Shifted Sphere Test Function with optimum at x_opt = a and f(x_opt) = 0
+#' 
+#' @seealso \code{\link{funSphere}}
+#'
+#' @param x matrix of points to evaluate with the function. Rows for points and columns for dimension.
+#' 
+#' @param a offset added, i.e., f = sum (x-a)^2
+#'
+#' @return 1-column matrix with resulting function values
+#'
+#' @examples
+#' x1 <- matrix(c(-pi, 12.275),1,)
+#' a <- 1
+#' funShiftedSphere(x1, a)
+#'
+#' @export
+#'
+funShiftedSphere <- function (x, a) {
+  f <- function(x, a) {
+      sum((x-a) ^ 2)  # objective function
+  }
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+              f,
+              a),
          , 1) # number of columns
 }
 
@@ -279,5 +311,652 @@ funIshigami <- function(x,
          , 1) # number of columns
 }
 
+#' funFreundRoth
+#'
+#' Freundenstein and Roth Test Function 
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' More, J. J., Garbow, B. S., and  Hillstrom, K. E. (1981).
+#' Testing unconstrained optimization software.
+#' \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
+#' \doi{10.1145/355934.355936}
+#'
+#' B. Freudstein, F., and Roth, B. (Oct. 1963).
+#' Numerical solutions of systems of nonlinear equations.
+#' \emph{The ACM Journal}, \emph{3}(3), 550-556.
+#' \url{https://dl.acm.org/doi/10.1145/321186.321200}
+#'
+#' @examples
+#' x1 <- matrix(c(1,1),1,)
+#' funFreudRoth(x1)
+#' 
+#' # Running SPOT with 20 function evaluations with default configurations
+#' res <- spot(,funFreudRoth,c(0,0),c(10,10),control=list(funEvals=20))
+#' plotModel(res$model)
+#'
+#' @export
+#' 
+funFreudRoth <- function (x) {
+  freudRoth <- function(par) {
+    x <- par[1]
+    y <- par[2]
+    
+    f1 <- -13 + x + ((5 - y) * y - 2) * y
+    f2 <- -29 + x + ((y + 1) * y - 14) * y
+    
+    return(f1 * f1 + f2 * f2)
+  }
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               freudRoth),
+         , 1) # number of columns
+}
+
+#' funPowellBs
+#'
+#' Powell Badly Scaled Test Function
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' More, J. J., Garbow, B. S., and  Hillstrom, K. E. (1981).
+#' Testing unconstrained optimization software.
+#' \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
+#' \doi{10.1145/355934.355936}
+#'
+#' Powell, M.J.D. (1970).
+#' A hybrid method for nonlinear equations.
+#' In Numerical methods for Nonlinear Algebraic Equations,
+#' P. Rabinowitz (Ed), 
+#' \emph{Gordon & Breach, New York.}, \emph{3}(3), 87-114.
+#'
+#' @examples
+#' x1 <- matrix(c(-1,1),1,)
+#' funPowellBs(x1)
+#' 
+#' # Running SPOT with 20 function evaluations with default configurations
+#' res <- spot(,fun=funPowellBs,c(-10,-10),c(10,10),control=list(funEvals=20))
+#' plotModel(res$model, points = rbind(c(res$xbest[1], res$xbest[2]),c(1.098e-5,9.106)))
+#' 
+#' @export
+#' 
+
+funPowellBs <- function (x) {
+  powellBs <- function(par) {
+    x <- par[1]
+    y <- par[2]
+    
+    f1 <- 1e4 * x * y - 1
+    f2 <- exp(-x) + exp(-y) - 1.0001
+    
+    return(f1 * f1 + f2 * f2)
+  }
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               powellBs),
+         , 1) # number of columns
+}
+
+#' funbrownBs
+#'
+#' Brown badly scaled Test Function
+#' 
+#' @details 
+#' n=2, m=3
+#' x0 = (1,1)
+#' f=0 at (1e6, 2e-6)
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' More, J. J., Garbow, B. S., and  Hillstrom, K. E. (1981).
+#' Testing unconstrained optimization software.
+#' \url{https://www.osti.gov/servlets/purl/6650344}
+#' 
+#' 
+#' @examples
+#' x1 <- matrix(c(1,1),1,)
+#' funBrownBs(x1)
+#' 
+#' res <- spot(,fun=funBrownBs,c(-10,-10),c(10,10),control=list(funEvals=20))
+#' plotModel(res$model, points = rbind(c(res$xbest[1], res$xbest[2]),c(1.098e-5,9.106)))
+#'
+#' @export
+#' 
+funBrownBs <- function (x) {
+  brownBs <- function(par) {
+    x <- par[1]
+    y <- par[2]
+    f1 <- x - 1e6
+    f2 <- y - 2e-6
+    f3 <- x * y - 2
+    
+    return(f1 * f1 + f2 * f2 + f3 * f3)
+  }
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               brownBs),
+         , 1) # number of columns
+}
+
+#' funBeale
+#'
+#' Beale Test Function
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' Beale, E.M.L. On an interactive method of finding a local minimum of a function of more than
+#' one variable. Tech. Rep. No. 25, Statistical Techniques Research Group, Princeton Univ., 
+#' Princeton, N.J., 1958.
+#'
+#' Rosenbrock, H. (1960).
+#' An automatic method for finding the greatest or least value of a function.
+#' \emph{The Computer Journal}, \emph{3}(3), 175-184.
+#' \doi{10.1093/comjnl/3.3.175}
+#'
+#' @examples
+#' x1 <- matrix(c(1,1),1,)
+#' funBeale(x1)
+#' 
+#' res <- spot(,funBeale,c(1,-1),c(5,2),control=list(funEvals=15))
+#' plotModel(res$model)
+#'
+#' @export
+#' 
+funBeale <- function (x) {
+  beale <- function(par) {
+    x <- par[1]
+    y <- par[2]
+    yy <- y * y
+    yyy <- yy * y
+    
+    f1 <- 1.5 - x * (1 - y)
+    f2 <- 2.25 - x * (1 - yy)
+    f3 <- 2.625 - x * (1 - yyy)
+    
+    return(f1 * f1 + f2 * f2 + f3 * f3)
+  }
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               beale),
+         , 1) # number of columns
+}
+
+#' funjennSamp
+#'
+#' Jennrich and Sampson Function Test Function
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' More, J. J., Garbow, B. S., & Hillstrom, K. E. (1981).
+#' Testing unconstrained optimization software.
+#' \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
+#' \doi{10.1145/355934.355936}
+#'
+#' Jennrich, R.I., and Sampson (1968).
+#' Application of stepwise regression to nonlinear estimation.
+#' \emph{Technometrics}, \emph{3}(3), 63-72.
+#' \url{https://www.tandfonline.com/doi/abs/10.1080/00401706.1968.10490535}
+#'
+#' @examples
+#' x1 <- matrix(c(1,1),1,)
+#' funJennSamp(x1)
+#' 
+#' res <- spot(,funJennSamp,c(0,0),c(0.3,0.3))
+#' plotModel(res$model)
+#'
+#' @export
+#' 
+funJennSamp <- function (x) {
+  jennSamp <- function(par, ...) {
+    if(!exists("m")){
+      m = 10}
+    if (m < 2) {
+      stop("Jennrich-Sampson: m must be >= 2")
+    }
+    x <- par[1]
+    y <- par[2]
+    
+    fsum <- 0
+    for (i in 1:m) {
+      fi <- 2 + 2 * i - (exp(i * x) + exp(i * y))
+      fsum <- fsum + fi * fi
+    }
+    fsum
+  }
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               jennSamp),
+         , 1) # number of columns
+}
 
 
+#' funHelical
+#'
+#' Helical Test Function
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' More', J. J., Garbow, B. S., and  Hillstrom, K. E. (1981).
+#' Testing unconstrained optimization software.
+#' \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
+#' \doi{10.1145/355934.355936}
+#'
+#' Fletcher, R., and  Powell, M. J. (1963). 
+#' A rapidly convergent descent method for minimization. 
+#' \emph{The Computer Journal}, \emph{6}(2), 163-168. 
+#' \doi{10.1093/comjnl/6.2.163}
+#'
+#' @examples
+#' x1 <- matrix(c(1,1),1,)
+#' funHelical(x1) 
+#' res <- spot(,funHelical,c(-40,-40,-40),c(40,40,40),control=list(funEvals=20))
+#' plotModel(res$model,which=c(1,2),type="persp",border="NA")
+#' plotModel(res$model,which=c(2,3),type="persp",border="NA")
+#' plotModel(res$model,which=c(1,3),type="persp",border="NA")
+#' plotModel(res$model, which=c(1,2))
+#' plotModel(res$model, which=c(1,3))
+#' plotModel(res$model, which=c(2,3))
+#'
+#' @export
+#' 
+
+funHelical <- function(x) {
+  helical <- function(par) {
+    one_div_2pi <- 0.5 / pi
+    
+    theta <- function(x1, x2) {
+      res <- one_div_2pi * atan(x2 / x1)
+      if (x1 < 0) {
+        res <- res + 0.5
+      }
+      res
+    }
+    x <- par[1]
+    y <- par[2]
+    z <- par[3]
+    f1 <- 10 * (z - 10 * theta(x, y))
+    f2 <- 10 * (sqrt(x * x + y * y) - 1)
+    f3 <- z
+    f1 * f1 + f2 * f2 + f3 * f3
+  }  
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               helical),
+         , 1) # number of columns
+}
+
+#' funBard
+#'
+#' The Bard Test Function
+#' 
+#' x0 = (1,1,1)
+#' f = 8.21487...1e-3
+#' f = 17.4286... at (0.8406..., -infty, -infty)
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' More, J. J., Garbow, B. S., and  Hillstrom, K. E. (1981).
+#' Testing unconstrained optimization software.
+#' \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
+#' \doi{10.1145/355934.355936}
+#' 
+#' BARD, Y. Comparison of gradient methods for the solution of nonlinear parameter estimation 
+#' problems SIAM J. Numer. Anal. 7 (1970), 157-186.
+#'
+#'
+#' @examples
+#' x1 <- matrix(c(1,1),1,)
+#' funBard(x1)
+#'
+#' @export
+#' 
+funBard <- function (x) {
+  bard <- function(par) {
+    y <- c(0.14, 0.18, 0.22, 0.25, 0.29, 0.32, 0.35, 0.39, 0.37, 0.58,
+           0.73, 0.96, 1.34, 2.10, 4.39)
+    m <- 15
+    x1 <- par[1]
+    x2 <- par[2]
+    x3 <- par[3]
+    
+    fsum <- 0
+    for (u in 1:m) {
+      v <- 16 - u
+      w <- min(u, v)
+      f <- y[u] - (x1 + u / (v * x2 + w * x3))
+      fsum <- fsum + f * f
+    }
+    return(fsum)
+  }
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               bard),
+         , 1) # number of columns
+}
+
+#' funGauss
+#'
+#' Gaussian Test Function
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' Unpublished
+#'
+#' @examples
+#' x1 <- matrix(c(1,1,1),1,)
+#' funGauss(x1)
+#'
+#' res1 <- spot(,funGauss, 
+#'   c(-0.001,-0.007,-0.003),
+#'   c(0.5,1.0,1.1),
+#'   control=list(funEvals=15))
+#'   plotModel(res1$model, which = 1:2)
+#'
+#' @export
+#' 
+funGauss <- function (x) {
+  gauss <- function(par) {
+    y <- c(0.0009, 0.0044, 0.0175, 0.0540, 0.1295, 0.2420, 0.3521, 0.3989,
+           0.3521, 0.2420, 0.1295, 0.0540, 0.0175, 0.0044, 0.0009)
+    m <- 15
+    x1 <- par[1]
+    x2 <- par[2]
+    x3 <- par[3]
+    
+    fsum <- 0
+    for (i in 1:m) {
+      ti <- (8 - i) * 0.5
+      f <- x1 * exp(-0.5 * x2 * (ti - x3) ^ 2) - y[i]
+      fsum <- fsum + f * f
+    }
+    return(fsum)
+  }
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               gauss),
+         , 1) # number of columns
+}
+
+
+#' funMeyer
+#'
+#' Meyer Test Function
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' More, J. J., Garbow, B. S., and Hillstrom, K. E. (1981).
+#' Testing unconstrained optimization software.
+#' \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
+#' \doi{10.1145/355934.355936}
+#'
+#'
+#' @examples
+#' x1 <- matrix(c(1,1,1),1,)
+#' funMeyer(x1)
+#' 
+#' set.seed(13)
+#' resMeyer <- spot(matrix(c(0.02,4000,250),1,3),
+#'   funMeyer,c(0,1000,200),c(3,8000,500),
+#'   control= list(funEvals=15))
+#' resMeyer$xbest
+#' resMeyer$ybest
+#' print("Model with parameters")
+#' plotModel(resMeyer$model)
+#' plotModel(resMeyer$model,which=2:3)
+#'
+#' @export
+#' 
+funMeyer <- function (x) {
+  
+  meyer <- function(par) {
+    
+    y <- c(34780, 28610, 23650, 19630, 16370, 13720, 11540, 9744, 8261, 7030,
+           6005, 5147, 4427, 3820, 3307, 2872)
+    m <- 16
+    x1 <- par[1]
+    x2 <- par[2]
+    x3 <- par[3]
+    ti <- 45 + 5 * (1:m)
+    fi <- x1 * exp(x2 / (ti + x3)) - y
+    
+    return(sum(fi * fi))
+    
+  }  
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               meyer),
+         , 1) # number of columns
+}
+
+#' funGulf
+#'
+#' Gulf research and development Test Function
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @param ... additional parameters. 
+#' The Gulf function supports an additional parameter m in the range from 3 to 100
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' More, J. J., Garbow, B. S., and  Hillstrom, K. E. (1981).
+#' Testing unconstrained optimization software.
+#' \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
+#' \doi{10.1145/355934.355936}
+#'
+#' @examples
+#' x1 <- matrix(c(50,25,1.5),1,)
+#' funGulf(x1)
+#'
+#' funGulf(x1,m=50)
+#' 
+#' resGulf <- spot(,funGulf,c(0,0,0),c(100,50,5))
+#' resGulf$xbest
+#' resGulf$ybest
+#' plotModel(resGulf$model, which=1:2)
+#' plotModel(resGulf$model, which=2:3)
+#' 
+#' # x0 is an optional start point (or set of start points), specified as a matrix.
+#' # One row for each point, and one column for each optimized parameter.
+#' x0 = matrix(c(5,2.5,0.15),1,3)
+#' resGulf <- spot(x0,funGulf,c(0,0,0),c(100,50,5))
+#' resGulf$xbest
+#' resGulf$ybest
+#'
+#' @export
+#' 
+funGulf <- function (x,...) { 
+  gulf <- function(par,...) {      
+    # convert ellipsis to list
+    args <- list(...)
+    # check m parameter in ellipsis
+    if ('m' %in% names(args)) m = args$m
+    else m=99
+    
+    #         if(!exists("m")){ m = 99} # Unnecessary, same functionality in the ellipsis handler
+    
+    ## m can be between 3 and 100
+    if (m < 3 || m > 100) {
+      stop("Gulf research and development function: m must be between 3 and 100")
+    }
+    
+    #It looks like a copy paste from the previous function.
+    #       y <- c(34780, 28610, 23650, 19630, 16370, 13720, 11540, 9744, 8261, 7030,
+    #              6005, 5147, 4427, 3820, 3307, 2872) 
+    p66 <- 2 / 3
+    
+    x1 <- par[1]
+    x2 <- par[2]
+    x3 <- par[3]
+    
+    ti <- 1:m * 0.01
+    y <- 25 + (-50 * log(ti)) ^ p66
+    fi <- exp(-(abs(x2 - y) ^ x3) / x1) - ti
+    return( sum(fi * fi))
+  }       
+  
+  
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               gulf,...),
+         , 1) # number of columns
+}
+
+#' funbox3D
+#'
+#' Box three - dimensional Test Function
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' More, J. J., Garbow, B. S., and  Hillstrom, K. E. (1981).
+#' Testing unconstrained optimization software.
+#' \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
+#' \doi{10.1145/355934.355936}
+#'
+#' Box three - dimensional, (1966).
+#' A comparison of several current optimization methods, and the use of transformations
+#'  in constrained problems. 
+#' \emph{The Computer Journal}, \emph{3}(3), 66-77.
+#' \url{https://academic.oup.com/comjnl/article/9/1/67/348150}
+#' 
+#'  @examples
+#' x <- matrix(c(1,10,1),1,)
+#' funBox3d(x)
+#' 
+#' res <- spot(,funBox3d,c(5,15,-5),c(15,5,5),control=list(funEvals=20))
+#' # plotting the graphs
+#' plotModel(res$model,which=1:2)
+#' plotModel(res$model,which=2:3)
+#' plotModel(res$model,which=c(1,3))
+#'
+#' @export
+#' 
+funBox3d <- function (x) {
+  box3d <- function(par, ...) {
+    if(!exists("m")){
+      m = 20}
+    if (m < 3) {
+      stop("box3d: m must be >= 3")
+    }
+    
+    x1 <- par[1]
+    x2 <- par[2]
+    x3 <- par[3]
+    
+    fsum <- 0
+    for (i in 1:m) {
+      ti <- 0.1 * i
+      fi <- exp(-ti * x1) - exp(-ti * x2) - x3 * (exp(-ti) - exp(-i))
+      fsum <- fsum + fi * fi
+    }
+    return(fsum)
+  }
+  
+  matrix(apply(x, # matrix
+               1, # margin (apply over rows)
+               box3d),
+         , 1) # number of columns
+}
+
+
+#' funpowellS
+#'
+#' Powells Test Function
+#'
+#' @param x matrix of points to evaluate with the function. 
+#' Rows for points and columns for dimension.
+#'
+#' @return 1-column matrix with resulting function values
+#' 
+#' @references
+#' More, J. J., Garbow, B. S., and  Hillstrom, K. E. (1981).
+#' Testing unconstrained optimization software.
+#' Trond Steihaug and Sara Suleiman
+#' Global convergence and the Powell singular function
+#' \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
+#' \doi{10.1145/355934.355936}
+#' \url{http://owos.gm.fh-koeln.de:8055/bartz/optimization-ait-master-2020/blob/master/Jupyter.d/Exercise-VIIa.ipynb}
+#' \url{http://bab10.bartzandbartz.de:8033/bartzbeielstein/bab-optimization-ait-master-2020/-/blob/master/Jupyter.d/01spotNutshell.ipynb}
+#' \url{https://www.mat.univie.ac.at/~neum/glopt/bounds.html}
+#' 
+#'
+#' Powells Test function, M. J. D. Powell, 1962
+#' An automatic method for finding the local minimum of a function.
+#' \emph{The Computer Journal}, \emph{3}(3), 175-184.
+#' \url{https://www.sfu.ca/~ssurjano/powell.html}
+#'
+#' @examples
+#' x1 <- matrix(c(0,0,0,0),1,)
+#' funPowellS(x1)
+#' x2 <- matrix(c(3,-1,0,1),1,) 
+#' funPowellS(x2)
+#' x3 <- matrix(c(0,0,0,-2),1,)
+#' funPowellS(x3)
+#' # optimization run with SPOT and 15 evaluations
+#' res_fun <- spot(,funPowellS,c(-4,-4,-4,-4 ),c(5,5,5,5),control=list(funEvals=15)) 
+#' res_fun
+#'
+#' @export
+#' 
+funPowellS <- function(x){
+  powellS <- function(par) {
+    x1 <- par[1]
+    x2 <- par[2]
+    x3 <- par[3]
+    x4 <- par[4]
+    
+    x14 <- x1 - x4
+    x14s <- x14 * x14
+    f1 <- x1 + 10 * x2
+    f2s <- 5 * (x3 - x4) ^ 2
+    f3 <- (x2 - 2 * x3) ^ 2
+    f4s <- 10 * x14s * x14s
+    return(f1 * f1 + f2s + f3 * f3 + f4s)
+  }
+  matrix(apply(x, # matrix
+               1, # margin apply over rows
+               powellS),
+         ,1) # number of columns
+}

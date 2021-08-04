@@ -235,3 +235,151 @@ str(res)
 #  )
 #  print(res)
 
+## ---- eval=FALSE--------------------------------------------------------------
+#  # docker run --rm mrebolle/r-geccoc:Track1 -c 'Rscript objfun.R "6,7,3,3,3,5,3,3,25,17,2,1,0.25,0.05,0.07,0.005,0.07,1e-04,0.08,0.25,0.08,0.5,1e-06,2,1e-06,1e-06,1,2,0.5"'
+
+## ---- eval =FALSE-------------------------------------------------------------
+#  library(SPOT)
+#  # docker run --rm mrebolle/r-geccoc:Track1 -c 'Rscript objfun.R "6,7,3,3,3,5,3,3,25,17,2,1,0.25,0.05,0.07,0.005,0.07,1e-04,0.08,0.25,0.08,0.5,1e-06,2,1e-06,1e-06,1,2,0.5"'
+#  evalFun <- function(candidateSolution){
+#      evalCommand <- paste0("docker run --rm mrebolle/r-geccoc:Track1 -c ", "'","Rscript objfun.R ")
+#      parsedCandidate <- paste(candidateSolution, sep=",", collapse = ",")
+#      return(as.numeric(system(paste0(evalCommand, '"', parsedCandidate, '"', "'"), intern = TRUE)))
+#  }
+#  
+#  lower <- c(6,7,3,3,3,5,3,3,25,17,2,1,0.25,0.05,0.07,
+#             0.005,0.07,1e-04,0.08,0.25,0.08,0.5,1e-06,
+#             2,1e-06,1e-06,1,2,0.5)
+#  
+#  # testing: evalFun(lower)
+#  
+#  upper<- c(14,13,7,9,7,9,5,7,35,25,5,7,2,0.15,0.11,0.02,
+#            0.13,0.002,0.12,0.35,0.12,0.9,0.01,4,1.1,0.0625,
+#            2,5,0.75)
+#  
+#  wFun <- wrapFunction(evalFun)
+#  
+#  n <- 29
+#  reps <- 2
+#  funEvals <- 10*n
+#  size <- 2*n
+#  x0 <- matrix(as.numeric(babsim.hospital::getParaSet(5374)[1,-1]),1,)
+#  bounds <- getBounds()
+#  a <- bounds$lower
+#  b <- bounds$upper
+#  g <- function(x) {
+#    return(rbind(a[1] - x[1], x[1] - b[1], a[2] - x[2], x[2] - b[2],
+#                 a[3] - x[3], x[3] - b[3], a[4] - x[4], x[4] - b[4],
+#                 a[5] - x[5], x[5] - b[5], a[6] - x[6], x[6] - b[6],
+#                 a[7] - x[7], x[7] - b[7], a[8] - x[8], x[8] - b[8],
+#                 a[9] - x[9], x[9] - b[9], a[10] - x[10], x[10] - b[10],
+#                 a[11] - x[11], x[11] - b[11], a[12] - x[12],  x[12] - b[12],
+#                 a[13] - x[13], x[13] - b[13], a[14] - x[14],  x[14] - b[14],
+#                 a[15] - x[15], x[15] - b[15], a[16] - x[16],  x[16] - b[16],
+#                 a[17] - x[17], x[17] - b[17], a[18] - x[18],  x[18] - b[18],
+#                 a[19] - x[19], x[19] - b[19], a[20] - x[20],  x[20] - b[20],
+#                 a[21] - x[21], x[21] - b[21], a[22] - x[22],  x[22] - b[22],
+#                 a[23] - x[23], x[23] - b[23], a[24] - x[24],  x[24] - b[24],
+#                 a[25] - x[25], x[25] - b[25], a[26] - x[26],  x[26] - b[26],
+#                 a[27] - x[27], x[27] - b[27], x[15] + x[16] - 1,
+#                 x[17] + x[18] + x[19] - 1, x[20] + x[21] - 1, x[23] + x[29] - 1)
+#    )
+#  }
+#  
+#  res <- spot(x = x0,
+#    fun = wFun,
+#    lower = a,
+#    upper = b,
+#    control = list(
+#      funEvals = 2 * funEvals,
+#      noise = TRUE,
+#      designControl = list(# inequalityConstraint = g,
+#        size = size,
+#        retries = 1000),
+#      optimizer = optimNLOPTR,
+#      optimizerControl = list(
+#        opts = list(algorithm = "NLOPT_GN_ISRES"),
+#        eval_g_ineq = g
+#      ),
+#      model =  buildKriging,
+#      plots = TRUE,
+#      progress = TRUE,
+#      directOpt = optimNLOPTR,
+#      directOptControl = list(funEvals = 0),
+#      eval_g_ineq = g
+#    )
+#  )
+#  
+#  
+#  #
+#  # res <- spot(NULL,
+#  #             wFun,
+#  #             lower = lower,
+#  #             upper = upper,
+#  #             control = list(funEvals=100,
+#  #                            model=buildKriging,
+#  #                            optimizer = optimLBFGSB,
+#  #                            designControl=list(size=50)))
+#  
+
+## ---- loadLibsBabsim, eval=FALSE----------------------------------------------
+#  library(SPOT)
+#  library(babsim.hospital)
+
+## ---- constraintsBabsimSetup, eval = FALSE------------------------------------
+#  library(babsim.hospital)
+#  n <- 29
+#  reps <- 2
+#  funEvals <- 3*n
+#  size <- 2*n
+#  x0 <- matrix(as.numeric(babsim.hospital::getParaSet(5374)[1,-1]),1,)
+#  bounds <- getBounds()
+#  a <- bounds$lower
+#  b <- bounds$upper
+#  g <- function(x) {
+#        return(rbind(a[1] - x[1], x[1] - b[1], a[2] - x[2], x[2] - b[2],
+#                     a[3] - x[3], x[3] - b[3], a[4] - x[4], x[4] - b[4],
+#                     a[5] - x[5], x[5] - b[5], a[6] - x[6], x[6] - b[6],
+#                     a[7] - x[7], x[7] - b[7], a[8] - x[8], x[8] - b[8],
+#                     a[9] - x[9], x[9] - b[9], a[10] - x[10], x[10] - b[10],
+#                     a[11] - x[11], x[11] - b[11], a[12] - x[12],  x[12] - b[12],
+#                     a[13] - x[13], x[13] - b[13], a[14] - x[14],  x[14] - b[14],
+#                     a[15] - x[15], x[15] - b[15], a[16] - x[16],  x[16] - b[16],
+#                     a[17] - x[17], x[17] - b[17], a[18] - x[18],  x[18] - b[18],
+#                     a[19] - x[19], x[19] - b[19], a[20] - x[20],  x[20] - b[20],
+#                     a[21] - x[21], x[21] - b[21], a[22] - x[22],  x[22] - b[22],
+#                     a[23] - x[23], x[23] - b[23], a[24] - x[24],  x[24] - b[24],
+#                     a[25] - x[25], x[25] - b[25], a[26] - x[26],  x[26] - b[26],
+#                     a[27] - x[27], x[27] - b[27], x[15] + x[16] - 1,
+#                     x[17] + x[18] + x[19] - 1, x[20] + x[21] - 1, x[23] + x[29] - 1)
+#        )
+#    }
+
+## ---- constraintsBabsimRun, eval = FALSE--------------------------------------
+#  res <- spot(
+#    x = x0,
+#    fun = funBaBSimHospital,
+#    lower = a,
+#    upper = b,
+#    verbosity = 0,
+#    control = list(
+#      funEvals = 2 * funEvals,
+#      noise = TRUE,
+#      designControl = list(# inequalityConstraint = g,
+#        size = size,
+#        retries = 1000),
+#      optimizer = optimNLOPTR,
+#      optimizerControl = list(
+#        opts = list(algorithm = "NLOPT_GN_ISRES"),
+#        eval_g_ineq = g
+#      ),
+#      model =  buildKriging,
+#      plots = FALSE,
+#      progress = TRUE,
+#      directOpt = optimNLOPTR,
+#      directOptControl = list(funEvals = 0),
+#      eval_g_ineq = g
+#    )
+#  )
+#  print(res)
+

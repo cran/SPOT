@@ -19,4 +19,19 @@ test_that("check that spot function works without problems", {
 	expect_equal(c(nrow(res$x),length(res$y)), c(20,20))
 	res <- spot(,funSphere,c(0,0),c(1,1),control=list(funEvals = 30, designControl = list(size=10), subsetSelect = selectN, subsetControl=list(N=9)))
 	expect_equal(c(nrow(res$x),length(res$y)), c(30,30))
+	# check whether additional arguments can be passed to the objective function, here: parameter a for shifting funSphere from x to (x-a)
+	# offset:
+	a <- 2.34
+	# dim:
+	n <- 10
+	#search space (only one point)
+	upper <- lower <- rep(a,n)
+	res <- spot(x = NULL,
+	            funShiftedSphere,
+	            lower, 
+	            upper, 
+	            control=list(funEvals = 1, 
+	                         designControl = list(size=1)),
+	            a = a)
+	expect_equal(as.double(res$ybest), 0)
 })

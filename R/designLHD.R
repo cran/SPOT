@@ -59,9 +59,13 @@ designLHDNorm <- function(dim,size, calcMinDistance=FALSE, nested=NULL, inequali
 #' LHDs are created repeatedly created at random. For each each LHD, the minimal pair-wise distance between design points is computed.
 #' The design with the maximum of that minimal value is chosen.
 #'
-#' @param x optional matrix x, rows for points, columns for dimensions. This can contain one or more points which are part of the design, but specified by the user. These points are added to the design, 
-#' and are taken into account when calculating the pair-wise distances. They do not count for the design size. E.g., if \code{x} has two rows, \code{control$replicates} is one and \code{control$size} is ten, the returned design will have
-#' 12 points (12 rows). The first two rows will be identical to \code{x}. Only the remaining ten rows are guaranteed to be a valid LHD. 
+#' @param x optional matrix x, rows for points, columns for dimensions. This can contain one or more points which are part of the design, 
+#' but specified by the user. These points are added to the design, 
+#' and are taken into account when calculating the pair-wise distances. 
+#' They do not count for the design size. E.g., if \code{x} has two rows, \code{control$replicates} is one and \code{control$size} is ten, the returned design will have
+#' 12 points (12 rows). 
+#' The first two rows will be identical to \code{x}. 
+#' Only the remaining ten rows are guaranteed to be a valid LHD. 
 #' @param lower vector with lower boundary of the design variables (in case of categorical parameters, please map the respective factor to a set of contiguous integers, e.g., with lower = 1 and upper = number of levels)
 #' @param upper vector with upper boundary of the design variables (in case of categorical parameters, please map the respective factor to a set of contiguous integers, e.g., with lower = 1 and upper = number of levels)
 #' @param control list of controls:
