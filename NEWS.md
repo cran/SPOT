@@ -1,5 +1,14 @@
 # SPOT
 
+### 2.5.12
+
+* BUGFIX
+  * Unbalanced code chunk delimiters fixed. See: https://github.com/yihui/knitr/issues/2057
+
+### 2.5.10
+* NEWS:
+  * plot functions
+
 ### 2.5.8
 * BUGFIX
   * Fixes a bug that prevents passing additional arguments to the objective function, 

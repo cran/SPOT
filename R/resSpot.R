@@ -1,10 +1,8 @@
-
-###################################################################################
-#' S-Ring Simulation Data Obtained With SPOT
+#' @title S-Ring Simulation Data Obtained With SPOT
 #'
-#' A data set based on evaluations of the \code{funCosts} function.
+#' @description A data set based on evaluations of the \code{funCosts} function.
 #' Second experiment (extension of the first design)
-#' The corresponding code can be found in the vignette SPOTVignetteElevator
+#' The corresponding code can be found in the vignette SPOTVignetteElevator.
 #'
 #' @format A list of 7:
 #' \describe{
@@ -16,7 +14,6 @@
 #'   \item{msg}{ chr "budget exhausted"}
 #'   \item{modelFit}{List of 32}
 #' }
-#'
 ###################################################################################
 "resSpot"
 

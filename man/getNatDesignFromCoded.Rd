@@ -19,11 +19,14 @@ For given lower and upper bounds, a and b, respectively,
 coded input values are mapped to their natural values
 }
 \examples{
+# Note: donttest is used, because platform x86_64-w64-mingw32 (64-bit) 
+# does not provide the package babsim.hospital.
+\donttest{ 
 require(babsim.hospital)
 x <- matrix(rep(-1,29),1,)
 bounds <- getBounds()
 lower <- bounds$lower
 upper <- bounds$upper
 getNatDesignFromCoded(x, a = lower, b=upper)
-
+}
 }

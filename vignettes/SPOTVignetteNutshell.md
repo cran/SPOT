@@ -7,26 +7,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r knitrSetup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
 
 
-```{r SPOT, include = FALSE, eval = FALSE}
-## install.packages("devtools")
-## devtools::install_github("r-lib/devtools")
-url <- "http://owos.gm.fh-koeln.de:8055/bartz/spot.git"
-devtools::install_git(url = url)
-```
+
+
 
 * Package version SPOT should be larger than `2.3.0`.
 
-```{r, setup}
+
+```r
 library("SPOT")
 packageVersion("SPOT")
+#> [1] '2.4.0'
 ```
 
 ## Introduction
@@ -44,110 +36,179 @@ on their parameterizations---or, statistically speaking, on their factor setting
 
 ### Most simple example: Kriging + LHS + predicted  mean optimization (not expected improvement)
 
-```{r, spotSimple}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2),control=list(funEvals=15))
 res$xbest
+#>            [,1]      [,2]
+#> [1,] -0.1086201 0.1184503
 ```
 
 ### With expected improvement
 
-```{r, spotEI}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2),
     control=list(funEvals=15,modelControl=list(target="ei")))
 res$xbest
+#>            [,1]      [,2]
+#> [1,] -0.1086201 0.1184503
 ```
 
 ### With additional start point:
 
-```{r, spotStart}
+
+```r
 res <- spot(matrix(c(0.05,0.1),1,2),funSphere,c(-2,-3),c(1,2))
 res$xbest
+#>             [,1]        [,2]
+#> [1,] -0.06104759 -0.05040567
 ```
 
 ### Larger budget:
 
-```{r, spotLarger}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2),
     control=list(funEvals=50))
 res$xbest
+#>            [,1]        [,2]
+#> [1,] 0.02088315 -0.03783177
 ```
 
 ### Use local optimization instead of LHS
 
-```{r, spotLocal}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2),
    control=list(optimizer=optimLBFGSB))
  res$xbest
+#>             [,1]         [,2]
+#> [1,] -0.01573496 -0.008860252
 ```
 
 ### Random Forest instead of Kriging
 
-```{r, spotRf}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2),
      control=list(model=buildRandomForest))
 res$xbest
+#>           [,1]      [,2]
+#> [1,] 0.1531584 0.3294388
 ```
 
 ### LM instead of Kriging
 
-```{r, spotLM}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2),
      control=list(model=buildLM)) #lm as surrogate
 res$xbest
+#>           [,1]      [,2]
+#> [1,] 0.1531584 0.3294388
 ```
 
 ### Bayesian Optimization
 
-```{r, spotBO}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2),
      control=list(model=buildBO)) #BO as surrogate
 res$xbest
+#>              [,1]        [,2]
+#> [1,] -0.009619762 -0.01032117
 ```
 
 
 
 ### LM and local optimizer (which for this simple example is perfect)
-```{r, spotLMOPT}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2),
    control=list(model=buildLM, optimizer=optimLBFGSB))
 res$xbest
+#>             [,1]       [,2]
+#> [1,] -0.02651579 -0.1091904
 ```
 
 ### Lasso and local optimizer NLOPTR
 
-```{r, spotLasso}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2), 
    control=list(model=buildLasso, optimizer = optimNLOPTR))
+#> Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
+#> fold
+
+#> Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
+#> fold
+
+#> Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
+#> fold
+
+#> Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
+#> fold
+
+#> Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
+#> fold
+
+#> Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
+#> fold
+
+#> Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
+#> fold
+
+#> Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
+#> fold
+
+#> Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
+#> fold
+
+#> Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
+#> fold
 res$xbest
+#>           [,1]      [,2]
+#> [1,] 0.1531584 0.3294388
 ```
 
 ### Kriging and local optimizer LBFGSB 
 
-```{r, spotLBFGSB}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2), 
    control=list(model=buildKriging, optimizer = optimLBFGSB))
 res$xbest
+#>             [,1]         [,2]
+#> [1,] -0.01573496 -0.008860252
 ```
 
 ### Kriging and local optimizer NLOPTR 
 
-```{r, spotNLOPTR}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2), 
      control=list(model=buildKriging, optimizer = optimNLOPTR))
 res$xbest
+#>             [,1]         [,2]
+#> [1,] -0.01440329 0.0006858711
 ```
 
 ### Or a different Kriging model:
 
-```{r, spotKrigDace}
+
+```r
 res <- spot(,funSphere,c(-2,-3),c(1,2),
  control=list(model=buildKrigingDACE, optimizer=optimLBFGSB))
 res$xbest
+#>             [,1]         [,2]
+#> [1,] -0.03586733 -0.004407048
 ```
 
 ### With noise: (this takes some time)
 
-```{r, spotNoise}
+
+```r
 # noisy objective
 res1 <- spot(,function(x)funSphere(x)+rnorm(nrow(x)),c(-2,-3),c(1,2),
  		control=list(funEvals=40,noise=TRUE)) 
@@ -161,8 +222,14 @@ res3 <- spot(,function(x)funSphere(x)+rnorm(nrow(x)),c(-2,-3),c(1,2),
  		designControl=list(replicates=2))) 
 # Check results with non-noisy function:
 funSphere(res1$xbest)
+#>           [,1]
+#> [1,] 0.9811919
 funSphere(res2$xbest)
+#>         [,1]
+#> [1,] 1.74417
 funSphere(res3$xbest)
+#>          [,1]
+#> [1,] 1.084404
 ```
 
 ### Random number seed handling
@@ -170,24 +237,29 @@ funSphere(res3$xbest)
 The following is for demonstration only, to be used for random number
 seed handling in case of external noisy target functions.
 
-```{r, randomNumberSeed1a}
+
+```r
 res1a <- spot(,function(x,seed){set.seed(seed);funSphere(x)+rnorm(nrow(x))},
      c(-2,-3),c(1,2),control=list(funEvals=25,noise=TRUE,seedFun=1))
 ```
 
-```{r, randomNumberSeed1b}
+
+```r
 res1b <- spot(,function(x,seed){set.seed(seed);funSphere(x)+rnorm(nrow(x))},
      c(-2,-3),c(1,2),control=list(funEvals=25,noise=TRUE,seedFun=1))
 ```
 
-```{r, randomNumberSeed2}
+
+```r
 res2 <- spot(,function(x,seed){set.seed(seed);funSphere(x)+rnorm(nrow(x))},
      c(-2,-3),c(1,2),control=list(funEvals=25,noise=TRUE,seedFun=2))
 ```
 
 
-```{r, printRes1a1b2}
+
+```r
 sprintf("Should be equal: %f = %f. Should be different:  %f", res1a$ybest, res1b$ybest, res2$ybest)
+#> [1] "Should be equal: -1.296329 = -1.296329. Should be different:  -0.889934"
 ```
 
 
@@ -198,7 +270,8 @@ sprintf("Should be equal: %f = %f. Should be different:  %f", res1a$ybest, res1b
 Note: factors should be coded as integer values, i.e., 1,2,...,n
 First, we create a test function with a factor variable:
 
-```{r}
+
+```r
 braninFunctionFactor <- function (x) {
    y <- (x[2]  - 5.1/(4 * pi^2) * (x[1] ^2) + 5/pi * x[1]  - 6)^2 +
      10 * (1 - 1/(8 * pi)) * cos(x[1] ) + 10
@@ -212,25 +285,32 @@ braninFunctionFactor <- function (x) {
 
 Vectorize the test function.
 
-```{r}
+
+```r
 objFun <- function(x){apply(x,1,braninFunctionFactor)}
 ```
 
 Run `spot`.
 
-```{r, spotFac}
+
+```r
 set.seed(1)
 res <- spot(fun=objFun,lower=c(-5,0,1),upper=c(10,15,3),
             control=list(model=buildKriging,
                          types= c("numeric","numeric","factor"),
                          optimizer=optimLHD))
  res$xbest
+#>          [,1]     [,2] [,3]
+#> [1,] 2.619386 2.725642    2
  res$ybest
+#>           [,1]
+#> [1,] 0.6777176
 ```
 
 ### High dimensional problem 
 
-```{r, defineBounds}
+
+```r
 n <- 10
 a <- rep(0,n)
 b <- rep(1,n)
@@ -239,30 +319,35 @@ b <- rep(1,n)
 
 First, we consider the default `spot` setting with `buildKriging()`.
 
-```{r, highDimKrig}
+
+```r
 tic <- proc.time()[3]
 res0 <- spot(x=NULL, funSphere, lower = a, upper = b, 
              control=list(funEvals=30))
 toc <- proc.time()[3]
 sprintf("value: %f, time: %f",  res0$ybest, toc-tic)
+#> [1] "value: 0.332121, time: 9.393000"
 ```
 
 Then, we use the `buildGaussianProcess()` model.
 
-```{r, highDimGP}
+
+```r
 tic <- proc.time()[3]
 res1 <-  spot(x=NULL, funSphere, lower = a, upper = b, 
              control=list(funEvals=30, 
                           model = buildGaussianProcess))
 toc <- proc.time()[3]
 sprintf("value: %f, time: %f",  res1$ybest, toc-tic)
+#> [1] "value: 0.530886, time: 0.650000"
 ```
 
 
 
 ### Run SPOT with logging
 
-```{r}
+
+```r
 ## run spot without log
 res <- spot(fun = funSphere,
             lower=c(0,0),
@@ -277,12 +362,35 @@ res2 <- spot(fun = funSphereLog,
             upper=c(100,100)
 )
 res$logInfo
+#> [1] NA
 res2$logInfo
+#>            [,1]       [,2]
+#>  [1,]  8.648076 81.4784571
+#>  [2,] 71.771945 66.5887761
+#>  [3,] 44.933187 41.8506996
+#>  [4,] 14.297134 39.5437814
+#>  [5,] 25.642638 58.9784849
+#>  [6,] 56.561623 79.4369705
+#>  [7,] 69.785541 27.2369075
+#>  [8,] 92.321611 93.7035707
+#>  [9,] 32.408116  7.8101754
+#> [10,] 87.968361 10.1114951
+#> [11,]  3.152969  3.1352284
+#> [12,] 35.979045 83.1545726
+#> [13,]  1.401563  0.3142767
+#> [14,] 32.165836 18.4191631
+#> [15,] 27.534938 83.0152530
+#> [16,] 34.745003 77.4768640
+#> [17,] 21.418092 95.5431781
+#> [18,] 42.504694 61.7054862
+#> [19,] 87.533618 15.9641532
+#> [20,] 74.720086 84.2995194
 ```
 
 ## Hybrid optimization
 
-```{r, hybrid}
+
+```r
 res <- spot(fun = funSphere, lower = c(-5,-5),
                 upper = c(5,5), 
                 control = list(funEvals = 20,
@@ -290,6 +398,52 @@ res <- spot(fun = funSphere, lower = c(-5,-5),
                 directOptControl = list(funEvals = 10)
                 ))
 str(res)
+#> List of 9
+#>  $ xbest   : num [1, 1:2] 0 0
+#>  $ ybest   : num 0
+#>  $ x       : num [1:33, 1:2] -4.135 2.177 -0.507 -3.57 -2.436 ...
+#>  $ y       : num [1:33, 1] 27.009 7.492 0.921 13.84 6.739 ...
+#>  $ logInfo : logi NA
+#>  $ count   : int 20
+#>  $ msg     : chr "budget exhausted"
+#>  $ modelFit:List of 33
+#>   ..$ thetaLower      : num 1e-04
+#>   ..$ thetaUpper      : num 100
+#>   ..$ types           : chr [1:2] "numeric" "numeric"
+#>   ..$ algTheta        :function (x = NULL, fun, lower, upper, control = list(), ...)  
+#>   .. ..- attr(*, "srcref")= 'srcref' int [1:8] 47 12 107 1 12 1 47 107
+#>   .. .. ..- attr(*, "srcfile")=Classes 'srcfilecopy', 'srcfile' <environment: 0x7fb773e99ab8> 
+#>   ..$ budgetAlgTheta  : num 200
+#>   ..$ optimizeP       : logi FALSE
+#>   ..$ useLambda       : logi TRUE
+#>   ..$ lambdaLower     : num -6
+#>   ..$ lambdaUpper     : num 0
+#>   ..$ startTheta      : NULL
+#>   ..$ reinterpolate   : logi TRUE
+#>   ..$ target          : chr "y"
+#>   ..$ modelInitialized: logi TRUE
+#>   ..$ x               : num [1:19, 1:2] -4.135 2.177 -0.507 -3.57 -2.436 ...
+#>   ..$ y               : num [1:19, 1] 27.009 7.492 0.921 13.84 6.739 ...
+#>   ..$ normalizeymin   : num 0
+#>   ..$ normalizeymax   : num 1
+#>   ..$ scaledx         : num [1:19, 1:2] 0 0.7544 0.4337 0.0675 0.2031 ...
+#>   ..$ normalizexmin   : num [1:2] -4.14 -4.22
+#>   ..$ normalizexmax   : num [1:2] 4.23 4.55
+#>   ..$ dmodeltheta     : num [1:2] 0.122 0.141
+#>   ..$ Lambda          : num -5.96
+#>   ..$ dmodellambda    : num 1.09e-06
+#>   ..$ Theta           : num [1:2] -0.915 -0.852
+#>   ..$ yonemu          : num [1:19, 1] -323 -342 -349 -336 -343 ...
+#>   ..$ ssq             : num 14020
+#>   ..$ mu              : num 350
+#>   ..$ Psi             : num [1:19, 1:19] 1 0.929 0.95 0.968 0.986 ...
+#>   ..$ Psinv           : num [1:19, 1:19] 77206 -36217 35306 -27605 -92449 ...
+#>   ..$ nevals          : num 1200
+#>   ..$ like            : num [1, 1] 1.96
+#>   ..$ returnCrossCor  : logi FALSE
+#>   ..$ min             : num 0.0988
+#>   ..- attr(*, "class")= chr "kriging"
+#>  $ ybestVec: num [1:20] 0.921 0.921 0.921 0.921 0.921 ...
 ```
 
 
@@ -298,7 +452,8 @@ str(res)
 
 * Definitions and constraints
 
-```{r, constraintsSetup, eval = FALSE}
+
+```r
 library(babsim.hospital)
 n <- 29 
 reps <- 2
@@ -329,7 +484,8 @@ g <- function(x) {
 ```
 
 
-```{r, constraintsRun, eval = FALSE}
+
+```r
 res <- spot(
   x = x0,
   fun = funBaBSimHospital,
@@ -358,142 +514,5 @@ res <- spot(
 print(res)
 ```
 
-## GECCO Industrial Challenge 2021
-
-A description of the challenge can be found here:
-[GECCO Industrial Challenge 2021](https://www.th-koeln.de/informatik-und-ingenieurwissenschaften/gecco-2021-industrial-challenge-call-for-participation_82086.php). In short the goal of the challenge is to find an optimal parameter configuration for the BabSim.Hospital simulator. This is a noisy and complex real-world problem.
-
-### Evaluation Using the Docker Container
-
-In order to be able to execute the necessary code of the GECCO Industrial challenge 2021 you will need to have [Docker](https://docs.docker.com/get-docker/) installed in your machine.
-On your terminal console an evaluation of the BabSim.Hospital
-should looks like the command below. This command will automatically download the Docker image with the BabSim.Hospital code in it (may need sudo rights to download). Take care, the formatting of the symbols - and ’ can cause this command not to work on your terminal:
-```{r, eval=FALSE}
-# docker run --rm mrebolle/r-geccoc:Track1 -c 'Rscript objfun.R "6,7,3,3,3,5,3,3,25,17,2,1,0.25,0.05,0.07,0.005,0.07,1e-04,0.08,0.25,0.08,0.5,1e-06,2,1e-06,1e-06,1,2,0.5"'
-```
-
-An optimization run with SPOT, using the Docker command call as objective function, can be directly implemented in R as follows:
-```{r, eval =FALSE}
-library(SPOT)
-
-evalFun <- function(candidateSolution){
-    evalCommand <- paste0("docker run --rm mrebolle/r-geccoc:Track1 -c ", "'","Rscript objfun.R ")
-    parsedCandidate <- paste(candidateSolution, sep=",", collapse = ",")
-    return(as.numeric(system(paste0(evalCommand, '"', parsedCandidate, '"', "'"), intern = TRUE)))
-}
-
-#The BabSim.Hospital requires 29 parameters. Here we specify the upper and lower bounds
-lower <- c(6,7,3,3,3,5,3,3,25,17,2,1,0.25,0.05,0.07,
-           0.005,0.07,1e-04,0.08,0.25,0.08,0.5,1e-06,
-           2,1e-06,1e-06,1,2,0.5)
-
-upper<- c(14,13,7,9,7,9,5,7,35,25,5,7,2,0.15,0.11,0.02,
-          0.13,0.002,0.12,0.35,0.12,0.9,0.01,4,1.1,0.0625,
-          2,5,0.75)
-
-wFun <- wrapFunction(evalFun)
-
-n <- 29 
-reps <- 2
-funEvals <- 10*n 
-size <- 2*n
-x0<-matrix(lower,nrow = 1)
-
-res <- spot(x = x0,
-  fun = wFun,
-  lower = lower,
-  upper = upper,
-  control = list(
-    funEvals = 2 * funEvals,
-    noise = TRUE,
-    designControl = list(
-      size = size,
-      retries = 1000),
-    optimizer = optimNLOPTR,
-    optimizerControl = list(
-      opts = list(algorithm = "NLOPT_GN_ISRES")
-    ),
-    model =  buildKriging,
-    plots = TRUE,
-    progress = TRUE,
-    directOpt = optimNLOPTR,
-    directOptControl = list(funEvals = 0)
-  )
-)
-
-```
-
-### Evaluation Using the babsim.hospital R Package
-
-The optimization of the BabSim.Hospital parameters can also be executed directly using the babsim.hospital package. 
-
-The babsim.hospital package can be installed by downloading the source from the Gitlab repository and building the package. 
-
-```{r, eval=FALSE}
-git clone http://owos.gm.fh-koeln.de:8055/bartz/babsim.hospital.git
-```
-
-```{r, constraintsBabsimSetup, eval = FALSE}
-library(SPOT)
-library(babsim.hospital)
-
-n <- 29 
-reps <- 2
-funEvals <- 3*n 
-size <- 2*n
-#Get suggested parameter values as initial point in the optimization run
-x0 <- matrix(as.numeric(babsim.hospital::getParaSet(5374)[1,-1]),1,)
-bounds <- getBounds()
-a <- bounds$lower
-b <- bounds$upper
-g <- function(x) {
-      return(rbind(a[1] - x[1], x[1] - b[1], a[2] - x[2], x[2] - b[2], 
-                   a[3] - x[3], x[3] - b[3], a[4] - x[4], x[4] - b[4], 
-                   a[5] - x[5], x[5] - b[5], a[6] - x[6], x[6] - b[6], 
-                   a[7] - x[7], x[7] - b[7], a[8] - x[8], x[8] - b[8], 
-                   a[9] - x[9], x[9] - b[9], a[10] - x[10], x[10] - b[10],
-                   a[11] - x[11], x[11] - b[11], a[12] - x[12],  x[12] - b[12],
-                   a[13] - x[13], x[13] - b[13], a[14] - x[14],  x[14] - b[14],
-                   a[15] - x[15], x[15] - b[15], a[16] - x[16],  x[16] - b[16],
-                   a[17] - x[17], x[17] - b[17], a[18] - x[18],  x[18] - b[18],
-                   a[19] - x[19], x[19] - b[19], a[20] - x[20],  x[20] - b[20],
-                   a[21] - x[21], x[21] - b[21], a[22] - x[22],  x[22] - b[22],
-                   a[23] - x[23], x[23] - b[23], a[24] - x[24],  x[24] - b[24],
-                   a[25] - x[25], x[25] - b[25], a[26] - x[26],  x[26] - b[26],
-                   a[27] - x[27], x[27] - b[27], x[15] + x[16] - 1, 
-                   x[17] + x[18] + x[19] - 1, x[20] + x[21] - 1, x[23] + x[29] - 1)
-      )
-  }
-```
 
 
-```{r, constraintsBabsimRun, eval = FALSE}
-wrappedFunBab <- function(x){
-  print(SPOT::funBaBSimHospital(x, region = 5374, nCores = 1))
-}
-res <- spot(
-  x = x0,
-  fun = wrappedFunBab,
-  lower = a,
-  upper = b,
-  control = list(
-    funEvals = 2 * funEvals,
-    noise = TRUE,
-    designControl = list(
-      size = size,
-      retries = 1000),
-    optimizer = optimNLOPTR,
-    optimizerControl = list(
-      opts = list(algorithm = "NLOPT_GN_ISRES"),
-      eval_g_ineq = g
-    ),
-    model =  buildKriging,
-    plots = FALSE,
-    progress = TRUE,
-    directOpt = optimNLOPTR,
-    directOptControl = list(funEvals = 0),
-    eval_g_ineq = g
-  )
-)
-print(res)
-````

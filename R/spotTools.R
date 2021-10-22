@@ -56,14 +56,17 @@ code2nat <- function(x, a, b){
 #' @param a m-dim \code{vector} of lower bounds (natural values)
 #' @param b m-dim \code{vector} of upper bounds (natural values)
 #' 
-#' @examples 
+#' @examples
+#' # Note: donttest is used, because platform x86_64-w64-mingw32 (64-bit) 
+#' # does not provide the package babsim.hospital.
+#' \donttest{ 
 #' require(babsim.hospital)
 #' x <- matrix(rep(-1,29),1,)
 #' bounds <- getBounds()
 #' lower <- bounds$lower
 #' upper <- bounds$upper
 #' getNatDesignFromCoded(x, a = lower, b=upper)
-#' 
+#' }
 #' @export
 getNatDesignFromCoded <- function(x, a, b){
   a <- matrix(a,1)

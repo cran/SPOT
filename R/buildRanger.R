@@ -1,8 +1,7 @@
-
-###################################################################################################
-#' ranger Interface
+#' @title ranger Interface
 #'
-#' This is a simple wrapper for the \code{ranger} function from the \code{ranger} package.
+#' @description  This is a simple wrapper for the \code{ranger} 
+#' function from the \code{ranger} package.
 #' The purpose of this function is to provide an interface as required by SPOT, to enable
 #' modeling and model-based optimization with \code{ranger}.
 #'
@@ -11,12 +10,10 @@
 #' @param control list of control parameters. These are all configuration parameters 
 #' of the \code{ranger} function, and will be passed on to it.
 #' 
-#' @return an object of class \code{"spotRanger"}, with a \code{predict} method and a \code{print} method.
-#'
-#' @export
-#'
+#' @return an object of class \code{spotRanger}, with a \code{predict} method and a \code{print} method.
+#' #'
 #' @examples
-#'\donttest{
+#' \donttest{
 #' ## Create a simple training data set
 #' testfun <- function (x) x[1]^2
 #' x <- cbind(sort(runif(30)*2-1))
@@ -28,7 +25,7 @@
 #' yt <- predict(fit,data.frame(x=xt))
 #' plot(xt,yt$y,type="l")
 #' points(x,y,col="red",pch=20)
-#' ## Example with extratrees, an interpolating model
+#' ## Example with extra trees, an interpolating model
 #' fit <- buildRanger(x,y,
 #'                    control=list(rangerArguments = 
 #'                                 list(replace = FALSE,
@@ -40,10 +37,9 @@
 #' points(x,y,col="red",pch=20)
 #'}
 #' @importFrom ranger ranger
-###################################################################################################
+#' 
+#' @export
 buildRanger <- function(x, y, control=list()){ 
-
-	## to data frame
 	x <- as.data.frame(x)
 	y <- as.data.frame(y)
 	colnames(y) <- "y"
@@ -71,10 +67,10 @@ buildRanger <- function(x, y, control=list()){
   fit
 }
 
-###################################################################################################
-#' Predictor for spotExtraTrees
+
+#' @title Predictor for spotExtraTrees
 #'
-#' Wrapper for \code{predict.ranger}.
+#' @description Wrapper for \code{predict.ranger}.
 #'
 #' @param object fit of the model, an object of class \code{"spotRandomForest"}, produced by \code{\link{buildRandomForest}}.
 #' @param newdata matrix of new data.
@@ -82,9 +78,9 @@ buildRanger <- function(x, y, control=list()){
 #' 
 #' @importFrom stats predict
 #' 
-#' @export
 #' @keywords internal
-###################################################################################################
+#' 
+#' @export
 predict.spotRanger <- function(object,newdata,...){
 	if(!is.data.frame(newdata))
 		newdata <- as.data.frame(newdata)
@@ -94,17 +90,16 @@ predict.spotRanger <- function(object,newdata,...){
   list(y=res)
 }
 
-###################################################################################################
-#' Print method for random forest
+#' @title Print method for random forest
 #' 
-#' Wrapper for \code{print.ranger}.
+#' @description  Wrapper for \code{print.ranger}.
 #'
 #' @param object fit of the model, an object of class \code{"spotRandomForest"}, produced by \code{\link{buildRandomForest}}.
 #' @param ... not used
 #' 
-#' @export
 #' @keywords internal
-###################################################################################################
+#' 
+#' @export
 print.spotRanger <- function(x,...){
   print(x$rangerFit)
 }

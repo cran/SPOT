@@ -22,6 +22,6 @@ resSpot2
 \description{
 A data set based on evaluations of the \code{funCosts} function.
 Second experiment (extension of the second design)
-The corresponding code can be found in the vignette SPOTVignetteElevator
+The corresponding code can be found in the vignette SPOTVignetteElevator.
 }
 \keyword{datasets}

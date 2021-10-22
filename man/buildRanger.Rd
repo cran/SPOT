@@ -15,10 +15,12 @@ buildRanger(x, y, control = list())
 of the \code{ranger} function, and will be passed on to it.}
 }
 \value{
-an object of class \code{"spotRanger"}, with a \code{predict} method and a \code{print} method.
+an object of class \code{spotRanger}, with a \code{predict} method and a \code{print} method.
+#'
 }
 \description{
-This is a simple wrapper for the \code{ranger} function from the \code{ranger} package.
+This is a simple wrapper for the \code{ranger} 
+function from the \code{ranger} package.
 The purpose of this function is to provide an interface as required by SPOT, to enable
 modeling and model-based optimization with \code{ranger}.
 }
@@ -35,7 +37,7 @@ fit <- buildRanger(x,y)
 yt <- predict(fit,data.frame(x=xt))
 plot(xt,yt$y,type="l")
 points(x,y,col="red",pch=20)
-## Example with extratrees, an interpolating model
+## Example with extra trees, an interpolating model
 fit <- buildRanger(x,y,
                    control=list(rangerArguments = 
                                 list(replace = FALSE,
