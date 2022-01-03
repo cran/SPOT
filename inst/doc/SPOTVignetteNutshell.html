@@ -146,7 +146,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;SPOT&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;SPOT&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &#39;2.5.12&#39;</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &#39;2.5.18&#39;</span></span></code></pre></div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <ul>
@@ -218,10 +218,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="bayesian-optimization" class="section level3">
 <h3>Bayesian Optimization</h3>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">spot</span>(,funSphere,<span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">3</span>),<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>),</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildBO)) <span class="co">#BO as surrogate</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              [,1]        [,2]</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] -0.009619762 -0.01032117</span></span></code></pre></div>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">control=</span><span class="fu">list</span>(<span class="at">model=</span>buildBO,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">modelControl=</span><span class="fu">list</span>(<span class="at">target=</span><span class="st">&quot;ei&quot;</span>))) <span class="co">#BO as surrogate</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>xbest</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           [,1]      [,2]</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,] 0.1531584 0.3294388</span></span></code></pre></div>
 </div>
 <div id="lm-and-local-optimizer-which-for-this-simple-example-is-perfect" class="section level3">
 <h3>LM and local optimizer (which for this simple example is perfect)</h3>
@@ -366,7 +367,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">30</span>))</span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>toc <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;value: %f, time: %f&quot;</span>,  res0<span class="sc">$</span>ybest, toc<span class="sc">-</span>tic)</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 0.332121, time: 7.336000&quot;</span></span></code></pre></div>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 0.332121, time: 10.491000&quot;</span></span></code></pre></div>
 <p>Then, we use the <code>buildGaussianProcess()</code> model.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>tic <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>res1 <span class="ot">&lt;-</span>  <span class="fu">spot</span>(<span class="at">x=</span><span class="cn">NULL</span>, funSphere, <span class="at">lower =</span> a, <span class="at">upper =</span> b, </span>
@@ -374,7 +375,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">model =</span> buildGaussianProcess))</span>
 <span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>toc <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
 <span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;value: %f, time: %f&quot;</span>,  res1<span class="sc">$</span>ybest, toc<span class="sc">-</span>tic)</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 0.530886, time: 0.684000&quot;</span></span></code></pre></div>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 0.530886, time: 0.801000&quot;</span></span></code></pre></div>
 </div>
 <div id="run-spot-with-logging" class="section level3">
 <h3>Run SPOT with logging</h3>

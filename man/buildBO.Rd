@@ -11,12 +11,81 @@ buildBO(x, y, control = list())
 
 \item{y}{one column matrix of observations to be modeled.}
 
-\item{control}{list of control parameters}
+\item{control}{list of control parameters:
+\describe{
+\item{\code{thetaLower}}{ lower boundary for theta, default is \code{1e-4}}
+\item{\code{thetaUpper}}{ upper boundary for theta, default is \code{1e2}}
+\item{\code{algTheta}}{  algorithm used to find theta, default is \code{L-BFGS-B}}
+\item{\code{budgetAlgTheta}}{ budget for the above mentioned algorithm, default is \code{200}. The value will be multiplied with the length of the model parameter vector to be optimized.}
+\item{\code{optimizeP}}{ boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default is \code{FALSE}}
+\item{\code{useLambda}}{ whether or not to use the regularization constant lambda (nugget effect). Default is \code{TRUE}}
+\item{\code{lambdaLower}}{ lower boundary for log10{lambda}, default is \code{-6}}
+\item{\code{lambdaUpper}}{ upper boundary for log10{lambda}, default is \code{0}}
+\item{\code{startTheta}}{ optional start value for theta optimization, default is \code{NULL}}
+\item{\code{reinterpolate}}{ whether (\code{TRUE},default) or not (\code{FALSE}) reinterpolation should be performed}
+\item{\code{target}}{ target values of the prediction, a vector of strings. Each string specifies a value to be predicted, e.g., "y" for mean, "s" for standard deviation, "ei" for expected improvement. See also \code{\link{predict.kriging}}}
+}}
 }
 \value{
-an object of class \code{"spotBOModel"}, 
+an object of class \code{"spotBOModel"},
 with a \code{predict} method and a \code{print} method.
+Basically a list, with the options and found parameters for the model which has to be passed to the predictor function:
+      \describe{
+      \item{\code{x}}{ sample locations }
+      \item{\code{y}}{ observations at sample locations (see parameters)}
+      \item{\code{min}}{ min y val}
+      \item{\code{thetaLower}}{ lower boundary for theta (see parameters)}
+      \item{\code{thetaUpper}}{ upper boundary for theta (see parameters)}
+      \item{\code{algTheta}}{ algorithm to find theta (see parameters)}
+      \item{\code{budgetAlgTheta}}{ budget for the above mentioned algorithm (see parameters)}
+      \item{\code{lambdaLower}}{ lower boundary for log10{lambda}, default is \code{-6}}
+      \item{\code{lambdaUpper}}{ upper boundary for log10{lambda}, default is \code{0}}
+      \item{\code{dmodeltheta}}{ vector of activity parameters}
+      \item{\code{dmodellambda}}{ regularization constant (nugget)}
+      \item{\code{mu}}{ mean mu}
+      \item{\code{ssq}}{ sigma square}
+      \item{\code{Psi}}{ matrix large Psi}
+      \item{\code{Psinv}}{ inverse of Psi}
+      \item{\code{nevals}}{ number of Likelihood evaluations during MLE}
+      }
 }
 \description{
 Bayesian Optimization Model Interface
+}
+\examples{
+## Reproduction of Gramacy's classic EI illustration with data from Jones et al.
+## Generates Fig. 7.6 from the Gramacy book "Surrogates".
+x <- c(1, 2, 3, 4, 12)
+y <- c(0, -1.75, -2, -0.5, 5)
+## Build BO Model
+m1 <- buildBO(x = matrix(x, ncol = 1), 
+ y = matrix(y, ncol=1),
+ control = list(target="ei"))
+xx <- seq(0, 13, length=1000)
+yy <- predict(object = m1, newdata = xx)
+m <- which.min(y)
+fmin <- y[m]
+mue <- matrix(yy$y, ncol = 1)
+s2 <- matrix(yy$s, ncol = 1)
+ei <- matrix(yy$ei, ncol = 1)
+## Plotting the Results (similar to Fig. 7.6 in Gramacy's Surrogate book)
+par(mfrow=c(1,2))
+plot(x, y, pch=19, xlim=c(0,13), ylim=c(-4,9), main="predictive surface")
+lines(xx, mue)
+lines(xx, mue + 2*sqrt(s2), col=2, lty=2)
+lines(xx, mue - 2*sqrt(s2), col=2, lty=2)
+abline(h=fmin, col=3, lty=3)
+legend("topleft", c("mean", "95\% PI", "fmin"), lty=1:3,   col=1:3, bty="n")
+plot(xx, ei, type="l", col="blue", main="EI", xlab="x", ylim=c(0,max(ei)))
+      
+}
+\references{
+Forrester, Alexander I.J.; Sobester, Andras; Keane, Andy J. (2008). Engineering Design via Surrogate Modelling - A Practical Guide. John Wiley & Sons.
+
+Gramacy, R. B. Surrogates. CRC press, 2020.
+
+Jones, D. R., Schonlau, M., and Welch, W. J. Efficient global optimization of expensive black-box functions. Journal of Global Optimization 13, 4 (1998), 455–492.
+}
+\seealso{
+\code{\link{predict.spotBOModel}}
 }

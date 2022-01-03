@@ -1,5 +1,14 @@
 # SPOT
 
+### 2.5.14
+
+* BUGFIX
+  * sign errors in buildBO.R fixed
+  * closing backticks in vignette fixed
+  
+* NEWS
+  * Schonlau example (based on code from Gramacy) added
+
 ### 2.5.12
 
 * BUGFIX

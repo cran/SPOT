@@ -49,7 +49,8 @@ res$xbest
 
 ## ---- spotBO------------------------------------------------------------------
 res <- spot(,funSphere,c(-2,-3),c(1,2),
-     control=list(model=buildBO)) #BO as surrogate
+     control=list(model=buildBO,
+     modelControl=list(target="ei"))) #BO as surrogate
 res$xbest
 
 ## ---- spotLMOPT---------------------------------------------------------------
