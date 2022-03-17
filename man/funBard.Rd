@@ -2,21 +2,20 @@
 % Please edit documentation in R/funContinuous.R
 \name{funBard}
 \alias{funBard}
-\title{funBard}
+\title{funBard (No. 14, More No. 8)}
 \usage{
 funBard(x)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
+\item{x}{matrix of points to evaluate with the function.
 Rows for points and columns for dimension.}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-The Bard Test Function
-}
-\details{
+3-dim Bard Test Function
+
 x0 = (1,1,1)
 f = 8.21487...1e-3
 f = 17.4286... at (0.8406..., -infty, -infty)
@@ -32,6 +31,6 @@ Testing unconstrained optimization software.
 \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
 \doi{10.1145/355934.355936}
 
-BARD, Y. Comparison of gradient methods for the solution of nonlinear parameter estimation 
+BARD, Y. Comparison of gradient methods for the solution of nonlinear parameter estimation
 problems SIAM J. Numer. Anal. 7 (1970), 157-186.
 }

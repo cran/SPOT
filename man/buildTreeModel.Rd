@@ -2,7 +2,7 @@
 % Please edit documentation in R/buildTree.R
 \name{buildTreeModel}
 \alias{buildTreeModel}
-\title{Tree Regression Interface}
+\title{buildTreeModel}
 \usage{
 buildTreeModel(x, y, control = list())
 }
@@ -14,10 +14,11 @@ buildTreeModel(x, y, control = list())
 \item{control}{list of control parameters, currently not used.}
 }
 \value{
-an object of class \code{"spotTreeModel"}, with a \code{predict} method and a \code{print} method.
+an object of class \code{spotTreeModel}, with a \code{predict} method and a \code{print} method.
 }
 \description{
-This is a simple wrapper for the rpart function from the rpart package.
+Regression Interface 
+This is a simple wrapper for the \code{rpart} function from the rpart package.
 The purpose of this function is to provide an interface as required by SPOT, to enable
 modeling and model-based optimization with regression trees.
 }
@@ -46,5 +47,4 @@ fit <- buildTreeModel(x,y)
 # plot(x,y, type = "l")
 yhat <- predict(fit, newdata = 1)
 yhat$y == 10
-
 }

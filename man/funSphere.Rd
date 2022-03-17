@@ -2,7 +2,7 @@
 % Please edit documentation in R/funContinuous.R
 \name{funSphere}
 \alias{funSphere}
-\title{funSphere}
+\title{funSphere (No. 3)}
 \usage{
 funSphere(x)
 }

@@ -88,7 +88,8 @@ buildBO <- function(x, y, control = list()) {
   ## Problem dimension
   m <- ncol(x)
   
-  fit <- optim(
+  fit <- tryCatch(
+    optim(
     c(rep(0.1, m), 0.1 * var(y)),
     thetaNugget,
     thetaNuggetGradient,
@@ -97,8 +98,15 @@ buildBO <- function(x, y, control = list()) {
     upper = c(rep(10, m), var(y)),
     X = x,
     Y = y
-  )
-  
+  ), error=function(cond) {
+    message(paste("optim reports an error."))
+    print(list(m=m, lower=sqrt(.Machine$double.eps), upper=c(rep(10, m), var(y)), x=x, y=y))
+    message("Here's the original error message:")
+    message(cond)
+    # Choose a return value in case of error
+    return(NA)
+  })
+    
   K <- plgp::covar.sep(x,
                        d = fit$par[1:m],
                        g = fit$par[m + 1])
@@ -162,7 +170,14 @@ thetaNugget <- function(par, X, Y)
   g <- par[ncol(X) + 1]
   n <- length(Y)
   K <- plgp::covar.sep(X, d = theta, g = g)
-  Ki <- solve(K)
+  Ki <- tryCatch(solve(K),
+                 error=function(cond) {
+                   message(paste("Matrix K cannt be inverted:", K))
+                   message("Here's the original error message:")
+                   message(cond)
+                   # Choose a return value in case of error
+                   return(K)
+                 })
   ldetK <- determinant(K, logarithm = TRUE)$modulus
   ll <- -(n / 2) * log(t(Y) %*% Ki %*% Y) - (1 / 2) * ldetK
   return(-ll)
@@ -192,7 +207,14 @@ thetaNuggetGradient <- function(par, X, Y)
   g <- par[ncol(X) + 1]
   n <- length(Y)
   K <- plgp::covar.sep(X, d = theta, g = g)
-  Ki <- solve(K)
+  Ki <- tryCatch(solve(K),
+                 error=function(cond) {
+                   message(paste("Matrix K cannt be inverted:", K))
+                   message("Here's the original error message:")
+                   message(cond)
+                   # Choose a return value in case of error
+                   return(K)
+                 })
   KiY <- Ki %*% Y
   
   ## loop over theta components
@@ -229,6 +251,10 @@ thetaNuggetGradient <- function(par, X, Y)
 #'
 #' @export
 predict.spotBOModel <- function(object, newdata, ...) {
+  # printf <- function (...) 
+  # {
+  #   writeLines(sprintf(...))
+  # }
   d <- object$d
   g <- object$g
   tau2hat <- object$tau2hat
@@ -240,15 +266,25 @@ predict.spotBOModel <- function(object, newdata, ...) {
   KX <- plgp::covar.sep(XX, X, d = d, g = 0)
   mup <- KX %*% Ki %*% y
   res <- list(y = mup)
-  if (any(object$target %in% c("s", "ei"))) {
+  if (any(object$target %in% c("s", "ei", "negLog10ei"))) {
     Sigmap <- tau2hat * (KXX - KX %*% Ki %*% t(KX))
+    #print("in predict")
     s <- sqrt(abs(diag(Sigmap)))
+    #printf("s: %f", s)
     res$s <- s
-    if (any(object$target == "ei")) {
+    if (any(object$target %in% c("ei", "negLog10ei"))) {
+      #printf("objectmin: %f", object$min)
+      #printf("mup: %f", mup)
       ydiff <- object$min - mup
+      #printf("ydiff: %f", ydiff)
       dn <- ydiff / s
-      res$ei <- (ydiff * pnorm(dn) + s * dnorm(dn))
-    }
+      ei <- (ydiff * pnorm(dn) + s * dnorm(dn))
+      res$ei <- ei
+      #printf("ei: %f", ei)
+      if (any(object$target == "negLog10ei")){
+       res$negLog10ei <- -log(ei +(.Machine$double.xmin))
+      }
+      }
   }
   return(res)
 }

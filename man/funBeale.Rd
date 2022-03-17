@@ -2,19 +2,19 @@
 % Please edit documentation in R/funContinuous.R
 \name{funBeale}
 \alias{funBeale}
-\title{funBeale}
+\title{funBeale (No.11, More No. 5)}
 \usage{
 funBeale(x)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
+\item{x}{matrix of points to evaluate with the function.
 Rows for points and columns for dimension.}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-Beale Test Function
+2-dim Beale Test Function
 }
 \examples{
 x1 <- matrix(c(1,1),1,)
@@ -26,7 +26,7 @@ plotModel(res$model)
 }
 \references{
 Beale, E.M.L. On an interactive method of finding a local minimum of a function of more than
-one variable. Tech. Rep. No. 25, Statistical Techniques Research Group, Princeton Univ., 
+one variable. Tech. Rep. No. 25, Statistical Techniques Research Group, Princeton Univ.,
 Princeton, N.J., 1958.
 
 Rosenbrock, H. (1960).

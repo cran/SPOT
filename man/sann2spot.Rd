@@ -11,7 +11,7 @@ sann2spot(algpar, par = c(10, 10), fn, maxit = 100, ...)
 
 \item{par}{Initial values for the parameters to be optimized over.}
 
-\item{fn}{A function to be minimized (or maximized), 
+\item{fn}{A function to be minimized (or maximized),
 with first argument the vector of parameters over which minimization is to take place. It should return a scalar result.}
 
 \item{maxit}{Total number of function evaluations: there is no other stopping criterion. Defaults to 10000.}
@@ -22,8 +22,8 @@ with first argument the vector of parameters over which minimization is to take 
 \code{matrix} of results (performance values)
 }
 \description{
-Provide an interface for tuning SANN. 
-The interface function receives a \code{matrix} where each row is  proposed parameter setting (`temp`, `tmax`), 
+Provide an interface for tuning SANN.
+The interface function receives a \code{matrix} where each row is  proposed parameter setting (`temp`, `tmax`),
 and each column specifies the parameters.
 It generates a $(n,1)$-matrix as output, where $n$ is the number of (`temp`, `tmax`) parameter settings.
 }

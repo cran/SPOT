@@ -2,19 +2,19 @@
 % Please edit documentation in R/funContinuous.R
 \name{funBrownBs}
 \alias{funBrownBs}
-\title{funbrownBs}
+\title{funbrownBs (No. 10, More No. 4)}
 \usage{
 funBrownBs(x)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
+\item{x}{matrix of points to evaluate with the function.
 Rows for points and columns for dimension.}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-Brown badly scaled Test Function
+2-dim Brown badly scaled Test Function
 }
 \details{
 n=2, m=3

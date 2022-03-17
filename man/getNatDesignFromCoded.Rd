@@ -7,7 +7,7 @@
 getNatDesignFromCoded(x, a, b)
 }
 \arguments{
-\item{x}{(n,m)-dim \code{matrix} of coded values, i.e., lower values 
+\item{x}{(n,m)-dim \code{matrix} of coded values, i.e., lower values
 are coded as -1, upper values as +1.}
 
 \item{a}{m-dim \code{vector} of lower bounds (natural values)}
@@ -19,9 +19,9 @@ For given lower and upper bounds, a and b, respectively,
 coded input values are mapped to their natural values
 }
 \examples{
-# Note: donttest is used, because platform x86_64-w64-mingw32 (64-bit) 
+# Note: donttest is used, because platform x86_64-w64-mingw32 (64-bit)
 # does not provide the package babsim.hospital.
-\donttest{ 
+\donttest{
 require(babsim.hospital)
 x <- matrix(rep(-1,29),1,)
 bounds <- getBounds()

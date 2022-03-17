@@ -2,19 +2,19 @@
 % Please edit documentation in R/funContinuous.R
 \name{funFreudRoth}
 \alias{funFreudRoth}
-\title{funFreundRoth}
+\title{funFreudRoth (No. 8, More No. 2)}
 \usage{
 funFreudRoth(x)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
+\item{x}{matrix of points to evaluate with the function.
 Rows for points and columns for dimension.}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-Freundenstein and Roth Test Function
+2-dim Freudenstein and Roth Test Function
 }
 \examples{
 x1 <- matrix(c(1,1),1,)
@@ -31,7 +31,7 @@ Testing unconstrained optimization software.
 \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
 \doi{10.1145/355934.355936}
 
-B. Freudstein, F., and Roth, B. (Oct. 1963).
+B. Freudenstein, F., and Roth, B. (Oct. 1963).
 Numerical solutions of systems of nonlinear equations.
 \emph{The ACM Journal}, \emph{3}(3), 550-556.
 \url{https://dl.acm.org/doi/10.1145/321186.321200}

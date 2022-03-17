@@ -2,14 +2,14 @@
 % Please edit documentation in R/funContinuous.R
 \name{funShiftedSphere}
 \alias{funShiftedSphere}
-\title{funShiftedSphere}
+\title{funShiftedSphere (No. 4)}
 \usage{
-funShiftedSphere(x, a)
+funShiftedSphere(x, a = 1)
 }
 \arguments{
 \item{x}{matrix of points to evaluate with the function. Rows for points and columns for dimension.}
 
-\item{a}{offset added, i.e., f = sum (x-a)^2}
+\item{a}{offset added, i.e., f = sum (x-a)^2. Default: \code{1}.}
 }
 \value{
 1-column matrix with resulting function values

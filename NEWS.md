@@ -1,5 +1,205 @@
 # SPOT
 
+## 2.8.2
+* NEWS:
+  * Progress shows used time budget
+* BUGFIX:
+  * spot() uses inherits instead of class to resolve the following NOTE:
+    Found if() conditions comparing class() to string:
+    File ‘SPOT/R/spot.R’: if (class(control) == "spotGaussianProcessModel") ...
+    Use inherits() (or maybe is()) instead.
+
+## 2.8.0
+* NEWS:
+  * optimRandomSearch
+  * buildRandomSearchDummy
+
+## 2.7.24
+* NEWS:
+  * Typos in vignette corrected
+
+## 2.7.22
+* NEWS:
+  * vignette updated
+  * bench01 results
+
+## 2.7.18
+* NEWS:
+  * vignette with simple benchmark
+
+## 2.7.16
+* BUGFIX:
+  * ySurr reports correct value in case of multi starts
+
+## 2.7.14
+* NEW:
+  * spot() return information about the search on the surrogate: ySurr.
+    * Note: First values in ySurr are NAs, beacuse the surrogate is 
+    not available during the initial design phase.
+
+## 2.7.12
+* NEW:
+  * predictBO returns negLog10ei
+
+## 2.7.10
+* NEW:
+  * predict BO extended
+
+## 2.7.8
+* BUGFIX:
+  * getMultiStartPoints uses the correct number of replicates, i.e., 1 
+
+## 2.7.6
+* NEW:
+  * tests for multi starts
+  * spotControl() uses  as defaults: lower = rep(0, dimension), and  upper = rep(1, dimension),
+
+## 2.7.4
+* NEW:
+  * Surrogate model based optimization with multi start:
+    * control$multiStart with default value 1 (no multi start)
+
+## 2.7.2
+* NEW:
+  * control$maxTime moved to  control$time$maxTime
+  * control$tolerance = sqrt(.Machine$double.eps)
+  * optimLagp.R: routines from Gramacy's book (surrogates)
+
+## 2.7.0
+* NEW:
+  * objectiveFunctionEvaluation(): new handling of return values (matrices).
+  Returns always a matrix with nrow(xnew) rows, where nrow(xnew) is the number
+  of new x points to be evaluated
+
+## 2.6.16
+* NEW:
+  * Improved logging management:
+    * returnFullControlList: if TRUE, the full control list is returned from spot()
+  * option replicateResult implemented
+  * result contains end time (time$endTime)
+
+## 2.6.14
+* NEW
+  * spot() returns complete list of control values: result$control <- control
+
+## 2.6.12
+* NEW:
+  * transformX()
+  * objectiveFunctionEvaluation() accepts new argument transformFunList
+
+## 2.6.10
+* NEW:
+  * Logging and verbosity improved
+
+## 2.6.8
+* NEW:
+  * verbosity handling improved
+
+## 2.6.6
+* NEW:
+  * tryCatch
+
+## 2.6.4
+* NEW:
+  MOO (multiple objectives for optimization)
+
+## 2.6.2
+* NEWS:
+  renv settings
+  
+## 2.6.0
+* NEWS
+  * multi-objective objective functions:
+    * objectiveFunctionEvaluation() returns a matrix. Each column represents one objective 
+
+## 2.5.70
+* BUGFIX
+  * buildTree roxygen2 documentation fixed
+
+## 2.5.68
+* BUGFIX
+  * severity = 1 - severity bug fixed
+
+## 2.5.66
+* BUGFIX
+  * use s.e. instead of s.d
+  
+## 2.5.64
+* BUGFIX
+  * quantile calculation corrected in function spotPlotTest
+
+## 2.5.62
+* NEWS
+  * new function spotPlotTest
+
+## 2.5.60
+* NEWS
+  * further options added to plotSeverity
+
+## 2.5.58
+* NEWS
+  * color option added to plotSeverity
+
+## 2.5.56
+* NEWS
+  * plotSeverity plots also power
+
+## 2.5.54
+* NEWS
+  * additional severity tests
+
+## 2.5.52
+* NEWS
+  * testing paired and independent t-tests
+
+## 2.5.50
+* NEWS
+  * test for spotSeverity
+
+### 2.5.48
+* NEWS
+  * plot method for spotSeverity
+
+### 2.5.46
+* BUGFIX:
+  * sample size calculation: factor 2 added in getSampleSize()
+
+### 2.5.44
+* NEWS
+  * benchOptim: automatically generate sets of  benchmark functions that can be passed to optim(), spot(), etc. 
+  verbosity added.
+
+### 2.5.40
+* BUGFIX
+  * funGulf: argument m handling
+  * funHelical: x must be 3-dim
+* NEWS
+  * Documentation added
+
+### 2.5.28
+* BUGFIX
+  * Fixed an error in Soblev99 function (length replaced by dim)
+
+### 2.5.26
+* NEWS
+  * spot(): tryCatch on surrogate optimization 
+
+### 2.5.24
+* NEWS
+  * funContinuous extended, defaults added
+
+### 2.5.22
+
+* NEWS
+  * Power and severity tools extended:
+  * new functions:
+    * getPower, getSampleSize, spotPlotSeverity, makeSpotFunList
+
+### 2.5.20
+
+* BUGFIX:
+  * buildBO generates "spotBOModel" object
+
 ### 2.5.14
 
 * BUGFIX

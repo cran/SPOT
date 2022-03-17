@@ -2,19 +2,19 @@
 % Please edit documentation in R/funContinuous.R
 \name{funJennSamp}
 \alias{funJennSamp}
-\title{funjennSamp}
+\title{funJennSamp (No. 12, More No 6)}
 \usage{
 funJennSamp(x)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
+\item{x}{matrix of points to evaluate with the function.
 Rows for points and columns for dimension.}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-Jennrich and Sampson Function Test Function
+2-dim Jennrich and Sampson Function Test Function
 }
 \examples{
 x1 <- matrix(c(1,1),1,)

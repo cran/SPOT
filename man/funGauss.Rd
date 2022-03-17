@@ -2,25 +2,25 @@
 % Please edit documentation in R/funContinuous.R
 \name{funGauss}
 \alias{funGauss}
-\title{funGauss}
+\title{funGauss (No. 15, More No. 9)}
 \usage{
 funGauss(x)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
+\item{x}{matrix of points to evaluate with the function.
 Rows for points and columns for dimension.}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-Gaussian Test Function
+3-dim Gaussian Test Function
 }
 \examples{
 x1 <- matrix(c(1,1,1),1,)
 funGauss(x1)
 
-res1 <- spot(,funGauss, 
+res1 <- spot(,funGauss,
   c(-0.001,-0.007,-0.003),
   c(0.5,1.0,1.1),
   control=list(funEvals=15))

@@ -2,19 +2,19 @@
 % Please edit documentation in R/funContinuous.R
 \name{funPowellBs}
 \alias{funPowellBs}
-\title{funPowellBs}
+\title{funPowellBs (No. 9, More No. 3)}
 \usage{
 funPowellBs(x)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
+\item{x}{matrix of points to evaluate with the function.
 Rows for points and columns for dimension.}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-Powell Badly Scaled Test Function
+2-dim Powell Badly Scaled Test Function
 }
 \examples{
 x1 <- matrix(c(-1,1),1,)
@@ -34,6 +34,6 @@ Testing unconstrained optimization software.
 Powell, M.J.D. (1970).
 A hybrid method for nonlinear equations.
 In Numerical methods for Nonlinear Algebraic Equations,
-P. Rabinowitz (Ed), 
+P. Rabinowitz (Ed),
 \emph{Gordon & Breach, New York.}, \emph{3}(3), 87-114.
 }

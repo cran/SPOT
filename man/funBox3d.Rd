@@ -2,19 +2,19 @@
 % Please edit documentation in R/funContinuous.R
 \name{funBox3d}
 \alias{funBox3d}
-\title{funbox3D}
+\title{funbox3D (No. 18, More No. 12)}
 \usage{
 funBox3d(x)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
+\item{x}{matrix of points to evaluate with the function.
 Rows for points and columns for dimension.}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-Box three - dimensional Test Function
+Box three-dimensional Test Function
 }
 \references{
 More, J. J., Garbow, B. S., and  Hillstrom, K. E. (1981).
@@ -24,7 +24,7 @@ Testing unconstrained optimization software.
 
 Box three - dimensional, (1966).
 A comparison of several current optimization methods, and the use of transformations
- in constrained problems. 
+ in constrained problems.
 \emph{The Computer Journal}, \emph{3}(3), 66-77.
 \url{https://academic.oup.com/comjnl/article/9/1/67/348150}
 

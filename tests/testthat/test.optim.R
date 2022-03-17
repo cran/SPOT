@@ -43,3 +43,27 @@ test_that("check optimizer are evaluated without errors", {
     )
     expect_equal(resDE$optim$bestval , as.double(resSPOT$ybest))
 })
+
+
+test_that("check logging", {
+  res <- spot(x=NULL,
+              funMoo,
+              lower = c(1,2),
+              upper = c(10,20),
+              control=list(funEvals=15, 
+                           noise = TRUE,
+              # optimizer=optimDE,
+              optimizer = optimLHD,
+              plots = FALSE,
+              progress = TRUE,
+              seedFun = 1, # mandatory for multi-dim responses
+              noise = TRUE,
+              seedSPOT = 1,
+              model = buildRandomForest
+              )
+  )
+expect_equal(sum(res$y + res$logInfo),0)
+})
+
+
+

@@ -2,7 +2,7 @@
 % Please edit documentation in R/funContinuous.R
 \name{funRosen2}
 \alias{funRosen2}
-\title{funRosen2}
+\title{funRosen2 (No. 2a)}
 \usage{
 funRosen2(x)
 }

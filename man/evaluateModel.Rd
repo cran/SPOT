@@ -2,9 +2,14 @@
 % Please edit documentation in R/evaluate.R
 \name{evaluateModel}
 \alias{evaluateModel}
-\title{Evaluate Model}
+\title{Evaluate Model 
+
+This function produces an objective function with y=f(x) from a provided model fit.
+Important note: this function expects \code{predict(object,newdata)} to return
+a list. The \code{object$target} parameter is a string that determines which list item
+is returned by the created function. If not set (NULL), \code{object$target} is set to \code{"y"}.}
 \usage{
-evaluateModel(object, infillCriterion = NULL)
+evaluateModel(object, infillCriterion = NULL, verbosity = 0)
 }
 \arguments{
 \item{object}{fit created by a modeling function, e.g., \code{\link{buildRandomForest}}}
@@ -12,14 +17,18 @@ evaluateModel(object, infillCriterion = NULL)
 \item{infillCriterion}{optional parameter, a function that accepts prediction results and a model object. The function should use these
 to alter the prediction result in a user desired way. For example turning the prediction results of a kriging model (mean and sd) into the expected 
 improvement criterion}
+
+\item{verbosity}{verbosity (can be taken from control$verbosity). Default: 0}
 }
 \value{
 a function in the style of \code{y=f(x)}, which uses the fitted object to predict \code{y} for sample \code{x}.
 }
 \description{
+Evaluate Model 
+
 This function produces an objective function with y=f(x) from a provided model fit.
 Important note: this function expects \code{predict(object,newdata)} to return
-a list. The \code{object$target} parameter is a string that determins which list item
+a list. The \code{object$target} parameter is a string that determines which list item
 is returned by the created function. If not set (NULL), \code{object$target} is set to \code{"y"}.
 }
 \keyword{internal}

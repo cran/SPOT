@@ -1,7 +1,7 @@
- 
-#' Tree Regression Interface
-#'
-#' This is a simple wrapper for the rpart function from the rpart package.
+#' @title buildTreeModel
+#' 
+#' @description Regression Interface 
+#' This is a simple wrapper for the \code{rpart} function from the rpart package.
 #' The purpose of this function is to provide an interface as required by SPOT, to enable
 #' modeling and model-based optimization with regression trees.
 #'
@@ -13,9 +13,7 @@
 #' @importFrom stats predict
 #' @importFrom stats as.formula
 #' 
-#' @return an object of class \code{"spotTreeModel"}, with a \code{predict} method and a \code{print} method.
-#'
-#' @export
+#' @return an object of class \code{spotTreeModel}, with a \code{predict} method and a \code{print} method.
 #'
 #' @examples
 #' ## Create design points
@@ -42,9 +40,7 @@
 #' # plot(x,y, type = "l")
 #' yhat <- predict(fit, newdata = 1)
 #' yhat$y == 10
-# 
-#'
- 
+#' @export 
 buildTreeModel <- function(x,y,control=list()){
   ## Control settings
   con<-list()

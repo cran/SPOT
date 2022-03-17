@@ -2,22 +2,23 @@
 % Please edit documentation in R/funContinuous.R
 \name{funGulf}
 \alias{funGulf}
-\title{funGulf}
+\title{funGulf (No.17, More No. 11)}
 \usage{
-funGulf(x, ...)
+funGulf(x, m = 99)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
-Rows for points and columns for dimension.}
+\item{x}{matrix (n x 3) of points to evaluate with the function. 
+Rows for points and columns for dimension.
+Values should be larger than 0.}
 
-\item{...}{additional parameters. 
+\item{m}{additional parameter: .
 The Gulf function supports an additional parameter m in the range from 3 to 100}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-Gulf research and development Test Function
+3-dim Gulf research and development Test Function
 }
 \examples{
 x1 <- matrix(c(50,25,1.5),1,)

@@ -2,19 +2,19 @@
 % Please edit documentation in R/funContinuous.R
 \name{funMeyer}
 \alias{funMeyer}
-\title{funMeyer}
+\title{funMeyer (No. 16, More No. 10)}
 \usage{
 funMeyer(x)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
+\item{x}{matrix (dim 1x3) of points to evaluate with the function.
 Rows for points and columns for dimension.}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-Meyer Test Function
+Meyer 3-dim Test Function
 }
 \examples{
 x1 <- matrix(c(1,1,1),1,)

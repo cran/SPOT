@@ -4,22 +4,62 @@
 \alias{spotSeverity}
 \title{spotSeverity}
 \usage{
-spotSeverity(x0, mu1, n, sigma, alpha)
+spotSeverity(xbar, mu0, mu1, n, sigma, alpha, tdist = FALSE, paired = TRUE)
 }
 \arguments{
-\item{x0}{sample mean value}
+\item{xbar}{sample mean value}
 
-\item{mu1}{description}
+\item{mu0}{mean value of the null hypothesis (usually referred to as H0)}
 
-\item{n}{description}
+\item{mu1}{mean value of the alternative hypothesis (usually referred to as H1)}
 
-\item{sigma}{description}
+\item{n}{sample size in each arm, e.g., if 20 samples are available, then \code{n=10} 
+regardless whether the samples are paired/blocked (\code{paired=TRUE}) or independent
+(\code{paired=FALSE}). Degrees of freedom will be modified internally
+according to the setting of the \code{paired} argument.}
 
-\item{alpha}{description}
+\item{sigma}{sample s.d. Will be used to determine s.d. of the differences (if 
+\code{paired==TRUE}) or s.d. of the pooled s.d (if \code{paired==FALSE}).}
+
+\item{alpha}{probability of a type I error, given H0 is true}
+
+\item{tdist}{logical. Use Student t Distribution. Default: FALSE}
+
+\item{paired}{logical. Paired (blocked) data. Default: TRUE}
 }
 \value{
-description of return value
+an object of class \code{"spotSeverity"},
+with a \code{summary} method and a \code{print} method.
 }
 \description{
 spotSeverity
+}
+\examples{
+ 
+s0 <- spotSeverity(xbar=0.4, mu0=0.0, mu1=0.6, n=25, sigma=1, alpha=0.03)
+print(s0)
+s1 <- spotSeverity(xbar=0.4, mu0=0.6, mu1=0.6, n=25, sigma=1, alpha=0.03)
+print(s1)
+s2 <- spotSeverity(xbar=0, mu0=0.6, mu1=0.6, n=25, sigma=1, alpha=0.03)
+print(s2)
+
+## Example from Mayo, p345
+spotSeverity(xbar=90, mu0=0, mu1= 200, n=200, sigma = 450, alpha = 0.025, 
+paired = FALSE, tdist = FALSE)
+
+## Example from Vena02a to compare with results from t.test()
+## library("BHH2")
+## data(shoes.data)
+## A <- shoes.data$matA
+## B <- shoes.data$matB
+ A <- c(13.2, 8.2, 10.9, 14.3, 10.7, 6.6, 9.5, 10.8, 8.8, 13.3)
+ B <- c(14, 8.8, 11.2, 14.2, 11.8, 6.4, 9.8, 11.3, 9.3, 13.6)
+t.paired <- t.test(x = A, y = B, var.equal = TRUE, paired = TRUE, 
+alternative = "greater",  conf.level = 0.95)
+xbar <- mean(A-B)
+n <- length(A)
+sigma <- sd(A-B) 
+s.paired <- spotSeverity(xbar=xbar,mu0=0, mu1= 1, n=n, sigma = sigma, 
+alpha = 0.025, tdist = TRUE)
+
 }

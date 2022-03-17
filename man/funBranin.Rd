@@ -2,7 +2,7 @@
 % Please edit documentation in R/funContinuous.R
 \name{funBranin}
 \alias{funBranin}
-\title{funBranin}
+\title{funBranin (No. 1)}
 \usage{
 funBranin(x)
 }

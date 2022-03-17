@@ -2,7 +2,22 @@
 % Please edit documentation in R/initialInputCheck.R
 \name{checkLowerSmallerThanUpper}
 \alias{checkLowerSmallerThanUpper}
-\title{Check That Lower is smaller than Upper}
+\title{#' Check That Lower and Upper are not Equal
+#'
+#' If any entries in lower and upper are equal, the parameter has no range and cant be optimized. 
+#' In that case, an error is generated.
+#'
+#' @param lower is a vector that defines the lower boundary of search space. This determines also the dimensionality of the problem.
+#' @param upper is a vector that defines the upper boundary of search space.
+#' 
+#' @keywords internal
+ 
+checkLowerNotEqualsUpper <- function(lower,upper){
+    if(any(lower == upper)){
+        stop("SPOT Configuration Error: Entries in 'lower' and 'upper' should not be equal")
+    }
+}
+Check That Lower is smaller than Upper}
 \usage{
 checkLowerSmallerThanUpper(lower, upper)
 }

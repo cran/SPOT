@@ -2,23 +2,23 @@
 % Please edit documentation in R/funContinuous.R
 \name{funHelical}
 \alias{funHelical}
-\title{funHelical}
+\title{funHelical (No. 13, More No. 7)}
 \usage{
 funHelical(x)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
+\item{x}{matrix (n x 3)-dim of points to evaluate with the function.
 Rows for points and columns for dimension.}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-Helical Test Function
+3-dim Helical Test Function
 }
 \examples{
-x1 <- matrix(c(1,1),1,)
-funHelical(x1) 
+x1 <- matrix(c(1,1,1),1,)
+funHelical(x1)
 res <- spot(,funHelical,c(-40,-40,-40),c(40,40,40),control=list(funEvals=20))
 plotModel(res$model,which=c(1,2),type="persp",border="NA")
 plotModel(res$model,which=c(2,3),type="persp",border="NA")
@@ -34,8 +34,8 @@ Testing unconstrained optimization software.
 \emph{ACM Transactions on Mathematical Software (TOMS)}, \emph{7}(1), 17-41.
 \doi{10.1145/355934.355936}
 
-Fletcher, R., and  Powell, M. J. (1963). 
-A rapidly convergent descent method for minimization. 
-\emph{The Computer Journal}, \emph{6}(2), 163-168. 
+Fletcher, R., and  Powell, M. J. (1963).
+A rapidly convergent descent method for minimization.
+\emph{The Computer Journal}, \emph{6}(2), 163-168.
 \doi{10.1093/comjnl/6.2.163}
 }

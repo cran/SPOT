@@ -7,14 +7,14 @@
 spotLoop(x, y, fun, lower, upper, control, ...)
 }
 \arguments{
-\item{x}{\code{(m,n) matrix} that contains the known candidate solutions. 
-The SPOT loop is started with these values. Each row represents one \code{n} dimensional 
+\item{x}{\code{(m,n) matrix} that contains the known candidate solutions.
+The SPOT loop is started with these values. Each row represents one \code{n} dimensional
 data point. Each of the \code{m} columns represents one optimized parameter.}
 
 \item{y}{\code{(m,p) matrix} that represents observations for each point in \code{x},
 Each of the \code{m} rows represents solutions for one data point.}
 
-\item{fun}{\code{function} that represents the objective function. 
+\item{fun}{\code{function} that represents the objective function.
 It should receive a matrix \code{x} and return a matrix \code{y}.
 In case the function uses external code and is noisy, an additional seed parameter may be used,
 see the \code{control$seedFun} argument below for details.}

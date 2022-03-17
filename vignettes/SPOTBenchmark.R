@@ -40,14 +40,14 @@ knitr::opts_chunk$set(
 #  x0 = matrix( x0, nrow = 1)
 #  
 #  set.seed(1)
-#  perf1 <- spot(x= x0, funSphere, a, b, control=list(maxTime = 0.25, funEvals=10*n, plots=TRUE,
+#  perf1 <- spot(x= x0, funSphere, a, b, control=list(time=list(maxTime = 0.25), funEvals=10*n, plots=TRUE,
 #                                                     model = buildKriging, optimizer=optimNLOPTR))
 #  set.seed(1)
-#  perf2 <- spot(x= x0, funSphere, a, b, control=list(maxTime = 0.25, funEvals=10*n, plots=TRUE,
+#  perf2 <- spot(x= x0, funSphere, a, b, control=list(time=list(maxTime = 0.25), funEvals=10*n, plots=TRUE,
 #                model = buildGaussianProcess, optimizer=optimNLOPTR, directOptControl = list(funEvals=0)))
 #  
 #  set.seed(1)
-#  perf3 <- spot(x= x0, funSphere, a, b, control=list(maxTime = 0.25, funEvals=10*n, plots=TRUE,
+#  perf3 <- spot(x= x0, funSphere, a, b, control=list(time=list(maxTime = 0.25), funEvals=10*n, plots=TRUE,
 #                                                     model = buildGaussianProcess, optimizer=optimNLOPTR,
 #                                                     directOptControl = list(funEvals=10)))
 #  

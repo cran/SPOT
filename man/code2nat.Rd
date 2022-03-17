@@ -7,7 +7,7 @@
 code2nat(x, a, b)
 }
 \arguments{
-\item{x}{\code{matrix} of m n-dimensional input values 
+\item{x}{\code{matrix} of m n-dimensional input values
 from the interval \code{[0;1]}, i.e, dim(x) = m x n}
 
 \item{a}{\code{vector} of n-dimensional lower bound, i.e., length(a) = n}
@@ -15,7 +15,7 @@ from the interval \code{[0;1]}, i.e, dim(x) = m x n}
 \item{b}{\code{vector} of n-dimensional upper bound, i.e., length(b) = n}
 }
 \description{
-Input values from the interval from zero to one, i.e., normalized 
+Input values from the interval from zero to one, i.e., normalized
 values,  are mapped to the interval from a to b.
 }
 \examples{

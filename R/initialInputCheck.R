@@ -86,7 +86,7 @@ checkForNAs <- function(x, lower, upper){
 #' @keywords internal
  
 checkTypesOfInput <- function(x,lower,upper, control){
-    #If control$types is null then no types are specified, everything shoud be numeric
+    #If control$types is null then no types are specified, everything should be numeric
     if(is.null(control$types)){
         if(!is.null(x)){
             if(!is.numeric(x)){
@@ -128,21 +128,21 @@ checkInputDimensionsionalityCorrect <- function(x,lower,upper){
 }
 
  
-#' Check That Lower and Upper are not Equal
-#'
-#' If any entries in lower and upper are equal, the parameter has no range and cant be optimized. 
-#' In that case, an error is generated.
-#'
-#' @param lower is a vector that defines the lower boundary of search space. This determines also the dimensionality of the problem.
-#' @param upper is a vector that defines the upper boundary of search space.
-#' 
-#' @keywords internal
- 
-checkLowerNotEqualsUpper <- function(lower,upper){
-    if(any(lower == upper)){
-        stop("SPOT Configuration Error: Entries in 'lower' and 'upper' should not be equal")
-    }
-}
+#' #' Check That Lower and Upper are not Equal
+#' #'
+#' #' If any entries in lower and upper are equal, the parameter has no range and cant be optimized. 
+#' #' In that case, an error is generated.
+#' #'
+#' #' @param lower is a vector that defines the lower boundary of search space. This determines also the dimensionality of the problem.
+#' #' @param upper is a vector that defines the upper boundary of search space.
+#' #' 
+#' #' @keywords internal
+#'  
+#' checkLowerNotEqualsUpper <- function(lower,upper){
+#'     if(any(lower == upper)){
+#'         stop("SPOT Configuration Error: Entries in 'lower' and 'upper' should not be equal")
+#'     }
+#' }
 
  
 #' Check That Lower is smaller than Upper
@@ -229,7 +229,7 @@ checkInputTypesInControl <- function(control){
                          "designControl$retries", "OCBAbudget", "replicates")
     
     for(ele in typesNumeric){
-        splits <- strsplit(ele,"$", fixed = T)[[1]]
+        splits <- strsplit(ele,"$", fixed = TRUE)[[1]]
         val <- control[[splits[1]]]
         if(length(splits)>1){
             for(i in 2:length(splits)){

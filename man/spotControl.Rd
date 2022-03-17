@@ -19,7 +19,9 @@ This function returns the default controls for the functions \code{\link{spot}} 
 \details{
 Control is a list of the settings:
 \describe{
-  \item{\code{funEvals}}{ This is the budget of function evaluations (spot uses no more than funEvals evaluations of fun), defaults to 20.}
+  \item{\code{funEvals}}{This is the budget of function evaluations (spot uses no more than funEvals evaluations of fun), defaults to 20.}
+  \item{\code{multiStart}}{Number of restarts for optimization on the surrrogate
+  model. Default: \code{1}, i.e., no restarts.}
   \item{\code{types}}{ Vector of data type of each variable as a string, defaults \code{"numeric"} for all variables.}
   \item{\code{subsetSelect}}{A function that selects a subset from a given set of design points. Default is \code{\link{selectAll}}.}
   \item{\code{subsetControl}}{A list of controls passed to the \code{control} list of the \code{subsetSelect} function. See help
@@ -32,7 +34,7 @@ Control is a list of the settings:
 			parameters, and return a matrix like \code{\link{buildKriging}} or \code{\link{buildRandomForest}}
 			can be used. Default is \code{\link{buildKriging}}.}
   \item{\code{modelControl}}{A list of controls passed to the \code{control} list of the \code{model} function.
-			See help of the respective function for details.Default is an empty \code{list}.}
+			See help of the respective function for details. Default is an empty \code{list}.}
   \item{\code{optimizer}}{A function that is used to optimize based on \code{model}, finding the most promising
 			candidate solutions. Functions that accept the same parameters, and return a matrix like \code{\link{optimLHD}}
 			or \code{\link{optimDE}} can be used. Default is \code{\link{optimLHD}}.}
@@ -41,16 +43,30 @@ Control is a list of the settings:
   \item{\code{directOpt}}{A function that is used to optimize after the \code{spot} run is finished.
    Functions that accept the same parameters, and return a matrix like \code{\link{optimNLOPTR}}
 			or \code{\link{optimDE}} can be used. Default is \code{\link{optimNLOPTR}}.}
-  \item{\code{directOptControl}}{A list of controls passed to the \code{control} list of the \code{directOpt} function.
-			See help of the respective function for details. Default is \code{list(funEvals = 0)}.}
+  \item{\code{directOptControl}}{A list of controls, which determine whether a direct optimization 
+  (exploitation of the final search region) is performed. Default is to run no direct optimization, i.e., 
+  \code{directOptControl = list(funEvals = 0)list}.
+  \describe{
+  \item{\code{funEvals}}{This is the budget of function evaluations of the direct optimization performed 
+  after the SMBO is performed. Default is \code{list(funEvals = 0)}.}
+  }
+  }
   \item{\code{noise}}{Boolean, whether the objective function has noise or not. Default is non-noisy, that is, \code{FALSE}.}
   \item{\code{OCBA}}{Boolean, indicating whether Optimal Computing Budget Allocation (OCBA) should be used in case of a noisy
 			objective function or not. OCBA controls the number of replications for each candidate solution.
 				Note, that \code{replicates} should be larger than one in that case, and that the initial experimental design
 			(see \code{design}) should also have replicates larger one. Default is \code{FALSE}.}
-  \item{\code{OCBAbudget}}{The number of objective function evaluations that OCBA can distribute in each iteration. Default is 3.}
+  \item{\code{OCBAbudget}}{The number of objective function evaluations that OCBA can distribute in each iteration. 
+  Default is 3.}
+  \item{\code{replicateResult}}{\code{logical}. If \code{TRUE}, one result is
+  replicated. The result is specified as  the \code{lower} vector and 
+  re-evaluated \code{funEvals} times. No model building and 
+  optimization is performed, only evaluations on the 
+  objective function. Default: \code{FALSE}.}
   \item{\code{replicates}}{The number of times a candidate solution is initially evaluated, that is, in the initial design,
 			or when created by the optimizer. Default is \code{1}.}
+ \item{\code{returnFullControlList}}{\code{logical}. Return the full control 
+ list. Can be switched off to save memory/space. Default: \code{TRUE}.}			
   \item{\code{seedFun}}{An initial seed for the objective function in case of noise, by default \code{NA}. The default means that no seed is set.
 			The user should be very careful with this setting. It is intended to generate reproducible experiments for each objective
 			function evaluation, e.g., when tuning non-deterministic algorithms. If the objective function uses a constant number
@@ -71,11 +87,17 @@ Control is a list of the settings:
   \item{\code{infillCriterion}}{A function defining an infillCriterion to be used while optimizing a model. Default: NULL. For example check infillExpectedImprovement}
   \item{\code{verbosity}}{Integer level specifying how much output should be given by SPOT. 0 (default) ignores warnings of internal optimizers /models.
              1 will show warnings and output.}
-  \item{\code{maxTime}}{\code{num} Maximum allowed run time (in minutes) for \code{spot} or \code{spotLoop}. 
+  \item{\code{time}}{List with the following time information: 
+  \describe{
+  \item{\code{maxTime}}{\code{num} Maximum allowed run time (in minutes) for \code{spot} or \code{spotLoop}.
          The default value for \code{maxTime} (in minutes) is \code{Inf} and can be overwritten by the user.
          The internal value \code{startTime}, that is used to control \code{maxTime},
-         will be set by \code{\link{spotFillControlList}}. 
-         Note: \code{maxTime}  is only an approximate value. It does not affect the \code{directOpt} run.
-  }            
+         will be set by \code{\link{spotFillControlList}}.
+         Note: \code{maxTime}  is only an approximate value. It does not affect the \code{directOpt} run.}
+  \item{\code{startTime}}{Start time. Will be set in \code{\link{spotFillControlList}}.}
+  \item{\code{endTime}}{End time.}
+  }
+ }
+ \item{\code{fixError}}{logical. If eval returns an error, replace return value with mean(already evaluated values). Default: \code{FALSE}.}
 }
 }

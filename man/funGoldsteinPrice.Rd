@@ -2,7 +2,7 @@
 % Please edit documentation in R/funContinuous.R
 \name{funGoldsteinPrice}
 \alias{funGoldsteinPrice}
-\title{Goldstein-Price Test Function}
+\title{Goldstein-Price Test Function (No. 5)}
 \usage{
 funGoldsteinPrice(x)
 }

@@ -9,7 +9,7 @@ spot(x = NULL, fun, lower, upper, control = list(), ...)
 \arguments{
 \item{x}{is an optional start point (or set of start points), specified as a matrix. One row for each point, and one column for each optimized parameter.}
 
-\item{fun}{is the objective function. It should receive a matrix x and return a matrix y. 
+\item{fun}{is the objective function. It should receive a matrix x and return a matrix y.
 In case the function uses external code and is noisy, an additional seed parameter may be used, see the \code{control$seedFun} argument below for details.
 Mostly, fun must have format y = f(x, ...). If a noisy function requires some specific seed handling, e.g., in some other non-R code,
 a seed can be passed to fun. For that purpose, the user must specify \code{control$noise = TRUE} and fun should be \code{fun(x, seed, ...)}}
@@ -42,21 +42,21 @@ To that end, it uses methods from the fields of design of experiment, statistica
 and optimization.
 }
 \examples{
-## Only a few examples. More examples can be found in the vignette and in  
-## the paper "In a Nutshell -- The Sequential Parameter Optimization Toolbox", 
+## Only a few examples. More examples can be found in the vignette and in
+## the paper "In a Nutshell -- The Sequential Parameter Optimization Toolbox",
 ## see https://arxiv.org/abs/1712.04076
 
-## 1. Most simple example: Kriging + LHS search + predicted mean optimization 
+## 1. Most simple example: Kriging + LHS search + predicted mean optimization
 ## (not expected improvement)
 set.seed(1)
-res <- spot(,funSphere,c(-2,-3),c(1,2),
+res <- spot(x=NULL,funSphere,c(-2,-3),c(1,2),
              control=list(funEvals=15))
 res$xbest
 res$ybest
 
 ## 2. With expected improvement
 set.seed(1)
-res <- spot(,funSphere,c(-2,-3),c(1,2),
+res <- spot(x=NULL,funSphere,c(-2,-3),c(1,2),
             control=list(funEvals=15,
                          modelControl=list(target="ei")))
 res$xbest
@@ -71,5 +71,18 @@ res <- spot(,funSphere,c(-2,-3),c(1,2),
 res$xbest
 res$ybest
 
+### 4. Use transformed input values
+set.seed(1)
+f2 <- function(x){2^x}
+lower <- c(-100, -100)
+upper <- c(100, 100)
+transformFun <- rep("f2", length(lower))
+res <- spot(x=NULL,funSphere,lower=lower, upper=upper,
+             control=list(funEvals=15,
+                          modelControl=list(target="ei"),
+                          optimizer=optimLBFGSB,
+                          transformFun=transformFun))
+res$xbest
+res$ybest
 
 }

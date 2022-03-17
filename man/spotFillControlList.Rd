@@ -4,7 +4,7 @@
 \alias{spotFillControlList}
 \title{spotFillControlList}
 \usage{
-spotFillControlList(controlList, dimension)
+spotFillControlList(controlList, lower, upper)
 }
 \arguments{
 \item{controlList}{list of controls, see \code{\link{spotControl}}.}

@@ -4,14 +4,7 @@
 \alias{objectiveFunctionEvaluation}
 \title{objectiveFunctionEvaluation  Objective Function Evaluation}
 \usage{
-objectiveFunctionEvaluation(
-  x = NULL,
-  xnew,
-  fun,
-  seedFun = NA,
-  noise = FALSE,
-  ...
-)
+objectiveFunctionEvaluation(x = NULL, xnew, fun, control = list(), ...)
 }
 \arguments{
 \item{x}{matrix of already known solutions, to determine whether RNG seeds for new solutions need to be incremented.}
@@ -20,9 +13,11 @@ objectiveFunctionEvaluation(
 
 \item{fun}{objective function to evaluate the solutions in \code{xnew}.}
 
-\item{seedFun}{initial seed to be used for the random number generator seed. Set to NA to avoid using a fixed seed.}
-
-\item{noise}{\code{logical} parameter specifying whether the target function is noisy.}
+\item{control}{control list, e.g., \code{seedFun:} 
+initial seed to be used for the random number generator seed. 
+Set to NA to avoid using a fixed seed. \code{noise:} \code{logical} parameter specifying 
+whether the target function is noisy. \code{verbosity:} verbosity. Default: 0. \code{transformFun:} 
+transformation functions applied to \code{xnew}.}
 
 \item{...}{parameters passed to \code{fun}.}
 }

@@ -2,29 +2,29 @@
 % Please edit documentation in R/funContinuous.R
 \name{funPowellS}
 \alias{funPowellS}
-\title{funpowellS}
+\title{funPowellS (No. 19, More No. 13)}
 \usage{
 funPowellS(x)
 }
 \arguments{
-\item{x}{matrix of points to evaluate with the function. 
+\item{x}{matrix (dim 1x4) of points to evaluate with the function.
 Rows for points and columns for dimension.}
 }
 \value{
 1-column matrix with resulting function values
 }
 \description{
-Powells Test Function
+Powells 4-dim Test Function
 }
 \examples{
 x1 <- matrix(c(0,0,0,0),1,)
 funPowellS(x1)
-x2 <- matrix(c(3,-1,0,1),1,) 
+x2 <- matrix(c(3,-1,0,1),1,)
 funPowellS(x2)
 x3 <- matrix(c(0,0,0,-2),1,)
 funPowellS(x3)
 # optimization run with SPOT and 15 evaluations
-res_fun <- spot(,funPowellS,c(-4,-4,-4,-4 ),c(5,5,5,5),control=list(funEvals=15)) 
+res_fun <- spot(,funPowellS,c(-4,-4,-4,-4 ),c(5,5,5,5),control=list(funEvals=15))
 res_fun
 
 }

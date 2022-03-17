@@ -35,11 +35,10 @@ optimLHD<-function(x=NULL,fun,lower,upper,control=list(),...){
 	con<-list(funEvals=100,retries=100,types= rep("numeric",length(lower)))
 	con[names(control)] <- control
 	control<-con
-	  
-  if(is.null(x)){
-    k=0
+	if(is.null(x)){
+    k <- 0
   }else{
-    k=nrow(x)
+    k <- nrow(x)
     if(k>=control$funEvals){
       stop("Design size in optimLHD is zero or negative, due to large number of rows of user-specified x matrix.")
     }
