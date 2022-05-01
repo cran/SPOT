@@ -76,9 +76,10 @@ buildLasso <-function(x,y,control=list()){
   # train = sample(1:nrow(x_vars), nrow(x_vars))
   #x_test = (-train)
   #y_test = y_var[x_test]
-  cv_output <- cv.glmnet(x_vars, y_var,
+  cv_output <- suppressWarnings(cv.glmnet(x_vars, y_var,
                          alpha = 1, lambda = lambda_seq, 
-                         nfolds = 50)
+                         nfolds = 10,
+                         grouped=FALSE))
   best_lam <- cv_output$lambda.min
   
   fit <- glmnet(x_vars, y_var, alpha = 1, lambda = best_lam)

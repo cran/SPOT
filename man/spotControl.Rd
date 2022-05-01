@@ -4,10 +4,10 @@
 \alias{spotControl}
 \title{spotControl}
 \usage{
-spotControl(dimension)
+spotControl(dimension = NA)
 }
 \arguments{
-\item{dimension}{problem dimension, that is, the number of optimized parameters.}
+\item{dimension}{problem dimension, that is, the number of optimized parameters. This parameter is mandatory since v2.8.4.}
 }
 \value{
 a list
@@ -23,6 +23,7 @@ Control is a list of the settings:
   \item{\code{multiStart}}{Number of restarts for optimization on the surrrogate
   model. Default: \code{1}, i.e., no restarts.}
   \item{\code{types}}{ Vector of data type of each variable as a string, defaults \code{"numeric"} for all variables.}
+  \item{\code{parNames}}{ Vector of parameter names of each variable as a string, defaults \code{c("x1", "x2", "x3",..)}.}
   \item{\code{subsetSelect}}{A function that selects a subset from a given set of design points. Default is \code{\link{selectAll}}.}
   \item{\code{subsetControl}}{A list of controls passed to the \code{control} list of the \code{subsetSelect} function. See help
 			of the respective function for details. Default is an empty \code{list}.}
@@ -56,7 +57,7 @@ Control is a list of the settings:
 			objective function or not. OCBA controls the number of replications for each candidate solution.
 				Note, that \code{replicates} should be larger than one in that case, and that the initial experimental design
 			(see \code{design}) should also have replicates larger one. Default is \code{FALSE}.}
-  \item{\code{OCBAbudget}}{The number of objective function evaluations that OCBA can distribute in each iteration. 
+  \item{\code{OCBABudget}}{The number of objective function evaluations that OCBA can distribute in each iteration. 
   Default is 3.}
   \item{\code{replicateResult}}{\code{logical}. If \code{TRUE}, one result is
   replicated. The result is specified as  the \code{lower} vector and 
@@ -98,6 +99,7 @@ Control is a list of the settings:
   \item{\code{endTime}}{End time.}
   }
  }
- \item{\code{fixError}}{logical. If eval returns an error, replace return value with mean(already evaluated values). Default: \code{FALSE}.}
+ \item{\code{handleNAsMethod}}{A function that treats NAs if there are any present in the result vector of the objective function.
+             Default: \code{NULL}. By default NAs will not be treated.}
 }
 }

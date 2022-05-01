@@ -8,8 +8,6 @@ spotFillControlList(controlList, lower, upper)
 }
 \arguments{
 \item{controlList}{list of controls, see \code{\link{spotControl}}.}
-
-\item{dimension}{dimension of the optimization problem. See \code{\link{spotControl}}.}
 }
 \value{
 a list

@@ -7,13 +7,15 @@
 updateSeedFromXnew(x, xnew, seed, seedFun, verbosity = 0)
 }
 \arguments{
-\item{x}{matrix of already known solutions, to determine whether RNG seeds for new solutions need to be incremented.}
+\item{x}{matrix of already known solutions,
+to determine whether RNG seeds for new solutions need to be incremented.}
 
 \item{xnew}{matrix of new solutions.}
 
 \item{seed}{seed}
 
-\item{seedFun}{initial seed to be used for the random number generator seed. Set to NA to avoid using a fixed seed.}
+\item{seedFun}{initial seed to be used for the random number generator seed.
+Set to NA to avoid using a fixed seed.}
 
 \item{verbosity}{verbosity. Default: 0}
 }

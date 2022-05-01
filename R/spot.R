@@ -82,7 +82,6 @@ spot <-
     # Initial Input Checking
     PASSED <- initialInputCheck(x, fun, lower, upper, control)
     ## default settings
-    dimension <- length(lower)
     control <- spotFillControlList(control, lower, upper)
     
     ## Only replicate (reevaluate) one parameter setting.
@@ -93,9 +92,8 @@ spot <-
       control$designControl$replicates <- 1
       control$designControl$size <- control$funEvals
     }
-    
-    
-    ## Initial design generation
+ 
+     ## Initial design generation
     set.seed(control$seedSPOT)
     
      if (control$verbosity == 0) {
@@ -146,6 +144,25 @@ spot <-
         message("objectiveFunctionEvaluation(). Caught an error! in spot()")
         print(e)
       })
+    
+    ## check y matrix
+    if (control$verbosity > 0) {
+      message("spot: y matrix in spot() after initial design execution")
+      print(y)
+    }
+    ## This should be done after the initial design , before the main loop for (x,y),
+    ## and afterwards  only for (xnew, ynew):
+    ## Treating NA and Inf
+    if(!is.null(control$yImputation$handleNAsMethod)){
+      y <- imputeY(x = x,
+                   y= y,
+                   control = control)
+    }
+    ## check y matrix
+    if (control$verbosity > 0) {
+      message("spot: y matrix after imputation after initial design execution")
+      print(y)
+    }
   
     ## Check dimension of the objective function evaluation    
     if (nrow(x) != nrow(y)) {
@@ -276,7 +293,6 @@ spot <-
 #' @description Fill in some values for the control list. Internal use only.
 #'
 #' @param controlList list of controls, see \code{\link{spotControl}}.
-#' @param dimension dimension of the optimization problem. See \code{\link{spotControl}}.
 #' @return a list
 #' @export
 #' @keywords internal
@@ -297,7 +313,10 @@ spotFillControlList <- function(controlList, lower, upper) {
   controlList$time$startTime <- Sys.time()
   controlList$time$endTime <- NA
   
-  # Update lower/upper
+  # Add lower/upper. So they are available in the control list
+  # But this generates duplicate information, because 
+  # they are stored as lower and as controlList$lower => 
+  # FIXME: remove "lower" and use control$lower only?
   controlList$lower <- lower
   controlList$upper <- upper
   
@@ -315,6 +334,7 @@ spotFillControlList <- function(controlList, lower, upper) {
 #'   \item{\code{multiStart}}{Number of restarts for optimization on the surrrogate
 #'   model. Default: \code{1}, i.e., no restarts.}
 #'   \item{\code{types}}{ Vector of data type of each variable as a string, defaults \code{"numeric"} for all variables.}
+#'   \item{\code{parNames}}{ Vector of parameter names of each variable as a string, defaults \code{c("x1", "x2", "x3",..)}.}
 #'   \item{\code{subsetSelect}}{A function that selects a subset from a given set of design points. Default is \code{\link{selectAll}}.}
 #'   \item{\code{subsetControl}}{A list of controls passed to the \code{control} list of the \code{subsetSelect} function. See help
 #'				of the respective function for details. Default is an empty \code{list}.}
@@ -348,7 +368,7 @@ spotFillControlList <- function(controlList, lower, upper) {
 #'				objective function or not. OCBA controls the number of replications for each candidate solution.
 #' 				Note, that \code{replicates} should be larger than one in that case, and that the initial experimental design
 #'				(see \code{design}) should also have replicates larger one. Default is \code{FALSE}.}
-#'   \item{\code{OCBAbudget}}{The number of objective function evaluations that OCBA can distribute in each iteration. 
+#'   \item{\code{OCBABudget}}{The number of objective function evaluations that OCBA can distribute in each iteration. 
 #'   Default is 3.}
 #'   \item{\code{replicateResult}}{\code{logical}. If \code{TRUE}, one result is
 #'   replicated. The result is specified as  the \code{lower} vector and 
@@ -390,17 +410,19 @@ spotFillControlList <- function(controlList, lower, upper) {
 #'   \item{\code{endTime}}{End time.}
 #'   }
 #'  }
-#'  \item{\code{fixError}}{logical. If eval returns an error, replace return value with mean(already evaluated values). Default: \code{FALSE}.}
+#'  \item{\code{handleNAsMethod}}{A function that treats NAs if there are any present in the result vector of the objective function.
+#'              Default: \code{NULL}. By default NAs will not be treated.}
 #' }
-#' @param dimension problem dimension, that is, the number of optimized parameters.
+#' @param dimension problem dimension, that is, the number of optimized parameters. This parameter is mandatory since v2.8.4.
 #'
 #' @return a list
 #' @export
-spotControl <- function(dimension) {
+spotControl <- function(dimension=NA) {
+  if(is.na(dimension)) stop("Error: spotControl() call w/o dimension.")
   list(
     funEvals = 20,
-    lower = rep(0, dimension),
-    upper = rep(1, dimension),
+    lower = NA, ## lower and are not defined here, because
+    upper = NA, ## their are separate arguments.
     types = rep("numeric", dimension),
     design = designLHD,
     designControl = list(),
@@ -412,6 +434,7 @@ spotControl <- function(dimension) {
     multiStart = 1,
     optimizer = optimLHD,
     optimizerControl = list(),
+    parNames = paste0("x", 1:dimension),
     directOpt = optimNLOPTR,
     ## default: do not use directOpt:
     directOptControl = list(funEvals = 0),
@@ -459,8 +482,12 @@ spotControl <- function(dimension) {
     maxTime = Inf,
     ## tolerance. Can be used as a termination criterion (or break).
     tolerance = sqrt(.Machine$double.eps),
-    fixError = FALSE
-  )
+    # list of functions to determine imputations, see also handleNAsMethod
+    yImputation = list( 
+      imputeCriteriaFuns = list(is.na, is.infinite, is.nan),
+      handleNAsMethod = NULL, # Method for treating NAs, default NULL, no method used
+      penaltyImputation = 3 # penalty used for imputed values (used by handleNAsKrigingWorst)
+    ))
 }
 
 
@@ -538,7 +565,20 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
   
   ## check y matrix
   if (control$verbosity > 0) {
-    message("spotLoop: y matrix received from spot() after initial design execution")
+    message("spotLoop: y matrix (i) either received from spot() after initial design execution or (ii) from previous runs ")
+    print(y)
+  }
+  ## This should be done once before the main loop for (x,y)
+  ## and afterwards  only for (xnew, ynew):
+  ## Treating NA and Inf
+  if(!is.null(control$yImputation$handleNAsMethod)){
+    y <- imputeY(x = x,
+                 y= y,
+                 control = control)
+  }
+  ## check y matrix
+  if (control$verbosity > 0) {
+    message("spotLoop: y matrix before starting the main loop")
     print(y)
   }
   
@@ -549,7 +589,7 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
   modelFit <- NA
   ybestVec <- rep(min(y[, 1]), count)
   ## ySurr has NAs, because no surrogate model was build so far:
-  ySurr <- matrix(, nrow=1, ncol=count)
+  ySurr <- matrix(NA, nrow=1, ncol=count)
   
   if (control$verbosity > 0) {
     message("Initial x-values before entering main loop in spotLoop()")
@@ -563,6 +603,8 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
   while ((count < control$funEvals) &
          (difftime(Sys.time(), control$time$startTime, units = 'mins')
           < control$time$maxTime)) {
+    
+    
     ## Select points for model building (model requires one y-value only)
     ## Model building is done with this subset, but the complete
     ## result set is kept as "y" and combined with the new evaluations further below
@@ -582,6 +624,7 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
       print(selectRes$x)
       print(selectRes$y)
     }
+    
     ## Model building using control$model (default is buildKriging).
     ## Based on fit
     # 2022-03-04: tryCatch added:
@@ -596,6 +639,10 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
       },
       error = function(e) {
         message('control$model() in spotLoop(): Caught an error!')
+        message("Selected x values:")
+        print(selectRes$x)
+        message("Selected y values:")
+        print(selectRes$y)
         print(e)
       }
     )
@@ -661,6 +708,8 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
       },
       error = function(e) {
         message('optimResSurr: Calling control$optimizer() in spot.R: Caught an error!')
+        message("Failed search on the surrogate with starting point/s x0:")
+        print(x0)
         print(e)
       }
     )
@@ -702,18 +751,18 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
     )
     
     ## If desired, use OCBA to handle replications of old solutions
-    if (control$noise & control$OCBA) {
-      xnew <- tryCatch(
-        expr = {
-          rbind(xnew, repeatsOCBA(x, y[, 1, drop = FALSE], control$OCBABudget))
-        },
-        error = function(e) {
-          message('Calling repeatsOCBA() in spot.R: Caught an error!')
-          print(e)
-        }
-      )
+    if(control$verbosity>0){
+    message("xnew before OCBA:")
+    print(xnew)
     }
-    
+    if (control$noise & control$OCBA) {
+      try(
+        xnew <- rbind(xnew, repeatsOCBA(x, y[, 1, drop = FALSE], 
+                                        control$OCBABudget)))}
+    if(control$verbosity>0){
+      message("xnew after OCBA:")
+    print(xnew)
+    }
     ## Prevent exceeding the budget:
     xnew <-
       xnew[1:min(max(control$funEvals - count, 1), nrow(xnew)), , drop = FALSE]
@@ -750,8 +799,16 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
         )
       },
       error = function(e) {
+        print(x)
+        print(xnew)
         message("ynew: objectiveFunctionEvaluation() in spotLoop(): Caught an error!")
         print(e)
+        if(!is.null(control$yImputation$handleNAsMethod)){
+          message("Error will be corrected using the configured NA handling technique.")
+          n <- nrow(xnew)
+          m <- ncol(y)
+          return(matrix(rep(NA,m*n),nrow= n))
+        }
       }
     )
     ##
@@ -759,10 +816,20 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
       message("Result (ynew): after objectiveFunctionEvaluation() in spot.R:")
       print(ynew)
     }
-    ##
+    
+    ## Combine before impute. This provides a larger basis for imputation.
     colnames(xnew) <- colnames(x)
     x <- rbind(x, xnew)
     y <- rbind(y, ynew)
+    
+    ## Treating NA and Inf for new values
+    if(!is.null(control$yImputation$handleNAsMethod)){
+      y <- imputeY(x = x,
+                   y= y,
+                   control = control)
+    }
+    
+    
     
     if (control$verbosity > 0) {
       message("Combined x and xnew: in spot.R:")
@@ -787,17 +854,17 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
     if (control$progress & (control$funEvals > 0) & is.finite(control$funEvals)) {
       cat(paste0(round(count / (
         control$funEvals
-      ) * 100), "% completed.\n"))
+      ) * 100), "% completed. Best y val:", min(ybestVec),"\n"))
       if (count == (control$funEvals))
-        cat("Done.\n")
+        cat("Done. Best y val:", min(ybestVec)," \n")
     }
     ## Progress: time
     if (control$progress & is.finite(control$time$maxTime) & (control$time$maxTime > 0)){
      usedTime <- round(
        difftime(Sys.time(), control$time$startTime, units = 'mins')/control$time$maxTime * 100)
-     cat(paste0(usedTime, "% completed.\n"))
+     cat(paste0(usedTime, "% completed. Best y val:", min(ybestVec),"\n"))
      if ((difftime(Sys.time(), control$time$startTime, units = 'mins') >= control$time$maxTime))
-       cat("Done.\n")
+       cat("Done. Best y val:", min(ybestVec)," \n")
     }
   } # while loop
   

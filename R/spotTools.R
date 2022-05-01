@@ -253,3 +253,63 @@ checkFeasibilityNlopGnIngres <- function(x,
           control$optimizerControl$eval_g_ineq(x) < 0)
     }
 }
+
+
+#' @title get number of replicates
+#' @description determine how often appears x in X
+#' @details can be used to determine the number of
+#' replicates/repeated evaluations of a solution x
+#' @param x row vector
+#' @param X matrix
+#' @examples 
+#' k <- 2
+#' n <- 4
+#' A <- matrix(1:(k*n),n,k, byrow = TRUE)
+#' X <- rbind(A,A,A)
+#' x <- A[1,]
+#' ## should be 3:
+#' getReplicates(x,X)
+#' 
+#' ## U has unique entries
+#' U <- X[!duplicated(X), ]
+#' ## should be 1:
+#' getReplicates(x,U)
+#' 
+#' @export
+getReplicates <- function(x,X){
+  sum(apply(X, 1, identical, x))
+}
+
+
+#' @title get performance stats
+#' @description determines mean performance 
+#' @details further stats will be added
+#' @importFrom stats ave
+#' @param x matrix of n solutions (usually a (nxd)-matrix, where d is the problem dimension)
+#' @param y matrix with objective values (usually a (nx1)-matrix
+#' @examples 
+#' x <- matrix(1:10, ncol=2, byrow=TRUE)
+#' y1 <- funSphere(x) +1
+#' y2 <- funSphere(x) -1
+#' x <- rbind(x,x)
+#' y <- rbind(y1, y2)
+#' M <- getPerformanceStats(x,y)
+#' 
+#' @export
+getPerformanceStats <- function(x,y){
+  # dim, number of x_1 params
+  d <- dim(x)[2] 
+  A <- data.frame(cbind(x,y))
+  M <- transform(A, mean = ave(A[,d+1], A[,1:(d-1)]))
+  M[, dim(M)[2], drop=FALSE]
+}
+
+
+
+
+
+
+
+
+
+

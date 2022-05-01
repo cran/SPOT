@@ -18,7 +18,8 @@ duplicateAndReplicateHandling(xnew, x, lower, upper, control)
 \item{control}{list of controls}
 }
 \value{
-matrix \code{xnew}, with additional replicates for non-duplicates, or duplicates replaced by random solutions.
+matrix \code{xnew}, with additional replicates for non-duplicates, 
+or duplicates replaced by random solutions.
 }
 \description{
 Handle Duplicates and Replicates
@@ -27,7 +28,7 @@ Handle Duplicates and Replicates
 This function deals with duplicates, that is, when a candidate solution (\code{xnew})
 has already been evaluated (that is, \code{xnew} is element of \code{x}).
 If \code{control$noise} is \code{TRUE} (objective is noisy), duplicates are allowed.
-In that case, this function only makes sure that such duplicates do
+In that case, this function only makes sure that such duplicates
 do not receive additional replications (i.e., the duplicate is evaluated only once).
 If the objective is not noisy, duplicates are replaced by randomly created solution
 and a warning is given.

@@ -226,7 +226,7 @@ checkFunEvalsDesignSize <- function(x, lower, control, inSpotLoop){
 checkInputTypesInControl <- function(control){
     #List of all variables that should be tested for type numeric
     typesNumeric <- list("funEvals", "designControl$size", "designControl$replicates", 
-                         "designControl$retries", "OCBAbudget", "replicates")
+                         "designControl$retries", "OCBABudget", "replicates")
     
     for(ele in typesNumeric){
         splits <- strsplit(ele,"$", fixed = TRUE)[[1]]

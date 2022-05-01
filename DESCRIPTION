@@ -19,8 +19,8 @@ Description: A set of tools for model-based optimization and tuning of
     surrogate models for the purpose of efficient optimization. The main goal is
     to ease the burden of objective function evaluations, when a single evaluation
     requires a significant amount of resources.
-Version: 2.8.2
-Date: 2022-03-16
+Version: 2.9.52
+Date: 2022-05-01
 Depends: R (>= 3.5.0)
 Imports: DEoptim, ggplot2, glmnet, graphics, grDevices, laGP, MASS,
         nloptr, plgp, plotly, rpart, randomForest, ranger, rgenoud,
@@ -32,7 +32,7 @@ Suggests: babsim.hospital, batchtools, car, farff, knitr,
 VignetteBuilder: knitr
 URL: https://www.spotseven.de
 NeedsCompilation: no
-Packaged: 2022-03-17 22:26:21 UTC; bartz
+Packaged: 2022-05-01 14:34:51 UTC; bartz
 Author: Thomas Bartz-Beielstein [aut, cre]
     (<https://orcid.org/0000-0002-5938-5158>),
   Martin Zaefferer [aut] (<https://orcid.org/0000-0003-2372-2092>),
@@ -42,4 +42,4 @@ Author: Thomas Bartz-Beielstein [aut, cre]
   Christian Lasarczyk [ctb]
 Maintainer: Thomas Bartz-Beielstein <tbb@bartzundbartz.de>
 Repository: CRAN
-Date/Publication: 2022-03-17 23:20:02 UTC
+Date/Publication: 2022-05-01 15:20:07 UTC

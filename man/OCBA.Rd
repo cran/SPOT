@@ -4,12 +4,12 @@
 \alias{OCBA}
 \title{Low Level OCBA}
 \usage{
-OCBA(sMean, sVar, n, addBudget)
+OCBA(sMean, sVar, n, addBudget, verbosity = 0)
 }
 \arguments{
 \item{sMean}{vector of sample means of candidate solutions.}
 
-\item{sVar}{vector of sample variances of candidate solutions. 
+\item{sVar}{vector of sample variances of candidate solutions.
 Note, that these should be non-zero. If the solutions with lowest or second lowest \code{mean} have zero variance,
 This function will not distribute any additional evaluations, and return a vector of zeros.
 If any other solution has zero observed variance, the respective solution will be ignored, and never
@@ -18,19 +18,21 @@ be assigned additional evaluations.}
 \item{n}{number of already performed evaluations for each candidate solutions.}
 
 \item{addBudget}{the number of additional evaluations (replications) that can be distributed to the candidate solutions.}
+
+\item{verbosity}{verbosity (default: 0)}
 }
 \value{
 A vector that specifies how often each solution should be evaluated.
 }
 \description{
-This computes the Optimal Computing Budget Allocation.
+Compute the Optimal Computing Budget Allocation.
 }
 \examples{
 ## Simple test
 OCBA(1:10,1:10,rep(4,10),3)
 ## Example from the referenced book:
 res <- OCBA(c(1.2,2.1,3.4,4.87,6.05),c(3.3,2.0,4.5,5.3,6.9),c(12,6,5,5,4),100)
-##expected result: 
+##expected result:
 res == c(48,38,11,2,1)
 }
 \references{

@@ -15,7 +15,7 @@
 #' 
 #' @importFrom stats qt
 #' @importFrom stats pt
-#'
+#' 
 #' @return an object of class \code{"spotSeverity"},
 #' with a \code{summary} method and a \code{print} method.
 #' 
@@ -536,8 +536,10 @@ spotPlotTest <- function(alternative = "greater",
   }
   xaxis <- seq(lower, upper, length = 1e3)
   yaxis <- dnorm(xaxis, mean=mu0, sd=se)
-  plot(xaxis, yaxis, type = "l")
+  ymax <- par("usr")[4]
+  plot(xaxis, yaxis, type = "l",xlab=expression(tau),ylab="Density")
   yaxisH1 <- dnorm(xaxis, mean=mu1, sd=se)
+  ymax <- par("usr")[4]
   points(xaxis, yaxisH1, type="l")
   
   lowerQuantPoint <- mu0+qnorm(alpha)*se
@@ -578,6 +580,9 @@ spotPlotTest <- function(alternative = "greater",
         polygon(xaxis, yaxis, density = 50, lty="solid", col="red")
       }
       abline(v=upperQuantPoint, lty=2)
+      text((upperQuantPoint),ymax,expression("c"[1-alpha]), srt = 90,adj = c(1.5,1.5),pos=2)
+      abline(v=xbar, lty="dotted")
+      text(xbar, ymax, expression(bar(x)),srt=90,adj = c(1.5,1.5),pos=2)
     }
     else{
       lowerQuantPoint <- mu0 + qnorm(alpha / 2)
@@ -596,14 +601,123 @@ spotPlotTest <- function(alternative = "greater",
 
 
 
-
-
-
-
-
-
-
-
-
+#' @title  spotPlotErrors
+#' @description Visualize the alpha, beta errors and the power of the test
+#' @param alternative One of greater, less, or two.sided. The greater is the default.
+#' @param lower lower limit of the plot
+#' @param upper upper limit of the plot 
+#' @param mu0	mean of the null
+#' @param mu1 mean of the alternative. See also parameter \code{beta}.
+#' @param sigma standard deviation
+#' @param n sample size
+#' @param xbar observed mean
+#' @param alpha	error of the first kind
+#' @param beta error 2nd kind. Default \code{NULL}. If specified, then parameter 
+#' \code{mu1} will be ignored and \code{mu1} will be calculated based on
+#' \code{beta}.
+#' 
+#'
+#' @importFrom graphics points
+#' @importFrom graphics plot
+#' @importFrom graphics polygon
+#' @importFrom stats dnorm
+#' @importFrom stats qnorm
+#' @importFrom graphics legend 
+#' @importFrom graphics text
+#' @return 		description of return value
+#' 
+#' @examples 
+#' spotPlotErrors(lower=490,upper=510,mu0=500,mu1=504,sigma=2.7,n=9,xbar=502.22)
+#' spotPlotErrors(lower=140,upper=155,mu0=150,mu1=148,sigma=10,n=100,xbar=149,alternative="less")
+#' @export
+spotPlotErrors <- function(alternative = "greater",
+                           lower = -3,
+                           upper = 3,
+                           mu0 = 0,
+                           mu1 = 1,
+                           sigma =1,
+                           n=NULL,
+                           xbar = 0,
+                           alpha = 0.05,
+                           beta=NULL){
+  ## Standard error
+  se<- sigma/sqrt(n)
+  ## Calculate mu1 for a given beta:
+  if(!is.null(beta)){
+    mu1 <- mu0+qnorm(p=1-alpha)*se-qnorm(p=beta)*se
+  }
+  xaxis <- seq(lower, upper, length = 1e3)
+  yaxis <- dnorm(xaxis, mean=mu0, sd=se)
+  ymax <- par("usr")[4]
+  plot(xaxis, yaxis, type = "l",xlab=expression(tau),ylab="Density")
+  yaxisH1 <- dnorm(xaxis, mean=mu1, sd=se)
+  ymax <- par("usr")[4]
+  points(xaxis, yaxisH1, type="l")
+  labels = c(expression(alpha),"power",expression(beta))
+  legend("topleft", inset=.05,
+         labels, lwd=2, lty=c(1), col=c("gray","blue","green"),fill=c("gray","blue","green"))
+  lowerQuantPoint <- mu0+qnorm(alpha)*se
+  upperQuantPoint<-mu0+qnorm(1-alpha)*se
+  
+  if (alternative == "less") {
+   
+    # power (1-beta):
+    xaxis <- seq(lower, lowerQuantPoint, length = 1e3)
+    yaxis <- c(dnorm(xaxis, mean=mu1, sd=se), 0, 0)
+    xaxis <- c(xaxis, lowerQuantPoint, lower)
+    polygon(xaxis, yaxis, density = 50, lty="solid", col="blue")
+    
+    #alpha
+    xaxis <- seq(lower, lowerQuantPoint, length = 1e3)
+    yaxis <- c(dnorm(xaxis, mean=mu0, sd=se), 0, 0)
+    xaxis <- c(xaxis, lowerQuantPoint, lower)
+    polygon(xaxis, yaxis, density = 50,lty="solid", col="gray")
+    
+    # beta:
+    xaxis <- seq(lowerQuantPoint,upper, length = 1e3)
+    yaxis <- c(dnorm(xaxis, mean=mu1, sd=se), 0, 0)
+    xaxis <- c(xaxis, upper, lowerQuantPoint)
+    polygon(xaxis, yaxis, density = 50, lty="solid", col="green")
+    abline(v=lowerQuantPoint, lty=2)
+    text((lowerQuantPoint),ymax,expression("c"[1-alpha]), srt = 90,adj = c(1.5,1.5),pos=2)
+  } else
+  {
+    if (alternative == "greater") {
+      rejectH0 <- xbar>upperQuantPoint
+      # power (1-beta):
+      xaxis <- seq(upperQuantPoint, upper, length = 1e3)
+      yaxis <- c(dnorm(xaxis, mean=mu1, sd=se), 0, 0)
+      xaxis <- c(xaxis, upper, upperQuantPoint)
+      polygon(xaxis, yaxis, density = 50, lty="solid", col="blue")
+      # text(2.5, 0.3, expression(1-beta),font=2,cex = 1.5)
+      # alpha:
+      xaxis <- seq(upperQuantPoint, upper, length = 1e3)
+      yaxis <- c(dnorm(xaxis, mean=mu0, sd=se), 0, 0)
+      xaxis <- c(xaxis, upper, upperQuantPoint)
+      polygon(xaxis, yaxis, density = 50, lty="solid", col="gray")
+      # text(2, 0.02, expression(alpha),font=2,cex = 1.5)
+      # beta:
+      xaxis <- seq(lower, upperQuantPoint, length = 1e3)
+      yaxis <- c(dnorm(xaxis, mean=mu1, sd=se), 0, 0)
+      xaxis <- c(xaxis, upperQuantPoint, lower)
+      polygon(xaxis, yaxis, density = 50, lty="solid", col="green")
+      
+      abline(v=upperQuantPoint, lty=2)
+      text((upperQuantPoint),ymax,expression("c"[1-alpha]), srt = 90,adj = c(0.5,0.5),pos=2)
+    }
+    else{
+      lowerQuantPoint <- mu0 + qnorm(alpha / 2)
+      upperQuantPoint <- mu0 + qnorm(1 - alpha / 2)
+      xaxis <- seq(lower, lowerQuantPoint, length = 1e3)
+      yaxis <- c(dnorm(xaxis, mean=mu0, sd=sigma), 0, 0)
+      xaxis <- c(xaxis, lowerQuantPoint, lower)
+      polygon(xaxis, yaxis, density = 25)
+      xaxis <- seq(upperQuantPoint, upper, length = 1e3)
+      yaxis <- c(dnorm(xaxis, mean=mu0, sd=sigma), 0, 0)
+      xaxis <- c(xaxis, upper, upperQuantPoint)
+      polygon(xaxis, yaxis, density = 25)
+    }
+  }
+}
 
 

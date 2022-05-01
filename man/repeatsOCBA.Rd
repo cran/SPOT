@@ -4,20 +4,23 @@
 \alias{repeatsOCBA}
 \title{Optimal Computing Budget Allocation}
 \usage{
-repeatsOCBA(x, y, budget)
+repeatsOCBA(x, y, budget, verbosity = 0)
 }
 \arguments{
-\item{x}{matrix of samples. Identical rows indicate repeated evaluations. Any sample should be evaluated at least twice, to get an estimate of the variance.}
+\item{x}{matrix of samples. Identical rows indicate repeated evaluations. 
+Any sample should be evaluated at least twice, to get an estimate of the variance.}
 
 \item{y}{observations of the respective samples. For repeated evaluations, y should differ (variance not zero).}
 
 \item{budget}{of additional evaluations to be allocated to the samples.}
+
+\item{verbosity}{verbosity}
 }
 \value{
 A vector that specifies how often each solution should be evaluated.
 }
 \description{
-A simple interface to the Optimal Computing Budget Allocation algorithm.
+Simple interface to the Optimal Computing Budget Allocation algorithm.
 }
 \examples{
 x <- matrix(c(1:3,1:3),9,2)

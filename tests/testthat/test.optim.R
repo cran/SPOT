@@ -52,6 +52,7 @@ test_that("check logging", {
               upper = c(10,20),
               control=list(funEvals=15, 
                            noise = TRUE,
+                           verbosity=0,
               # optimizer=optimDE,
               optimizer = optimLHD,
               plots = FALSE,

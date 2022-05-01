@@ -196,8 +196,15 @@ res <- spot(,funSphere,c(-2,-3),c(1,2),
 res$xbest
 
 ## ---- spotLasso---------------------------------------------------------------
-res <- spot(,funSphere,c(-2,-3),c(1,2), 
-   control=list(model=buildLasso, optimizer = optimNLOPTR))
+
+res <- spot(,funSphere,
+            lower = c(-2,-3),
+            upper = c(1,2),
+             control = list(funEvals=50,
+                            model=buildLasso, 
+                optimizer = optimNLOPTR,
+            designControl = list(size = 20)
+            ))
 res$xbest
 
 ## ---- spotLBFGSB--------------------------------------------------------------
@@ -246,7 +253,7 @@ res1 <-
        fun = fNoise, 
        lower = c(-2, -3), 
        upper = c(1, 2),
-    control = list(funEvals = 40, noise = TRUE))
+    control = list(funEvals = 40, noise = TRUE, verbosity=0))
 # noise with replicated evaluations
 res2 <-
   spot(x = NULL, 
@@ -254,6 +261,7 @@ res2 <-
        lower = c(-2, -3), 
        upper = c(1, 2),
     control = list(
+      verbosity=0,
       funEvals = 40,
       noise = TRUE,
       replicates = 2,
@@ -265,11 +273,12 @@ res3 <- spot(x = NULL,
        lower = c(-2, -3), 
        upper = c(1, 2),
   control = list(
+    verbosity=0,
     funEvals = 40,
     noise = TRUE,
     replicates = 2,
     OCBA = TRUE,
-    OCBABudget = 1,
+    OCBABudget = 5,
     designControl = list(replicates = 2)
   )
 )

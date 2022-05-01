@@ -38,7 +38,7 @@
 ###################################################################################################
 plotModel <- function(object,which=if(ncol(object$x)>1 & tolower(type) != "singledim"){1:2}else{1},
 						constant=object$x[which.min(object$y),], #best known solution. default.
-						xlab= paste("x",which,sep=""),ylab="y",type="filled.contour",...){
+						xlab= paste("x",which,sep=""),ylab="y",type="filled.contour",	...){
     xlab <- xlab[order(which)]
     which <- sort(which)
     #number of variables

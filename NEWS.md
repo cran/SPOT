@@ -1,5 +1,128 @@
 # SPOT
 
+# 2.9.52
+* NEWS:
+  * more tests added
+
+# 2.9.50
+* BUGFIX:
+  ... added to fun call in objectiveFunctionEvaluation()
+
+# 2.9.48
+* NEW:
+  objectiveFunctionEvaluation: Program execution is not stopped if errors occur, only NAs are returned.
+  This behaviour is activated when control$yImputation$handleNAsMethod is not NULL (default is NULL)
+
+# 2.9.46
+* NEW:
+  minor change in funErr: meaning of prob changed. Now smaller prob values represent less errors.
+
+# 2.9.44
+* NEW:
+  funError funtion to generate NAs etc. 
+
+# 2.9.42
+* NEW:
+  spotLoop implements error handling for objectiveFunctionEvaluation.
+
+# 2.9.40
+ * NEW:
+  handleNA -> handleNAs
+
+# 2.9.38
+* NEW: y imputation for multiple objectives separately
+
+# 2.9.36
+* NEW: y imputation in spot() before y is passed to spotLoop()
+
+# 2.9.34
+* NEW:
+  examples for objectiveFunctionEvaluation
+
+# 2.9.32
+* NEW:
+  calc seed in objectiveFunctionEvaluation
+
+# 2.9.30
+* NEW: objectiveFunctionEvaluation rewritten
+
+# 2.9.28
+* BUGFIX: 
+  != -> !identical
+
+# 2.9.26
+* Documentation
+
+# 2.9.24:
+* NEWS: default handleNAs: is.nan added
+
+# 2.9.22
+* BUGFIX:
+  * OCBAbudget <- OCBABudget (typo)
+
+# 2.9.20
+* NEWS:
+  * use try() for OCBA
+
+# 2.9.16
+* NEWS:
+  * further logging and tests
+
+# 2.9.14
+* NEWS:
+  * additional tests for control list
+
+# 2.9.12
+* NEWS:
+  * test.duplicates
+  * OCBA documentation
+  * buildLasso uses nfolds = 10 (same default as in glmnet) and
+  grouped=FALSE (default in glmnet is TRUE, but it states: "This is an experimental argument, with default TRUE")
+  * SPOTVignette: minor updates
+* BUGFIX:
+  * "if (any(apply(x, 1, identical, xnew[i, ])))" bug fixed in duplicateHandling.R
+
+
+# 2.9.10
+* NEWS:
+  * handleNAsMean extended
+
+# 2.9.8
+* NEWS:
+  * handleNAsMax 
+
+# 2.9.6
+# BUGFIX:
+  * handleNAs* fixed
+
+# 2.9.4
+* NEW:
+  * yImputation options setup
+  * progress shows best y value
+
+# 2.9.2
+* NEWS:
+  y imputation for arbitrary criteria such as is.na, is.infinite etc. (also user specified)
+
+# 2.9.0
+* NEWS:
+  * NA handling improved. New option handleNAMethod (FR). Replaces option fixError
+  
+# 2.8.8:
+* NEWS:
+  * severity plots improved (SC)
+
+# 2.8.6
+* NEWS:
+  * if call of control$model() returns an error, the corresponding (x,y) 
+    values that caused this error are shown
+
+## 2.8.4
+* NEWS:
+  * control$parNames added to control list
+  * spotControl(): argument "dimension" is mandatory, i.e.,
+    calling "spotControl()"" will result in an error.
+
 ## 2.8.2
 * NEWS:
   * Progress shows used time budget

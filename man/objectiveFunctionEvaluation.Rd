@@ -7,17 +7,23 @@
 objectiveFunctionEvaluation(x = NULL, xnew, fun, control = list(), ...)
 }
 \arguments{
-\item{x}{matrix of already known solutions, to determine whether RNG seeds for new solutions need to be incremented.}
+\item{x}{matrix of already known solutions,
+to determine whether RNG seeds for new solutions need to be incremented.}
 
 \item{xnew}{matrix of new solutions.}
 
 \item{fun}{objective function to evaluate the solutions in \code{xnew}.}
 
-\item{control}{control list, e.g., \code{seedFun:} 
-initial seed to be used for the random number generator seed. 
-Set to NA to avoid using a fixed seed. \code{noise:} \code{logical} parameter specifying 
-whether the target function is noisy. \code{verbosity:} verbosity. Default: 0. \code{transformFun:} 
-transformation functions applied to \code{xnew}.}
+\item{control}{control list with the following entries:
+\describe{
+ \item{\code{seedFun}}{initial seed to be used for the random number generator
+  seed. Set to \code{NA} to avoid using a fixed seed.}
+\item{\code{noise:}}{\code{logical} parameter specifying
+      whether the target function is noisy. }
+\item{\code{verbosity:}}{verbosity. Default: 0.}
+\item{\code{transformFun:}}{transformation functions applied to \code{xnew}. See
+\code{\link{transformX}}}
+}}
 
 \item{...}{parameters passed to \code{fun}.}
 }
@@ -25,10 +31,77 @@ transformation functions applied to \code{xnew}.}
 the matrix ynew, which are the observations for fun(xnew)
 }
 \description{
-This function handles the evaluation of the objective function in \code{\link{spot}}.
-This includes handling of the random number generator stream as well as the actual evaluation.
+This function handles the evaluation of the objective function
+in \code{\link{spot}}.
+This includes handling of the random number generator stream, variable transformations
+(\code{\link{transformX}}) as well as the actual evaluation.
+}
+\examples{
+\donttest{
+## 1) without noise
+x <- NULL
+xnew <- matrix(1:10, ncol=2)
+fun <- funSphere
+control <- spotControl(dim(xnew)[2])
+control$verbosity <- 0
+objectiveFunctionEvaluation(x=x, xnew=xnew, fun=fun, control=control)
+##
+fun <- funMoo
+objectiveFunctionEvaluation(x=x, xnew=xnew, fun=fun, control=control)
+## 2) with noise
+fun = function(x){funSphere(x) + rnorm(nrow(x))}
+control$noise <- TRUE
+objectiveFunctionEvaluation(x=x, xnew=xnew, fun=fun, control=control)
+## 3) known solutions
+x <- matrix(11:20, ncol=2)
+xnew <- matrix(1:10, ncol=2)
+fun <- funSphere
+objectiveFunctionEvaluation(x=x, xnew=xnew, fun=fun, control=control)
+## 4) known solutions with noise and repeats
+x <- matrix(1:20, ncol=2, byrow=TRUE)
+xnew <- matrix(1:10, ncol=2, byrow=TRUE)
+fun = function(x){funSphere(x) + rnorm(nrow(x))}
+objectiveFunctionEvaluation(x=x, xnew=xnew, fun=fun, control=control)
+## 5) identical solutions with noise and repeats
+x <- matrix(1:10, ncol=2, byrow=TRUE)
+xnew <- x
+fun = function(x){funSphere(x) + rnorm(nrow(x))}
+y <- objectiveFunctionEvaluation(x=NULL, xnew=x, fun=fun, control=control)
+y1 <- objectiveFunctionEvaluation(x=x, xnew=xnew, fun=fun, control=control)
+y2 <- objectiveFunctionEvaluation(x=NULL, xnew=xnew, fun=fun, control=control)
+print(cbind(x, y))
+print(cbind(xnew, y1))
+print(cbind(xnew, y2))
+identical(y, y1) # FALSE
+identical(y, y2) # TRUE
+## 6) known solutions with noise and repeats. function sets seed
+x <- matrix(1:20, ncol=2, byrow=TRUE)
+xnew <- matrix(1:10, ncol=2, byrow=TRUE)
+fun <- function(x,seed){
+  set.seed(seed)
+  funSphere(x)+rnorm(nrow(x))}
+control$seedFun <- 1
+y1 <- objectiveFunctionEvaluation(x=x, xnew=xnew, fun=fun, control=control)
+y2 <- objectiveFunctionEvaluation(x=x, xnew=xnew, fun=fun, control=control)
+identical(y1, y2) # TRUE
+control$seedFun <- 2
+y3 <- objectiveFunctionEvaluation(x=x, xnew=xnew, fun=fun, control=control)
+identical(y1,y3) # FALSE
+## 7) spot examples:
+res1a <- spot(,function(x,seed){set.seed(seed);funSphere(x)+rnorm(nrow(x))},
+c(-2,-3),c(1,2),control=list(funEvals=25,noise=TRUE,seedFun=1))
+res1b <- spot(,function(x,seed){set.seed(seed);funSphere(x)+rnorm(nrow(x))},
+c(-2,-3),c(1,2),control=list(funEvals=25,noise=TRUE,seedFun=1))
+res2 <- spot(,function(x,seed){set.seed(seed);funSphere(x)+rnorm(nrow(x))},
+c(-2,-3),c(1,2),control=list(funEvals=25,noise=TRUE,seedFun=2))
+sprintf("Should be equal: \%f = \%f. Should be different:  \%f", res1a$ybest,
+res1b$ybest, res2$ybest)
+}
 }
 \seealso{
 \code{\link{spot}} for more details on the parameters, e.g., \code{fun}
+
+\code{\link{transformX}}
+
+\code{\link{spotControl}}
 }
-\keyword{internal}
