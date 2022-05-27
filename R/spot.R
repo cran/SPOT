@@ -56,7 +56,7 @@
 #'                          optimizer=optimLBFGSB))
 #' res$xbest
 #' res$ybest
-#' 
+#'
 #' ### 4. Use transformed input values
 #' set.seed(1)
 #' f2 <- function(x){2^x}
@@ -79,24 +79,22 @@ spot <-
            upper,
            control = list(),
            ...) {
-    # Initial Input Checking
+    ## (S-0) Setup:
     PASSED <- initialInputCheck(x, fun, lower, upper, control)
-    ## default settings
     control <- spotFillControlList(control, lower, upper)
-    
-    ## Only replicate (reevaluate) one parameter setting.
+    ## If replicateResult is true, only one parameter setting
+    ## is replicated (reevaluated).
     ## Setting is specified as "lower" vector.
-    ## Replications are specified via funEvals
-    if(control$replicateResult){
+    ## Number of replications are specified via funEvals
+    if (control$replicateResult) {
       upper <- lower
       control$designControl$replicates <- 1
       control$designControl$size <- control$funEvals
     }
- 
-     ## Initial design generation
-    set.seed(control$seedSPOT)
     
-     if (control$verbosity == 0) {
+    ## (S-1) Initial design generation
+    set.seed(control$seedSPOT)
+    if (control$verbosity == 0) {
       x <- suppressWarnings(suppressMessages(
         control$design(
           x = x,
@@ -115,23 +113,12 @@ spot <-
           control = control$designControl
         )
     }
-    
     ## Rounding values produced by the design function to integers, etc.
     x <- repairNonNumeric(x, control$types)
- 
-    ## Evaluate initial design with objective function
+    
+    ## (S-2) Eval initial design
     y <- tryCatch(
       expr = {
-        # objectiveFunctionEvaluation(
-        #   x = NULL,
-        #   xnew = x,
-        #   fun = fun,
-        #   transformFun = control$transformFun,
-        #   seedFun = control$seedFun,
-        #   noise = control$noise,
-        #   verbosity = control$verbosity,
-        #   ...
-        # )
         objectiveFunctionEvaluation(
           x = NULL,
           xnew = x,
@@ -140,42 +127,28 @@ spot <-
           ...
         )
       },
-      error = function(e){
+      error = function(e) {
         message("objectiveFunctionEvaluation(). Caught an error! in spot()")
         print(e)
-      })
+      }
+    )
+    vmessage(control$verbosity,
+             "spot(): y matrix after initial design execution",
+             y)
     
-    ## check y matrix
-    if (control$verbosity > 0) {
-      message("spot: y matrix in spot() after initial design execution")
-      print(y)
-    }
+    ## (S-3) Imputation: Treating NA and Inf
     ## This should be done after the initial design , before the main loop for (x,y),
     ## and afterwards  only for (xnew, ynew):
-    ## Treating NA and Inf
-    if(!is.null(control$yImputation$handleNAsMethod)){
+    if (!is.null(control$yImputation$handleNAsMethod)) {
       y <- imputeY(x = x,
-                   y= y,
+                   y = y,
                    control = control)
     }
-    ## check y matrix
-    if (control$verbosity > 0) {
-      message("spot: y matrix after imputation after initial design execution")
-      print(y)
-    }
-  
-    ## Check dimension of the objective function evaluation    
-    if (nrow(x) != nrow(y)) {
-      print(x)
-      print(y)
-      stop("spot(): x and y Dimension mismatch!")
-    }
+    vmessage(control$verbosity,
+             "spot(): y matrix after imputation before passing to spotLoop()",
+             y)
     
-    if (control$verbosity > 0) {
-      message("spot: y matrix before passing to spotLoop()")
-      print(y)
-    }
-    
+    ## (S-4) spotLoop
     result <-
       spotLoop(
         x = x,
@@ -186,19 +159,12 @@ spot <-
         control = control,
         ...
       )
-    ## result
+    ## result from spotLoop()
     if (control$directOptControl$funEvals > 0) {
-      if (control$verbosity > 0) {
-        print("Starting Direct Optimization:")
-        print("*******************************")
-        print("Result Before Direct Optimization:")
-        print(result$xbest)
-        print(result$ybest)
-        print("*******************************")
-      }
-      ### Begin 1. Feb 2021:
+      ## (S-22) Starting point for direct optimization
+      vmessage(control$verbosity, "Starting Direct Optimization with x-best result Before Direct Optimization:", result$xbest)
+      vmessage(control$verbosity, "Starting Direct Optimization with y-best result Before Direct Optimization:", result$ybest)
       xbest <- result$xbest
-      
       if (!is.null(control$directOptControl$eval_g_ineq)  &&
           (
             control$directOptControl$opts$algorithm == "NLOPT_GN_ISRES"  &
@@ -214,6 +180,7 @@ spot <-
         x0 <- xbest
       }
       
+      ## (S-23) Direct optimization on the real fun
       optimResDirect <- control$directOpt(
         x = x0,
         fun = fun,
@@ -223,40 +190,16 @@ spot <-
         ...
       )
       
-      ### End 1. Feb 2021
-      #
-      # optimResDirect <- control$directOpt(x = result$xbest,
-      #                                     fun = fun,
-      #                                     lower = lower,
-      #                                     upper = upper,
-      #                                     control$directOptControl,
-      #                                     ...
-      # )
-      #
-      
-      
+      ## (S-24) Update results adding direct 
       ## if directOpt finds an improved solution, modify the
       ## best results accordingly:
       if (result$ybest > optimResDirect$ybest) {
         result$xbest <-  optimResDirect$xbest
         result$ybest <-  optimResDirect$ybest
       }
-      
-      
-      result$x <- rbind(result$x, optimResDirect$x)
-      # if (is.numeric(optimResDirect$x)){
-      #   result$x <- rbind(result$x,optimResDirect$x)}
-      # else{
-      #   result$x <- rbind(result$x,optimResDirect$xbest)
-      # }
-      result$y <- rbind(result$y, optimResDirect$y)
-      # if (is.numeric(optimResDirect$y)){
-      #   result$y <- rbind(result$y,optimResDirect$y)}
-      # else{
-      #   result$y <- rbind(result$y,optimResDirect$ybest)
-      # }
-      
-      ## Plots, output, etc
+     result$x <- rbind(result$x, optimResDirect$x)
+     result$y <- rbind(result$y, optimResDirect$y)
+     ## Plots, output, etc
       ybestVec <- c(result$ybestVec , result$ybest)
       if (control$plots) {
         plot(result$y,
@@ -265,19 +208,13 @@ spot <-
         abline(a = 0, b = 0)
         lines(1:length(ybestVec), ybestVec, col = "red")
       }
-      
-    }
-    if (control$verbosity > 0) {
-      print("Ending Optimization")
-      print("*******************************")
-      print("Final Result from SPOT:")
-      print(result$xbest)
-      print(result$ybest)
-      print("*******************************")
-    }
+    } # end if direct optimization
     
+    vmessage(control$verbosity, "Final x Result from SPOT:", result$xbest)
+    vmessage(control$verbosity, "Final y Result from SPOT:", result$ybest)
+     
     ## Add full run information
-    if(control$returnFullControlList){
+    if (control$returnFullControlList) {
       result$control <- control
     }
     
@@ -314,8 +251,8 @@ spotFillControlList <- function(controlList, lower, upper) {
   controlList$time$endTime <- NA
   
   # Add lower/upper. So they are available in the control list
-  # But this generates duplicate information, because 
-  # they are stored as lower and as controlList$lower => 
+  # But this generates duplicate information, because
+  # they are stored as lower and as controlList$lower =>
   # FIXME: remove "lower" and use control$lower only?
   controlList$lower <- lower
   controlList$upper <- upper
@@ -330,55 +267,62 @@ spotFillControlList <- function(controlList, lower, upper) {
 #' @details
 #' Control is a list of the settings:
 #' \describe{
-#'   \item{\code{funEvals}}{This is the budget of function evaluations (spot uses no more than funEvals evaluations of fun), defaults to 20.}
-#'   \item{\code{multiStart}}{Number of restarts for optimization on the surrrogate
-#'   model. Default: \code{1}, i.e., no restarts.}
-#'   \item{\code{types}}{ Vector of data type of each variable as a string, defaults \code{"numeric"} for all variables.}
-#'   \item{\code{parNames}}{ Vector of parameter names of each variable as a string, defaults \code{c("x1", "x2", "x3",..)}.}
-#'   \item{\code{subsetSelect}}{A function that selects a subset from a given set of design points. Default is \code{\link{selectAll}}.}
-#'   \item{\code{subsetControl}}{A list of controls passed to the \code{control} list of the \code{subsetSelect} function. See help
-#'				of the respective function for details. Default is an empty \code{list}.}
 #'   \item{\code{design}}{A function that creates an initial design of experiment. Functions that accept the same parameters,
 #'				and return a matrix like \code{\link{designLHD}} or \code{\link{designUniformRandom}} can be used. Default is \code{\link{designLHD}}.}
 #'   \item{\code{designControl}}{A list of controls passed to the \code{control} list of the \code{design} function. See help
 #'				of the respective function for details. Default is an empty \code{list}.}
+#'   \item{\code{directOpt}}{A function that is used to optimize after the \code{spot} run is finished.
+#'    Functions that accept the same parameters, and return a matrix like \code{\link{optimNLOPTR}}
+#'				or \code{\link{optimDE}} can be used. Default is \code{\link{optimNLOPTR}}.}
+#'   \item{\code{directOptControl}}{A list of controls, which determine whether a direct optimization
+#'   (exploitation of the final search region) is performed. Default is to run no direct optimization, i.e.,
+#'   \code{directOptControl = list(funEvals = 0)list}.
+#'   \describe{
+#'   \item{\code{funEvals}}{This is the budget of function evaluations of the direct optimization performed
+#'   after the SMBO is performed. Default is \code{list(funEvals = 0)}.}
+#'   }
+#'   }
+#'   \item{\code{duplicate}}{In case of a deterministic (non-noisy) objective function, this handles duplicated candidate solutions.
+#'				By default (\code{duplicate = "EXPLORE"}), duplicates are replaced by new candidate solutions, generated by random
+#'				sampling with uniform distribution. If desired, the user can set this to "STOP", which means that the optimization
+#'				stops and results are returned to the user (with a warning). This may be desirable, as duplicates can be a indicator
+#'				for convergence, or for a problem with the configuration.
+#'				In case of noise, duplicates are allowed.}
+#'   \item{\code{funEvals}}{This is the budget of function evaluations (spot uses no more than funEvals evaluations of fun), defaults to 20.}
+#'  \item{\code{handleNAsMethod}}{A function that treats NAs if there are any present in the result vector of the objective function.
+#'              Default: \code{NULL}. By default NAs will not be treated.}
+#'   \item{\code{infillCriterion}}{A function defining an infillCriterion to be used while optimizing a model. Default: NULL. For example check infillExpectedImprovement}
 #'   \item{\code{model}}{A function that builds a statistical model of the observed data. Functions that accept the same
 #'				parameters, and return a matrix like \code{\link{buildKriging}} or \code{\link{buildRandomForest}}
 #'				can be used. Default is \code{\link{buildKriging}}.}
 #'   \item{\code{modelControl}}{A list of controls passed to the \code{control} list of the \code{model} function.
 #'				See help of the respective function for details. Default is an empty \code{list}.}
-#'   \item{\code{optimizer}}{A function that is used to optimize based on \code{model}, finding the most promising
-#'				candidate solutions. Functions that accept the same parameters, and return a matrix like \code{\link{optimLHD}}
-#'				or \code{\link{optimDE}} can be used. Default is \code{\link{optimLHD}}.}
-#'   \item{\code{optimizerControl}}{A list of controls passed to the \code{control} list of the \code{optimizer} function.
-#'				See help of the respective function for details. Default is an empty \code{list}.}
-#'   \item{\code{directOpt}}{A function that is used to optimize after the \code{spot} run is finished.
-#'    Functions that accept the same parameters, and return a matrix like \code{\link{optimNLOPTR}}
-#'				or \code{\link{optimDE}} can be used. Default is \code{\link{optimNLOPTR}}.}
-#'   \item{\code{directOptControl}}{A list of controls, which determine whether a direct optimization 
-#'   (exploitation of the final search region) is performed. Default is to run no direct optimization, i.e., 
-#'   \code{directOptControl = list(funEvals = 0)list}.
-#'   \describe{
-#'   \item{\code{funEvals}}{This is the budget of function evaluations of the direct optimization performed 
-#'   after the SMBO is performed. Default is \code{list(funEvals = 0)}.}
-#'   }
-#'   }
+#'   \item{\code{multiStart}}{Number of restarts for optimization on the surrrogate
+#'   model. Default: \code{1}, i.e., no restarts.}
 #'   \item{\code{noise}}{Boolean, whether the objective function has noise or not. Default is non-noisy, that is, \code{FALSE}.}
 #'   \item{\code{OCBA}}{Boolean, indicating whether Optimal Computing Budget Allocation (OCBA) should be used in case of a noisy
 #'				objective function or not. OCBA controls the number of replications for each candidate solution.
 #' 				Note, that \code{replicates} should be larger than one in that case, and that the initial experimental design
 #'				(see \code{design}) should also have replicates larger one. Default is \code{FALSE}.}
-#'   \item{\code{OCBABudget}}{The number of objective function evaluations that OCBA can distribute in each iteration. 
+#'   \item{\code{OCBABudget}}{The number of objective function evaluations that OCBA can distribute in each iteration.
 #'   Default is 3.}
-#'   \item{\code{replicateResult}}{\code{logical}. If \code{TRUE}, one result is
-#'   replicated. The result is specified as  the \code{lower} vector and 
-#'   re-evaluated \code{funEvals} times. No model building and 
-#'   optimization is performed, only evaluations on the 
-#'   objective function. Default: \code{FALSE}.}
+#'   \item{\code{optimizer}}{A function that is used to optimize based on \code{model}, finding the most promising
+#'				candidate solutions. Functions that accept the same parameters, and return a matrix like \code{\link{optimLHD}}
+#'				or \code{\link{optimDE}} can be used. Default is \code{\link{optimLHD}}.}
+#'   \item{\code{optimizerControl}}{A list of controls passed to the \code{control} list of the \code{optimizer} function.
+#'				See help of the respective function for details. Default is an empty \code{list}.}
+#'   \item{\code{parNames}}{ Vector of parameter names of each variable as a string, defaults \code{c("x1", "x2", "x3",..)}.}
+#'   \item{\code{plots}}{Whether progress should be tracked by a line plot, default is \code{FALSE}}
+#'   \item{\code{progress}}{Whether progress should be visualized, default is \code{FALSE}}
 #'   \item{\code{replicates}}{The number of times a candidate solution is initially evaluated, that is, in the initial design,
 #'				or when created by the optimizer. Default is \code{1}.}
-#'	 \item{\code{returnFullControlList}}{\code{logical}. Return the full control 
-#'	 list. Can be switched off to save memory/space. Default: \code{TRUE}.}			
+#'   \item{\code{replicateResult}}{\code{logical}. If \code{TRUE}, one result is
+#'   replicated. The result is specified as  the \code{lower} vector and
+#'   re-evaluated \code{funEvals} times. No model building and
+#'   optimization is performed, only evaluations on the
+#'   objective function. Default: \code{FALSE}.}
+#'	 \item{\code{returnFullControlList}}{\code{logical}. Return the full control
+#'	 list. Can be switched off to save memory/space. Default: \code{TRUE}.}
 #'   \item{\code{seedFun}}{An initial seed for the objective function in case of noise, by default \code{NA}. The default means that no seed is set.
 #'				The user should be very careful with this setting. It is intended to generate reproducible experiments for each objective
 #'				function evaluation, e.g., when tuning non-deterministic algorithms. If the objective function uses a constant number
@@ -388,18 +332,11 @@ spotFillControlList <- function(controlList, lower, upper) {
 #' 				which has a second parameter \code{seed}, in addition to first parameter (matrix \code{x}). This seed can then be passed
 #'				to the external code, for random number generator initialization. See end of examples section for a demonstration.}
 #'   \item{\code{seedSPOT}}{This value is used to initialize the random number generator. It ensures that experiments are reproducible. Default is \code{1}.}
-#'   \item{\code{duplicate}}{In case of a deterministic (non-noisy) objective function, this handles duplicated candidate solutions.
-#'				By default (\code{duplicate = "EXPLORE"}), duplicates are replaced by new candidate solutions, generated by random
-#'				sampling with uniform distribution. If desired, the user can set this to "STOP", which means that the optimization
-#'				stops and results are returned to the user (with a warning). This may be desirable, as duplicates can be a indicator
-#'				for convergence, or for a problem with the configuration.
-#'				In case of noise, duplicates are allowed.}
-#'   \item{\code{plots}}{Whether progress should be tracked by a line plot, default is \code{FALSE}}
-#'   \item{\code{progress}}{Whether progress should be visualized, default is \code{FALSE}}
-#'   \item{\code{infillCriterion}}{A function defining an infillCriterion to be used while optimizing a model. Default: NULL. For example check infillExpectedImprovement}
-#'   \item{\code{verbosity}}{Integer level specifying how much output should be given by SPOT. 0 (default) ignores warnings of internal optimizers /models.
-#'              1 will show warnings and output.}
-#'   \item{\code{time}}{List with the following time information: 
+
+#'   \item{\code{subsetSelect}}{A function that selects a subset from a given set of design points. Default is \code{\link{selectAll}}.}
+#'   \item{\code{subsetControl}}{A list of controls passed to the \code{control} list of the \code{subsetSelect} function. See help
+#'				of the respective function for details. Default is an empty \code{list}.}
+#'   \item{\code{time}}{List with the following time information:
 #'   \describe{
 #'   \item{\code{maxTime}}{\code{num} Maximum allowed run time (in minutes) for \code{spot} or \code{spotLoop}.
 #'          The default value for \code{maxTime} (in minutes) is \code{Inf} and can be overwritten by the user.
@@ -410,54 +347,54 @@ spotFillControlList <- function(controlList, lower, upper) {
 #'   \item{\code{endTime}}{End time.}
 #'   }
 #'  }
-#'  \item{\code{handleNAsMethod}}{A function that treats NAs if there are any present in the result vector of the objective function.
-#'              Default: \code{NULL}. By default NAs will not be treated.}
+#'   \item{\code{types}}{ Vector of data type of each variable as a string, defaults \code{"numeric"} for all variables.}
+#'   \item{\code{verbosity}}{Integer level specifying how much output should be given by SPOT. 0 (default) ignores warnings of internal optimizers /models.
+#'              1 will show warnings and output.}
 #' }
 #' @param dimension problem dimension, that is, the number of optimized parameters. This parameter is mandatory since v2.8.4.
 #'
 #' @return a list
 #' @export
-spotControl <- function(dimension=NA) {
-  if(is.na(dimension)) stop("Error: spotControl() call w/o dimension.")
+spotControl <- function(dimension = NA) {
+  if (is.na(dimension))
+    stop("Error: spotControl() call w/o dimension.")
   list(
     funEvals = 20,
-    lower = NA, ## lower and are not defined here, because
-    upper = NA, ## their are separate arguments.
-    types = rep("numeric", dimension),
+    lower = NA,
+    ## lower and are not defined here, because
+    upper = NA,
+    ## their are separate arguments.
     design = designLHD,
     designControl = list(),
-    subsetSelect = selectAll,
-    subsetControl = list(),
-    direct = FALSE,
-    model = buildKriging,
-    modelControl = list(modelInitialized = FALSE),
-    multiStart = 1,
-    optimizer = optimLHD,
-    optimizerControl = list(),
-    parNames = paste0("x", 1:dimension),
     directOpt = optimNLOPTR,
     ## default: do not use directOpt:
     directOptControl = list(funEvals = 0),
-    ## return the full control list:
-    returnFullControlList = TRUE,
-    plots = FALSE,
-    progress = FALSE,
+    infillCriterion = NULL,
+    ## By default no infillCriterion is used
+    ## maxTime is deprecated and replaced by the list "time"
+    ## maxTime is only included for backward compatibility
+    maxTime = Inf,
+    model = buildKriging,
+    modelControl = list(modelInitialized = FALSE),
+    multiStart = 0,
+    # whether or not the target function is non-deterministic:
+    noise = FALSE,
     OCBA = FALSE,
     # the budget available to OCBA, to be distributed to replications of "old" solutions:
     OCBABudget = 1,
-    # the number of replications for all "new" solutions 
+    optimizer = optimLHD,
+    optimizerControl = list(),
+    parNames = paste0("x", 1:dimension),
+    plots = FALSE,
+    progress = FALSE,
+    # the number of replications for all "new" solutions
     # (unless generated by the initial design, which handles them separately):
     replicates = 1,
-    # transformation of x values
-    transformFun = vector(),
-    # number of new design points proposed by the surrogate model 
-    # (last rows of the xnew matrix):
-    xNewActualSize = 0,
-    # whether or not the target function is non-deterministic:
-    noise = FALSE,
     ## Replicate one solution "funEvals" times. Solution is specified
     ## as lower vector:
     replicateResult = FALSE,
+    ## return the full control list:
+    returnFullControlList = TRUE,
     seedFun = NA,
     #start RNG seed for the target function (only important if non-deterministic, i.e., if noise==TRUE). NA means that seed is not set before running fun, this is important for cases where an initial seed for the target function is undesirable. (e.g., functions with constant and identical number of calls to random number generator)
     seedSPOT = 1,
@@ -472,22 +409,29 @@ spotControl <- function(dimension=NA) {
     ## (e.g., based on OCBA). The model itself should handle repeated samples.
     ## The exception from this rule should be if noise==FALSE, in that case, duplicates are removed.
     ## (?) TODO -> what if only one duplicate suggested -> will be suggested again in next iteration?
-    infillCriterion = NULL,
-    ## By default no infillCriterion is used
-    verbosity = 0,
+    subsetSelect = selectAll,
+    subsetControl = list(),
     ## Start time will be set in spotFillControlList()
-    time=list(maxTime = Inf),
-    ## maxTime is deprecated and replaced by the list "time"
-    ## maxTime is only included for backward compatibility
-    maxTime = Inf,
+    time = list(maxTime = Inf),
     ## tolerance. Can be used as a termination criterion (or break).
     tolerance = sqrt(.Machine$double.eps),
+    # transformation of x values
+    transformFun = vector(),
+    types = rep("numeric", dimension),
+    verbosity = 0,
+    # number of new design points proposed by the surrogate model
+    # (last rows of the xnew matrix):
+    xNewActualSize = 0,
+    xBestOcba = NA,
+    yBestOcba = NA,
     # list of functions to determine imputations, see also handleNAsMethod
-    yImputation = list( 
+    yImputation = list(
       imputeCriteriaFuns = list(is.na, is.infinite, is.nan),
-      handleNAsMethod = NULL, # Method for treating NAs, default NULL, no method used
+      handleNAsMethod = NULL,
+      # Method for treating NAs, default NULL, no method used
       penaltyImputation = 3 # penalty used for imputed values (used by handleNAsKrigingWorst)
-    ))
+    )
+  )
 }
 
 
@@ -551,60 +495,43 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
     stop("spotLoop(): x and y dimension mismatch!")
   }
   
-  #Initial Input Checking
+  ## (S-5) Initial input check and control list update
   initialInputCheck(x, fun, lower, upper, control, inSpotLoop = TRUE)
-  
-  ## default settings
   dimension <- length(lower)
   con <- spotControl(dimension)
   con[names(control)] <- control
   control <- con
   rm(con)
-  
   control <- spotFillControlList(control, lower, upper)
+  vmessage(control$verbosity, 
+      "spotLoop: y matrix (i) either received from spot() after initial design 
+      execution or (ii) from previous runs.", y)
   
-  ## check y matrix
-  if (control$verbosity > 0) {
-    message("spotLoop: y matrix (i) either received from spot() after initial design execution or (ii) from previous runs ")
-    print(y)
-  }
-  ## This should be done once before the main loop for (x,y)
-  ## and afterwards  only for (xnew, ynew):
-  ## Treating NA and Inf
-  if(!is.null(control$yImputation$handleNAsMethod)){
+  ## (S-6) Imputation: Treating NA and Inf
+  if (!is.null(control$yImputation$handleNAsMethod)) {
     y <- imputeY(x = x,
-                 y= y,
+                 y = y,
                  control = control)
   }
-  ## check y matrix
-  if (control$verbosity > 0) {
-    message("spotLoop: y matrix before starting the main loop")
-    print(y)
-  }
+  vmessage(control$verbosity, 
+           "spotLoop: y matrix after imputation.", y)
   
-  ## Initialize evaluation counter
+  ## (S-7) Counter and logs
   count <- nrow(y)
-  
-  ## Main Loop
   modelFit <- NA
   ybestVec <- rep(min(y[, 1]), count)
   ## ySurr has NAs, because no surrogate model was build so far:
-  ySurr <- matrix(NA, nrow=1, ncol=count)
+  ySurr <- matrix(NA, nrow = 1, ncol = count)
+  vmessage(control$verbosity, "Initial x-values before entering main loop in spotLoop()", x)
+  vmessage(control$verbosity, "Initial y-values before entering main loop in spotLoop()", y)
+  vmessage(control$verbosity, "Initial ybestVec before entering main loop in spotLoop()", ybestVec)
   
-  if (control$verbosity > 0) {
-    message("Initial x-values before entering main loop in spotLoop()")
-    print(x)
-    message("Initial y-values before entering main loop in spotLoop()")
-    print(y)
-    message("Initial ybestVec before entering main loop in spotLoop()")
-    print(ybestVec)
-  }
-  
+  ## (S-8) Termination criteria (while loop)
   while ((count < control$funEvals) &
          (difftime(Sys.time(), control$time$startTime, units = 'mins')
           < control$time$maxTime)) {
     
-    
+    ## (S-9) Subsect select
     ## Select points for model building (model requires one y-value only)
     ## Model building is done with this subset, but the complete
     ## result set is kept as "y" and combined with the new evaluations further below
@@ -619,18 +546,16 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
         print(e)
       }
     )
-    if (control$verbosity > 0) {
-      message("Selected subset from control$subsetSelect() in spot.R")
-      print(selectRes$x)
-      print(selectRes$y)
-    }
-    
+    vmessage(control$verbosity, 
+             "Selected x-subset from control$subsetSelect() in spot.R",
+             selectRes$x)
+    vmessage(control$verbosity, 
+             "Selected y-subset from control$subsetSelect() in spot.R",
+             selectRes$y)
+
+    ## (S-10) Surrogate model fit
     ## Model building using control$model (default is buildKriging).
     ## Based on fit
-    # 2022-03-04: tryCatch added:
-    # modelFit <- control$model(x = selectRes$x,
-    #                           y = selectRes$y,
-    #                           control = control$modelControl) #todo return modelControl to allow memory?
     modelFit <-  tryCatch(
       expr = {
         control$model(x = selectRes$x,
@@ -646,10 +571,11 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
         print(e)
       }
     )
-    
-    ## Some models can be updated. So, we store information whether the model is already build.
+    ## Some models can be updated. 
+    ## So, we store information whether the model is already build.
     control$modelControl$modelInitialized <- TRUE
     
+    ## (S-11) Optimization function on the surrogate
     ## Generate a surrogate target function from the model. Based on predict.
     # funSurrogate <- evaluateModel(modelFit, control$infillCriterion, control$verbosity)
     funSurrogate <-  tryCatch(
@@ -662,27 +588,21 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
       }
     )
     
-    ## Model optimization
-    # random starting points for optimization on the surrogate
+    ## (S-12) Random starting points for optimization on the surrogate
+    vmessage(control$verbosity,"MultiStarts", control$multiStart)
     x0 <- getMultiStartPoints(x, y, control)
-    if(!is.null(x0)){
-      if(nrow(x0) != control$multiStart){
-        sprintf("control$multiStart value: %d", control$multiStart)
-        print(x0)
-        stop("spotLoop: incorrect number of multiple start points.")
-      }
-      resSurr <- matrix(NA, nrow=nrow(x0), ncol = ncol(x0) +1)
-      }
+    vmessage(control$verbosity,"x0 from getMultiStartPoints",x0)
     
-    ## Search on the surrogate without starting point
-    if(is.null(x0)){
+    
+    ## (S-13a) Search on the surrogate without starting point
+    if (is.null(x0)) {
       optimResSurr <- tryCatch(
         expr = {
           control$optimizer(x = NULL,
                             funSurrogate,
                             lower,
                             upper,
-                            control$optimizerControl) #todo return optimizerControl to allow memory?
+                            control$optimizerControl)
         },
         error = function(e) {
           message('Calling control$optimizer() in spot.R: Caught an error!')
@@ -693,42 +613,37 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
       xnew <- optimResSurr$xbest
       ## value on the surrogate (can be "y", "s2, "ei", "negLog10ei" etc.)
       ySurrNew <- optimResSurr$ybest
-    }else{
-      ## Search on the surrogate with starting point/s x0:
-      for(i in 1:nrow(x0)){
-      # print(x0[i,])
-      # print(control$optimizerControl)
-      optimResSurr <- tryCatch(
-      expr = {
-        control$optimizer(x = x0[i,, drop=FALSE],
-                          funSurrogate,
-                          lower,
-                          upper,
-                          control$optimizerControl) #todo return optimizerControl to allow memory?
-      },
-      error = function(e) {
-        message('optimResSurr: Calling control$optimizer() in spot.R: Caught an error!')
-        message("Failed search on the surrogate with starting point/s x0:")
-        print(x0)
-        print(e)
+    } else{
+      ## (S-13b) Search on the surrogate with starting point/s x0:
+      resSurr <- matrix(NA, nrow = nrow(x0), ncol = ncol(x0) + 1)
+      for (i in 1:nrow(x0)) {
+        optimResSurr <- tryCatch(
+          expr = {
+            control$optimizer(x = x0[i, , drop = FALSE],
+                              funSurrogate,
+                              lower,
+                              upper,
+                              control$optimizerControl)
+          },
+          error = function(e) {
+            message('optimResSurr: Calling control$optimizer() in spot.R: Caught an error!')
+            vmessage(1,"Failed search on the surrogate with starting point/s x0:", x0)
+            print(e)
+          }
+        )
+        resSurr[i, ] <- c(optimResSurr$xbest, optimResSurr$ybest)
       }
-    )
-    resSurr[i,] <- c(optimResSurr$xbest, optimResSurr$ybest) 
-      } ## end for
-    resAll <- data.frame(cbind(x0, resSurr))
-    m <- which.min(resAll[,2*ncol(x) +1])
-    ## Determine xnew based on multi start results
-    xnew <- as.matrix(resAll[m, (ncol(x)+1):(2*ncol(x))])
-    ## value on the surrogate (can be "y", "s2, "ei", "negLog10ei" etc.)
-    ySurrNew <- resAll[m,2*ncol(x)+1]
-    } ## end else 
-    
-    if(control$verbosity>0){
-    message("xnew from control$optimizer() in spot():")
-    print(xnew)
-    }
-    
-    ## Handling of duplicates
+      
+      ## (S-14) Compile results from search on surrogate
+      m <- which.min(resSurr[, ncol(x) + 1])
+      ## Determine xnew based on multi start results
+      xnew <- resSurr[m, 1:ncol(x), drop=FALSE]
+      ## value on the surrogate (can be "y", "s2, "ei", "negLog10ei" etc.)
+      ySurrNew <- resSurr[m, ncol(x) + 1]
+    } ## end else
+    vmessage(control$verbosity, "xnew from control$optimizer() in spot():", xnew)
+
+    ## (S-15) Handling of duplicates and repair
     xnew <- tryCatch(
       expr = {
         duplicateAndReplicateHandling(xnew, x, lower, upper, control)
@@ -738,7 +653,6 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
         print(e)
       }
     )
-    
     ## Rounding non-numeric values produced by the optimizer
     xnew <- tryCatch(
       expr = {
@@ -750,19 +664,14 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
       }
     )
     
+    ## (S-16) OCBA
     ## If desired, use OCBA to handle replications of old solutions
-    if(control$verbosity>0){
-    message("xnew before OCBA:")
-    print(xnew)
-    }
+    vmessage(control$verbosity, "xnew before OCBA:", xnew)
     if (control$noise & control$OCBA) {
-      try(
-        xnew <- rbind(xnew, repeatsOCBA(x, y[, 1, drop = FALSE], 
-                                        control$OCBABudget)))}
-    if(control$verbosity>0){
-      message("xnew after OCBA:")
-    print(xnew)
+      try(xnew <- rbind(xnew, repeatsOCBA(x, y[, 1, drop = FALSE],
+                                          control$OCBABudget)))
     }
+    vmessage(control$verbosity, "xnew after OCBA:", xnew)
     ## Prevent exceeding the budget:
     xnew <-
       xnew[1:min(max(control$funEvals - count, 1), nrow(xnew)), , drop = FALSE]
@@ -770,24 +679,7 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
     ## Determine number of new design points:
     control$xNewActualSize <- nrow(xnew)
     
-    ## Evaluation with objective function
-    # ynew <- objectiveFunctionEvaluation(
-    #   x = x,
-    #   xnew = xnew,
-    #   fun = fun,
-    #   control = control,
-    #   ...
-    # )
-    # ynew <- objectiveFunctionEvaluation(
-    #       x = x,
-    #       xnew = xnew,
-    #       fun = fun,
-    #       seedFun = control$seedFun,
-    #       noise = control$noise,
-    #       transformFun = control$transformFun,
-    #       ...
-    #     )
-    ## 2022-03-04: tryCatch added
+    ## (S-17) Evaluate xnew with objective function
     ynew <- tryCatch(
       expr = {
         objectiveFunctionEvaluation(
@@ -803,45 +695,36 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
         print(xnew)
         message("ynew: objectiveFunctionEvaluation() in spotLoop(): Caught an error!")
         print(e)
-        if(!is.null(control$yImputation$handleNAsMethod)){
+        if (!is.null(control$yImputation$handleNAsMethod)) {
           message("Error will be corrected using the configured NA handling technique.")
           n <- nrow(xnew)
           m <- ncol(y)
-          return(matrix(rep(NA,m*n),nrow= n))
+          return(matrix(rep(NA, m * n), nrow = n))
         }
       }
     )
     ##
-    if (control$verbosity > 0) {
-      message("Result (ynew): after objectiveFunctionEvaluation() in spot.R:")
-      print(ynew)
-    }
+    vmessage(control$verbosity > 0, "Result (ynew) after objectiveFunctionEvaluation() in spot.R:",
+      ynew)
     
+    ## (S-18) Impute
     ## Combine before impute. This provides a larger basis for imputation.
     colnames(xnew) <- colnames(x)
     x <- rbind(x, xnew)
     y <- rbind(y, ynew)
-    
-    ## Treating NA and Inf for new values
-    if(!is.null(control$yImputation$handleNAsMethod)){
+    if (!is.null(control$yImputation$handleNAsMethod)) {
       y <- imputeY(x = x,
-                   y= y,
+                   y = y,
                    control = control)
     }
+    vmessage(control$verbosity, "Combined x and xnew in spot after imputation:", x)
+    vmessage(control$verbosity, "Combined y and ynew in spot after imputation:", y)
     
-    
-    
-    if (control$verbosity > 0) {
-      message("Combined x and xnew: in spot.R:")
-      print(x)
-      message("Combined y and ynew: in spot.R:")
-      print(y)
-      }
-    
+    ## (S-19) Update counter, logs, etc.  
     ySurr <- c(ySurr, ySurrNew)
     count <- count + nrow(ynew)
     
-    ## Plots, output, etc
+    ## (S-20) Reporting in while loop: Best values and result list
     indexBest <- which.min(y[, 1, drop = FALSE])
     ybestVec <- c(ybestVec , y[indexBest, 1, drop = FALSE])
     if (control$plots) {
@@ -851,37 +734,62 @@ spotLoop <- function(x, y, fun, lower, upper, control, ...) {
     }
     
     ## Progress: funEvals
-    if (control$progress & (control$funEvals > 0) & is.finite(control$funEvals)) {
-      cat(paste0(round(count / (
-        control$funEvals
-      ) * 100), "% completed. Best y val:", min(ybestVec),"\n"))
+    if (control$progress &
+        (control$funEvals > 0) & is.finite(control$funEvals)) {
+      cat(paste0(
+        round(count / (control$funEvals) * 100),
+        "% completed. Best y val:",
+        min(ybestVec),
+        "\n"
+      ))
       if (count == (control$funEvals))
-        cat("Done. Best y val:", min(ybestVec)," \n")
+        cat("Done. Best y val:", min(ybestVec), " \n")
     }
     ## Progress: time
-    if (control$progress & is.finite(control$time$maxTime) & (control$time$maxTime > 0)){
-     usedTime <- round(
-       difftime(Sys.time(), control$time$startTime, units = 'mins')/control$time$maxTime * 100)
-     cat(paste0(usedTime, "% completed. Best y val:", min(ybestVec),"\n"))
-     if ((difftime(Sys.time(), control$time$startTime, units = 'mins') >= control$time$maxTime))
-       cat("Done. Best y val:", min(ybestVec)," \n")
+    if (control$progress &
+        is.finite(control$time$maxTime) &
+        (control$time$maxTime > 0)) {
+      usedTime <- round(
+        difftime(Sys.time(), control$time$startTime, units = 'mins') / control$time$maxTime * 100
+      )
+      cat(paste0(usedTime, "% completed. Best y val:", min(ybestVec), "\n"))
+      if ((
+        difftime(Sys.time(), control$time$startTime, units = 'mins') >= control$time$maxTime
+      ))
+        cat("Done. Best y val:", min(ybestVec), " \n")
     }
   } # while loop
   
+  ## (S-21) Reporting after while loop in spotLoop
   indexBest <- which.min(y[, 1, drop = FALSE])
-  if (ncol(y) > 1){
-    logInfo <- y[,-1, drop = FALSE]
+  if (ncol(y) > 1) {
+    logInfo <- y[, -1, drop = FALSE]
   }  else{
     logInfo <- NA
   }
   
   if (length(control$transformFun) > 0) {
-    xt <- transformX(xNat=x, fn=control$transformFun)
-  } else {xt <- NA}
+    xt <- transformX(xNat = x, fn = control$transformFun)
+  } else {
+    xt <- NA
+  }
   
+  if (control$noise & control$OCBA) {
+    ocbaRes <- ocbaRanking(
+      x = x,
+      y = y,
+      fun = fun,
+      control = control,
+      ...
+    )
+    control$xBestOcba <- ocbaRes[1, 1:(ncol(ocbaRes) - 1), drop=FALSE]
+    control$yBestOcba <- ocbaRes[1, ncol(ocbaRes), drop=FALSE]
+  }
   list(
     xbest = x[indexBest, , drop = FALSE],
     ybest = y[indexBest, 1, drop = FALSE],
+    xBestOcba = control$xBestOcba,
+    yBestOcba = control$yBestOcba,
     x = x,
     xt = xt,
     y = y[, 1, drop = FALSE],

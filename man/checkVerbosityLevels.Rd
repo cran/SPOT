@@ -7,7 +7,12 @@
 checkVerbosityLevels(control)
 }
 \arguments{
-\item{control}{spot control list}
+\item{control}{spot control list. The \code{control$verbosity} argument
+is checked. There are two verbosity levels:
+\describe{
+\item{\code{0}}{no output}
+\item{\code{1}}{detailed output}
+}}
 }
 \description{
 Create an error message if the given verbosity level is not allowed

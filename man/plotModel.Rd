@@ -6,8 +6,12 @@
 \usage{
 plotModel(
   object,
-  which = if (ncol(object$x) > 1 & tolower(type) != "singledim") {     1:2 } else {    
-    1 },
+  which = if (ncol(object$x) > 1 & tolower(type) != "singledim") {
+     1:2
+ } else {
+ 
+       1
+ },
   constant = object$x[which.min(object$y), ],
   xlab = paste("x", which, sep = ""),
   ylab = "y",

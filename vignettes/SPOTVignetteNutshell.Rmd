@@ -54,8 +54,34 @@ set.seed(1)
 * A default number of `20` function evalutions is used (`funEvals = 20`).
 ```{r, spotSimple}
 res <- spot(,funSphere,
-            -1,
-            1)
+            c(-1,-1),
+            c(1,1))
+cbind(res$xbest, res$ybest)
+```
+### With y
+
+* Explicit starting point `x=0.05`, specified as a `matrix`
+* 1-dim objective function `funSphere`: dimension is specified by the length of the
+`lower`vector
+* 20 function evaluations
+* surrogate model: `buildKriging`, which is the default
+* acquisition function is based on expected improvement
+* optimizer on the surrogate: `optimLBFGSB` 
+
+```{r, spotY}
+set.seed(1)
+res <- spot(
+  x = matrix(c(0.05), 1, 1),
+  fun = funSphere,
+  lower = -1,
+  upper = 1,
+  control = list(
+    funEvals = 20,
+    model = buildKriging,
+    optimizer = optimDE,
+    modelControl = list(target = "y")
+  )
+)
 cbind(res$xbest, res$ybest)
 ```
 
@@ -70,6 +96,7 @@ cbind(res$xbest, res$ybest)
 * optimizer on the surrogate: `optimLBFGSB` 
 
 ```{r, spotEI}
+set.seed(1)
 res <- spot(
   x = matrix(c(0.05), 1, 1),
   fun = funSphere,
@@ -95,13 +122,13 @@ plot(res$ybestVec, log = "y", type="b")
 
 ```{r, runEIMulti}
 res <- spot(
-  x = NULL,
+   x = matrix(c(0.05), 1, 1),
   fun = funSphere,
   lower = -1,
   upper = 1,
   control = list(
     funEvals = 20,
-    multiStart = 2,
+    multiStart = 3,
     model = buildKriging,
     optimizer = optimDE,
     modelControl = list(target = "y"),
@@ -187,8 +214,9 @@ res <- spot(,
             fun = funSphere,
             lower = c(-1,-1),
             upper = c(1,1),
-            control = list(funEvals=4,
-            designControl = list(size = 3)
+            control = list( #funEvals=4,
+                           #verbosity=0
+                           #,designControl = list(size = 3)
             )
             )
 cbind(res$x, res$y)
@@ -354,7 +382,6 @@ set.seed(1)
 f2 <- function(x){2^x}
 lower <- c(-100, -100)
 upper <- c(10, 10)
-#transformFun <- rep("identity", length(lower))
 transformFun <- rep("f2", length(lower))
 res <- spot(x=NULL,
             fun=funSphere,
@@ -1085,4 +1112,25 @@ boxplot(progOptim[,end],
 resBench01 <- list(progOptim=progOptim, progSpotBOEI=progSpotBOEI, progSpotBOY=progSpotBOY, progSpotBuildKrigingEi=progSpotBuildKrigingEi, progSpotBuildKrigingY=progSpotBuildKrigingY)
 usethis::use_data(resBench01)
 ```
+
+## Handle NAs
+
+```{r}
+dim = 2
+lower = c(-2, -3)
+upper = c(1, 2)
+
+control <- spotControl(dimension = dim)
+control$verbosity <- 0
+control$designControl$size <- 10
+control$funEvals <- 15
+control$yImputation$handleNAsMethod <- handleNAsMean
+res <- spot(x = NULL,
+           fun = funError,
+           lower = lower,
+           upper = upper,
+           control)
+```
+
+
 

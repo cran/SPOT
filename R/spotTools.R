@@ -60,16 +60,10 @@ code2nat <- function(x, a, b) {
 #' @param b m-dim \code{vector} of upper bounds (natural values)
 #'
 #' @examples
-#' # Note: donttest is used, because platform x86_64-w64-mingw32 (64-bit)
-#' # does not provide the package babsim.hospital.
-#' \donttest{
-#' require(babsim.hospital)
-#' x <- matrix(rep(-1,29),1,)
-#' bounds <- getBounds()
-#' lower <- bounds$lower
-#' upper <- bounds$upper
+#' x <- matrix(rep(-1,2),1,)
+#' lower <- c(-10,-10)
+#' upper <- c(10,10)
 #' getNatDesignFromCoded(x, a = lower, b=upper)
-#' }
 #' @export
 getNatDesignFromCoded <- function(x, a, b) {
   a <- matrix(a, 1)
@@ -188,6 +182,8 @@ transformX <- function(xNat = NA,
 #' @return x0 matrix of restart points
 #' @export
 getMultiStartPoints <- function(x, y, control) {
+  if (control$multiStart == 0){
+    return(NULL)}
   ## problem dimension
   n <- ncol(x)
   ## 1. Generate additional random points
@@ -305,7 +301,26 @@ getPerformanceStats <- function(x,y){
 }
 
 
-
+#' @title formatted output dependent on verbosity
+#'
+#' @description Combine \code{\link{sprintf}} and \code{\link{writeLines}} to
+#' generate formatted output
+#'
+#' @param verbosity verbosity level
+#' @param text output to be printed
+#' @param value value to be printed
+#'
+#' @examples
+#'
+#' x <- 123
+#' vmessage(1, "value of x:" , x)
+#'
+#' @export
+vmessage <- function(verbosity, text, value){
+  if (verbosity>0){
+   message(text)
+   print(value)}
+}
 
 
 

@@ -26,7 +26,7 @@ handleNAsMax(
 y The cleaned vector
 }
 \description{
-Remove NAs from a vector by replacing them by the currant max + p*s.d., where p
+Remove NAs from a vector by replacing them by the current max + p*s.d., where p
 denotes a penalty term.
 }
 \examples{

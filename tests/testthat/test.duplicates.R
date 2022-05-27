@@ -42,4 +42,26 @@ test_that("check duplicate and replicate handling", {
     expect_equal(dim(znew), dim(xnew))
     }
 )
-    
+
+test_that("Does apply(X, 1, identical, x) work as expected?",
+{
+  k <- 2 ## k = problem dim
+  n <- 3 ## row number (number of solutions)
+  A <- matrix(1:(k*n),n,k, byrow = TRUE)
+  X <- rbind(A,A,A)
+  U <- X[!duplicated(X), ]
+  x <- A[1,]
+
+  rowsInMatrix <- function(x, X){
+      n <- dim(X)[1]
+      r <- rep(0,n)
+      for(i in (1:n)){
+        if(identical(x,  X[i,])) r[i] <-1
+      }
+      return(r)
+    }
+  r1 <- rowsInMatrix(x,X)
+  r2 <- apply(X, 1, identical, x)
+  expect_equal(r1>0, r2)
+ }
+)    

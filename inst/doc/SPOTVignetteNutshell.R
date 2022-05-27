@@ -19,11 +19,28 @@ set.seed(1)
 
 ## ---- spotSimple--------------------------------------------------------------
 res <- spot(,funSphere,
-            -1,
-            1)
+            c(-1,-1),
+            c(1,1))
+cbind(res$xbest, res$ybest)
+
+## ---- spotY-------------------------------------------------------------------
+set.seed(1)
+res <- spot(
+  x = matrix(c(0.05), 1, 1),
+  fun = funSphere,
+  lower = -1,
+  upper = 1,
+  control = list(
+    funEvals = 20,
+    model = buildKriging,
+    optimizer = optimDE,
+    modelControl = list(target = "y")
+  )
+)
 cbind(res$xbest, res$ybest)
 
 ## ---- spotEI------------------------------------------------------------------
+set.seed(1)
 res <- spot(
   x = matrix(c(0.05), 1, 1),
   fun = funSphere,
@@ -43,13 +60,13 @@ plot(res$ybestVec, log = "y", type="b")
 
 ## ---- runEIMulti--------------------------------------------------------------
 res <- spot(
-  x = NULL,
+   x = matrix(c(0.05), 1, 1),
   fun = funSphere,
   lower = -1,
   upper = 1,
   control = list(
     funEvals = 20,
-    multiStart = 2,
+    multiStart = 3,
     model = buildKriging,
     optimizer = optimDE,
     modelControl = list(target = "y"),
@@ -106,8 +123,9 @@ res <- spot(,
             fun = funSphere,
             lower = c(-1,-1),
             upper = c(1,1),
-            control = list(funEvals=4,
-            designControl = list(size = 3)
+            control = list( #funEvals=4,
+                           #verbosity=0
+                           #,designControl = list(size = 3)
             )
             )
 cbind(res$x, res$y)
@@ -228,7 +246,6 @@ set.seed(1)
 f2 <- function(x){2^x}
 lower <- c(-100, -100)
 upper <- c(10, 10)
-#transformFun <- rep("identity", length(lower))
 transformFun <- rep("f2", length(lower))
 res <- spot(x=NULL,
             fun=funSphere,
@@ -825,4 +842,20 @@ str(res)
 ## ---- eval=FALSE--------------------------------------------------------------
 #  resBench01 <- list(progOptim=progOptim, progSpotBOEI=progSpotBOEI, progSpotBOY=progSpotBOY, progSpotBuildKrigingEi=progSpotBuildKrigingEi, progSpotBuildKrigingY=progSpotBuildKrigingY)
 #  usethis::use_data(resBench01)
+
+## -----------------------------------------------------------------------------
+dim = 2
+lower = c(-2, -3)
+upper = c(1, 2)
+
+control <- spotControl(dimension = dim)
+control$verbosity <- 0
+control$designControl$size <- 10
+control$funEvals <- 15
+control$yImputation$handleNAsMethod <- handleNAsMean
+res <- spot(x = NULL,
+           fun = funError,
+           lower = lower,
+           upper = upper,
+           control)
 

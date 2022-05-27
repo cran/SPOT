@@ -7,7 +7,8 @@
 thetaNugget(par, X, Y)
 }
 \arguments{
-\item{par}{parameter vector. First dim(x) entries are theta values, last entry is nugget parameter.}
+\item{par}{parameter vector. First dim(x) entries are theta values, 
+last entry is nugget parameter.}
 
 \item{X}{x coordinates}
 

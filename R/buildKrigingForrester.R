@@ -1,4 +1,8 @@
 
+
+
+
+
 #' @title Build Kriging Model
 #'
 #' @description This function builds a Kriging model based on code by Forrester et al..
@@ -11,22 +15,32 @@
 #'
 #' @param x design matrix (sample locations)
 #' @param y vector of observations at \code{x}
-#' @param control (list), with the options for the model building procedure:\cr
-#' \code{types} a character vector giving the data type of each variable. All but "factor" will be handled as numeric, "factor" (categorical) variables will be subject to the hamming distance.\cr
-#' \code{thetaLower} lower boundary for theta, default is \code{1e-4}\cr
-#' \code{thetaUpper} upper boundary for theta, default is \code{1e2}\cr
-#' \code{algTheta}  algorithm used to find theta, default is \code{optimDE}.\cr
-#' \code{budgetAlgTheta} budget for the above mentioned algorithm, default is \code{200}. The value will be multiplied with the length of the model parameter vector to be optimized.\cr
-#' \code{optimizeP} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default is \code{FALSE}\cr
-#' \code{useLambda} whether or not to use the regularization constant lambda (nugget effect). Default is \code{TRUE}.\cr
-#' \code{lambdaLower} lower boundary for log10{lambda}, default is \code{-6}\cr
-#' \code{lambdaUpper} upper boundary for log10{lambda}, default is \code{0}\cr
-#' \code{startTheta} optional start value for theta optimization, default is \code{NULL}\cr
-#' \code{reinterpolate} whether (\code{TRUE},default) or not (\code{FALSE}) reinterpolation should be performed
-#' \code{target} target values of the prediction, a vector of strings. Each string specifies a value to be predicted, e.g., "y" for mean, "s" for standard deviation, "ei" for expected improvement. See also \code{\link{predict.kriging}}.
-#' This can also be changed after the model has been built, by manipulating the respective \code{object$target} value.
+#' @param control (list), with the options for the model building procedure. Note: This can also be changed after the model has been built, by manipulating the respective \code{object$target} value.
+#' \describe{
+#'		\item{\code{types}}{a character vector giving the data type of each variable.
+#'		All but "factor" will be handled as numeric, "factor" (categorical) variables
+#'		will be subject to the hamming distance.}
+#'		\item{\code{thetaLower}}{lower boundary for theta, default is \code{1e-4}}
+#'		\item{\code{thetaUpper}}{upper boundary for theta, default is \code{1e2}}
+#'		\item{\code{algTheta}}{algorithm used to find theta, default is \code{optimDE}.}
+#'		\item{\code{budgetAlgTheta}}{budget for the above mentioned algorithm,
+#'		default is \code{200}. The value will be multiplied with the length of
+#'		the model parameter vector to be optimized.}
+#'		\item{\code{optimizeP}}{boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default is \code{FALSE}.}
+#'		\item{\code{useLambda}}{whether or not to use the regularization constant lambda
+#'		(nugget effect). Default is \code{TRUE}.}
+#'		\item{\code{lambdaLower}}{lower boundary for log10{lambda}, default is \code{-6}}
+#'		\item{\code{lambdaUpper}}{upper boundary for log10{lambda}, default is \code{0}}
+#'		\item{\code{startTheta}}{optional start value for theta optimization, default is \code{NULL}}
+#'		\item{\code{reinterpolate}}{whether (\code{TRUE},default) or not (\code{FALSE}) reinterpolation
+#'		should be performed.}
+#'		\item{\code{target}}{values of the prediction, a vector of strings.
+#'		Each string specifies a value to be predicted, e.g., "y" for mean, "s" for standard deviation, "ei" for expected improvement.
+#'		See also \code{\link{predict.kriging}}.}
+#' }
 #'
-#' @return an object of class \code{kriging}. Basically a list, with the options and found parameters for the model which has to be passed to the predictor function:\cr
+#' @return an object of class \code{kriging}. Basically a list, with the options
+#' and found parameters for the model which has to be passed to the predictor function:\cr
 #' \code{x} sample locations (scaled to values between 0 and 1)\cr
 #' \code{y} observations at sample locations (see parameters)\cr
 #' \code{thetaLower} lower boundary for theta (see parameters)\cr
@@ -61,8 +75,6 @@
 #' ## Create design points
 #' set.seed(1)
 #' x <- cbind(runif(20)*15-5,runif(20)*15)
-#' ## Compute observations at design points (for Branin function)
-#' # y <- as.matrix(apply(x,1,braninFunction))
 #' y <- funBranin(x)
 #' ## Create model with default settings
 #' fit <- buildKriging(x,y,control = list(algTheta=optimLHD))
@@ -104,15 +116,17 @@
 #' mean((ypredFact-ytest)^2)
 #' }
 buildKriging <- function(x, y, control = list()) {
+  ## (K-1) Set Parameters
   x <-
-    data.matrix(x) #TODO data.matrix is better than as.matrix, because it always converts to numeric, not character! (in case of mixed data types.)
-  npar <- length(x[1, ])
-  #TODO: optimLHD is probably a very bad default....
-  #hence large budget. both need to be fixed as SPOT grows.
+    data.matrix(x)
+  # data.matrix is better than as.matrix,
+  # because it always converts to numeric, not character! (in case of mixed data types.)
+  k <- ncol(x) # dimension
+  n <- nrow(x) # number of observations
   con <- list(
     thetaLower = 1e-4,
     thetaUpper = 1e2,
-    types = rep("numeric", npar),
+    types = rep("numeric", k),
     algTheta = optimDE,
     budgetAlgTheta = 200,
     optimizeP = FALSE,
@@ -125,53 +139,45 @@ buildKriging <- function(x, y, control = list()) {
   )
   con[names(control)] <- control
   control <- con
-  
   fit <- control
-  k <- ncol(x)
   fit$x <- x
   fit$y <- y
-  # normalize input data
+  LowerTheta <- rep(1, k) * log10(fit$thetaLower)
+  UpperTheta <- rep(1, k) * log10(fit$thetaUpper)
+  
+  ## (K-2) Normalize input data
   ymin <- 0
   ymax <- 1
   fit$normalizeymin <- ymin
   fit$normalizeymax <- ymax
+  # normalization in each column:
   res <- normalizeMatrix(fit$x, ymin, ymax)
   fit$scaledx <- res$y
   fit$normalizexmin <- res$xmin
   fit$normalizexmax <- res$xmax
-  LowerTheta <- rep(1, k) * log10(fit$thetaLower)
   
-  UpperTheta <- rep(1, k) * log10(fit$thetaUpper)
-  
-  #Wrapper for optimizing theta  based on krigingLikelihood:
-  fitFun <-
-    function (x, fX, fy, optimizeP, useLambda, penval) {
-      #todo vectorize, at least for cma_es with active vectorize?
-      as.numeric(krigingLikelihood(x, fX, fy, optimizeP, useLambda, penval)$NegLnLike)
-    }
-  n <- nrow(fit$x) #number of observations
-  
-  
-  if (is.null(fit$startTheta))
-    x1 <-  rep(n / (100 * k), k) # start point for theta
-  else
-    x1 <- fit$startTheta
-  
+  ## (K-3) Prepare distance/correlation matrix
   A <- matrix(0, k, n * n)
-  
   for (i in 1:k) {
     if (control$types[i] != "factor") {
       A[i, ] <-
         as.numeric(as.matrix(dist(fit$scaledx[, i]))) #euclidean distance
     } else	{
-      tmp <- outer(fit$scaledx[, i], fit$scaledx[, i], '!=') #hamming distance
+      tmp <-
+        outer(fit$scaledx[, i], fit$scaledx[, i], '!=') #hamming distance
       class(tmp) <- "numeric"
       A[i, ] <- tmp
     }
   }
   
+  ## (K-4) Prepare starting points, search bounds and penalty value for MLE optimization
+  ## 4.1 theta
+  if (is.null(fit$startTheta))
+    x1 <-  rep(n / (100 * k), k) # start point for theta
+  else
+    x1 <- fit$startTheta
+  ## 4.2 p
   if (fit$optimizeP) {
-    # optimize p
     LowerTheta <- c(LowerTheta, rep(1, k) * 0.01)
     UpperTheta <- c(UpperTheta, rep(1, k) * 2)
     x3 <- rep(1, k) * 1.9 #start values for p
@@ -181,6 +187,7 @@ buildKriging <- function(x, y, control = list()) {
     A <- A ^ 2
     x0 <- c(x1)
   }
+  ## 4.3 lambda
   if (fit$useLambda) {
     # start value for lambda:
     x2 <-  (fit$lambdaUpper + fit$lambdaLower) / 2
@@ -193,9 +200,20 @@ buildKriging <- function(x, y, control = list()) {
   x0 <- pmin(x0, UpperTheta)
   x0 <- pmax(x0, LowerTheta)
   x0 <- matrix(x0, 1) #matrix with one row
-  opts <- list(funEvals = fit$budgetAlgTheta * length(x0))
+  opts <- list(funEvals = fit$budgetAlgTheta * ncol(x0))
+  ## 4.4 penalty
   #determine a good penalty value (based on number of samples and variance of y)
   penval <- n * log(var(y)) + 1e4
+  
+  ## (K-5) MLE objective function
+  # Wrapper for optimizing theta  based on krigingLikelihood:
+  fitFun <-
+    function (x, fX, fy, optimizeP, useLambda, penval) {
+      #todo vectorize, at least for cma_es with active vectorize?
+      as.numeric(krigingLikelihood(x, fX, fy, optimizeP, useLambda, penval)$NegLnLike)
+    }
+  
+  ## (K-7)  MLE optimization
   res <- fit$algTheta(
     x = x0,
     fun =
@@ -216,40 +234,39 @@ buildKriging <- function(x, y, control = list()) {
     useLambda = fit$useLambda,
     penval = penval
   )
+  
   if (is.null(res$xbest))
     res$xbest <- x0
   
+  ## (K-8): compile results from MLE optimization (to fit object)
   Params <- res$xbest
   nevals <- as.numeric(res$count[[1]])
-  
+  fit$Theta <- Params[1:k]
   fit$dmodeltheta <- 10 ^ Params[1:k]
   if (fit$optimizeP) {
     fit$P <- Params[(k + 1):(2 * k)]
   }
   if (fit$useLambda) {
     fit$Lambda <- Params[length(Params)]
-    
     fit$dmodellambda <- 10 ^ Params[length(Params)]
   } else{
     fit$Lambda <- -Inf
-    
     fit$dmodellambda <- 0
   }
-  # extract model parameters:
-  fit$Theta <- Params[1:k]
+  
+  ## (K-9) Evaluate with optimized parameters
   res <-
     krigingLikelihood(c(fit$Theta, fit$P, fit$Lambda),
                       A,
                       fit$y,
                       fit$optimizeP,
                       fit$useLambda)
-  
-  
   if (is.na(res$Psinv[1]))
     stop(
       "buildKriging failed to produce a valid correlation matrix. Consider activating the nugget/regularization constant via useLambda=TRUE in the control list."
     )
   
+  ## (K-10) Add results from MLE evaluation to fit object
   fit$yonemu <- res$yonemu
   fit$ssq <- as.numeric(res$ssq)
   fit$mu <- res$mu
@@ -259,7 +276,7 @@ buildKriging <- function(x, y, control = list()) {
   fit$like <- res$NegLnLike
   fit$returnCrossCor <- FALSE
   
-  ## calculate observed minimum
+  ## (K-11) Calculate observed minimum
   xlist <- split(x, 1:nrow(x))
   uniquex <- unique(xlist)
   ymean <- NULL
@@ -268,9 +285,8 @@ buildKriging <- function(x, y, control = list()) {
     ymean <- c(ymean, mean(y[ind]))
   }
   fit$min <- min(ymean)
-  
   class(fit) <- "kriging"
-  fit
+  return(fit)
 }
 
 
@@ -298,19 +314,40 @@ normalizeMatrix2 <- function (x, ymin, ymax, xmin, xmax) {
 }
 
 
-#' Normalize design
+#' @title Normalize design matrix
 #'
-#' Normalize design by using minimum and maximum of the design values for input space.
-#' Supportive function for Kriging model, not to be used directly.
+#' @description Normalize design by using minimum and maximum of the design values
+#' for input space. Each column has entries in the range from \code{ymin} to \code{ymax}.
 #'
 #' @param x design matrix in input space
 #' @param ymin minimum vector of normalized space
 #' @param ymax maximum vector of normalized space
+#' @param MARGIN a vector giving the subscripts which the function will be applied over.
+#' 1 indicates rows, 2 indicates columns. Default: \code{2}.
 #'
-#' @return normalized design matrix
+#' @return \code{list} with the following entries:
+#' \describe{
+#' \item{\code{y}}{normalized design matrix in the range [ymin, ymax]}
+#' \item{\code{xmin}}{min in each column}
+#' \item{\code{xmax}}{max in each column}
+#' }
+#'
 #' @seealso \code{\link{buildKriging}}
+#' @examples
+#' set.seed(1)
+#' x <- matrix(c(rep(1,3), rep(2,3),rep(3,3), rep(4,3)),3,4)
+#' ## columnwise:
+#' normalizeMatrix(x, ymin=0, ymax=1)
+#' ## rowwise
+#' normalizeMatrix(x, ymin=0, ymax=1, MARGIN=1)
+#' # rows with identical values are mapped to the mean:
+#' x <- matrix(rep(0,4),2,2)
+#' normalizeMatrix(x, ymin=0, ymax=1)
+#'
 #' @export
-normalizeMatrix <- function(x, ymin, ymax) {
+normalizeMatrix <- function(x, ymin, ymax, MARGIN = 2) {
+  if (MARGIN == 1)
+    x <- t(x)
   # Return the maximum from each row:
   xmax <- apply(x, 2, max)
   # Return the minimum from each row:
@@ -324,6 +361,8 @@ normalizeMatrix <- function(x, ymin, ymax) {
   y <-
     rangey * (x - matrix(rep(xmin, s), nrow = s, byrow = TRUE)) / matrix(rep(rangex, s), nrow =
                                                                            s, byrow = TRUE) + ymin
+  if (MARGIN == 1)
+    y <- t(y)
   list(y = y, xmin = xmin, xmax = xmax)
 }
 
@@ -364,9 +403,10 @@ krigingLikelihood <-
     ## penality is lower than the likelihood of most valid parameterizations
     ## suggested penalty:
     #penval <- n*log(var(y)) + 1e4
-    ## currently, this better penalty is set in the buildKriging function, 
+    ## currently, this better penalty is set in the buildKriging function,
     ## when calling krigingLikelihood
     
+    ## (L-1) Starting Points
     nx <- nrow(AX)
     theta <- 10 ^ x[1:nx]
     if (optimizeP) {
@@ -389,6 +429,7 @@ krigingLikelihood <-
     }
     n <- dim(Ay)[1]
     
+    ## (L-2) Correlation Matrix Psi
     Psi <- exp(-matrix(colSums(theta * AX), n, n))
     if (useLambda) {
       Psi <- Psi + diag(lambda, n)
@@ -402,7 +443,7 @@ krigingLikelihood <-
         Psi = NA,
         Psinv = NA,
         mu = NA,
-        SSQ = NA
+        ssq = NA
       )) #todo: add something like smallest eigenvalue to penalty?
     }
     
@@ -419,7 +460,7 @@ krigingLikelihood <-
           Psi = NA,
           Psinv = NA,
           mu = NA,
-          SSQ = NA,
+          ssq = NA,
           a = NA,
           U = NA,
           isIndefinite = TRUE
@@ -427,11 +468,11 @@ krigingLikelihood <-
       )
     }
     
-    ## cholesky decomposition
+    ## (L-3) cholesky decomposition
     cholPsi <- try(chol(Psi), TRUE)
     
     ## give penalty if fail
-    if (class(cholPsi)[1] == "try-error") {
+    if (inherits(cholPsi, "try-error")) {
       #warning("Correlation matrix is not positive semi-definite (During Maximum Likelihood Estimation in buildKriging). Returning penalty.")
       penalty <-
         penval - log10(min(eigen(
@@ -442,18 +483,21 @@ krigingLikelihood <-
         Psi = NA,
         Psinv = NA,
         mu = NA,
-        SSQ = NA
+        ssq = NA
       ))
     }
     
-    #calculate natural log of the determinant of Psi (numerically more reliable and also faster than using det or determinant)
+    ## (L-4) Determininant
+    ## calculate natural log of the determinant of Psi
+    # (numerically more reliable and also faster than using det or determinant)
     LnDetPsi <- 2 * sum(log(abs(diag(cholPsi))))
     
+    ## (L-5.1) Psi Inverted
     #inverse with cholesky decomposed Psi
     Psinv <- try(chol2inv(cholPsi), TRUE)
     
     ## give penalty if failed
-    if (class(Psinv)[1] == "try-error") {
+    if (inherits(Psinv, "try-error")) {
       #warning("Correlation matrix is not positive semi-definite (During Maximum Likelihood Estimation in buildKriging). Returning penalty.")
       penalty <-
         penval - log10(min(eigen(
@@ -464,12 +508,14 @@ krigingLikelihood <-
         Psi = NA,
         Psinv = NA,
         mu = NA,
-        SSQ = NA
+        ssq = NA
       ))
     }
     
     psisum <-
-      sum(Psinv) #this sum of all matrix elements may sometimes become zero, which may be caused by inaccuracies. then, the following may help
+      sum(Psinv)
+    # this sum of all matrix elements may sometimes become zero,
+    # which may be caused by inaccuracies. then, the following may help
     if (psisum == 0) {
       psisum <- as.numeric(rep(1, n) %*% Psinv %*% rep(1, n))
       if (psisum == 0) {
@@ -480,11 +526,12 @@ krigingLikelihood <-
           Psi = NA,
           Psinv = NA,
           mu = NA,
-          SSQ = NA
+          ssq = NA
         ))
       }
     }
     
+    ## (L-5.2) Mean 
     mu <- sum(Psinv %*% Ay) / psisum
     if (is.infinite(mu) | is.na(mu)) {
       #warning("MLE estimate of mu is infinite or NaN (During Maximum Likelihood Estimation in buildKriging). Returning penalty.")
@@ -493,10 +540,11 @@ krigingLikelihood <-
         Psi = NA,
         Psinv = NA,
         mu = NA,
-        SSQ = NA
+        ssq = NA
       ))
     }
     
+    ## (L-5.3) yoneMu
     yonemu <- Ay - mu
     SigmaSqr <- (t(yonemu) %*% Psinv %*% yonemu) / n
     if (SigmaSqr < 0) {
@@ -506,10 +554,11 @@ krigingLikelihood <-
         Psi = NA,
         Psinv = NA,
         mu = NA,
-        SSQ = NA
+        ssq = NA
       ))
     }
     
+    ## (L-5.4) Log Likelihood
     NegLnLike <- n * log(SigmaSqr) + LnDetPsi
     if (is.na(NegLnLike) | is.infinite(NegLnLike)) {
       return(list(
@@ -517,9 +566,11 @@ krigingLikelihood <-
         Psi = NA,
         Psinv = NA,
         mu = NA,
-        SSQ = NA
+        ssq = NA
       ))
     }
+    
+    ## (L-5.5) Compile Result
     list(
       NegLnLike = NegLnLike,
       Psi = Psi,
@@ -539,8 +590,10 @@ krigingLikelihood <-
 #' @param newdata design matrix to be predicted
 #' @param ... not used
 #'
-#' @return list with predicted mean \code{y}, uncertainty / standard deviation \code{s} (optional) and expected improvement \code{ei} (optional).
-#' Whether \code{s} and \code{ei} are returned is specified by the vector of strings \code{object$target}, which then contains \code{"s"} and \code{"ei"}.
+#' @return list with predicted mean \code{y}, uncertainty / standard deviation \code{s} (optional)
+#' and expected improvement \code{ei} (optional).
+#' Whether \code{s} and \code{ei} are returned is specified by the vector of strings
+#' \code{object$target}, which then contains \code{"s"} and \code{"ei"}.
 #'
 #'
 #' @examples
@@ -610,28 +663,35 @@ predict.kriging <- function(object, newdata, ...) {
   res <- list(y = f)
   if (any(object$target %in% c("s", "ei"))) {
     lambda <- object$dmodellambda
-    
-    SSqr <- SigmaSqr * (1 + lambda - diag(psi %*% (Psinv %*% t(psi))))
+    SSqr <-
+      SigmaSqr * (1 + lambda - diag(psi %*% (Psinv %*% t(psi))))
     s <- sqrt(abs(SSqr))
     res$s <- s
     if (any(object$target == "ei")) {
-      res$ei <- expectedImprovement(f, s, object$min)
+      ei <- expectedImprovement(f, s, object$min)
+      # return y, s and ei
+      res <- list(y = f, s = s, ei = ei)
     }
   }
   if (object$returnCrossCor)
     res$psi <- psi
-  res
+  return(res)
 }
 
 
 
 #' Predict Kriging Model (Re-interpolating)
 #'
-#' Kriging predictor with re-interpolation to avoid stalling the optimization process which employs this model as a surrogate.
-#' This is supposed to be used with deterministic experiments, which do need a non-interpolating model that avoids predicting non-zero error at sample locations.
-#' This can be useful when the model is deterministic (i.e. repeated evaluations of one parameter vector do not yield different values) but does have a "noisy" structure (e.g. due to computational inaccuracies, systematical error).
+#' Kriging predictor with re-interpolation to avoid stalling the optimization process
+#' which employs this model as a surrogate.
+#' This is supposed to be used with deterministic experiments,
+#' which do need a non-interpolating model that avoids predicting non-zero error at sample locations.
+#' This can be useful when the model is deterministic
+#' (i.e. repeated evaluations of one parameter vector do not yield different values)
+#' but does have a "noisy" structure (e.g. due to computational inaccuracies, systematical error).
 #'
-#' Please note that this re-interpolation implementation will not necessarily yield values of exactly zero at the sample locations used for model building. Slight deviations can occur.
+#' Please note that this re-interpolation implementation will not necessarily yield values of
+#' exactly zero at the sample locations used for model building. Slight deviations can occur.
 #'
 #' @param object Kriging model (settings and parameters) of class \code{kriging}.
 #' @param newdata design matrix to be predicted
@@ -640,7 +700,8 @@ predict.kriging <- function(object, newdata, ...) {
 #' @importFrom MASS ginv
 #'
 #' @return list with predicted mean \code{y}, uncertainty \code{s} (optional) and expected improvement \code{ei} (optional).
-#' Whether \code{s} and \code{ei} are returned is specified by the vector of strings \code{object$target}, which then contains "s" and "ei.
+#' Whether \code{s} and \code{ei} are returned is specified by the vector of strings \code{object$target},
+#' which then contains "s" and "ei.
 #'
 #' @examples
 #' \donttest{
@@ -689,7 +750,8 @@ predictKrigingReinterpolation <- function(object, newdata, ...) {
   #
   PsiB <-
     Psi - diag(lambda, n) + diag(.Machine$double.eps, n) #TODO this and the following can be precomputed during model building
-  SigmaSqr <- as.numeric(t(yonemu) %*% Psinv %*% PsiB %*% Psinv %*% yonemu) /
+  SigmaSqr <-
+    as.numeric(t(yonemu) %*% Psinv %*% PsiB %*% Psinv %*% yonemu) /
     n
   #
   k <- nrow(x)
@@ -713,22 +775,34 @@ predictKrigingReinterpolation <- function(object, newdata, ...) {
     psi <- psi + theta[i] * matrix(tmp, k, n, byrow = T)
   }
   
-  
   psi <- exp(-psi)
   f <- as.numeric(psi %*% (Psinv %*% yonemu)) + mu #vectorised
   res <- list(y = f)
   if (any(object$target %in% c("s", "ei"))) {
-    #
-    Psinv <- try(solve.default(PsiB), TRUE)
-    if (class(Psinv)[1] == "try-error") {
-      Psinv <- ginv(PsiB)
+    ## Check whether PsiB is ill-conditioned
+    kap <- rcond(PsiB)
+    if (is.na(kap)) {
+      kap <- 0
     }
-    #
-    SSqr <- SigmaSqr * (1 - diag(psi %*% (Psinv %*% t(psi)))) #vectorised
+    if (kap < 1e-10) {
+      vmessage(0, "Warning. PsiB is ill conditioned",kap)
+    }
+    Psinv <- try(solve.default(PsiB), TRUE)
+    if (inherits(Psinv, "try-error")) {
+      #message("Trying ginv for PsiB")
+      Psinv <- try(ginv(PsiB), TRUE)
+      if (inherits(Psinv, "try-error")) {
+        message("Warning: Inverting PsiB failed. Using uncorrected Psinv.")
+        Psinv <- object$Psinv
+      }
+    }
+    SSqr <- SigmaSqr * (1 - diag(psi %*% (Psinv %*% t(psi))))
     s <- sqrt(abs(SSqr))
     res$s <- s
     if (any(object$target == "ei")) {
-      res$ei <- expectedImprovement(f, s, object$min)
+      ei <- expectedImprovement(f, s, object$min)
+      # return y, s and ei
+      res <- list(y = f, s = s, ei = ei)
     }
   }
   if (object$returnCrossCor)

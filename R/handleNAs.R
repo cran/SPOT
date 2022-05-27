@@ -21,6 +21,7 @@ handleNAsMean <- function(x,
                           y = NULL,
                           imputeCriteriaFuns = list(is.na, is.infinite, is.nan),
                           penaltyImputation = 3) {
+  y <- as.matrix(y)
   if (is.null(imputeCriteriaFuns)) {
     imputeCriteriaFuns <- list(is.na, is.infinite, is.nan)
   }
@@ -40,6 +41,10 @@ handleNAsMean <- function(x,
         print(e)
       }
     )
+    ## FIXME: add noise only for noisy functions:
+    for (i in p){
+     y[i] <- y[i] + abs(rnorm(1, mean=0,  sd=sqrt(.Machine$double.eps)))
+    }
   }
   return(y)
 }
@@ -48,7 +53,7 @@ handleNAsMean <- function(x,
 
 #' handleNAsMax
 #'
-#' Remove NAs from a vector by replacing them by the currant max + p*s.d., where p
+#' Remove NAs from a vector by replacing them by the current max + p*s.d., where p
 #' denotes a penalty term.
 #'
 #' @param x The x values from which y was calculated, not used here
@@ -57,6 +62,8 @@ handleNAsMean <- function(x,
 #' \code{imputeCriteriaFuns} in \code{\link{spotControl}}. Default:
 #' \code{list(is.na, is.infinite, is.nan)}.
 #' @param penaltyImputation penalty used for imputed values
+#' 
+#' @importFrom stats rnorm
 #'
 #' @return y The cleaned vector
 #'
@@ -91,6 +98,10 @@ handleNAsMax <- function(x,
         print(e)
       }
     )
+    ## FIXME: add noise only for noisy functions:
+    for (i in p){
+      y[i] <- y[i] + abs(rnorm(1, mean=0,  sd=sqrt(.Machine$double.eps)))
+    }
   }
   return(y)
 }
@@ -107,6 +118,8 @@ handleNAsMax <- function(x,
 #' @param imputeCriteriaFuns \code{list} criteria functions specified via
 #' \code{imputeCriteriaFuns} in \code{\link{spotControl}}. Default:
 #' \code{list(is.na, is.infinite, is.nan)}.
+#' 
+#' @importFrom stats rnorm
 #'
 #' @return y The imputed vector w/o \code{NA} and w/o \code{Inf} values.
 #'

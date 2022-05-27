@@ -1,8 +1,6 @@
-
-###################################################################################################
-#' Expected Improvement
-#'
-#' Compute the negative logarithm of the Expected Improvement of a set of candidate solutions.
+#' @title Expected Improvement
+#' @description  Compute the negative logarithm of the Expected Improvement of a 
+#' set of candidate solutions.
 #' Based on mean and standard deviation of a candidate solution,
 #' this estimates the expectation of improvement. Improvement
 #' considers the amount by which the best known value (best observed value)

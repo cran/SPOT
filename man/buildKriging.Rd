@@ -11,23 +11,33 @@ buildKriging(x, y, control = list())
 
 \item{y}{vector of observations at \code{x}}
 
-\item{control}{(list), with the options for the model building procedure:\cr
-\code{types} a character vector giving the data type of each variable. All but "factor" will be handled as numeric, "factor" (categorical) variables will be subject to the hamming distance.\cr
-\code{thetaLower} lower boundary for theta, default is \code{1e-4}\cr
-\code{thetaUpper} upper boundary for theta, default is \code{1e2}\cr
-\code{algTheta}  algorithm used to find theta, default is \code{optimDE}.\cr
-\code{budgetAlgTheta} budget for the above mentioned algorithm, default is \code{200}. The value will be multiplied with the length of the model parameter vector to be optimized.\cr
-\code{optimizeP} boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default is \code{FALSE}\cr
-\code{useLambda} whether or not to use the regularization constant lambda (nugget effect). Default is \code{TRUE}.\cr
-\code{lambdaLower} lower boundary for log10{lambda}, default is \code{-6}\cr
-\code{lambdaUpper} upper boundary for log10{lambda}, default is \code{0}\cr
-\code{startTheta} optional start value for theta optimization, default is \code{NULL}\cr
-\code{reinterpolate} whether (\code{TRUE},default) or not (\code{FALSE}) reinterpolation should be performed
-\code{target} target values of the prediction, a vector of strings. Each string specifies a value to be predicted, e.g., "y" for mean, "s" for standard deviation, "ei" for expected improvement. See also \code{\link{predict.kriging}}.
-This can also be changed after the model has been built, by manipulating the respective \code{object$target} value.}
+\item{control}{(list), with the options for the model building procedure. Note: This can also be changed after the model has been built, by manipulating the respective \code{object$target} value.
+\describe{
+    \item{\code{types}}{a character vector giving the data type of each variable.
+    All but "factor" will be handled as numeric, "factor" (categorical) variables
+    will be subject to the hamming distance.}
+    \item{\code{thetaLower}}{lower boundary for theta, default is \code{1e-4}}
+    \item{\code{thetaUpper}}{upper boundary for theta, default is \code{1e2}}
+    \item{\code{algTheta}}{algorithm used to find theta, default is \code{optimDE}.}
+    \item{\code{budgetAlgTheta}}{budget for the above mentioned algorithm,
+    default is \code{200}. The value will be multiplied with the length of
+    the model parameter vector to be optimized.}
+    \item{\code{optimizeP}}{boolean that specifies whether the exponents (\code{p}) should be optimized. Else they will be set to two. Default is \code{FALSE}.}
+    \item{\code{useLambda}}{whether or not to use the regularization constant lambda
+    (nugget effect). Default is \code{TRUE}.}
+    \item{\code{lambdaLower}}{lower boundary for log10{lambda}, default is \code{-6}}
+    \item{\code{lambdaUpper}}{upper boundary for log10{lambda}, default is \code{0}}
+    \item{\code{startTheta}}{optional start value for theta optimization, default is \code{NULL}}
+    \item{\code{reinterpolate}}{whether (\code{TRUE},default) or not (\code{FALSE}) reinterpolation
+    should be performed.}
+    \item{\code{target}}{values of the prediction, a vector of strings.
+    Each string specifies a value to be predicted, e.g., "y" for mean, "s" for standard deviation, "ei" for expected improvement.
+    See also \code{\link{predict.kriging}}.}
+}}
 }
 \value{
-an object of class \code{kriging}. Basically a list, with the options and found parameters for the model which has to be passed to the predictor function:\cr
+an object of class \code{kriging}. Basically a list, with the options
+and found parameters for the model which has to be passed to the predictor function:\cr
 \code{x} sample locations (scaled to values between 0 and 1)\cr
 \code{y} observations at sample locations (see parameters)\cr
 \code{thetaLower} lower boundary for theta (see parameters)\cr
@@ -64,8 +74,6 @@ instead of \code{|x_i-z_i|}.
 ## Create design points
 set.seed(1)
 x <- cbind(runif(20)*15-5,runif(20)*15)
-## Compute observations at design points (for Branin function)
-# y <- as.matrix(apply(x,1,braninFunction))
 y <- funBranin(x)
 ## Create model with default settings
 fit <- buildKriging(x,y,control = list(algTheta=optimLHD))

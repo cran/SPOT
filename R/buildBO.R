@@ -150,7 +150,8 @@ buildBO <- function(x, y, control = list()) {
 #' get theta (distance, lengthscale)
 #' and nugget (noise) parameters gradient
 #'
-#' @param par parameter vector. First dim(x) entries are theta values, last entry is nugget parameter.
+#' @param par parameter vector. First dim(x) entries are theta values, 
+#' last entry is nugget parameter.
 #' @param X x coordinates
 #' @param Y y values at x
 #'
@@ -161,26 +162,40 @@ buildBO <- function(x, y, control = list()) {
 #'
 #' @export
 thetaNugget <- function(par, X, Y)
-{
-  m <- ncol(X)
+{ 
+  n <- length(Y)
+  k <- ncol(X)
   theta <- par[-length(par)]
   if (length(theta) == 1) {
-    theta <- rep(theta, m)
+    theta <- rep(theta, k)
   }
-  g <- par[ncol(X) + 1]
-  n <- length(Y)
-  K <- plgp::covar.sep(X, d = theta, g = g)
-  Ki <- tryCatch(solve(K),
-                 error=function(cond) {
-                   message(paste("Matrix K cannt be inverted:", K))
-                   message("Here's the original error message:")
-                   message(cond)
-                   # Choose a return value in case of error
-                   return(K)
-                 })
-  ldetK <- determinant(K, logarithm = TRUE)$modulus
-  ll <- -(n / 2) * log(t(Y) %*% Ki %*% Y) - (1 / 2) * ldetK
-  return(-ll)
+  g <- par[k + 1]
+  Psi <- plgp::covar.sep(X, d = 1/theta, g = g)
+  ## cholesky decomposition
+  cholPsi <- try(chol(Psi), TRUE)
+  # calculate natural log of the determinant of Psi 
+  # (numerically more reliable and also faster than using det or determinant)
+  LnDetPsi <- 2 * sum(log(abs(diag(cholPsi))))
+  
+  #inverse with cholesky decomposed Psi
+  Psinv <- try(chol2inv(cholPsi), TRUE)
+  psisum <- sum(Psinv) 
+  mu <- sum(Psinv %*% Y) / psisum
+  yonemu <- Y - mu
+  SigmaSqr <- (t(yonemu) %*% Psinv %*% yonemu) / n
+  NegLnLike <- n * log(SigmaSqr) + LnDetPsi
+  return(NegLnLike)
+  # Ki <- tryCatch(solve(K),
+  #                error=function(cond) {
+  #                  message(paste("Matrix K cannt be inverted:", K))
+  #                  message("Here's the original error message:")
+  #                  message(cond)
+  #                  # Choose a return value in case of error
+  #                  return(K)
+  #                })
+  # ldetK <- determinant(K, logarithm = TRUE)$modulus
+  # ll <- -(n / 2) * log(t(Y) %*% Ki %*% Y) - (1 / 2) * ldetK
+  # return(-ll)
 }
 
 
@@ -199,36 +214,50 @@ thetaNugget <- function(par, X, Y)
 #' @export
 thetaNuggetGradient <- function(par, X, Y)
 {
-  m <- ncol(X)
+  n <- length(Y)
+  k <- ncol(X)
   theta <- par[-length(par)]
   if (length(theta) == 1) {
-    theta <- rep(theta, m)
+    theta <- rep(theta, k)
   }
-  g <- par[ncol(X) + 1]
-  n <- length(Y)
-  K <- plgp::covar.sep(X, d = theta, g = g)
-  Ki <- tryCatch(solve(K),
-                 error=function(cond) {
-                   message(paste("Matrix K cannt be inverted:", K))
-                   message("Here's the original error message:")
-                   message(cond)
-                   # Choose a return value in case of error
-                   return(K)
-                 })
-  KiY <- Ki %*% Y
+  g <- par[k + 1]
+ 
+  Psi <- plgp::covar.sep(X, d = 1/theta, g = g)
+  ## cholesky decomposition
+  cholPsi <- try(chol(Psi), TRUE)
+  # calculate natural log of the determinant of Psi 
+  # (numerically more reliable and also faster than using det or determinant)
+  LnDetPsi <- 2 * sum(log(abs(diag(cholPsi))))
+  
+  #inverse with cholesky decomposed Psi
+  Psinv <- try(chol2inv(cholPsi), TRUE)
+  psisum <- sum(Psinv) 
+  mu <- sum(Psinv %*% Y) / psisum
+  yonemu <- Y - mu
+  
+  # Ki <- tryCatch(solve(K),
+  #                error=function(cond) {
+  #                  message(paste("Matrix K cannt be inverted:", K))
+  #                  message("Here's the original error message:")
+  #                  message(cond)
+  #                  # Choose a return value in case of error
+  #                  return(K)
+  #                })
+  #  KiY <- Ki %*% Y
+  PsinvY <- Psinv %*% yonemu 
   
   ## loop over theta components
   dlltheta <- rep(NA, length(theta))
-  for (k in 1:length(dlltheta)) {
-    dotK <- K * laGP::distance(X[, k]) / (theta[k] ^ 2)
-    dlltheta[k] <-
-      (n / 2) * t(KiY) %*% dotK %*% KiY / (t(Y) %*% KiY) -
-      (1 / 2) * sum(diag(Ki %*% dotK))
+  for (i in 1:length(dlltheta)) {
+    dotK <- Psi * laGP::distance(X[, i]) / (theta[i] ^ 2)
+    dlltheta[i] <-
+      (n / 2) * t(PsinvY) %*% dotK %*% PsinvY / (t(yonemu) %*% PsinvY) -
+      (1 / 2) * sum(diag(Psinv %*% dotK))
   }
   
   ## for g
   dllg <-
-    (n / 2) * t(KiY) %*% KiY / (t(Y) %*% KiY) - (1 / 2) * sum(diag(Ki))
+    (n / 2) * t(PsinvY) %*% PsinvY / (t(yonemu) %*% PsinvY) - (1 / 2) * sum(diag(Psinv))
   
   return(-c(dlltheta, dllg))
 }

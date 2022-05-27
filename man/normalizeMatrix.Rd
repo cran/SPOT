@@ -2,9 +2,9 @@
 % Please edit documentation in R/buildKrigingForrester.R
 \name{normalizeMatrix}
 \alias{normalizeMatrix}
-\title{Normalize design}
+\title{Normalize design matrix}
 \usage{
-normalizeMatrix(x, ymin, ymax)
+normalizeMatrix(x, ymin, ymax, MARGIN = 2)
 }
 \arguments{
 \item{x}{design matrix in input space}
@@ -12,13 +12,33 @@ normalizeMatrix(x, ymin, ymax)
 \item{ymin}{minimum vector of normalized space}
 
 \item{ymax}{maximum vector of normalized space}
+
+\item{MARGIN}{a vector giving the subscripts which the function will be applied over.
+1 indicates rows, 2 indicates columns. Default: \code{2}.}
 }
 \value{
-normalized design matrix
+\code{list} with the following entries:
+\describe{
+\item{\code{y}}{normalized design matrix in the range [ymin, ymax]}
+\item{\code{xmin}}{min in each column}
+\item{\code{xmax}}{max in each column}
+}
 }
 \description{
-Normalize design by using minimum and maximum of the design values for input space.
-Supportive function for Kriging model, not to be used directly.
+Normalize design by using minimum and maximum of the design values
+for input space. Each column has entries in the range from \code{ymin} to \code{ymax}.
+}
+\examples{
+set.seed(1)
+x <- matrix(c(rep(1,3), rep(2,3),rep(3,3), rep(4,3)),3,4)
+## columnwise:
+normalizeMatrix(x, ymin=0, ymax=1)
+## rowwise
+normalizeMatrix(x, ymin=0, ymax=1, MARGIN=1)
+# rows with identical values are mapped to the mean:
+x <- matrix(rep(0,4),2,2)
+normalizeMatrix(x, ymin=0, ymax=1)
+
 }
 \seealso{
 \code{\link{buildKriging}}

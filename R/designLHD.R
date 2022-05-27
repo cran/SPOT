@@ -23,8 +23,8 @@
 #' @author Original code by Christian Lasarczyk, adaptations by Martin Zaefferer
 ####################################################################################
 designLHDNorm <- function(dim,size, calcMinDistance=FALSE, nested=NULL, inequalityConstraint=NULL){
-	step <- 1/size;
-	design <- replicate(dim, sample(0:(size-1),size) * step + runif(size) * step);
+	step <- 1/size
+	design <- replicate(dim, sample(0:(size-1),size) * step + runif(size) * step)
 
 	if(!is.null(inequalityConstraint)){ #TODO: this may be inefficient if the feasible space is small.
 		feasible <- apply(design,1,inequalityConstraint) <= 0

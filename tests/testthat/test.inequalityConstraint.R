@@ -56,10 +56,11 @@ test_that("check SPOT+NLOPTR with inequality constraints also in design", {
 				optimizer=optimNLOPTR,
 				optimizerControl=contr,
 				designControl=list(inequalityConstraint=contr$eval_g_ineq)
+				#, verbosity =1
 			)
 		)
 	res$xbest
 	res$ybest
-	###note: the initial design (LHD) may still violate the constraints. need to change design function, too, to avoid this.
+   	###note: the initial design (LHD) may still violate the constraints. need to change design function, too, to avoid this.
 	expect_true(all(apply(res$x,1,contr$eval_g_ineq) <=0)) # this checks which of the candidate solutions are feasible
 })

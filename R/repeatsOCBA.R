@@ -1,5 +1,3 @@
-
-
 #' @title Low Level OCBA
 #'
 #' @description  Compute the Optimal Computing Budget Allocation.
@@ -28,6 +26,7 @@
 #' @keywords internal
 #' @references Chun-hung Chen and Loo Hay Lee. 2010. Stochastic Simulation Optimization: An Optimal Computing Budget Allocation (1st ed.). World Scientific Publishing Co., Inc., River Edge, NJ, USA.
 OCBA <- function(sMean, sVar, n, addBudget, verbosity = 0) {
+
   nd <- length(sMean) #the number of designs
   # Some safety check
   if (length(sVar) != nd)
@@ -41,15 +40,29 @@ OCBA <- function(sMean, sVar, n, addBudget, verbosity = 0) {
   sOrder <- order(sMean)
   # Fail safe for zero-variance cases
   indexVarZero <- numeric()
+  # Warning if all variances are equal to zero
+  if (length((sVar[sVar==0])) == length(sVar)){
+    warning("all variances are 0", call. = FALSE)
+  }
+  # Warning if additional repititions are equal to zero
+  if (addBudget==0){
+    warning("number of additional evaluations is 0", call. = FALSE)
+  }
+  
   if (any(sVar == 0)) {
     # If the best and/or second best have zero variance, OCBA is stopped. The budget is not used for re-evaluation.
-    if (any(sVar[1:(nrOfBest + 1)] == 0)) {
+    if (any(sVar[sOrder][1:(nrOfBest + 1)] == 0)) {
+      warning("Best or second best value has zero variance. Budget is not used for evaluation.", call. = FALSE)
       return(numeric(nd)) #return only zeros.    #TODO: or handle second best var zero differently? e.g.,
     }
     # If other samples have zero variance, they are removed from the list before the OCBA calculation
     indexVarZero <-
       which(sVar == 0) #TODO: zero variance fail safes need testing!
+    if (any(sVar == 0)) {
+    warning("Zero variance samples are removed before starting the calculations.", call. = FALSE)
+    }
   }
+ 
   # If all (remaining samples) have the same mean, just assign additional budget to one sample
   if (nrOfBest == (nd - length(indexVarZero))) {
     additionalReplications <- numeric(nd)
@@ -165,7 +178,11 @@ repeatsOCBA <-
       sMean <- c(sMean, mean(y[ind]))
     }
     OCBAres <-
-      OCBA(sMean, sVar, n, budget, verbosity = verbosity) #TODO what if OCBAres is all zeros...
+      OCBA(sMean, sVar, n, budget, verbosity = verbosity) 
+    # FIXME: Find a better solution if OCBAres is all zeros...
+    if(sum(OCBAres) == 0){
+      OCBAres <- c(rep(1,budget), rep(0, length(OCBAres)-budget))
+    }
     uniquex <-
       matrix(unlist(uniquex),
              nrow = length(uniquex),
@@ -173,3 +190,74 @@ repeatsOCBA <-
     #return:
     uniquex[unlist(mapply(rep, 1:length(OCBAres), OCBAres)), ]
   }
+
+#' @title ocbaRanking
+#' @description Return the ocba ranking (xbest, ybest) for noisy optimization
+#' @details Based on \code{\link{repeatsOCBA}}
+#' 
+#' @param x matrix of x values
+#' @param y matrix of y values, one dimensional!
+#' @param fun objective function
+#' @param control control list, see \code{\link{spotControl}}
+#' @param ... additional arguments to fun
+#' 
+#' @importFrom stats aggregate
+#' 
+#' @return (x,y) matrix of sorted (by y) values. In case of noise are these values aggregated (y-mean) values.
+#' 
+#' @export
+ocbaRanking <- function(x, y, fun, control, ...) {
+  ## consider first y-dim only: 
+ y <- y[, 1, drop = FALSE]
+ try(xnew <- repeatsOCBA(x, y,
+                                        control$OCBABudget))
+  if (control$verbosity  >  0) {
+    message("xnew after OCBA in finalRanking():")
+    print(xnew)
+  }
+  ynew <- tryCatch(
+    expr = {
+      objectiveFunctionEvaluation(
+        x = x,
+        xnew = xnew,
+        fun = fun,
+        control = control,
+        ...
+      )
+    },
+    error = function(e) {
+      print(x)
+      print(xnew)
+      message("ynew: objectiveFunctionEvaluation() in finalRanking(): Caught an error!")
+      print(e)
+      if (!is.null(control$yImputation$handleNAsMethod)) {
+        message("Error will be corrected using the configured NA handling technique.")
+        n <- nrow(xnew)
+        m <- ncol(y)
+        return(matrix(rep(NA, m * n), nrow = n))
+      }
+    }
+  )
+  ## consider first y-dim only: 
+  ynew <- ynew[, 1, drop = FALSE]
+  ## Combine before impute. This provides a larger basis for imputation.
+  colnames(xnew) <- colnames(x)
+  x <- rbind(x, xnew)
+  y <- rbind(y, ynew)
+  
+  ## Treating NA and Inf for new values
+  if (!is.null(control$yImputation$handleNAsMethod)) {
+    y <- imputeY(x = x,
+                 y = y,
+                 control = control)
+  }
+  df <- cbind(x,y)
+  colnames(df) <- c(paste0("x", 1:dim(x)[2]), "y")
+  res <- aggregate(y ~ ., data=df, FUN=mean) 
+  res <- as.matrix(res[order(res$y),], ncol = ncol(x)+1)
+  return(res)
+}
+  
+  
+  
+

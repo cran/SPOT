@@ -18,7 +18,7 @@ test_that("NAs are correctly removed I: handleNAsKrigingWorst", {
     control$verbosity = 0
     control$designControl$size = 10
     control$funEvals = 15
-    control$yImputation$handleNAsMethod <- handleNAsKrigingWorst
+    control$yImputation$handleNAsMethod = handleNAsKrigingWorst
    res <-   spot(x = NULL,
                  fun = fun,
                  lower = lower,
@@ -45,7 +45,7 @@ test_that("NAs are correctly removed II: handleNAsMean", {
   control$verbosity = 0
   control$designControl$size = 10
   control$funEvals = 15
-  control$yImputation$handleNAsMethod <- handleNAsMean
+  control$yImputation$handleNAsMethod = handleNAsMean
     res <- spot(x = NULL,
              fun = fun,
              lower = lower,
@@ -63,8 +63,8 @@ test_that("NAs are correctly removed III: handleNAsKrigingWorst if no NAs occur"
   control$verbosity = 0
   control$designControl$size = 10
   control$funEvals = 15
-  control$yImputation$handleNAsMethod <- handleNAsKrigingWorst
-  control$verbosity <- 1
+  control$yImputation$handleNAsMethod = handleNAsKrigingWorst
+  control$verbosity = 1
      res <- spot(x = NULL,
              fun = funSphere,
              lower = lower,

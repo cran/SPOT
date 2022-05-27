@@ -17,7 +17,7 @@
 #' @param upper vector for upper boundary of decision space
 #' @param control list of controls
 #'
-#' @return matrix \code{xnew}, with additional replicates for non-duplicates, 
+#' @return matrix \code{xnew}, with additional replicates for non-duplicates,
 #' or duplicates replaced by random solutions.
 #'
 #' @export
@@ -26,16 +26,17 @@ duplicateAndReplicateHandling <-
   function(xnew, x, lower, upper, control) {
     ## FIXME: helper function, remove after testing
     ## replaces "if (any(apply(x, 1, identical, xnew[i, ])))"
-    rowsInMatrix <- function(x, X){
-        n <- dim(X)[1]
-        r <- rep(0,n)
-        for(i in (1:n)){
-          if(identical(x,  X[i,])) r[i] <-1
-        }
-        return(r)
+    rowsInMatrix <- function(x, X) {
+      n <- dim(X)[1]
+      r <- rep(0, n)
+      for (i in (1:n)) {
+        if (identical(x,  X[i,]))
+          r[i] <- 1
       }
+      return(r)
+    }
     if (control$noise) {
-      ## determine on the fly whether xnew is in x -> no "initialReplications" needed. 
+      ## determine on the fly whether xnew is in x -> no "initialReplications" needed.
       ## else, assign initial replications.
       xtmp <- NULL
       for (i in 1:nrow(xnew)) {
@@ -43,7 +44,7 @@ duplicateAndReplicateHandling <-
         if (!any(apply(x, 1, identical, xnew[i, ]))) {
           #TODO this may conflict with parameter names... does x, xnew, xtmp  etc have parameter names?
           xtmp <-
-            rbind(xtmp, xnew[rep(i, control$replicates - 1), ])  #TODO this does 
+            rbind(xtmp, xnew[rep(i, control$replicates - 1), ])  #TODO this does
           ## not deal with duplicates in xnew itself.
         }
       }
@@ -52,50 +53,41 @@ duplicateAndReplicateHandling <-
       }
       xnew <- rbind(xnew, xtmp)
     } else{
-      ## check for duplicates in case of noise==FALSE --> 
+      ## check for duplicates in case of noise==FALSE -->
       ## warning + return results or warning + replace with random solution
       for (i in 1:nrow(xnew)) {
-        #if solution has NOT been evaluated previously
-        ## FIXME: does not work: if (any(apply(x, 1, identical, xnew[i, ]))) {
-        ## replaced with rowsInMatrix(), see FIXME below:
-          if(sum(rowsInMatrix(x= xnew[i,], X=x)) >0){
-          #TODO this may conflict with parameter names... does x, 
-          ## xnew  etc have parameter names?
+        #if solution has NOT been evaluated previously:
+        ## FIXME: test, does the following work?: if (any(apply(x, 1, identical, xnew[i, ]))) {
+        ## It was replaced with rowsInMatrix(), see FIXME below:
+        ## if(sum(rowsInMatrix(x= xnew[i,], X=x)) >0){
+        if (any(apply(x, 1, identical, xnew[i, ]))) {
+          ## TODO this may conflict with parameter names... does x, xnew  etc have parameter names?
+          vmessage(
+            control$verbosity,
+            "SPOT created a duplicated solution. This can be due to early convergence or bad configuration. Duplicate is replaced by random solution.",
+            rbind(x, xnew[i, , drop = FALSE])
+          )
           if (control$verbosity > 0) {
             warning(
-              "SPOT created a duplicated solution. This can be due to early 
+              "SPOT created a duplicated solution. This can be due to early
               convergence or bad configuration. Duplicate is replaced by random solution."
             )
           }
           control$designControl$replicates <- 1
           control$designControl$size <- 1
-          xnew[i, ] <-
-            designUniformRandom(, lower, upper, control$designControl) 
+          ## BEGIN new May 11 2022:
+          ## xnew[i,] <- designUniformRandom(, lower, upper, control$designControl)
+          xn <- designUniformRandom(, lower, upper, control$designControl)
+          if (!is.null(control$designControl$inequalityConstraint)) {
+            while (apply(xn, 1, control$designControl$inequalityConstraint) > 0) {
+              xn <-  designUniformRandom(, lower, upper, control$designControl)
+            }
+          }
+          xnew[i, ] <- xn
+          ## END new May 11 2022
           ## TODO what if result is also duplicate
         }
       }
     }
     xnew
   }
-#TODO: needs testing
-
-## FIXME: remove after testing
-# A <- matrix(1:(k*n),n,k, byrow = TRUE)
-# X <- rbind(A,A,A,)
-# U <- X[!duplicated(X), ]
-# x <- A[1,]
-#   
-# rowsInMatrix <- function(x, X){
-#     n <- dim(X)[1]
-#     r <- rep(0,n)
-#     for(i in (1:n)){
-#       if(identical(x,  X[i,])) r[i] <-1
-#     }
-#     return(r)
-#   }
-# rowsInMatrix(x,X)
-# apply(X, 1, identical, x)
-
-  
-
-

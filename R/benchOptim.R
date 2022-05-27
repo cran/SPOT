@@ -53,49 +53,86 @@ runOptim <- function(fl = makeMoreFunList(),
   return(res)
 }
 
-# runSpot <- function() {
-#   
-#   res <- data.frame()
-#   for (j in 1:k) {
-#     dim <- fl$moreDimVec[j]
-#     for (i in 1:n) {
-#       set.seed(i)
-#       startPoint <-  matrix(fl$moreStartPointList +  2 * runif(dim) - 1,1,)
-#       if(j == 17){
-#         startPoint <-  matrix(runif(dim),1,)
-#       }
-#       #print(startPoint)
-#       lower <- rep(-1, dim)
-#       #print(lower)
-#       upper <- rep(1, dim)
-#       if(j == 10){
-#         upper <- rep(1e7, dim)
-#       }
-#       if(j == 16){
-#         lower <- c(0,1000,200)
-#         upper <- c(3,8000,500)
-#         startPoint <-  matrix(lower + (upper-lower)* runif(3),1,)
-#       }
-#       #print(upper)
-#       print(j)
-#       res <- rbind(res,
-#                    c(
-#                      j,
-#                      i,
-#                      spot(
-#                        x = startPoint,
-#                        fun = fl$moreFunList[[j]],
-#                        lower = lower,
-#                        upper = upper,
-#                        control = list(
-#                          model = buildBO,
-#                          modelControl = list(target ="ei", optimizer = optimLBFGSB)))$ybest
-#                    ))
-#     }
-#   }
-#   colnames(res) <- c("f", "r", "y")
-#   return(res)
-# }
+#' @title runSpotBench
+#'
+#' @description Run \code{\link{spot}} on a list of spot benchmark functions
+#'
+#' @param fl function list. Generated with one of the function list 
+#' generators in \code{spot}, e.g., \code{\link{makeSpotFunList}} or 
+#' \code{\link{makeMoreFunList}}. Default: \code{\link{makeMoreFunList}}.
+#' 
+#' @param control The control list used by \code{spot}.
+#' 
+#' @param n repeats. If \code{n >1 }, different start points (randomized) 
+#' will be used. Default: \code{n=2}.
+#' 
+#' @param k subset of benchmark functions.
+#' Default: \code{1:length(makeMoreFunList()$funList)},
+#' i.e., all implemented functions.
+#' 
+#' @param verbosity Level 0 shows no output (default). 
+#'
+#' @return res. data.frame with results: \code{c("f", "r", "y")}
+#'
+#' @importFrom stats optim
+#'
+#' @examples
+#' summary(runSpotBench(k=1)$y)
+#'
+#' @export
+#'
+runSpotBench <- function(fl = makeMoreFunList(),
+                         control = list(),
+                    n=2,
+                    k = 1:length(makeMoreFunList()$funList),
+                    verbosity = 0) {
+  res <- data.frame()
+  for (j in k) {
+    dim <- fl$dimVec[j]
+    for (i in 1:n) {
+      set.seed(i)
+      startPoint <-  matrix(fl$startPointList[[j]] +  2 * runif(dim) - 1,1,)
+      if(j == 17){
+        startPoint <-  matrix(runif(dim),1,)
+      }
+      if (verbosity >0)  print(startPoint)
+      lower <- rep(-10, dim)
+      if (verbosity >0)  print(lower)
+      upper <- rep(10, dim)
+      if (verbosity >0)  print(upper)
+      if(j == 10){
+        upper <- rep(1e7, dim)
+      }
+      if(j == 16){
+        lower <- c(0,1000,200)
+        upper <- c(3,8000,500)
+        startPoint <-  matrix(lower + (upper-lower)* runif(3),1,)
+      }
+      if (verbosity >0)  print(j)
+      fun <- function(x){matrix(apply(x, 1, fl$funList[[j]]), , 1)}
+      res <- rbind(res,
+                   c(
+                     j,
+                     i,
+                     spot(
+                       x = startPoint,
+                       fun = fun, 
+                       lower = lower,
+                       upper = upper,
+                       control = list(
+                         model = buildKriging,
+                         verbosity = 0,
+                         modelControl = list(target ="ei", 
+                                             useLambda=TRUE,
+                                             optimizer = optimDE),
+                         yImputation = list(handleNAsMethod = handleNAsMean)
+                       ))$ybest
+                   ))
+    }
+  }
+  colnames(res) <- c("f", "r", "y")
+  return(res)
+}
 
 
 

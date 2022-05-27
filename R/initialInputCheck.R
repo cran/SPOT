@@ -8,41 +8,47 @@
 #' @param lower is a vector that defines the lower boundary of search space. This determines also the problem dimension.
 #' @param upper is a vector that defines the upper boundary of search space.
 #' @param control is a list with control settings for spot. See \code{\link{spotControl}}.
+#' @param inSpotLoop logical. If initial design, then \code{FALSE}, otherwise \code{TRUE}.
 #' 
 #' @keywords internal
 #' 
 #' @export
- 
-initialInputCheck <- function(x=NULL,fun, 
-                              lower,upper,control=list(), inSpotLoop = F){
+initialInputCheck <- function(x=NULL,
+                              fun, 
+                              lower,
+                              upper,
+                              control=list(), 
+                              inSpotLoop = FALSE){
     checkTypesOfInput(x,lower,upper,control)
     checkInputDimensionsionalityCorrect(x,lower,upper)
-    # checkLowerNotEqualsUpper(lower,upper)
     checkLowerSmallerThanUpper(lower,upper)
     checkForNAs(x,lower,upper)
-    
+
     checkInputTypesInControl(control)
     checkFunEvalsDesignSize(x, lower, control, inSpotLoop)
     
     checkControlVarTypes(lower, control)
-    
     checkVerbosityLevels(control)
-    
     return(TRUE)
 }
 
  
-#' Check correct verbosity levels
+#' @title Check correct verbosity levels
 #' 
-#' Create an error message if the given verbosity level is not allowed
+#' @description Create an error message if the given verbosity level is not allowed
 #'
-#' @param control spot control list
+#' @param control spot control list. The \code{control$verbosity} argument
+#' is checked. There are two verbosity levels:
+#' \describe{
+#' \item{\code{0}}{no output}
+#' \item{\code{1}}{detailed output}
+#' }
 #'
 #' @keywords internal
+#' @export
  
 checkVerbosityLevels <- function(control){
     if(is.null(control$verbosity))return()
-    
     allowedLevels <- c(0,1)
     if(!(control$verbosity %in% allowedLevels)){
         stop(paste("the specified verbosity level in the spotControl is not allowed. Please specify one of:",

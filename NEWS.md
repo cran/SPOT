@@ -1,78 +1,161 @@
 # SPOT
 
-# 2.9.52
+## 2.11.10
+* NEWS:
+  * result$xBestOcba is returned as a (1xn) matrix
+  * result$yBestOcba is returned as a (1x1) matrix
+
+## 2.11.8
+* NEWS:
+  * Documentation added
+
+## 2.11.6
+* NEWS:
+  * Documentation added
+
+## 2.11.4
+* BUGFIX:
+  * tests corrected
+
+## 2.11.2
+* BUGFIX:
+  * predictKrigingReinterpolation error handling for inverting PsiB
+
+## 2.11.0
+* NEW:
+  * evaluateModel mechanism modified
+  * new function vmessage()
+  * duplicateAndReplicateHandling considers constraints
+
+## 2.10.20
+* BUGFIX:
+  * control$optimizer returns list (xbest, ybest)
+
+## 2.10.18
+* BUGFIX:
+  * control$optimizer returns NA as matrix
+
+## 2.10.16
+* BUGFIX:
+   * evaluateModel returns NA (no matrix) if errors occur
+
+## 2.10.14
+* BUGFIX:
+  * evaluateModel returns matrix NA if errors occur
+
+## 2.10.12
+* BUGFIX: 
+  * if target = ei, predict from buildKriging returns list with first element "ei".
+  * this is relevant, because evaluateModel returns the first entry from predict
+  * Note: ei is computed in a different way in infillExpectedImprovement and in buildKrigingForrester, if noise is TRUE
+* NEWS:
+  * evaluate.R renamed to evaluateModel.R
+
+## 2.10.10
+* BUGFIX:
+  ssq replaces SSQ in buildKriging()
+
+## 2.10.8
+*NEWS:
+  * normalizeMatrix() accepts MARGIN argument, default is MARGIN=2 (columnwise)
+
+## 2.10.6
+* NEWS:
+  * documentation
+  * parameter "direct" removed from controlList 
+
+## 2.10.4
+* BUGFIX:
+  * OCBA index error fixed (FR)
+* NEWS:
+  * more tests (FR; AH)
+
+## 2.10.2
+ * BUGFIX:
+  * repeatsOCBA(): simple solution if OCBAres is all zeros (could be improved)
+
+## 2.10.0
+* NEWS:
+  * ocbaRanking 
+
+## 2.9.54
+* NEWS:
+  * documentation updated
+  * duplicateAndReplicateHandling uses "if (any(apply(x, 1, identical, xnew[i,]))) {"
+  
+## 2.9.52
 * NEWS:
   * more tests added
 
-# 2.9.50
+## 2.9.50
 * BUGFIX:
   ... added to fun call in objectiveFunctionEvaluation()
 
-# 2.9.48
+## 2.9.48
 * NEW:
   objectiveFunctionEvaluation: Program execution is not stopped if errors occur, only NAs are returned.
   This behaviour is activated when control$yImputation$handleNAsMethod is not NULL (default is NULL)
 
-# 2.9.46
+## 2.9.46
 * NEW:
   minor change in funErr: meaning of prob changed. Now smaller prob values represent less errors.
 
-# 2.9.44
+## 2.9.44
 * NEW:
-  funError funtion to generate NAs etc. 
+  funError function to generate NAs etc. 
 
-# 2.9.42
+## 2.9.42
 * NEW:
   spotLoop implements error handling for objectiveFunctionEvaluation.
 
-# 2.9.40
+## 2.9.40
  * NEW:
   handleNA -> handleNAs
 
-# 2.9.38
+## 2.9.38
 * NEW: y imputation for multiple objectives separately
 
-# 2.9.36
+## 2.9.36
 * NEW: y imputation in spot() before y is passed to spotLoop()
 
-# 2.9.34
+## 2.9.34
 * NEW:
   examples for objectiveFunctionEvaluation
 
-# 2.9.32
+## 2.9.32
 * NEW:
   calc seed in objectiveFunctionEvaluation
 
-# 2.9.30
+## 2.9.30
 * NEW: objectiveFunctionEvaluation rewritten
 
-# 2.9.28
+## 2.9.28
 * BUGFIX: 
   != -> !identical
 
-# 2.9.26
+## 2.9.26
 * Documentation
 
-# 2.9.24:
+## 2.9.24:
 * NEWS: default handleNAs: is.nan added
 
-# 2.9.22
+## 2.9.22
 * BUGFIX:
   * OCBAbudget <- OCBABudget (typo)
 
-# 2.9.20
+## 2.9.20
 * NEWS:
   * use try() for OCBA
 
-# 2.9.16
+## 2.9.16
 * NEWS:
   * further logging and tests
 
-# 2.9.14
+## 2.9.14
 * NEWS:
   * additional tests for control list
 
-# 2.9.12
+## 2.9.12
 * NEWS:
   * test.duplicates
   * OCBA documentation
@@ -83,47 +166,47 @@
   * "if (any(apply(x, 1, identical, xnew[i, ])))" bug fixed in duplicateHandling.R
 
 
-# 2.9.10
+## 2.9.10
 * NEWS:
   * handleNAsMean extended
 
-# 2.9.8
+## 2.9.8
 * NEWS:
   * handleNAsMax 
 
-# 2.9.6
+## 2.9.6
 # BUGFIX:
   * handleNAs* fixed
 
-# 2.9.4
+## 2.9.4
 * NEW:
   * yImputation options setup
   * progress shows best y value
 
-# 2.9.2
+## 2.9.2
 * NEWS:
   y imputation for arbitrary criteria such as is.na, is.infinite etc. (also user specified)
 
-# 2.9.0
+## 2.9.0
 * NEWS:
   * NA handling improved. New option handleNAMethod (FR). Replaces option fixError
   
-# 2.8.8:
+## 2.8.8:
 * NEWS:
   * severity plots improved (SC)
 
-# 2.8.6
+## 2.8.6
 * NEWS:
   * if call of control$model() returns an error, the corresponding (x,y) 
     values that caused this error are shown
 
-## 2.8.4
+### 2.8.4
 * NEWS:
   * control$parNames added to control list
   * spotControl(): argument "dimension" is mandatory, i.e.,
     calling "spotControl()"" will result in an error.
 
-## 2.8.2
+### 2.8.2
 * NEWS:
   * Progress shows used time budget
 * BUGFIX:
@@ -132,198 +215,198 @@
     File ‘SPOT/R/spot.R’: if (class(control) == "spotGaussianProcessModel") ...
     Use inherits() (or maybe is()) instead.
 
-## 2.8.0
+### 2.8.0
 * NEWS:
   * optimRandomSearch
   * buildRandomSearchDummy
 
-## 2.7.24
+### 2.7.24
 * NEWS:
   * Typos in vignette corrected
 
-## 2.7.22
+### 2.7.22
 * NEWS:
   * vignette updated
   * bench01 results
 
-## 2.7.18
+### 2.7.18
 * NEWS:
   * vignette with simple benchmark
 
-## 2.7.16
+### 2.7.16
 * BUGFIX:
   * ySurr reports correct value in case of multi starts
 
-## 2.7.14
+### 2.7.14
 * NEW:
   * spot() return information about the search on the surrogate: ySurr.
     * Note: First values in ySurr are NAs, beacuse the surrogate is 
     not available during the initial design phase.
 
-## 2.7.12
+### 2.7.12
 * NEW:
   * predictBO returns negLog10ei
 
-## 2.7.10
+### 2.7.10
 * NEW:
   * predict BO extended
 
-## 2.7.8
+### 2.7.8
 * BUGFIX:
   * getMultiStartPoints uses the correct number of replicates, i.e., 1 
 
-## 2.7.6
+### 2.7.6
 * NEW:
   * tests for multi starts
   * spotControl() uses  as defaults: lower = rep(0, dimension), and  upper = rep(1, dimension),
 
-## 2.7.4
+### 2.7.4
 * NEW:
   * Surrogate model based optimization with multi start:
     * control$multiStart with default value 1 (no multi start)
 
-## 2.7.2
+### 2.7.2
 * NEW:
   * control$maxTime moved to  control$time$maxTime
   * control$tolerance = sqrt(.Machine$double.eps)
   * optimLagp.R: routines from Gramacy's book (surrogates)
 
-## 2.7.0
+### 2.7.0
 * NEW:
   * objectiveFunctionEvaluation(): new handling of return values (matrices).
   Returns always a matrix with nrow(xnew) rows, where nrow(xnew) is the number
   of new x points to be evaluated
 
-## 2.6.16
+### 2.6.16
 * NEW:
   * Improved logging management:
     * returnFullControlList: if TRUE, the full control list is returned from spot()
   * option replicateResult implemented
   * result contains end time (time$endTime)
 
-## 2.6.14
+### 2.6.14
 * NEW
   * spot() returns complete list of control values: result$control <- control
 
-## 2.6.12
+### 2.6.12
 * NEW:
   * transformX()
   * objectiveFunctionEvaluation() accepts new argument transformFunList
 
-## 2.6.10
+### 2.6.10
 * NEW:
   * Logging and verbosity improved
 
-## 2.6.8
+### 2.6.8
 * NEW:
   * verbosity handling improved
 
-## 2.6.6
+### 2.6.6
 * NEW:
   * tryCatch
 
-## 2.6.4
+### 2.6.4
 * NEW:
   MOO (multiple objectives for optimization)
 
-## 2.6.2
+### 2.6.2
 * NEWS:
   renv settings
   
-## 2.6.0
+### 2.6.0
 * NEWS
   * multi-objective objective functions:
     * objectiveFunctionEvaluation() returns a matrix. Each column represents one objective 
 
-## 2.5.70
+### 2.5.70
 * BUGFIX
   * buildTree roxygen2 documentation fixed
 
-## 2.5.68
+### 2.5.68
 * BUGFIX
   * severity = 1 - severity bug fixed
 
-## 2.5.66
+### 2.5.66
 * BUGFIX
   * use s.e. instead of s.d
   
-## 2.5.64
+### 2.5.64
 * BUGFIX
   * quantile calculation corrected in function spotPlotTest
 
-## 2.5.62
+### 2.5.62
 * NEWS
   * new function spotPlotTest
 
-## 2.5.60
+### 2.5.60
 * NEWS
   * further options added to plotSeverity
 
-## 2.5.58
+### 2.5.58
 * NEWS
   * color option added to plotSeverity
 
-## 2.5.56
+### 2.5.56
 * NEWS
   * plotSeverity plots also power
 
-## 2.5.54
+### 2.5.54
 * NEWS
   * additional severity tests
 
-## 2.5.52
+### 2.5.52
 * NEWS
   * testing paired and independent t-tests
 
-## 2.5.50
+### 2.5.50
 * NEWS
   * test for spotSeverity
 
-### 2.5.48
+#### 2.5.48
 * NEWS
   * plot method for spotSeverity
 
-### 2.5.46
+#### 2.5.46
 * BUGFIX:
   * sample size calculation: factor 2 added in getSampleSize()
 
-### 2.5.44
+#### 2.5.44
 * NEWS
   * benchOptim: automatically generate sets of  benchmark functions that can be passed to optim(), spot(), etc. 
   verbosity added.
 
-### 2.5.40
+#### 2.5.40
 * BUGFIX
   * funGulf: argument m handling
   * funHelical: x must be 3-dim
 * NEWS
   * Documentation added
 
-### 2.5.28
+#### 2.5.28
 * BUGFIX
   * Fixed an error in Soblev99 function (length replaced by dim)
 
-### 2.5.26
+#### 2.5.26
 * NEWS
   * spot(): tryCatch on surrogate optimization 
 
-### 2.5.24
+#### 2.5.24
 * NEWS
   * funContinuous extended, defaults added
 
-### 2.5.22
+#### 2.5.22
 
 * NEWS
   * Power and severity tools extended:
   * new functions:
     * getPower, getSampleSize, spotPlotSeverity, makeSpotFunList
 
-### 2.5.20
+#### 2.5.20
 
 * BUGFIX:
   * buildBO generates "spotBOModel" object
 
-### 2.5.14
+#### 2.5.14
 
 * BUGFIX
   * sign errors in buildBO.R fixed
@@ -332,16 +415,16 @@
 * NEWS
   * Schonlau example (based on code from Gramacy) added
 
-### 2.5.12
+#### 2.5.12
 
 * BUGFIX
   * Unbalanced code chunk delimiters fixed. See: https://github.com/yihui/knitr/issues/2057
 
-### 2.5.10
+#### 2.5.10
 * NEWS:
   * plot functions
 
-### 2.5.8
+#### 2.5.8
 * BUGFIX
   * Fixes a bug that prevents passing additional arguments to the objective function, 
     i.e.: objectiveFunctionEvaluation handles ... also for `ynew <- rbind(ynew,fun(xnew[i,,drop=FALSE],...))` 
@@ -349,11 +432,11 @@
      * funShiftedSphere: f = sum (x-a)^2 (can be used for testing the bug from above, i.e., 
        parameters are passed correctly to the objective function)
 
-### 2.5.6
+#### 2.5.6
 * CHANGES:
   * SPOTVignette Nutshell contains example code for the GECCO Industrial Challenge
 
-### 2.5.4
+#### 2.5.4
 * CHANGES:
   * Additional test functions
      * funRoth
@@ -369,11 +452,11 @@
      * funBox3d
      * fun PowellS
 
-### 2.5.2
+#### 2.5.2
 * CHANGES:
   * Documentation (package.R)
 
-### 2.5.0
+#### 2.5.0
 * CHANGES:
    * Miscellaeneuos functions and related R scripts moved to the new package SPOTMisc:
      * funExternal.R
@@ -382,95 +465,95 @@
      * modelMarkovChain.F
      * subgoups() from spotTools.R
 
-### 2.4.8
+#### 2.4.8
 * CHANGES
   * mlrTools:  package=TRUE -> package = "mlr"
 
 
-### 2.4.6.
+#### 2.4.6.
 * NEW:
    * mlrTools.R (experimental)
 
-### 2.4.4
+#### 2.4.4
 * CHANGES:
   * Minor corrections in the documentation
   
-### 2.4.2 
+#### 2.4.2 
 * CHANGES:
     * sequentialBifurcation example removed, because 
         * execution time might be too long or
         * example fails, because of missing data
         
-### 2.4.0
+#### 2.4.0
 * NEW:
   * Bayesian Optimization Model: buildBO
 
-### 2.3.4
+#### 2.3.4
 * CHANGES:
    * checks for most recent babsim.hospital version
    
-### 2.3.2
+#### 2.3.2
 * CHANGES:
    * spot() allows equal lower and upper bounds
 
-### 2.3.0
+#### 2.3.0
 * CHANGES
    * Cleanup vignettes
 
-### 2.2.24
+#### 2.2.24
 * CHANGES
   * Tests updated
   * region* data added
 
-### 2.2.22
+#### 2.2.22
 * CHANGES:
   * Examples check whether babsim.version is geq 11.7.
 
-### 2.2.20
+#### 2.2.20
 * FIXED:
    * Bug: failure (test.infillExpectedImprovement.R:26:5) fixed
 
-### 2.2.18
+#### 2.2.18
 * BUGS:
   * The following test was removed and should be checked:
      * Failure (test.infillExpectedImprovement.R:26:5): "check that infillExpectedImprovement has same result as target=ei".
   
-### 2.2.16
+#### 2.2.16
 * NEW:
   * funBabsimhospitalParallel() for parallel execution on each machine (affects unix systems only)
 
-### 2.2.14
+#### 2.2.14
 * CHANGES:
    * vignette updated
 
-### 2.2.12
+#### 2.2.12
 * CHANGES
    * directOpt accepts constraints (similar to optimizer). These can be specified via directOptControl
    * optimNLOPTR() returns x and y values from nloptr() optimization runs
 
-### 2.2.10
+#### 2.2.10
 * CHANGES:
    * Hybrid approach refined
 
-### 2.2.8
+#### 2.2.8
 * CHANGES:
   * selection of the final best solution: take the result from directOpt only if
   it is better than the surrogate solution
   
-### 2.2.6
+#### 2.2.6
 * CHANGES:
   * spotTools functions use vectors instead of matrices to define bounds
   
-### 2.2.4
+#### 2.2.4
 * NEWS:
    * reports added:
       * sensitivity analysis
 
-## 2.2.2
+### 2.2.2
 * CHANGES:
    * donttest instead of dontrun
 
-## 2.2.0
+### 2.2.0
 * CHANGES:
    * Some surrogate models can be updated: information whether the model is already build is stored in
     control$modelControl$modelInitialized 

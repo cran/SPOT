@@ -10,7 +10,7 @@ initialInputCheck(
   lower,
   upper,
   control = list(),
-  inSpotLoop = F
+  inSpotLoop = FALSE
 )
 }
 \arguments{
@@ -23,6 +23,8 @@ initialInputCheck(
 \item{upper}{is a vector that defines the upper boundary of search space.}
 
 \item{control}{is a list with control settings for spot. See \code{\link{spotControl}}.}
+
+\item{inSpotLoop}{logical. If initial design, then \code{FALSE}, otherwise \code{TRUE}.}
 }
 \description{
 #' This function takes the same inputs as given to the \code{spot} call and checks for

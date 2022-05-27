@@ -18,7 +18,7 @@ duplicateAndReplicateHandling(xnew, x, lower, upper, control)
 \item{control}{list of controls}
 }
 \value{
-matrix \code{xnew}, with additional replicates for non-duplicates, 
+matrix \code{xnew}, with additional replicates for non-duplicates,
 or duplicates replaced by random solutions.
 }
 \description{
