@@ -1,5 +1,14 @@
 # SPOT
 
+## 2.11.14
+* NEWS:
+  * repeatsOCBA sorts x,y values. If zero variances occur, the best results are
+    re-evaluated, not the first in the data frame.
+
+## 2.11.12
+* NEWS:
+  * New tests (AS) for S0-S1
+
 ## 2.11.10
 * NEWS:
   * result$xBestOcba is returned as a (1xn) matrix

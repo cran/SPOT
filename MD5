@@ -1,6 +1,6 @@
-5bee4024d0afd68a1ac7789fac72f116 *DESCRIPTION
+fcc330cd11649856db1743b3177c1f39 *DESCRIPTION
 17b1a670c92d8ea282b6d607d249f4dd *NAMESPACE
-0a822bd26d6f7eafdd063f9c8b7f4932 *NEWS.md
+912792779c0383f0271042d7b7b5db4b *NEWS.md
 426be12201f07784a43e0371ef50d458 *R/benchOptim.R
 d5d12a0096cc1a8c6184ef3019c4f543 *R/buildBO.R
 234ce108b24d192494e1924a1ad8d69a *R/buildCVModel.R
@@ -53,7 +53,7 @@ c19b91682a431849a3354e225068b51d *R/plotPCAvariance.R
 3665db9b2ad214bcef5b6aa32ef583f2 *R/plotResults.R
 4bfcf5fc60b3fa42c6dc5af4ec0a1014 *R/plotSingleDimFunction.R
 22398053e6932709fb2feb8849e539dc *R/repair.R
-21995470e5ebdfacae922c81cc749f99 *R/repeatsOCBA.R
+3e7fab63bfe90c68b2127d544c191f06 *R/repeatsOCBA.R
 0c14b20624b44e07b11a57c2acae3e4b *R/reportSeverity.R
 428b53b48ee27d755f81e00f6c130922 *R/resBench01.R
 feecad8147f583c959abe3b992e89863 *R/resSpot.R
@@ -82,7 +82,7 @@ b6fdc610347da8b608c76cf4f87de39b *data/sringRes3.rda
 95b8e02f042b5bdc19b312d1f3f02643 *inst/consoleCallTrialScript.R
 a0090fbad6a2abade3c41d633a89b713 *inst/doc/SPOTVignetteNutshell.R
 d6a38048708d4f4484b403b8fe27cefd *inst/doc/SPOTVignetteNutshell.Rmd
-c92c8ac408be8e42425854f40f24de38 *inst/doc/SPOTVignetteNutshell.html
+36b0df189dac7dcfb627141237cca2c4 *inst/doc/SPOTVignetteNutshell.html
 d1c9efad8d9bedca8f224957eaf864cf *man/OCBA.Rd
 47414bf8e94d4420e581b12b2ba9970b *man/SPOT-package.Rd
 5d09cabd048fa6b2cc190f66ace35134 *man/buildBO.Rd
@@ -305,6 +305,8 @@ d0658457659c831016bcbf38d24cd85a *man/wrapSystemCommand.Rd
 8600fe77e6d37d3febf5a8bb0f62cbbb *tests/testthat.R
 13952c048cd5e57e397362313e826512 *tests/testthat/Rplots.pdf
 f8aced002d86c94c3f69bcda0e173520 *tests/testthat/test.000TestSetup.R
+d0b4ce6b95b6146dd8e1f1666efdd75e *tests/testthat/test.S0.R
+4f7e3440f4084c47b88b1a9747316398 *tests/testthat/test.S1.R
 e92e1982b79c537009fb33199258a34d *tests/testthat/test.buildCVModel.R
 2c3c7be2d682e7d2b5cb74ad979f3d58 *tests/testthat/test.buildTreeModel.R
 b2179d13d6dfadc9ca3db6443de08024 *tests/testthat/test.controllist.R

@@ -165,7 +165,14 @@ OCBA <- function(sMean, sVar, n, addBudget, verbosity = 0) {
 repeatsOCBA <-
   function(x, y, budget, verbosity = 0) {
     #matrix x and budget for OCBA   #TODO: y matrix?
+    y <- data.matrix(y)
+    if(dim(y)[2] > 1){
+      y <- y[,1]
+    }
+    s <- order(y)
+    y <- y[s,, drop=FALSE]
     x <- data.matrix(x)
+    x <- x[s,]
     xlist <- split(x, row(x))
     uniquex <- unique(xlist)
     sVar <- NULL

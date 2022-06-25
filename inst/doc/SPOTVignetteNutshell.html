@@ -339,7 +339,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </ul>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;SPOT&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;SPOT&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &#39;2.11.10&#39;</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &#39;2.11.14&#39;</span></span></code></pre></div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <ul>
@@ -917,7 +917,7 @@ we create a test function with a factor variable:</p>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">control=</span><span class="fu">list</span>(<span class="at">funEvals=</span><span class="dv">30</span>))</span>
 <span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>toc <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
 <span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;value: %f, time: %f&quot;</span>,  res0<span class="sc">$</span>ybest, toc<span class="sc">-</span>tic)</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 1.026498, time: 3.670000&quot;</span></span></code></pre></div>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 1.026498, time: 3.622000&quot;</span></span></code></pre></div>
 <p>Then, we use the <code>buildGaussianProcess()</code> model.</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>tic <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>res1 <span class="ot">&lt;-</span>  <span class="fu">spot</span>(<span class="at">x=</span><span class="cn">NULL</span>, funSphere, <span class="at">lower =</span> a, <span class="at">upper =</span> b, </span>
@@ -925,7 +925,7 @@ we create a test function with a factor variable:</p>
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">model =</span> buildGaussianProcess))</span>
 <span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>toc <span class="ot">&lt;-</span> <span class="fu">proc.time</span>()[<span class="dv">3</span>]</span>
 <span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">&quot;value: %f, time: %f&quot;</span>,  res1<span class="sc">$</span>ybest, toc<span class="sc">-</span>tic)</span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 0.819676, time: 0.416000&quot;</span></span></code></pre></div>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;value: 0.819676, time: 0.408000&quot;</span></span></code></pre></div>
 </div>
 <div id="run-spot-with-logging" class="section level3">
 <h3>Run SPOT with logging</h3>
@@ -1083,8 +1083,8 @@ we create a test function with a factor variable:</p>
 <span id="cb39-88"><a href="#cb39-88" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ subsetControl        : list()</span></span>
 <span id="cb39-89"><a href="#cb39-89" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ time                 :List of 3</span></span>
 <span id="cb39-90"><a href="#cb39-90" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   .. ..$ maxTime  : num Inf</span></span>
-<span id="cb39-91"><a href="#cb39-91" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   .. ..$ startTime: POSIXct[1:1], format: &quot;2022-05-27 15:44:07&quot;</span></span>
-<span id="cb39-92"><a href="#cb39-92" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   .. ..$ endTime  : POSIXct[1:1], format: &quot;2022-05-27 15:44:07&quot;</span></span>
+<span id="cb39-91"><a href="#cb39-91" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   .. ..$ startTime: POSIXct[1:1], format: &quot;2022-06-11 15:04:11&quot;</span></span>
+<span id="cb39-92"><a href="#cb39-92" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   .. ..$ endTime  : POSIXct[1:1], format: &quot;2022-06-11 15:04:12&quot;</span></span>
 <span id="cb39-93"><a href="#cb39-93" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ tolerance            : num 1.49e-08</span></span>
 <span id="cb39-94"><a href="#cb39-94" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ transformFun         : logi(0) </span></span>
 <span id="cb39-95"><a href="#cb39-95" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   ..$ types                : chr [1:2] &quot;numeric&quot; &quot;numeric&quot;</span></span>
